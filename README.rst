@@ -1,5 +1,5 @@
-MENDEVI
-*******
+MENDEVI **Me**sures d'**En**codage et **Dé**codage **Vi**déo
+************************************************************
 
 .. image:: https://img.shields.io/badge/License-MIT-green.svg
     :alt: [license MIT]
@@ -25,5 +25,16 @@ Distortions are measured using the ``psnr``, ``ssim`` and ``vmaf`` metrics.
 Features
 ========
 
-* Presets ``fast``, ``medium`` and ``slow``.
-* Codecs ``h264``, ``h265-hevc``, ``h266-vvc`` and ``av1``.
+* Encoding presets ``fast``, ``medium`` and ``slow``.
+* Codecs ``h264:libx264``, ``h265-hevc:libx265``, ``h266-vvc:vvenc`` and ``av1:libsvtav1``.
+
+
+Installation
+============
+
+.. code:: shell
+
+    git clone https://gitlab.inria.fr/rrichard/mendevi.git ~/mendevi_git
+    cd ~/mendevi_git
+    pyenv activate mendevi  # to be sure to be in a virtual env
+    pip -v install --editable .
