@@ -27,7 +27,7 @@ def g5kpower(
     start : float
         The starting timestamp, it can be get by `time.time()`.
     duration : float
-        The jog duration in seconds.
+        The job duration in seconds.
     login, psw : str
         Username an password for grid5000 api.
 

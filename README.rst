@@ -24,14 +24,6 @@ Energy measurements are catched with RAPL and an external wattmeter on GRID5000.
 Distortions are measured using the ``psnr``, ``ssim`` and ``vmaf`` metrics.
 
 
-Features
-========
-
-#. Codecs ``h264:libx264``, ``h265-hevc:libx265``, ``h266-vvc:vvenc`` and ``av1:libsvtav1``.
-#. Encoding presets ``fast``, ``medium`` and ``slow``.
-#. The ``sd``, ``hd``, ``hdr`` and ``uhd`` profiles are detailed in `profiles.py <https://gitlab.inria.fr/rrichard/mendevi/-/blob/main/mendevi/profiles.py>`_.
-
-
 Installation
 ============
 
@@ -41,3 +33,17 @@ Installation
     cd ~/mendevi_git
     pyenv activate mendevi  # to be sure to be in a virtual env
     pip -v install --editable .
+
+Features
+========
+
+#. Codecs ``h264:libx264``, ``h265-hevc:libx265``, ``h266-vvc:vvenc`` and ``av1:libsvtav1``.
+#. Encoding presets ``fast``, ``medium`` and ``slow``.
+#. The ``sd``, ``hd``, ``hdr`` and ``uhd`` profiles are detailed in `profiles.py <https://gitlab.inria.fr/rrichard/mendevi/-/blob/main/mendevi/profiles.py>`_.
+
+
+Alternatives
+============
+
+#. The `MVCD database <https://github.com/cd-athena/MVCD>`_ also includes video encoding and decoding energy measurements.
+#. The `COCONUT database <https://github.com/cd-athena/COCONUT>`_ also includes video decoding measurements.
