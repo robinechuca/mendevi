@@ -1,0 +1,45 @@
+#!/usr/bin/env python3
+
+"""Defines the different video profiles used."""
+
+from fractions import Fraction
+
+
+PROFILES = {
+    "sd": {
+        "fps": Fraction(24000, 1001),
+        "matrix": "smpte170m",
+        "pix_fmt": "yuv420p",
+        "primaries": "smpte170m",
+        "range": "tv",
+        "shape": (720, 480),
+        "transfere": "smpte170m",
+    },
+    "hd": {
+        "fps": Fraction(25000, 1001),
+        "matrix": "smpte240m",
+        "pix_fmt": "yuv420p",
+        "primaries": "smpte240m",
+        "range": "tv",
+        "shape": (1280, 720),
+        "transfere": "smpte240m",
+    },
+    "hdr": {
+        "fps": Fraction(30000, 1001),
+        "matrix": "bt709",
+        "pix_fmt": "yuv420p10le",
+        "primaries": "bt709",
+        "range": "tv",
+        "shape": (1920, 1080),
+        "transfere": "bt709",
+    },
+    "uhd": {  # partialy given by https://trac.ffmpeg.org/wiki/Encode/AV1
+        "fps": Fraction(60000, 1001),
+        "matrix": "bt2020nc",
+        "pix_fmt": "yuv420p10le",
+        "primaries": "bt2020",
+        "range": "pc",
+        "shape": (3840, 2160),
+        "transfere": "smpte2084",
+    },
+}

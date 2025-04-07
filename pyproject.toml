@@ -10,8 +10,10 @@ maintainers = [
   {name = "Robin RICHARD (robinechuca)", email = "robin.richard@inria.fr"},
 ]
 dependencies = [  # https://packaging.python.org/en/latest/specifications/dependency-specifiers/#dependency-specifiers
+  "click",
   "cutcutcodec",
   "numpy>=2.0",
+  "requests",
 ]
 readme = "README.rst"
 license = "MIT"

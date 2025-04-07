@@ -1,5 +1,7 @@
-MENDEVI **Me**sures d'**En**codage et **Dé**codage **Vi**déo
-************************************************************
+MENDEVI
+*******
+
+**Me**sures d'**En**codage et **Dé**codage **Vi**déo.
 
 .. image:: https://img.shields.io/badge/License-MIT-green.svg
     :alt: [license MIT]
@@ -25,8 +27,9 @@ Distortions are measured using the ``psnr``, ``ssim`` and ``vmaf`` metrics.
 Features
 ========
 
-* Encoding presets ``fast``, ``medium`` and ``slow``.
 * Codecs ``h264:libx264``, ``h265-hevc:libx265``, ``h266-vvc:vvenc`` and ``av1:libsvtav1``.
+* Encoding presets ``fast``, ``medium`` and ``slow``.
+* The ``sd``, ``hd``, ``hdr`` and ``uhd`` profiles are detailed in `profiles.py <https://gitlab.inria.fr/rrichard/mendevi/profiles.py>`_.
 
 
 Installation

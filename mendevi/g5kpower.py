@@ -1,0 +1,93 @@
+#!/usr/bin/env python3
+
+"""Integrates grid5000's power meter."""
+
+import numbers
+import platform
+import re
+
+import requests
+
+
+def g5kpower(
+    hostname: str,
+    start: numbers.Real,
+    duration: numbers.Real,
+    *,
+    login: str | None = None,
+    password: str | None = None,
+) -> dict[str]:
+    """Do a request to get the grid5000 consumption.
+
+    Parameters
+    ----------
+    hostname : str
+        The hostname containing the node name and the site.
+        It can be get with `platform.node()`.
+    start : float
+        The starting timestamp, it can be get by `time.time()`.
+    duration : float
+        The jog duration in seconds.
+    login, psw : str
+        Username an password for grid5000 api.
+
+    Returns
+    -------
+    Consumption: dict[str]
+        * 'energy': The total energy consumption (in J).
+        * 'power_var': The power measured difference between 2 consecutive points (in w).
+        * 'power_dt': The time difference between 2 consecutive power measurements (in s).
+
+    Notes
+    -----
+    * Tested with `oarsub -I -p paradoxe -t deploy -t monitor='wattmetre_power_watt'`.
+    * Power and time measurements are differental to increase the compressibility
+      of the database containing this result.
+    * Energy is estimated from the trapezoidal integral of instantaneous powers.
+    """
+    # verification
+    assert isinstance(hostname, str), hostname.__class__.__name__
+    assert isinstance(start, numbers.Real), start.__class__.__name__
+    assert isinstance(duration, numbers.Real), duration.__class__.__name__
+    if (hostname_fields := re.search(
+        r"^(?P<node>[a-z0-9_-]+)\.(?P<site>[a-z0-9_-]+)", hostname, re.IGNORECASE)
+    ) is None:
+        raise ValueError("the hostname is not grid5000 formated")
+
+    # grid5000 api request
+    url = (
+        f"https://api.grid5000.fr/stable/sites/{hostname_fields['site']}/metrics?"
+        f"nodes={hostname_fields['node']}&metrics=wattmetre_power_watt"
+        f"&start_time={datetime.datetime.fromtimestamp(start).isoformat()}"
+        f"&end_time={datetime.datetime.fromtimestamp(start+duration).isoformat()}"
+    )
+    auth = requests.auth.HTTPBasicAuth(login, password) if login and password else None
+    req = requests.get(url, auth=auth, verify=False)
+    if req.status_code != 200:
+        raise ValueError("the request failed", req)
+    req = req.json()
+
+    # parse result
+    req = {datetime.datetime.fromisoformat(d["timestamp"]).timestamp(): d["value"] for d in req}
+    req = {t: v for t, v in req.items() if t >= start and t <= start + duration}
+    times, powers = zip(*req.items())
+    times, powers = np.array(times, dtype=np.float64), np.array(powers, dtype=np.float64)
+
+    # pad for accurate boundaries
+    order = np.argsort(times)
+    times, powers = times[order], powers[order]
+    times = np.concatenate([(start,), times, (start+duration,)])  # accurate boundaries
+    powers = np.pad(powers, (1, 1), mode="edge")
+
+    # differencial
+    power_var = powers[1:] - powers[:-1]
+    power_dt = times[1:] - times[:-1]
+
+    # compute energy, trapeze integral of power
+    energy = 0.5 * float(np.sum((powers[:-1] + powers[1:]) * power_dt))
+
+    return {
+        "energy_total": energy,
+        "power_var": power_var.tolist(),
+        "power_dt": power_dt.tolist(),
+    }

@@ -1,0 +1,15 @@
+*.so
+*.tar.gz
+*.whl
+.benchmarks/
+.ipynb_checkpoints/
+.mypy_cache/
+.pytest_cache/
+.python-version
+__pycache__/
+build/
+mendevi.egg-info/
+dist/
+docs/build/
+html/
+venv
