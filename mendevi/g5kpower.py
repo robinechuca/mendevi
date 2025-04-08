@@ -104,14 +104,13 @@ def g5kpower(
     powers = np.pad(powers, (1, 1), mode="edge")
 
     # differencial
-    power_var = powers[1:] - powers[:-1]
     power_dt = times[1:] - times[:-1]
 
     # compute energy, trapeze integral of power
     energy = 0.5 * float(np.sum((powers[:-1] + powers[1:]) * power_dt))
 
     return {
+        "dt": power_dt.tolist(),
         "energy_total": energy,
-        "power_var": power_var.tolist(),
-        "power_dt": power_dt.tolist(),
+        "powers": powers.tolist(),
     }

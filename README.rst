@@ -42,18 +42,22 @@ General
 #. Codecs ``h264:libx264``, ``h265-hevc:libx265``, ``h266-vvc:vvenc``, ``vp9:libvpx`` and ``av1:libsvtav1``.
 #. Encoding presets ``fast``, ``medium`` and ``slow``.
 #. The ``sd``, ``hd``, ``uhd`` and ``hd4k`` profiles are detailed in `profiles.py <https://gitlab.inria.fr/rrichard/mendevi/-/blob/main/mendevi/profiles.py>`_.
-#. 
 
 Encode
 ------
 
-.. code:: json
+.. code:: yaml
 
     {
         "args": ["ffmpeg", ...],  # the exact arguments used for encoding
         "compression_ratio": 123.456,  # raw file size divided by encoded file size
-        "context": ...,  # machine information and library versions
         "crf": 28.1,  # the compression effort between 1.0 and 63.0
+        "encode_context": ...,  # machine information and library versions
+        "encode_power": {  # external wattmeter on grid5000 servers
+            "dt": [0.05, 0.05, ...],  # the duration of each interval in seconds
+            "energy_total": 123.456,  # energy in joules used by the server during encoding
+            "powers": [123.123, ...],  # the average power in watt in each interval
+        },
     }
 
 Decode

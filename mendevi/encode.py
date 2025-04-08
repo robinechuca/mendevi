@@ -189,18 +189,18 @@ def main(video: str, profile: str, preset: str, out: str = None, res: str = None
         stats = {
             "args": process.args,
             "compression_ratio": ref_file.stat().st_size / tmp.stat().st_size,
-            "context": get_context(),
             "crf": crf,
+            "encode_context": get_context(),
             "encode_power": g5k_thread.get(),
             "encode_rapl": rapl,
             "encode_start": t_start, "encode_stop": t_stop, "encode_duration": t_stop - t_start,
             "encoder": encoder_cmd[0],
             "file": ref_file.stem,
-            # "frames": frames,
+            "frames": frames,
             "preset": preset,
             "profile": profile,
             "size": tmp.stat().st_size,
-            "video_duration": get_duration_video(tmp),
+            "video_duration": float(get_duration_video(tmp)),
             **metrics,
         }
         merge_file(res, {file.name: stats})

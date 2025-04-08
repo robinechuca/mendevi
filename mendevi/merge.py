@@ -73,8 +73,6 @@ def merge_file(file: pathlib.Path | str | bytes, data_new: object):
         except FileNotFoundError:
             data_ref = {}
         data_ref = merge_data(data_ref, data_new)
-        import pprint
-        pprint.pprint(data_ref)
         with open(file.with_suffix(".tmp"), "w", encoding="utf-8") as raw:
             json.dump(data_ref, raw, sort_keys=True, indent=4)
         shutil.move(file.with_suffix(".tmp"), file)
