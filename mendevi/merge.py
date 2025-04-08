@@ -4,6 +4,7 @@
 
 import json
 import pathlib
+import shutil
 
 import filelock
 
@@ -65,12 +66,15 @@ def merge_file(file: pathlib.Path | str | bytes, data_new: object):
     """
     file = pathlib.Path(file).expanduser()
 
-    with FileLock(file.with_suffix(".lock")):
+    with filelock.FileLock(file.with_suffix(".lock")):
         try:
             with open(file, "r", encoding="utf-8") as raw:
                 data_ref = json.load(raw)
         except FileNotFoundError:
             data_ref = {}
-        data_ref = merge_data(data_new)
-        with open(file, "w", encoding="utf-8") as raw:
+        data_ref = merge_data(data_ref, data_new)
+        import pprint
+        pprint.pprint(data_ref)
+        with open(file.with_suffix(".tmp"), "w", encoding="utf-8") as raw:
             json.dump(data_ref, raw, sort_keys=True, indent=4)
+        shutil.move(file.with_suffix(".tmp"), file)

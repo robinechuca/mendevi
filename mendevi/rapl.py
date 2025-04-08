@@ -27,18 +27,23 @@ class RAPL:
     >>>
     """
 
-    def __init__(self, sleep: numbers.Real = 50e-3):
+    def __init__(self, sleep: numbers.Real=50e-3, no_fail: bool=False):
         """Initalize the perf context.
 
         Paremeters
         ----------
         sleep : float, default=50e-3
             The time interval between 2 measures (in s).
+        no_fail : bool, default=True
+            If False, raise RuntimeError if it fails to get the RAPL measure.
+            Otherwise (if True), return None instead of failing.
         """
         assert isinstance(sleep, numbers.Real), sleep.__class__.__name__
         assert sleep > 0, sleep
+        assert isinstance(no_fail, bool), no_fail
 
         self.sleep = round(1000*float(sleep))
+        self.res: dict = {"energy": None, "power_var": [], "power_dt": []}
         self.process = subprocess.Popen(
             [
                 "perf", "stat",
@@ -55,10 +60,12 @@ class RAPL:
         if PATTERN.search(self.lines[0]) is None:
             if os.geteuid() != 0:  # if not root
                 logging.error("try with 'sudo %s'", sys.executable)
-                logging.error("or give writes with sudo sysctl -w kernel.perf_event_paranoid=1")
+                logging.error("or give rights with sudo sysctl -w kernel.perf_event_paranoid=0")
             self.lines.extend(self.process.stderr.readlines())
-            raise RuntimeError(b"".join(self.lines).decode())
-        self.res: dict = {"energy": None, "power_var": [], "power_dt": []}
+            if not no_fail:
+                raise RuntimeError(b"".join(self.lines).decode())
+            logging.error(b"".join(self.lines).decode())
+            self.res = None
 
     def __enter__(self) -> dict:
         """Start to measure.
@@ -80,6 +87,10 @@ class RAPL:
         time.sleep(self.sleep/1000)  # to be shure catching the last point
         self.process.terminate()
         self.lines.extend(self.process.stderr.readlines())
+
+        # exit if failed
+        if self.res is None:
+            return
 
         # decode output
         values = [PATTERN.search(l) for l in self.lines]

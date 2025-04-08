@@ -24,7 +24,7 @@ PROFILES = {
         "shape": (1280, 720),
         "transfere": "smpte240m",
     },
-    "hdr": {
+    "uhd": {
         "fps": Fraction(30000, 1001),
         "matrix": "bt709",
         "pix_fmt": "yuv420p10le",
@@ -33,7 +33,7 @@ PROFILES = {
         "shape": (1920, 1080),
         "transfere": "bt709",
     },
-    "uhd": {  # partialy given by https://trac.ffmpeg.org/wiki/Encode/AV1
+    "hd4k": {  # partialy given by https://trac.ffmpeg.org/wiki/Encode/AV1
         "fps": Fraction(60000, 1001),
         "matrix": "bt2020nc",
         "pix_fmt": "yuv420p10le",

@@ -4,9 +4,33 @@
 
 import numbers
 import platform
+import logging
 import re
+import threading
 
 import requests
+
+
+class G5kPower(threading.Thread):
+    """Asynchronous consumption request on g5k."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(daemon=True)
+        self.args = args
+        self.kwargs = kwargs
+        self.power = None
+
+    def run(self):
+        """Performs the request."""
+        try:
+            self.power = g5kpower(*self.args, **self.kwargs)
+        except ValueError as err:
+            logging.warning(err)
+
+    def get(self):
+        """Retrive the result."""
+        self.join()
+        return self.power
 
 
 def g5kpower(
@@ -52,7 +76,7 @@ def g5kpower(
     if (hostname_fields := re.search(
         r"^(?P<node>[a-z0-9_-]+)\.(?P<site>[a-z0-9_-]+)", hostname, re.IGNORECASE)
     ) is None:
-        raise ValueError("the hostname is not grid5000 formated")
+        raise ValueError(f"the hostname {hostname} is not grid5000 formated")
 
     # grid5000 api request
     url = (

@@ -16,8 +16,7 @@ Description
 ===========
 
 This module performs video encoding and decoding measurements.
-It compares the codecs ``h264``, ``h265-hevc``, ``h266-vvc`` and `av1`
-for the for ``sd``, ``hd``, ``hdr`` and ``uhd`` scenarios.
+It compares differents codecs in differents scenarios.
 
 Codecs are tested at different bitrates and presets.
 Energy measurements are catched with RAPL and an external wattmeter on GRID5000.
@@ -37,9 +36,30 @@ Installation
 Features
 ========
 
-#. Codecs ``h264:libx264``, ``h265-hevc:libx265``, ``h266-vvc:vvenc`` and ``av1:libsvtav1``.
+General
+-------
+
+#. Codecs ``h264:libx264``, ``h265-hevc:libx265``, ``h266-vvc:vvenc``, ``vp9:libvpx`` and ``av1:libsvtav1``.
 #. Encoding presets ``fast``, ``medium`` and ``slow``.
-#. The ``sd``, ``hd``, ``hdr`` and ``uhd`` profiles are detailed in `profiles.py <https://gitlab.inria.fr/rrichard/mendevi/-/blob/main/mendevi/profiles.py>`_.
+#. The ``sd``, ``hd``, ``uhd`` and ``hd4k`` profiles are detailed in `profiles.py <https://gitlab.inria.fr/rrichard/mendevi/-/blob/main/mendevi/profiles.py>`_.
+#. 
+
+Encode
+------
+
+.. code:: json
+
+    {
+        "args": ["ffmpeg", ...],  # the exact arguments used for encoding
+        "compression_ratio": 123.456,  # raw file size divided by encoded file size
+        "context": ...,  # machine information and library versions
+        "crf": 28.1,  # the compression effort between 1.0 and 63.0
+    }
+
+Decode
+------
+
+Not yet implemented
 
 
 Alternatives
