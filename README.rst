@@ -46,6 +46,15 @@ General
 Encode
 ------
 
+To generate the encoding database for the ``my_video.mp4`` video, you can use the following command:
+
+.. code:: shell
+
+    mendevi encode -p sd my_video.mp4
+
+
+For each encoded file name, the information in the json file ``encode.json`` is as follows:
+
 .. code:: yaml
 
     {
@@ -53,12 +62,41 @@ Encode
         "compression_ratio": 123.456,  # raw file size divided by encoded file size
         "crf": 28.1,  # the compression effort between 1.0 and 63.0
         "encode_context": ...,  # machine information and library versions
+        "encode_duration": 123.456,  # encoding time in seconds
         "encode_power": {  # external wattmeter on grid5000 servers
             "dt": [0.05, 0.05, ...],  # the duration of each interval in seconds
-            "energy_total": 123.456,  # energy in joules used by the server during encoding
+            "energy": 123.456,  # total energy in joules used by the server during encoding
             "powers": [123.123, ...],  # the average power in watt in each interval
         },
+        "encode_rapl": {  # RAPL cpu measurements based on 'perf' (power/energy-pkg/)
+            "dt": [0.05, 0.05, ...],  # the duration of each interval in seconds
+            "energy": 123.456,  # total energy in joules used by the cpu during encoding
+            "powers": [123.123, ...],  # the average power in watt in each interval
+        }
+        "encode_start": 1744114180.8672826,  # absolute start timestamp in seconds
+        "encode_stop": 1744114198.7116294,  # absolute stop timestyamp in seconds
+        "encoder": "libx264",  # the name of the encoder
+        "file": "bbb",  # the stem name of the source video file
+        "frames": [  # the metadata of all frames
+            {
+                "best_effort_timestamp_time": 0.0,
+                ...,
+                "color_primaries": "smpte170m",
+                ...,
+                "pict_type": "I",
+            },
+            ...,
+        ],
+        "preset": "medium",  # the equivalent preset used for encoding
+        "profile": "sd",  # the general profile used
+        "psnr": [40.0, ...],  # the psnr (6, 1, 1) metric for each frame
+        "rate": 123.456,  # average video bit rate in bit/second
+        "size": 123456,  # final file size in bytes
+        "ssim": [0.89, ...],  # the ssim (6, 1, 1) metric for each frame, gaussian window 11x11
+        "video_duration": 123.456,  # the exact duration of the video in second
+        "vmaf": [70.0, ...],  # the netflix metric for each frame.
     }
+
 
 Decode
 ------

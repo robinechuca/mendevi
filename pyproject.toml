@@ -13,7 +13,8 @@ dependencies = [  # https://packaging.python.org/en/latest/specifications/depend
   "click",
   "cutcutcodec",
   "filelock",
-  "numpy>=2.0",
+  "matplotlib",
+  "numpy",
   "requests",
 ]
 readme = "README.rst"
@@ -25,10 +26,12 @@ keywords = [
   "h264",
   "h265",
   "h266",
+  "measure",
   "psnr",
   "ssim",
   "video",
   "vmaf",
+  "vp9",
 ]
 classifiers = [  # all classifiers https://pypi.org/classifiers/
   "Development Status :: 4 - Beta",
