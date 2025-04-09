@@ -4,6 +4,7 @@
 
 import click
 
+from .draw import main as main_draw
 from .encode import main as main_encode
 
 
@@ -13,8 +14,8 @@ def main() -> int:
     return 0
 
 
+main.add_command(main_draw, "draw")
 main.add_command(main_encode, "encode")
-# main.add_command(main_decode, "decode")
 
 
 if __name__ == "__main__":

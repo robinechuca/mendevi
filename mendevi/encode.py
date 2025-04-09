@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Perfors encoding tests."""
+"""Perform encoding measures."""
 
 import click
 import pathlib
@@ -203,6 +203,7 @@ def main(video: str, profile: str, preset: str, out: str = None, res: str = None
             "video_duration": float(get_duration_video(tmp)),
             **metrics,
         }
+        stats["rate"] = 8 * stats["size"] / stats["video_duration"]
         merge_file(res, {file.name: stats})
 
         # finalize file move

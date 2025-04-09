@@ -111,6 +111,6 @@ def g5kpower(
 
     return {
         "dt": power_dt.tolist(),
-        "energy_total": energy,
+        "energy": energy,
         "powers": powers.tolist(),
     }
