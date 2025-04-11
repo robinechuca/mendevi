@@ -63,11 +63,16 @@ For each encoded file name, the information in the json file ``encode.json`` is 
         "crf": 28.1,  # the compression effort between 1.0 and 63.0
         "encode_context": ...,  # machine information and library versions
         "encode_duration": 123.456,  # encoding time in seconds
-        "encode_power": {  # external wattmeter on grid5000 servers
+        "encode_idle_rapl": {  # RAPL cpu measurements of the IDLE based on 'perf' (power/energy-pkg/)
             "dt": [0.05, 0.05, ...],  # the duration of each interval in seconds
-            "energy": 123.456,  # total energy in joules used by the server during encoding
+            "power": 123.456,  # the total energy divided by the duration, in watt
             "powers": [123.123, ...],  # the average power in watt in each interval
-        },
+        }
+        "encode_idle_wattmeter": {  # external wattmeter on grid5000 servers, measure the IDLE
+            "dt": [0.05, 0.05, ...],  # the duration of each interval in seconds
+            "power": 123.456,  # the total energy divided by the duration, in watt
+            "powers": [123.123, ...],  # the average power in watt in each interval
+        }
         "encode_rapl": {  # RAPL cpu measurements based on 'perf' (power/energy-pkg/)
             "dt": [0.05, 0.05, ...],  # the duration of each interval in seconds
             "energy": 123.456,  # total energy in joules used by the cpu during encoding
@@ -75,6 +80,12 @@ For each encoded file name, the information in the json file ``encode.json`` is 
         }
         "encode_start": 1744114180.8672826,  # absolute start timestamp in seconds
         "encode_stop": 1744114198.7116294,  # absolute stop timestyamp in seconds
+        "encode_threads": 8,  # the number of threads used durring encoding
+        "encode_wattmeter": {  # external wattmeter on grid5000 servers
+            "dt": [0.05, 0.05, ...],  # the duration of each interval in seconds
+            "energy": 123.456,  # total energy in joules used by the server during encoding
+            "powers": [123.123, ...],  # the average power in watt in each interval
+        },
         "encoder": "libx264",  # the name of the encoder
         "file": "bbb",  # the stem name of the source video file
         "frames": [  # the metadata of all frames

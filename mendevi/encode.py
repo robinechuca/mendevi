@@ -18,7 +18,7 @@ from cutcutcodec.core.analysis.video.properties.duration import get_duration_vid
 import numpy as np
 import tqdm
 
-from .g5kpower import G5kPower
+from .g5kpower import G5kPower, g5kpower
 from .merge import merge_file
 from .profiles import PROFILES
 from .rapl import RAPL
@@ -26,17 +26,29 @@ from .utils import get_context, unfold_video_files
 
 
 def _encode_ref(video: pathlib.Path, profile: str, out: pathlib.Path) -> pathlib.Path:
-    """Encode the lossless .y4m reference video."""
-    ref_file = out / f"{video.stem}_{profile}.y4m"
+    """Encode the lossless raw reference video."""
+    ref_file = out / f"{video.stem}_{profile}.mkv"  # colorspace metadata not supported by .y4m
     if ref_file.exists():
         return ref_file
     assert video.is_file(), f"the given file {video} doesn't exists"
     tmp = ref_file.with_stem(f"{ref_file.stem}_in_process")
+    cmd_sart = [
+        "ffmpeg", "-y", "-hide_banner", "-i", str(video),
+        "-pix_fmt", PROFILES[profile]["pix_fmt"], "-strict", "-1",
+        "-aspect", f"{PROFILES[profile]['shape'][0]}:{PROFILES[profile]['shape'][1]}",  # set square pixels
+    ]
+    cmd_end = [
+        "-c:v", "rawvideo",
+        "-map", "0:v:0",
+        "-color_primaries", PROFILES[profile]["primaries"],
+        "-color_trc", PROFILES[profile]["transfere"],
+        "-colorspace", PROFILES[profile]["matrix"],
+        "-color_range", PROFILES[profile]["range"],
+        str(tmp),
+    ]
     try:
         subprocess.run([
-            "ffmpeg", "-y", "-hide_banner", "-i", str(video),
-            "-pix_fmt", PROFILES[profile]["pix_fmt"], "-strict", "-1",
-            "-aspect", f"{PROFILES[profile]['shape'][0]}:{PROFILES[profile]['shape'][1]}",  # set square pixels
+            *cmd_sart,
             "-vf", (
                 f"fps={PROFILES[profile]['fps']}[s];[s]"
                 f"zscale={PROFILES[profile]['shape'][0]}:{PROFILES[profile]['shape'][1]}:filter=bicubic"
@@ -46,53 +58,59 @@ def _encode_ref(video: pathlib.Path, profile: str, out: pathlib.Path) -> pathlib
                 f":m={PROFILES[profile]['matrix']}"
                 f":agamma=0"
             ),
-            "-map", "0:v:0", str(tmp),
+            *cmd_end,
         ], check=True)
     except subprocess.CalledProcessError:
         subprocess.run([
-            "ffmpeg", "-y", "-hide_banner", "-i", str(video),
-            "-pix_fmt", PROFILES[profile]["pix_fmt"], "-strict", "-1",
-            "-aspect", f"{PROFILES[profile]['shape'][0]}:{PROFILES[profile]['shape'][1]}",  # set square pixels
+            *cmd_sart,
             "-vf", (
                 f"fps={PROFILES[profile]['fps']}[s];[s]"
                 f"zscale={PROFILES[profile]['shape'][0]}:{PROFILES[profile]['shape'][1]}:filter=bicubic"
             ),
-            "-map", "0:v:0", str(tmp),
+            *cmd_end,
         ], check=True)
     shutil.move(tmp, ref_file)
     return ref_file
 
 
-def _get_cmd(profile: str, preset: str, points: int) -> tuple[float, list[str]]:
+def _get_cmd(profile: str, preset: str, points: int, threads: int) -> tuple[float, list[str]]:
     """Yield the ffmpeg encode cmd."""
+    def _linspace(start: float, end: float, nbr: int):
+        interval = (end - start) / (nbr + 1)
+        return np.linspace(start+interval, start+nbr*interval, nbr).tolist()
+
     bit = int(re.search(r"(?P<bit>\d+)le", PROFILES[profile]["pix_fmt"] + "8le")["bit"])
     yield from (
         (crf_, cmd)
-        for crf_ in np.linspace(63.0, 1.0, points).tolist()
+        for crf_ in _linspace(63.0, 0.0, points)
         for cmd in (
-            [
+            [  # https://ffmpeg.party/x264/
                 "libx264",
                 "-crf", str(round(crf_*51.0/63.0, 1)),
                 "-preset", preset,
                 "-tune", "ssim",
+                "-threads", str(threads),
             ],
-            [
+            [   # https://x265.readthedocs.io/en/master/cli.html
                 "libx265",
                 "-crf", str(round(crf_*51.0/63.0, 1)),
                 "-preset", preset,
                 "-tune", "ssim",
+                "-x265-params", f"frame-threads={threads}:pools={threads}:wpp={1 if threads != 1 else 0}",
             ],
             [  # https://wiki.webmproject.org/ffmpeg/vp9-encoding-guide
                 "libvpx-vp9",
                 "-crf", str(round(crf_)),
                 "-speed", {"slow": "0", "medium": "1", "fast": "4"}[preset],
                 "-tune", "ssim",
+                "-row-mt", "1", "-threads", str(threads),
             ],
             [
                 "libsvtav1",
                 "-crf", str(round(crf_)),
                 "-preset", {"slow": "4", "medium": "6", "fast": "8"}[preset],
-                "-svtav1-params", "tune=2:film-grain=0",
+                "-svtav1-params", f"tune=2:film-grain=0",
+                "-threads", str(threads),  # :lp={threads}",
             ],
             [
                 "vvc",
@@ -100,6 +118,7 @@ def _get_cmd(profile: str, preset: str, points: int) -> tuple[float, list[str]]:
                 "-preset", preset,
                 "-qpa", "1",
                 "-vvenc-params", f"internalbitdepth={bit}",
+                "-threads", str(threads),
             ],
         )
     )
@@ -121,6 +140,8 @@ def _get_cmd(profile: str, preset: str, points: int) -> tuple[float, list[str]]:
 )
 @click.option("-o", "--out", type=click.Path(), help="The output folder.")
 @click.option("-r", "--res", type=click.Path(), help="The result json file to be updated.")
+@click.option("-n", type=int, required=False, help="The number of quality point per encoder.")
+@click.option("-t", "--threads", type=int, required=False, help="The number of threads used by encoders.")
 def main(video: str, profile: str, preset: str, out: str = None, res: str = None, **kwargs):
     """Mesure the decoding performance.
 
@@ -139,6 +160,8 @@ def main(video: str, profile: str, preset: str, out: str = None, res: str = None
         The file containing the results.
     points : int, default=32
         The number of rate per codec.
+    threads : int, default=8
+        The number of threads
     """
     # verification, preparation
     video = pathlib.Path(video).expanduser()
@@ -153,20 +176,40 @@ def main(video: str, profile: str, preset: str, out: str = None, res: str = None
     ref_file = _encode_ref(video, profile, out)
 
     # iterate on different codecs and qualities
-    for crf, encoder_cmd in _get_cmd(profile, preset, int(kwargs.get("points", 32))):
+    threads = int(kwargs.get("threads", 8))
+    for crf, encoder_cmd in _get_cmd(profile, preset, int(kwargs.get("points", 32)), threads):
         file = out / (re.sub(r"_?-|:|=", "_", "_".join(encoder_cmd)) + f"_{ref_file.stem}.mp4")
         if file.exists():
             continue
         tmp = pathlib.Path(tempfile.gettempdir()) / file.name
+
+        # measure IDLE
+        idle_duration = 10.0  # duration of the idle measure, in second
+        with RAPL(no_fail=True) as idle_rapl:
+            t_start = time.time()
+            time.sleep(idle_duration)
+        if idle_rapl is not None:
+            idle_rapl["power"] = idle_rapl["energy"] / idle_duration
+            del idle_rapl["energy"]
+        try:
+            idle_wattmeter = g5kpower(platform.node(), t_start, idle_duration)
+        except ValueError:
+            idle_wattmeter = None
+        else:
+            idle_wattmeter["power"] = idle_wattmeter["energy"] / idle_duration
+            del idle_wattmeter["energy"]
+
+        # encode
         with RAPL(no_fail=True) as rapl:  # optional measure rapl energy
             t_start = time.time()
             process = subprocess.run([  # start encoding
                 "ffmpeg", "-y", "-hide_banner",
+                "-i", str(ref_file), "-c:v", *encoder_cmd,
                 "-color_primaries", PROFILES[profile]["primaries"],
                 "-color_trc", PROFILES[profile]["transfere"],
                 "-colorspace", PROFILES[profile]["matrix"],
                 "-color_range", PROFILES[profile]["range"],
-                "-i", str(ref_file), "-c:v", *encoder_cmd, str(tmp),
+                str(tmp),
             ], check=True)
             t_stop = time.time()
 
@@ -175,11 +218,12 @@ def main(video: str, profile: str, preset: str, out: str = None, res: str = None
         move_thread.start()
 
         # request to grid5000
-        g5k_thread = G5kPower(platform.node(), t_start, t_stop-t_start)
-        g5k_thread.start()
+        wattmeter_thread = G5kPower(platform.node(), t_start, t_stop-t_start)
+        wattmeter_thread.start()
 
         # run all metrics
-        metrics = compare(ref_file, tmp, psnr=True, ssim=True, vmaf=True)
+        # metrics = compare(ref_file, tmp, psnr=True, ssim=True, vmaf=True)
+        metrics = {}
 
         # extract frames informations
         frames = get_slices_metadata(tmp)
@@ -191,9 +235,12 @@ def main(video: str, profile: str, preset: str, out: str = None, res: str = None
             "compression_ratio": ref_file.stat().st_size / tmp.stat().st_size,
             "crf": crf,
             "encode_context": get_context(),
-            "encode_power": g5k_thread.get(),
+            "encode_idle_rapl": idle_rapl,
+            "encode_idle_wattmeter": idle_wattmeter,
             "encode_rapl": rapl,
             "encode_start": t_start, "encode_stop": t_stop, "encode_duration": t_stop - t_start,
+            "encode_threads": threads,
+            "encode_wattmeter": wattmeter_thread.get(),
             "encoder": encoder_cmd[0],
             "file": ref_file.stem,
             "frames": frames,
