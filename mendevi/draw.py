@@ -124,6 +124,11 @@ def main(filename: str, **kwargs):
         y_values[name] = get_float_mean(value)
 
     # display
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.set_title("Interactive MENDEVI plot")
+    scenes = []
+
     if len(names := x_values.keys() & y_values.keys()) == 0:
         names = {k for v in data.values() for k in v}
         raise KeyError(f"no x={kwargs['x']} and y={kwargs['y']} label found, only {sorted(names)}")
@@ -139,18 +144,75 @@ def main(filename: str, **kwargs):
             colors[cat].append(i)
         for cat in sorted(colors):
             idx = np.asarray(colors[cat], dtype=np.int64)
-            plt.scatter(x_data[idx], y_data[idx], label=cat)
+            scenes.append([ax.scatter(x_data[idx], y_data[idx], label=cat), names])
     else:
-        plt.scatter(x_data, y_data)
+        scenes.append([ax.scatter(x_data, y_data), names])
 
-    plt.grid()
-    if _log_is_better(x_data):
-        plt.xscale("log")
-    if _log_is_better(y_data):
-        plt.yscale("log")
-    plt.xlabel(kwargs["x"])
-    plt.ylabel(kwargs["y"])
+    ax.grid()
+    ax.set_xscale("log" if _log_is_better(x_data) else "linear")
+    ax.set_yscale("log" if _log_is_better(y_data) else "linear")
+    ax.set_xlabel(kwargs["x"])
+    ax.set_ylabel(kwargs["y"])
     plt.tight_layout()
     if "color" in kwargs:
         plt.legend()
+
+    def update_annot(sc, ind, name):
+        idx = ind["ind"][0]
+        pos = sc.get_offsets()[idx]
+        annot.xy = pos
+
+        text = ""
+        for key in ["compression_ratio", "crf", "encode_duration", "encode_threads", "encoder", "preset", "profile"]:
+            text += f"{key}={data[name][key]}\n"
+        text = text[:-1]
+        annot.set_text(text)
+        annot.get_bbox_patch().set_facecolor("lightyellow")
+        annot.get_bbox_patch().set_alpha(0.8)
+
+        # Calculer la position relative du point dans la figure
+        x_disp, y_disp = ax.transData.transform(pos)
+        width, height = fig.get_size_inches()*fig.dpi
+
+        # Choisir un offset en fonction de l'espace autour du point
+        offset_x = 20 if x_disp < width * 0.7 else -200  # vers la droite ou vers la gauche
+        offset_y = 20 if y_disp < height * 0.7 else -100  # vers le haut ou le bas
+
+        annot.set_position((offset_x, offset_y))
+
+    # def update_annot(sc, ind, name):
+    #     idx = ind["ind"][0]
+    #     pos = sc.get_offsets()[idx]
+    #     annot.xy = pos
+    #     text = f"{name}"
+    #     for key in ["compression_ratio", "crf", "encode_duration", "encode_threads", "encoder", "preset", "profile"]:
+    #         text += f"\n{key}={data[name][key]}"
+    #     annot.set_text(text)
+    #     annot.get_bbox_patch().set_facecolor("lightyellow")
+    #     annot.get_bbox_patch().set_alpha(0.8)
+
+    # Fonction appelée lors du mouvement de la souris
+    def hover(event):
+        vis = annot.get_visible()
+        if event.inaxes == ax:
+            for i, (sc, names) in enumerate(scenes):
+                cont, ind = sc.contains(event)
+                if cont:
+                    update_annot(sc, ind, names[i])
+                    annot.set_visible(True)
+                    fig.canvas.draw_idle()
+                    break
+                elif vis:
+                    annot.set_visible(False)
+                    fig.canvas.draw_idle()
+    annot = ax.annotate(
+        "",
+        xy=(0, 0),
+        xytext=(10, 10),
+        textcoords="offset points",
+        bbox=dict(boxstyle="round", fc="w"),
+        arrowprops=dict(arrowstyle="->"),
+    )
+    annot.set_visible(False)
+    fig.canvas.mpl_connect("motion_notify_event", hover)
     plt.show()

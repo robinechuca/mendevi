@@ -27,23 +27,20 @@ from .utils import get_context, unfold_video_files
 
 def _encode_ref(video: pathlib.Path, profile: str, out: pathlib.Path) -> pathlib.Path:
     """Encode the lossless raw reference video."""
-    ref_file = out / f"{video.stem}_{profile}.mkv"  # colorspace metadata not supported by .y4m
+    ref_file = out / f"raw_{video.stem}_{profile}.mkv"  # colorspace metadata not supported by .y4m
     if ref_file.exists():
         return ref_file
     assert video.is_file(), f"the given file {video} doesn't exists"
     tmp = ref_file.with_stem(f"{ref_file.stem}_in_process")
     cmd_sart = [
-        "ffmpeg", "-y", "-hide_banner", "-i", str(video),
-        "-pix_fmt", PROFILES[profile]["pix_fmt"], "-strict", "-1",
+        "ffmpeg", "-y", "-hide_banner",
+        "-i", str(video),
+        "-pix_fmt", PROFILES[profile]["pix_fmt"], # "-strict", "-1",
         "-aspect", f"{PROFILES[profile]['shape'][0]}:{PROFILES[profile]['shape'][1]}",  # set square pixels
     ]
     cmd_end = [
         "-c:v", "rawvideo",
         "-map", "0:v:0",
-        "-color_primaries", PROFILES[profile]["primaries"],
-        "-color_trc", PROFILES[profile]["transfere"],
-        "-colorspace", PROFILES[profile]["matrix"],
-        "-color_range", PROFILES[profile]["range"],
         str(tmp),
     ]
     try:
@@ -61,11 +58,26 @@ def _encode_ref(video: pathlib.Path, profile: str, out: pathlib.Path) -> pathlib
             *cmd_end,
         ], check=True)
     except subprocess.CalledProcessError:
+        # The options
+        # "-color_primaries", PROFILES[profile]["primaries"],
+        # "-color_trc", PROFILES[profile]["transfere"],
+        # "-colorspace", PROFILES[profile]["matrix"],
+        # "-color_range", PROFILES[profile]["range"],
+        # are incompatible with zscale
         subprocess.run([
             *cmd_sart,
             "-vf", (
                 f"fps={PROFILES[profile]['fps']}[s];[s]"
                 f"zscale={PROFILES[profile]['shape'][0]}:{PROFILES[profile]['shape'][1]}:filter=bicubic"
+                f":rin={PROFILES['uhd']['range']}"
+                f":pin={PROFILES['uhd']['primaries']}"
+                f":tin={PROFILES['uhd']['transfere']}"
+                f":min={PROFILES['uhd']['matrix']}"
+                f":r={PROFILES[profile]['range']}"
+                f":p={PROFILES[profile]['primaries']}"
+                f":t={PROFILES[profile]['transfere']}"
+                f":m={PROFILES[profile]['matrix']}"
+                f":agamma=0"
             ),
             *cmd_end,
         ], check=True)
@@ -140,8 +152,8 @@ def _get_cmd(profile: str, preset: str, points: int, threads: int) -> tuple[floa
 )
 @click.option("-o", "--out", type=click.Path(), help="The output folder.")
 @click.option("-r", "--res", type=click.Path(), help="The result json file to be updated.")
-@click.option("-n", type=int, required=False, help="The number of quality point per encoder.")
-@click.option("-t", "--threads", type=int, required=False, help="The number of threads used by encoders.")
+@click.option("-n", "--points", type=int, default=32, help="The number of quality point per encoder.")
+@click.option("-t", "--threads", type=int, default=8, help="The number of threads used by encoders.")
 def main(video: str, profile: str, preset: str, out: str = None, res: str = None, **kwargs):
     """Mesure the decoding performance.
 
@@ -189,26 +201,25 @@ def main(video: str, profile: str, preset: str, out: str = None, res: str = None
             t_start = time.time()
             time.sleep(idle_duration)
         if idle_rapl is not None:
-            idle_rapl["power"] = idle_rapl["energy"] / idle_duration
             del idle_rapl["energy"]
         try:
             idle_wattmeter = g5kpower(platform.node(), t_start, idle_duration)
         except ValueError:
             idle_wattmeter = None
         else:
-            idle_wattmeter["power"] = idle_wattmeter["energy"] / idle_duration
             del idle_wattmeter["energy"]
 
         # encode
         with RAPL(no_fail=True) as rapl:  # optional measure rapl energy
             t_start = time.time()
+            # subprocess.Popen([
+            #     "ffmpeg", "-y", "-hide_banner",
+            #     "-i", str(ref_file), "-c:v", *encoder_cmd,
+            #     str(tmp),
+            # ])
             process = subprocess.run([  # start encoding
                 "ffmpeg", "-y", "-hide_banner",
                 "-i", str(ref_file), "-c:v", *encoder_cmd,
-                "-color_primaries", PROFILES[profile]["primaries"],
-                "-color_trc", PROFILES[profile]["transfere"],
-                "-colorspace", PROFILES[profile]["matrix"],
-                "-color_range", PROFILES[profile]["range"],
                 str(tmp),
             ], check=True)
             t_stop = time.time()

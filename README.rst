@@ -76,6 +76,7 @@ For each encoded file name, the information in the json file ``encode.json`` is 
         "encode_rapl": {  # RAPL cpu measurements based on 'perf' (power/energy-pkg/)
             "dt": [0.05, 0.05, ...],  # the duration of each interval in seconds
             "energy": 123.456,  # total energy in joules used by the cpu during encoding
+            "power": 123.456,  # the average power in watt
             "powers": [123.123, ...],  # the average power in watt in each interval
         }
         "encode_start": 1744114180.8672826,  # absolute start timestamp in seconds
@@ -84,6 +85,7 @@ For each encoded file name, the information in the json file ``encode.json`` is 
         "encode_wattmeter": {  # external wattmeter on grid5000 servers
             "dt": [0.05, 0.05, ...],  # the duration of each interval in seconds
             "energy": 123.456,  # total energy in joules used by the server during encoding
+            "power": 123.456,  # the average power in watt
             "powers": [123.123, ...],  # the average power in watt in each interval
         },
         "encoder": "libx264",  # the name of the encoder

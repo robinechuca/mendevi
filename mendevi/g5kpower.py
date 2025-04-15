@@ -58,9 +58,10 @@ def g5kpower(
     Returns
     -------
     Consumption: dict[str]
+        * 'dt': The time difference between 2 consecutive power measurements (in s).
         * 'energy': The total energy consumption (in J).
-        * 'power_var': The power measured difference between 2 consecutive points (in w).
-        * 'power_dt': The time difference between 2 consecutive power measurements (in s).
+        * 'power': The average power, energy divided by the duration (in w).
+        * 'powers': The power measured between 2 consecutive points (in w).
 
     Notes
     -----
@@ -112,5 +113,6 @@ def g5kpower(
     return {
         "dt": power_dt.tolist(),
         "energy": energy,
+        "power": energy / (times[-1] - times[0]),
         "powers": powers.tolist(),
     }

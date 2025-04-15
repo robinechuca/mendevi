@@ -16,6 +16,7 @@ dependencies = [  # https://packaging.python.org/en/latest/specifications/depend
   "matplotlib",
   "numpy",
   "requests",
+  "unidecode",
 ]
 readme = "README.rst"
 license = "MIT"

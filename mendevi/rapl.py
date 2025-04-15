@@ -43,7 +43,7 @@ class RAPL:
         assert isinstance(no_fail, bool), no_fail
 
         self.sleep = round(1000*float(sleep))
-        self.res: dict = {"dt": [], "energy": None, "powers": []}
+        self.res: dict = {"dt": [], "energy": None, "power": None, "powers": []}
         self.process = subprocess.Popen(
             [
                 "perf", "stat",
@@ -75,6 +75,7 @@ class RAPL:
         Consumption: dict[str]
             * 'dt': The time difference between 2 consecutive power measurements (in s).
             * 'energy': The total energy consumption (in J).
+            * 'power': The average power, energy divided by the duration (in w).
             * 'powers': The power measured between 2 consecutive points (in w).
         """
         self.time_bounds[1] = time.time()
@@ -120,5 +121,5 @@ class RAPL:
         # compute total energy
         self.res["dt"] = [te - ts for ts, te in zip(times_start, times_end)]
         self.res["energy"] = sum(p * dt for p, dt in zip(powers, self.res["dt"]))
-        power_mean = self.res["energy"] / (times_end[-1] - times_start[0])
+        self.res["power"] = self.res["energy"] / (times_end[-1] - times_start[0])
         self.res["powers"] = powers

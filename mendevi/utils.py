@@ -13,6 +13,7 @@ import typing
 
 from cutcutcodec.core.io import VIDEO_SUFFIXES
 import av
+import unidecode
 
 
 @functools.cache
@@ -21,6 +22,10 @@ def get_context() -> str:
     # echo stdout | gzip -c - | base64 -w0 | base64 --decode | gunzip -c -
     unfold = "echo %s | base64 --decode | gunzip -c -"
     return {
+        "hostnamectl": unidecode.unidecode(
+            subprocess.run(["hostnamectl"], check=False, capture_output=True).stdout
+            .decode("utf-8")
+        ),
         "base64_gzip_ffmpeg": unfold % base64.b64encode(gzip.compress(subprocess.run(
             ["ffmpeg", "-version"], check=False, capture_output=True,
         ).stdout)).decode(),
