@@ -2,9 +2,10 @@
 
 """Integrates grid5000's power meter."""
 
+import datetime
+import logging
 import numbers
 import platform
-import logging
 import re
 import threading
 

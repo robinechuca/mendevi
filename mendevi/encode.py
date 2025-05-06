@@ -32,10 +32,46 @@ def _encode_ref(video: pathlib.Path, profile: str, out: pathlib.Path) -> pathlib
         return ref_file
     assert video.is_file(), f"the given file {video} doesn't exists"
     tmp = ref_file.with_stem(f"{ref_file.stem}_in_process")
+    from cutcutcodec.core.io import read, write
+    from cutcutcodec.core.classes.colorspace import Colorspace
+    with read(video) as container:
+        stream = container.out_select("video")[0]
+        write(
+            [stream],
+            filename=tmp,
+            colorspace=Colorspace(
+                "y'pbpr", PROFILES[profile]["primaries"], PROFILES[profile]["transfer"]
+            ),
+            streams_settings=[{
+                "encodec": "rawvideo",
+                "rate": PROFILES[profile]["fps"],
+                "shape": PROFILES[profile]["shape"][::-1],
+                "pix_fmt": PROFILES[profile]["pix_fmt"],
+            }],
+        )
+    # subprocess.run([
+    #     "ffmpeg", "-y", "-hide_banner",
+    #     "-i", str(tmp),
+    #     "-color_primaries", PROFILES[profile]["primaries"],
+    #     "-color_trc", PROFILES[profile]["transfer"],
+    #     "-c", "copy",
+    #     str(ref_file),
+    # ], check=True)
+    shutil.move(tmp, ref_file)
+    return ref_file
+
+
+def _encode_ref_old(video: pathlib.Path, profile: str, out: pathlib.Path) -> pathlib.Path:
+    """Encode the lossless raw reference video."""
+    ref_file = out / f"raw_{video.stem}_{profile}.mkv"  # colorspace metadata not supported by .y4m
+    if ref_file.exists():
+        return ref_file
+    assert video.is_file(), f"the given file {video} doesn't exists"
+    tmp = ref_file.with_stem(f"{ref_file.stem}_in_process")
     cmd_sart = [
         "ffmpeg", "-y", "-hide_banner",
         "-i", str(video),
-        "-pix_fmt", PROFILES[profile]["pix_fmt"], # "-strict", "-1",
+        "-pix_fmt", PROFILES[profile]["pix_fmt"],
         "-aspect", f"{PROFILES[profile]['shape'][0]}:{PROFILES[profile]['shape'][1]}",  # set square pixels
     ]
     cmd_end = [
@@ -51,7 +87,7 @@ def _encode_ref(video: pathlib.Path, profile: str, out: pathlib.Path) -> pathlib
                 f"zscale={PROFILES[profile]['shape'][0]}:{PROFILES[profile]['shape'][1]}:filter=bicubic"
                 f":r={PROFILES[profile]['range']}"
                 f":p={PROFILES[profile]['primaries']}"
-                f":t={PROFILES[profile]['transfere']}"
+                f":t={PROFILES[profile]['transfer']}"
                 f":m={PROFILES[profile]['matrix']}"
                 f":agamma=0"
             ),
@@ -60,7 +96,7 @@ def _encode_ref(video: pathlib.Path, profile: str, out: pathlib.Path) -> pathlib
     except subprocess.CalledProcessError:
         # The options
         # "-color_primaries", PROFILES[profile]["primaries"],
-        # "-color_trc", PROFILES[profile]["transfere"],
+        # "-color_trc", PROFILES[profile]["transfer"],
         # "-colorspace", PROFILES[profile]["matrix"],
         # "-color_range", PROFILES[profile]["range"],
         # are incompatible with zscale
@@ -71,11 +107,11 @@ def _encode_ref(video: pathlib.Path, profile: str, out: pathlib.Path) -> pathlib
                 f"zscale={PROFILES[profile]['shape'][0]}:{PROFILES[profile]['shape'][1]}:filter=bicubic"
                 f":rin={PROFILES['uhd']['range']}"
                 f":pin={PROFILES['uhd']['primaries']}"
-                f":tin={PROFILES['uhd']['transfere']}"
+                f":tin={PROFILES['uhd']['transfer']}"
                 f":min={PROFILES['uhd']['matrix']}"
                 f":r={PROFILES[profile]['range']}"
                 f":p={PROFILES[profile]['primaries']}"
-                f":t={PROFILES[profile]['transfere']}"
+                f":t={PROFILES[profile]['transfer']}"
                 f":m={PROFILES[profile]['matrix']}"
                 f":agamma=0"
             ),
@@ -148,7 +184,7 @@ def _get_cmd(profile: str, preset: str, points: int, threads: int) -> tuple[floa
     "--preset",
     type=click.Choice(["fast", "medium", "slow"]),
     default="medium",
-    help="the compression effort"
+    help="The compression effort (default = medium)."
 )
 @click.option("-o", "--out", type=click.Path(), help="The output folder.")
 @click.option("-r", "--res", type=click.Path(), help="The result json file to be updated.")
@@ -233,8 +269,7 @@ def main(video: str, profile: str, preset: str, out: str = None, res: str = None
         wattmeter_thread.start()
 
         # run all metrics
-        # metrics = compare(ref_file, tmp, psnr=True, ssim=True, vmaf=True)
-        metrics = {}
+        metrics = compare(ref_file, tmp, psnr=True, ssim=True, vmaf=True)
 
         # extract frames informations
         frames = get_slices_metadata(tmp)

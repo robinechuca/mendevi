@@ -45,7 +45,7 @@ class RAPL:
         self.sleep = round(1000*float(sleep))
         self.res: dict = {"dt": [], "energy": None, "power": None, "powers": []}
         self.process = subprocess.Popen(
-            [
+            [  # sudo apt install linux-perf
                 "perf", "stat",
                 "--event", "power/energy-pkg/",  # coeur et cache Ajouter celui de la ram
                 "--all-cpus",

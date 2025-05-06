@@ -12,6 +12,7 @@ maintainers = [
 dependencies = [  # https://packaging.python.org/en/latest/specifications/dependency-specifiers/#dependency-specifiers
   "click",
   "cutcutcodec",
+  "enoslib",
   "filelock",
   "matplotlib",
   "numpy",
