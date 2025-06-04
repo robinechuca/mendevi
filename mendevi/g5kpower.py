@@ -5,7 +5,6 @@
 import datetime
 import logging
 import numbers
-import platform
 import re
 import threading
 
@@ -89,14 +88,14 @@ def g5kpower(
         f"&end_time={datetime.datetime.fromtimestamp(start+duration).isoformat()}"
     )
     auth = requests.auth.HTTPBasicAuth(login, password) if login and password else None
-    req = requests.get(url, auth=auth, verify=False)
+    req = requests.get(url, auth=auth, verify=False, timeout=60)
     if req.status_code != 200:
         raise ValueError("the request failed", req)
     req = req.json()
 
     # parse result
     req = {datetime.datetime.fromisoformat(d["timestamp"]).timestamp(): d["value"] for d in req}
-    req = {t: v for t, v in req.items() if t >= start and t <= start + duration}
+    req = {t: v for t, v in req.items() if start <= t <= start + duration}
     times, powers = zip(*req.items())
     times, powers = np.array(times, dtype=np.float64), np.array(powers, dtype=np.float64)
 

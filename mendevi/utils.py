@@ -30,7 +30,7 @@ def get_context() -> str:
             ["ffmpeg", "-version"], check=False, capture_output=True,
         ).stdout)).decode(),
         "base64_gzip_lshw": unfold % base64.b64encode(gzip.compress(subprocess.run(
-            ["lshw"], check=False, capture_output=True,
+            ["lshw"], check=False, capture_output=True,  # sudo apt install lshw
         ).stdout)).decode(),
         "hostname": platform.node(),
         "base64_gzip_pipfreeze": unfold % base64.b64encode(gzip.compress(subprocess.run(

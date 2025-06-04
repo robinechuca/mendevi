@@ -44,10 +44,10 @@ class RAPL:
 
         self.sleep = round(1000*float(sleep))
         self.res: dict = {"dt": [], "energy": None, "power": None, "powers": []}
-        self.process = subprocess.Popen(
+        self.process = subprocess.Popen(  # pylint: disable=R1732
             [  # sudo apt install linux-perf
                 "perf", "stat",
-                "--event", "power/energy-pkg/",  # coeur et cache Ajouter celui de la ram
+                "--event", "power/energy-pkg/",  # cores and cache, no ram
                 "--all-cpus",
                 "--field-separator", ";",  # output csv like
                 "--interval-print", str(self.sleep),
