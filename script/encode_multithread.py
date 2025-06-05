@@ -27,7 +27,6 @@ CMD = [
     "--res", f"{RES_LOCAL if LOCAL else RES_G5K}/encode_multithread.json",
     VIDEO_LOCAL if LOCAL else VIDEO_G5K,
 ]
-# CMD = ["python", "-c", '"import time; [(print(i), time.sleep(1)) for i in range(60)]; 1/0"']
 
 if __name__ == "__main__":
     conf.run_script(CMD, LOCAL)
