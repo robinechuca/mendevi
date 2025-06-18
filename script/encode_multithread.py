@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
-"""Scripts with enoslib for grid5000.n
-"""
+"""Scripts with enoslib for grid5000."""
 
 import conf
 
@@ -21,7 +20,7 @@ CMD = [
     "--preset", "medium",
     "--encoder", "libx264", "--encoder", "libx265", "--encoder", "libsvtav1",
     "--points", "2",
-    "-t1", "-t2", "-t3", "-t4", "-t6", "-t8", "-t12", "-t16",  # 24, 32, 52 if we can
+    "-t1", "-t2", "-t3", "-t4", "-t6", "-t8", "-t12", "-t16", # maximal supported value
     "--no-psnr", "--no-ssim", "--no-vmaf",
     "--out", f"{RES_LOCAL if LOCAL else RES_G5K}/encode_multithread_samples",
     "--res", f"{RES_LOCAL if LOCAL else RES_G5K}/encode_multithread.json",

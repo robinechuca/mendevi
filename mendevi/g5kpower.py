@@ -103,7 +103,7 @@ def g5kpower(
     req = requests.get(url, auth=auth, verify=False, timeout=60)
     if req.status_code != 200:
         raise ValueError(f"the request {url} failed", req)
-    if not req := req.json():
+    if not (req := req.json()):
         raise ValueError(f"the request {url} gives an empty result")
 
     # parse result
