@@ -6,6 +6,7 @@ import click
 
 from .draw import main as main_draw
 from .encode import main as main_encode
+from .merge import main as main_merge
 
 
 @click.group()
@@ -16,6 +17,7 @@ def main() -> int:
 
 main.add_command(main_draw, "draw")
 main.add_command(main_encode, "encode")
+main.add_command(main_merge, "merge")
 
 
 if __name__ == "__main__":

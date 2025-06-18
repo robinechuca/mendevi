@@ -64,6 +64,18 @@ def g5kpower(
         * 'power': The average power, energy divided by the duration (in w).
         * 'powers': The power measured between 2 consecutive points (in w).
 
+    Raises
+    ------
+    ValueError
+        If the request failed.
+
+    Examples
+    --------
+    >>> import platform, time
+    >>> from mendevi.g5kpower import g5kpower
+    >>> g5kpower(platform.node(), time.time()-10.0, 10.0)
+    >>>
+
     Notes
     -----
     * Tested with `oarsub -I -p paradoxe -t deploy -t monitor='wattmetre_power_watt'`.
@@ -90,8 +102,9 @@ def g5kpower(
     auth = requests.auth.HTTPBasicAuth(login, password) if login and password else None
     req = requests.get(url, auth=auth, verify=False, timeout=60)
     if req.status_code != 200:
-        raise ValueError("the request failed", req)
-    req = req.json()
+        raise ValueError(f"the request {url} failed", req)
+    if not req := req.json():
+        raise ValueError(f"the request {url} gives an empty result")
 
     # parse result
     req = {datetime.datetime.fromisoformat(d["timestamp"]).timestamp(): d["value"] for d in req}
