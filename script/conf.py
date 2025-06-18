@@ -19,7 +19,11 @@ CLUSTER = "paradoxe"
 DATA = "/srv/storage/videoimpact@storage3.rennes.grid5000.fr"
 ENV_NAME = "https://api.grid5000.fr/sid/sites/rennes/public/rrichard/mendevi_env.yaml"
 ROLES = ["magelan"]
-WALLTIME = "06:00:00"
+WALLTIME = "48:00:00"
+
+SLEEP_INIT = 10.0  # initial sleeping time
+SLEEP_FINAL = 600.0  # final sleeping time
+SLEEP_TRANSITION = 3600.0  # the transition time between the init and final sleep
 
 
 def run_script(cmd: str | list[str], local: bool = False):
@@ -46,15 +50,24 @@ def run_script(cmd: str | list[str], local: bool = False):
             job_type=["deploy"],
             key="~/.ssh/id_ed25519.pub",
             walltime=WALLTIME,
+            monitor="wattmetre_power_watt"
             # queue="production",  # "default", "testing", "besteffort"
         )
         .add_machine(roles=ROLES, cluster=CLUSTER, nodes=1)
     )
+    sleep = SLEEP_INIT
     with enoslib.G5k(conf) as (roles, _):  # get and release all grid5000 resources
         main_results = enoslib.run_command(cmd, roles=roles, background=True)
         log_files = log_files = {result.results_file for result in main_results}
         while log_files:
-            time.sleep(600)
+            # waiting a moment
+            # at the beginning, we wait SLEEP_INIT, and at the end, we wait SLEEP_FINAL
+            # it takes n steps, with n = math.log(SLEEP_FINAL/SLEEP_INIT) / math.log(alpha)
+            # with alpha = 1.0 + (SLEEP_FINAL - SLEEP_INIT) / SLEEP_TRANSITION
+            # the full transition time take SLEEP_TRANSITION
+            time.sleep(sleep)
+            sleep *= 1.0 + (SLEEP_FINAL - SLEEP_INIT) / SLEEP_TRANSITION
+            sleep = min(sleep, SLEEP_FINAL)
             for log_file in log_files.copy():
                 for res in enoslib.run_command(f"cat {log_file}", roles=roles, on_error_continue=True):
                     res = json.loads(res.payload["stdout"])

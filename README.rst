@@ -61,7 +61,10 @@ For each encoded file name, the information in the json file ``encode.json`` is 
         "args": ["ffmpeg", ...],  # the exact arguments used for encoding
         "compression_ratio": 123.456,  # raw file size divided by encoded file size
         "crf": 28.1,  # the compression effort between 1.0 and 63.0
-        "encode_context": ...,  # machine information and library versions
+        "encode_context": {  # machine information and library versions
+            "hostname": "paradoxe-1.rennes.grid5000.fr",
+            ...,
+        },
         "encode_duration": 123.456,  # encoding time in seconds
         "encode_idle_rapl": {  # RAPL cpu measurements of the IDLE based on 'perf' (power/energy-pkg/)
             "dt": [0.05, 0.05, ...],  # the duration of each interval in seconds

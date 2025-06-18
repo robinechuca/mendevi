@@ -15,6 +15,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+class DynAnnot:
+    """Create dynamic annotations."""
+
+    def __call__(self, event):
+        print(event)
+
+
 def get_floats(value: float | int | str | list | dict) -> typing.Iterable[float]:
     """Extract all the number recursively."""
     match value:
@@ -64,7 +71,7 @@ def _log_is_better(data_lin: np.ndarray[np.float64]) -> bool:
     """Return True if the data should be plot in a log scale."""
     if data_lin.min() <= 0.0:
         return False
-    if data_lin.max() / data_lin.min() < 10:  # minimum one decade
+    if data_lin.max() / data_lin.min() < 10.0**1.5:  # minimum 1.5 decades
         return False
     data_log = np.log(data_lin)
     bins = 1 + round(len(data_lin)**0.5)
@@ -75,6 +82,48 @@ def _log_is_better(data_lin: np.ndarray[np.float64]) -> bool:
     kullback_lin = -np.log(hist_lin).sum()  # rigouresly np.sum(np.log((1/bins) / hist_lin)) / bins
     kullback_log = -np.log(hist_log).sum()
     return kullback_log < kullback_lin
+
+
+def _draw(axes: plt.Axes, data: dict[str: dict], values: dict[str: dict[str]]):
+    """Create the plot."""
+    # set title
+    if (lbl := set(map(str, values["w"].values()))) != {"None"}:
+        axes.set_title(", ".join(sorted(lbl)))
+
+    # set legend
+    colors_label = sorted(set(map(str, values["c"].values())))
+    shapes_label = sorted(set(map(str, values["s"].values())))
+    if len(colors_label) > 1:
+        for i in range(len(colors_label)):
+            axes.scatter([], [], color=cm.rainbow(i/(len(colors_label)-1)), label=colors_label[i], marker=1)
+    if len(shapes_label) > 1:
+        for j in range(len(shapes_label)):
+            axes.scatter([], [], color="black", label=shapes_label[j], marker=".x^1s+Dv234<>hH"[j%15])
+    if len(colors_label) > 1 or len(shapes_label) > 1:
+        axes.legend()
+
+    # draw scatter cloud
+    for i, j in itertools.product(range(len(colors_label)), range(len(shapes_label))):
+        x_data, y_data = zip(*(
+            (values["x"][name], values["y"][name]) for name in data
+            if str(values["c"][name]) == colors_label[i] and str(values["s"][name]) == shapes_label[j]
+        ))
+        x_data, y_data = np.asarray(x_data, dtype=np.float64), np.asarray(y_data, dtype=np.float64)
+        axes.scatter(
+            x_data,
+            y_data,
+            color=cm.rainbow(i/(len(colors_label)-1)) if len(colors_label) > 1 else None,
+            marker=".x^1s+Dv234<>hH"[j%15] if len(shapes_label) > 1 else None,
+        )
+
+    # put decoration
+    axes.grid()
+    x_data = np.asarray(list(values["x"].values()), dtype=np.float64)
+    axes.set_xscale("log" if _log_is_better(x_data) else "linear")
+    y_data = np.asarray(list(values["y"].values()), dtype=np.float64)
+    axes.set_yscale("log" if _log_is_better(y_data) else "linear")
+    # axes.set_xlabel(kwargs["x"])
+    # axes.set_ylabel(kwargs["y"])
 
 
 @click.command()
@@ -156,30 +205,28 @@ def main(filename: str, **kwargs):
     values["y"] = {n: get_float_mean(v) for n, v in values["y"].items()}
 
     # display
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    ax.set_title("MENDEVI plot")
-
-    colors_label = sorted({str(e) for e in values["c"].values()})
-    shapes_label = sorted({str(e) for e in values["s"].values()})
-    for i, j in itertools.product(range(len(colors_label)), range(len(shapes_label))):
-        x_data, y_data = zip(*(
-            (values["x"][name], values["y"][name]) for name in data
-            if str(values["c"][name]) == colors_label[i] and str(values["s"][name]) == shapes_label[j]
-        ))
-        x_data, y_data = np.asarray(x_data, dtype=np.float64), np.asarray(y_data, dtype=np.float64)
-        ax.scatter(
-            x_data,
-            y_data,
-            color=cm.rainbow(i/(len(colors_label)-1)) if len(colors_label) >= 2 else None,
-            marker=".x^1s+Dv234<>hH"[j%15] if len(shapes_label) >= 2 else None,
-            label=f"{colors_label[i]} {shapes_label[j]}",
+    fig = plt.figure(figsize=None, dpi=None)
+    fig.suptitle(filename.stem)
+    dyn_annot = DynAnnot()
+    windows_label = sorted(set(map(str, values["w"].values())))
+    for i, lbl in enumerate(windows_label):
+        axes = fig.add_subplot(1, len(windows_label), i+1)
+        axes.set_xlabel(kwargs["x"])
+        axes.set_ylabel(kwargs["y"])
+        selected = {n for n, e in values["w"].items() if str(e) == lbl}
+        _draw(
+            axes,
+            {n: d for n, d in data.items() if n in selected},
+            {f: {n: e for n, e in v.items() if n in selected} for f, v in values.items()},
         )
-    ax.grid()
-    ax.set_xlabel(kwargs["x"])
-    ax.set_ylabel(kwargs["y"])
     plt.tight_layout()
-    plt.legend()
+    lbl = " ".join(f"{k}={kwargs[k]}" for k in sorted(kwargs) if kwargs[k])
+    plt.savefig(
+        (pathlib.Path.cwd() / f"{filename.stem} {lbl}").with_suffix(".svg"),
+        # transparent=True,
+        format="svg",
+    )
+    fig.canvas.mpl_connect("motion_notify_event", dyn_annot)
     plt.show()
 
 
