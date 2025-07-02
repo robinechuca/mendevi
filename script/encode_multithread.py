@@ -12,18 +12,18 @@ VIDEO_LOCAL = "/data/dataset/video/despacito.mp4"
 
 # grid5000 data
 RES_G5K = conf.DATA
-VIDEO_G5K = f"{conf.DATA}/lossless_video/amazon_hdr_education_reel.webm"
+VIDEO_G5K = f"{conf.DATA}/lossless_video/bbb.webm"
 
 CMD = [
     "mendevi", "encode",
-    "--profile", "sd", "--profile", "uhd",
+    "--profile", "uhd",
     "--preset", "medium",
     "--encoder", "libx264", "--encoder", "libx265", "--encoder", "libsvtav1",
-    "--points", "2",
-    "-t1", "-t2", "-t3", "-t4", "-t6", "-t8", "-t12", "-t16", # maximal supported value
+    "--points", "1",
+    *(f"-t{i}" for i in range(1, 17)),  # maximal supported value
     "--no-psnr", "--no-ssim", "--no-vmaf",
     "--out", f"{RES_LOCAL if LOCAL else RES_G5K}/encode_multithread_samples",
-    "--res", f"{RES_LOCAL if LOCAL else RES_G5K}/encode_multithread.json",
+    "--res", f"{RES_LOCAL if LOCAL else RES_G5K}/encode_multithread_ffv1.json",
     VIDEO_LOCAL if LOCAL else VIDEO_G5K,
 ]
 

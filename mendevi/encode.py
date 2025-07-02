@@ -45,6 +45,7 @@ def _encode_ref(video: pathlib.Path, profile: str, out: pathlib.Path) -> pathlib
             colorspace=cutcutcodec.Colorspace(
                 "y'pbpr", PROFILES[profile]["primaries"], PROFILES[profile]["transfer"]
             ),
+            # lossless compression
             streams_settings=[{  # partir sur av1
                 "encodec": "ffv1",  # rawvideo or libaom-av1 with crf 0
                 "rate": PROFILES[profile]["fps"],
