@@ -16,14 +16,14 @@ VIDEO_G5K = f"{conf.DATA}/lossless_video/bbb.webm"
 
 CMD = [
     "mendevi", "encode",
-    "--profile", "uhd",
+    "--profile", "sd", "--profile", "uhd",
     "--preset", "medium",
     "--encoder", "libx264", "--encoder", "libx265", "--encoder", "libsvtav1",
-    "--points", "1",
+    "--points", "2",
     *(f"-t{i}" for i in range(1, 17)),  # maximal supported value
     "--no-psnr", "--no-ssim", "--no-vmaf",
     "--out", f"{RES_LOCAL if LOCAL else RES_G5K}/encode_multithread_samples",
-    "--res", f"{RES_LOCAL if LOCAL else RES_G5K}/encode_multithread_ffv1.json",
+    "--res", f"{RES_LOCAL if LOCAL else RES_G5K}/encode_multithread_raw.json",
     VIDEO_LOCAL if LOCAL else VIDEO_G5K,
 ]
 

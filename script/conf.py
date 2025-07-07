@@ -15,7 +15,7 @@ import time
 
 import enoslib
 
-CLUSTER = "paradoxe"
+CLUSTER = "paradoxe"  # 7 is fine
 DATA = "/srv/storage/videoimpact@storage3.rennes.grid5000.fr"
 ENV_NAME = "https://api.grid5000.fr/sid/sites/rennes/public/rrichard/mendevi_env.yaml"
 ROLES = ["magelan"]
@@ -26,7 +26,7 @@ SLEEP_FINAL = 600.0  # final sleeping time
 SLEEP_TRANSITION = 3600.0  # the transition time between the init and final sleep
 
 
-def run_script(cmd: str | list[str], local: bool = False):
+def run_script(cmd: str | list[str], local: bool=False):
     """Run a script on the grid."""
     # parse the argument
     assert isinstance(local, bool), local.__class__.__name__

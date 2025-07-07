@@ -32,7 +32,7 @@ def _encode_ref(video: pathlib.Path, profile: str, out: pathlib.Path) -> pathlib
     # colorspace metadata not supported by y4m, nut
     # yuv420p10le not supported by mkv, avi
     # rawvideo failed with flv, obu, thd, vc1, mp4, ismv, dv, mpg, vob, gif, gxf, ogv, webm
-    ref_file = out / f"raw_{video.stem}_{profile}.mkv"
+    ref_file = out / f"raw_{video.stem}_{profile}.y4m"
     if ref_file.exists():
         return ref_file
     assert video.is_file(), f"the given file {video} doesn't exists"
@@ -45,13 +45,21 @@ def _encode_ref(video: pathlib.Path, profile: str, out: pathlib.Path) -> pathlib
             colorspace=cutcutcodec.Colorspace(
                 "y'pbpr", PROFILES[profile]["primaries"], PROFILES[profile]["transfer"]
             ),
-            # lossless compression
-            streams_settings=[{  # partir sur av1
-                "encodec": "ffv1",  # rawvideo or libaom-av1 with crf 0
+            # raw video
+            streams_settings=[{  # extension .y4m
+                "encodec": "rawvideo",
                 "rate": PROFILES[profile]["fps"],
                 "shape": PROFILES[profile]["shape"][::-1],
                 "pix_fmt": PROFILES[profile]["pix_fmt"],
             }],
+            # # lossless compression
+            # streams_settings=[{  # extension .mkv
+            #     "encodec": "ffv1",  # rawvideo or libaom-av1 with crf 0
+            #     "rate": PROFILES[profile]["fps"],
+            #     "shape": PROFILES[profile]["shape"][::-1],
+            #     "pix_fmt": PROFILES[profile]["pix_fmt"],
+            # }],
+            
             # streams_settings=[{
             #     "encodec": "libaom-av1",  # rawvideo
             #     "rate": PROFILES[profile]["fps"],
