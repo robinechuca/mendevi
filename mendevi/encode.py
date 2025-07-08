@@ -31,8 +31,8 @@ def _encode_ref(video: pathlib.Path, profile: str, out: pathlib.Path) -> pathlib
     """Encode the lossless raw reference video."""
     # colorspace metadata not supported by y4m, nut
     # yuv420p10le not supported by mkv, avi
-    # rawvideo failed with flv, obu, thd, vc1, mp4, ismv, dv, mpg, vob, gif, gxf, ogv, webm
-    ref_file = out / f"raw_{video.stem}_{profile}.y4m"
+    # rawvideo failed with flv, obu, thd, vc1, mp4, ismv, dv, mpg, vob, gif, gxf, ogv, webm, y4m
+    ref_file = out / f"raw_{video.stem}_{profile}.nut"
     if ref_file.exists():
         return ref_file
     assert video.is_file(), f"the given file {video} doesn't exists"
@@ -45,21 +45,28 @@ def _encode_ref(video: pathlib.Path, profile: str, out: pathlib.Path) -> pathlib
             colorspace=cutcutcodec.Colorspace(
                 "y'pbpr", PROFILES[profile]["primaries"], PROFILES[profile]["transfer"]
             ),
-            # raw video
-            streams_settings=[{  # extension .y4m
+            # lossless raw video (no colorspace metadata)
+            streams_settings=[{  # extension .nut
                 "encodec": "rawvideo",
                 "rate": PROFILES[profile]["fps"],
                 "shape": PROFILES[profile]["shape"][::-1],
                 "pix_fmt": PROFILES[profile]["pix_fmt"],
             }],
-            # # lossless compression
+            # # fast lossless compression
             # streams_settings=[{  # extension .mkv
             #     "encodec": "ffv1",  # rawvideo or libaom-av1 with crf 0
             #     "rate": PROFILES[profile]["fps"],
             #     "shape": PROFILES[profile]["shape"][::-1],
             #     "pix_fmt": PROFILES[profile]["pix_fmt"],
             # }],
-            
+            # slow lossless compression
+            # streams_settings=[{  # extension .mp4
+            #     "encodec": "jpeg2000",
+            #     "rate": PROFILES[profile]["fps"],
+            #     "shape": PROFILES[profile]["shape"][::-1],
+            #     "pix_fmt": PROFILES[profile]["pix_fmt"],
+            # }],
+
             # streams_settings=[{
             #     "encodec": "libaom-av1",  # rawvideo
             #     "rate": PROFILES[profile]["fps"],
@@ -108,8 +115,8 @@ def _get_cmd(
                 "libsvtav1",
                 "-crf", str(round(crf)),
                 "-preset", {"slow": "4", "medium": "6", "fast": "8"}[preset],
-                "-svtav1-params", "tune=2:film-grain=0",
-                "-threads", str(threads),  # :lp={threads}",
+                "-svtav1-params", f"tune=2:film-grain=0:lp={threads}",
+                # "-threads", str(threads),
             ]
         case "vvc":
             return [
@@ -170,6 +177,7 @@ def _linspace(start: float, end: float, nbr: int):
 )
 @click.option("--psnr/--no-psnr", default=True, help="Compute the PSNR or not.")
 @click.option("--ssim/--no-ssim", default=True, help="Compute the SSIM or not.")
+@click.option("--uvq/--no-uvq", default=True, help="Compute the UVQ or not.")
 @click.option("--vmaf/--no-vmaf", default=True, help="Compute the VMAF or not.")
 def main(video: str, out: str = None, res: str = None, **kwargs):
     """Mesure the decoding performance.
@@ -267,6 +275,7 @@ def main(video: str, out: str = None, res: str = None, **kwargs):
                 tmp,
                 psnr=kwargs["psnr"],
                 ssim=kwargs["ssim"],
+                uvq=kwargs["uvq"],
                 vmaf=kwargs["vmaf"],
             )
         else:

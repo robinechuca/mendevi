@@ -109,6 +109,7 @@ For each encoded file name, the information in the json file ``encode.json`` is 
         "rate": 123.456,  # average video bit rate in bit/second
         "size": 123456,  # final file size in bytes
         "ssim": [0.89, ...],  # the ssim (6, 1, 1) metric for each frame, gaussian window 11x11
+        "uvq": [3.5, ...],  # the google uvq metric for each second of video
         "video_duration": 123.456,  # the exact duration of the video in second
         "vmaf": [70.0, ...],  # the netflix metric for each frame.
     }
