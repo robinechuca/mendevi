@@ -16,6 +16,7 @@ dependencies = [  # https://packaging.python.org/en/latest/specifications/depend
   "filelock",
   "matplotlib",
   "numpy",
+  "psutil",
   "requests",
   "unidecode",
 ]

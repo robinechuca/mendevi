@@ -71,6 +71,12 @@ For each encoded file name, the information in the json file ``encode.json`` is 
             "power": 123.456,  # the total energy divided by the duration, in watt
             "powers": [123.123, ...],  # the average power in watt in each interval
         }
+        "encode_idle_usage": {  # CPU and RAM measure of the IDLE
+            "dt": [0.05, 0.05, ...],  # the duration of each interval in seconds
+            "avg_cpu":  5.0,  # the average usage of all cpus in %
+            "cpu": [[5.0, 0.0], ...],  # the detailed usage of each threads in %
+            "ram": [3952903680, 3952903680, ...],  # the ram usage in bytes
+        }
         "encode_idle_wattmeter": {  # external wattmeter on grid5000 servers, measure the IDLE
             "dt": [0.05, 0.05, ...],  # the duration of each interval in seconds
             "power": 123.456,  # the total energy divided by the duration, in watt
@@ -85,6 +91,12 @@ For each encoded file name, the information in the json file ``encode.json`` is 
         "encode_start": 1744114180.8672826,  # absolute start timestamp in seconds
         "encode_stop": 1744114198.7116294,  # absolute stop timestyamp in seconds
         "encode_threads": 8,  # the number of threads used durring encoding
+        "encode_usage": {  # CPU and RAM usage with psutil
+            "dt": [0.05, 0.05, ...],  # the duration of each interval in seconds
+            "avg_cpu":  20.0,  # the average usage of all cpus in %
+            "cpu": [[20.0, 0.0], ...],  # the detailed usage of each threads in %
+            "ram": [4952903680, 4952903680, ...],  # the ram usage in bytes
+        }
         "encode_wattmeter": {  # external wattmeter on grid5000 servers
             "dt": [0.05, 0.05, ...],  # the duration of each interval in seconds
             "energy": 123.456,  # total energy in joules used by the server during encoding

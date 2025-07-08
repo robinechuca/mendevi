@@ -21,6 +21,7 @@ from .g5kpower import G5kPower, g5kpower
 from .merge import merge_file
 from .profiles import PROFILES
 from .rapl import RAPL
+from .usage import Usage
 from .utils import get_context
 
 
@@ -115,7 +116,7 @@ def _get_cmd(
                 "libsvtav1",
                 "-crf", str(round(crf)),
                 "-preset", {"slow": "4", "medium": "6", "fast": "8"}[preset],
-                "-svtav1-params", f"tune=2:film-grain=0:lp={threads}",
+                "-svtav1-params", f"film-grain=0:lp={threads}",  # tune=2 broken in v3.0.2
                 # "-threads", str(threads),
             ]
         case "vvc":
@@ -233,7 +234,7 @@ def main(video: str, out: str = None, res: str = None, **kwargs):
 
         # measure IDLE
         idle_duration = 10.0  # duration of the idle measure, in second
-        with RAPL(no_fail=True) as idle_rapl:
+        with RAPL(no_fail=True) as idle_rapl, Usage() as idle_usage:
             t_start = time.time()
             time.sleep(idle_duration)
         if idle_rapl is not None:
@@ -246,13 +247,8 @@ def main(video: str, out: str = None, res: str = None, **kwargs):
             del idle_wattmeter["energy"]
 
         # encode
-        with RAPL(no_fail=True) as rapl:  # optional measure rapl energy
+        with RAPL(no_fail=True) as rapl, Usage() as usage:  # optional measure rapl energy
             t_start = time.time()
-            # subprocess.Popen([
-            #     "ffmpeg", "-y", "-hide_banner",
-            #     "-i", str(ref_files[profile]), "-c:v", *encoder_cmd,
-            #     str(tmp),
-            # ])
             process = subprocess.run([  # start encoding
                 "ffmpeg", "-y", "-hide_banner",
                 "-i", str(ref_files[profile]), "-c:v", *encoder_cmd,
@@ -269,7 +265,7 @@ def main(video: str, out: str = None, res: str = None, **kwargs):
         wattmeter_thread.start()
 
         # run all metrics
-        if kwargs["psnr"] or kwargs["ssim"] or kwargs["vmaf"]:
+        if any(kwargs[m] for m in ["psnr", "ssim", "uvq", "vmaf"]):
             metrics = cutcutcodec.compare(
                 ref_files[profile],
                 tmp,
@@ -292,10 +288,12 @@ def main(video: str, out: str = None, res: str = None, **kwargs):
             "crf": crf,
             "encode_context": get_context(),
             "encode_idle_rapl": idle_rapl,
+            "encode_idle_usage": idle_usage,
             "encode_idle_wattmeter": idle_wattmeter,
             "encode_rapl": rapl,
             "encode_start": t_start, "encode_stop": t_stop, "encode_duration": t_stop - t_start,
             "encode_threads": threads,
+            "encode_usage": usage,
             "encode_wattmeter": wattmeter_thread.get(),
             "encoder": encoder,
             "file": ref_files[profile].stem,
