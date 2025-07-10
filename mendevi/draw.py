@@ -19,7 +19,9 @@ class DynAnnot:
     """Create dynamic annotations."""
 
     def __call__(self, event):
-        print(event)
+        # print(event)
+        # vis = annot.get_visible()
+        pass
 
 
 def get_floats(value: float | int | str | list | dict) -> typing.Iterable[float]:
@@ -205,7 +207,7 @@ def main(filename: str, **kwargs):
     values["y"] = {n: get_float_mean(v) for n, v in values["y"].items()}
 
     # display
-    fig = plt.figure(figsize=None, dpi=None)
+    fig = plt.figure(figsize=(16, 9), dpi=None)
     fig.suptitle(filename.stem)
     dyn_annot = DynAnnot()
     windows_label = sorted(set(map(str, values["w"].values())))

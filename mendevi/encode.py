@@ -15,6 +15,7 @@ import time
 import click
 import cutcutcodec
 import numpy as np
+import psutil
 import tqdm
 
 from .g5kpower import G5kPower, g5kpower
@@ -47,7 +48,7 @@ def _encode_ref(video: pathlib.Path, profile: str, out: pathlib.Path) -> pathlib
                 "y'pbpr", PROFILES[profile]["primaries"], PROFILES[profile]["transfer"]
             ),
             # lossless raw video (no colorspace metadata)
-            streams_settings=[{  # extension .nut
+            streams_settings=[{  # extension .nut for 10 bit support
                 "encodec": "rawvideo",
                 "rate": PROFILES[profile]["fps"],
                 "shape": PROFILES[profile]["shape"][::-1],
@@ -85,6 +86,7 @@ def _get_cmd(
 ) -> tuple[float, list[str]]:
     """Yield the ffmpeg encode cmd."""
     bit = int(re.search(r"(?P<bit>\d+)le", PROFILES[profile]["pix_fmt"] + "8le")["bit"])
+    logical = max(1, round(threads * psutil.cpu_count(logical=False) / psutil.cpu_count()))
     match encoder:
         case "libx264":
             return [  # https://ffmpeg.party/x264/
@@ -116,7 +118,7 @@ def _get_cmd(
                 "libsvtav1",
                 "-crf", str(round(crf)),
                 "-preset", {"slow": "4", "medium": "6", "fast": "8"}[preset],
-                "-svtav1-params", f"film-grain=0:lp={threads}",  # tune=2 broken in v3.0.2
+                "-svtav1-params", f"film-grain=0:lp={logical}",  # tune=2 broken in v3.0.2
                 # "-threads", str(threads),
             ]
         case "vvc":

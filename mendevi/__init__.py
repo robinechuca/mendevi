@@ -3,4 +3,4 @@
 """Mesures d'Encodage et Décodage Vidéo."""
 
 __author__ = "Robin RICHARD (robinechuca)"
-__version__ = "0.0.2"  # pep 440
+__version__ = "0.1.0"  # pep 440

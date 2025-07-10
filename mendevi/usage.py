@@ -55,7 +55,7 @@ class Usage(threading.Thread):
         -------
         Consumption: dict[str]
             * 'dt': The time difference between 2 consecutive measurements (in s).
-            * 'avg_cpu': The mean of usage of all the cpus (in %).
+            * 'thread': The mean cummulated usage of all the logical cpus.
             * 'cpu': The cpu usage for each thread (in %).
             * 'ram': The virtual ram usage (in bytes).
         """
@@ -66,4 +66,4 @@ class Usage(threading.Thread):
         """Stop the measure and update the dictionary returnd by __enter__."""
         self._stop = True
         self.join()  # wait the last update of self.run
-        self.res["avg_cpu"] = float(np.mean(self.res["cpu"]))
+        self.res["thread"] = psutil.cpu_count() * float(np.mean(self.res["cpu"])) / 100.0
