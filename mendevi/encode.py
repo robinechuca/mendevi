@@ -238,7 +238,7 @@ def main(video: str, out: str = None, res: str = None, **kwargs):
     ):
         encoder_cmd = _get_cmd(encoder, profile, preset, crf, threads)
         file = out / (
-            re.sub(r"_?-|:|=", "_", "_".join(encoder_cmd)) + f"_{ref_files[profile].stem}.mp4"
+            f"{ref_files[profile].stem}_{threads}_{preset}_{crf}_{encoder}.mp4"
         )
         if file.exists():
             continue
@@ -296,6 +296,7 @@ def main(video: str, out: str = None, res: str = None, **kwargs):
         # merge and write the result
         stats = {
             "args": process.args,
+            "cmd": encoder_cmd,
             "compression_ratio": ref_files[profile].stat().st_size / tmp.stat().st_size,
             "crf": crf,
             "encode_context": get_context(),
