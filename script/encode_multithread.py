@@ -4,7 +4,7 @@
 
 import conf
 
-LOCAL = False  # set True to execute the tests on the local computer
+LOCAL = True  # set True to execute the tests on the local computer
 
 # local data
 RES_LOCAL = "~/Téléchargements"
@@ -18,9 +18,9 @@ CMD = [
     "mendevi", "encode",
     "--profile", "sd", "--profile", "uhd",
     "--preset", "medium",
-    "--encoder", "libx264", "--encoder", "libx265", "--encoder", "libsvtav1",
+    "--encoder", "libx264", "--encoder", "libx265", "--encoder", "libsvtav1", "--encoder", "libvpx-vp9",
     "--points", "2",
-    *(f"-t{i}" for i in [1, 2, 3, 4, 6, 8, 12, 16]),  # maximal supported value
+    *(f"-t{i}" for i in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]),
     "--no-psnr", "--no-ssim", "--no-uvq", "--no-vmaf",
     "--out", f"{RES_LOCAL if LOCAL else RES_G5K}/encode_multithread_samples",
     "--res", f"{RES_LOCAL if LOCAL else RES_G5K}/encode_multithread_raw.json",

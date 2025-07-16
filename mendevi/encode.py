@@ -55,21 +55,21 @@ def _encode_ref(video: pathlib.Path, profile: str, out: pathlib.Path) -> pathlib
             # }],
             # fast lossless compression
             streams_settings=[{  # extension .mkv
-                "encodec": "ffv1",  # rawvideo or libaom-av1 with crf 0
+                "encodec": "ffv1",
                 "rate": PROFILES[profile]["fps"],
                 "shape": PROFILES[profile]["shape"][::-1],
                 "pix_fmt": PROFILES[profile]["pix_fmt"],
             }],
-            # slow lossless compression
+            # # slow lossless compression
             # streams_settings=[{  # extension .mp4
             #     "encodec": "jpeg2000",
             #     "rate": PROFILES[profile]["fps"],
             #     "shape": PROFILES[profile]["shape"][::-1],
             #     "pix_fmt": PROFILES[profile]["pix_fmt"],
             # }],
-
+            # # very slow
             # streams_settings=[{
-            #     "encodec": "libaom-av1",  # rawvideo
+            #     "encodec": "libaom-av1",
             #     "rate": PROFILES[profile]["fps"],
             #     "shape": PROFILES[profile]["shape"][::-1],
             #     "pix_fmt": PROFILES[profile]["pix_fmt"],
@@ -128,7 +128,7 @@ def _get_cmd(
                 "libsvtav1",
                 "-crf", str(round(crf)),
                 "-preset", {"slow": "4", "medium": "6", "fast": "8"}[preset],
-                "-svtav1-params", f"film-grain=0:lp={libsvtav1_lp(threads)}:tune=2",  # tune=2 broken in v3.0.2
+                "-svtav1-params", f"film-grain=0:lp={libsvtav1_lp(threads)}",  # tune=2 broken in v3.0.2
                 # "-threads", str(threads),
             ]
         case "vvc":
