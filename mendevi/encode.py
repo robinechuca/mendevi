@@ -15,7 +15,6 @@ import time
 import click
 import cutcutcodec
 import numpy as np
-import psutil
 import tqdm
 
 from .g5kpower import G5kPower, g5kpower
@@ -34,7 +33,7 @@ def _encode_ref(video: pathlib.Path, profile: str, out: pathlib.Path) -> pathlib
     # colorspace metadata not supported by y4m, nut
     # yuv420p10le not supported by mkv, avi
     # rawvideo failed with flv, obu, thd, vc1, mp4, ismv, dv, mpg, vob, gif, gxf, ogv, webm, y4m
-    ref_file = out / f"raw_{video.stem}_{profile}.nut"
+    ref_file = out / f"raw_{video.stem}_{profile}.mkv"
     if ref_file.exists():
         return ref_file
     assert video.is_file(), f"the given file {video} doesn't exists"
@@ -47,20 +46,20 @@ def _encode_ref(video: pathlib.Path, profile: str, out: pathlib.Path) -> pathlib
             colorspace=cutcutcodec.Colorspace(
                 "y'pbpr", PROFILES[profile]["primaries"], PROFILES[profile]["transfer"]
             ),
-            # lossless raw video (no colorspace metadata)
-            streams_settings=[{  # extension .nut for 10 bit support
-                "encodec": "rawvideo",
-                "rate": PROFILES[profile]["fps"],
-                "shape": PROFILES[profile]["shape"][::-1],
-                "pix_fmt": PROFILES[profile]["pix_fmt"],
-            }],
-            # # fast lossless compression
-            # streams_settings=[{  # extension .mkv
-            #     "encodec": "ffv1",  # rawvideo or libaom-av1 with crf 0
+            # # lossless raw video (no colorspace metadata)
+            # streams_settings=[{  # extension .nut for 10 bit support
+            #     "encodec": "rawvideo",
             #     "rate": PROFILES[profile]["fps"],
             #     "shape": PROFILES[profile]["shape"][::-1],
             #     "pix_fmt": PROFILES[profile]["pix_fmt"],
             # }],
+            # fast lossless compression
+            streams_settings=[{  # extension .mkv
+                "encodec": "ffv1",  # rawvideo or libaom-av1 with crf 0
+                "rate": PROFILES[profile]["fps"],
+                "shape": PROFILES[profile]["shape"][::-1],
+                "pix_fmt": PROFILES[profile]["pix_fmt"],
+            }],
             # slow lossless compression
             # streams_settings=[{  # extension .mp4
             #     "encodec": "jpeg2000",
@@ -86,7 +85,18 @@ def _get_cmd(
 ) -> tuple[float, list[str]]:
     """Yield the ffmpeg encode cmd."""
     bit = int(re.search(r"(?P<bit>\d+)le", PROFILES[profile]["pix_fmt"] + "8le")["bit"])
-    logical = max(1, round(threads * psutil.cpu_count(logical=False) / psutil.cpu_count()))
+
+    def libsvtav1_lp(threads: int) -> int:
+        """Convert threads in parralel level."""
+        # https://gitlab.com/AOMediaCodec/SVT-AV1/-/blob/master/Source/Lib/Globals/enc_handle.c#L749
+        return {
+            1: 1,
+            2: 2, 3: 2, 4: 2, 5: 2,
+            6: 3, 7: 3, 8: 3, 9: 3, 10: 3,
+            11: 4, 12: 4, 13: 4, 14: 4,
+            15: 5, 16: 5,
+        }.get(threads, 6)
+
     match encoder:
         case "libx264":
             return [  # https://ffmpeg.party/x264/
@@ -118,7 +128,7 @@ def _get_cmd(
                 "libsvtav1",
                 "-crf", str(round(crf)),
                 "-preset", {"slow": "4", "medium": "6", "fast": "8"}[preset],
-                "-svtav1-params", f"film-grain=0:lp={logical}",  # tune=2 broken in v3.0.2
+                "-svtav1-params", f"film-grain=0:lp={libsvtav1_lp(threads)}:tune=2",  # tune=2 broken in v3.0.2
                 # "-threads", str(threads),
             ]
         case "vvc":
@@ -213,13 +223,13 @@ def main(video: str, out: str = None, res: str = None, **kwargs):
     ref_files = {profile: _encode_ref(video, profile, out) for profile in kwargs["profile"]}
 
     # iterate on all the parameters
-    for profile, threads, preset, encoder, crf in tqdm.tqdm(
+    for profile, threads, preset, crf, encoder in tqdm.tqdm(
         list(itertools.product(
             kwargs["profile"],
             kwargs["threads"],
             kwargs["preset"],
-            kwargs["encoder"],
             _linspace(63.0, 0.0, kwargs["points"]),
+            kwargs["encoder"],
         )),
         desc="encode",
         dynamic_ncols=True,
