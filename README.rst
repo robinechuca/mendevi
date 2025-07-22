@@ -58,7 +58,7 @@ For each encoded file name, the information in the json file ``encode.json`` is 
 .. code:: yaml
 
     {
-        "args": ["ffmpeg", ...],  # the exact arguments used for encoding
+        "cmd": ["ffmpeg", ...],  # the exact arguments used for encoding
         "compression_ratio": 123.456,  # raw file size divided by encoded file size
         "crf": 28.1,  # the compression effort between 1.0 and 63.0
         "encode_context": {  # machine information and library versions

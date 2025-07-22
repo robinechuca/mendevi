@@ -20,7 +20,7 @@ SERVERS = ["paradoxe-7.rennes.grid5000.fr"]  # optional
 DATA = "/srv/storage/videoimpact@storage3.rennes.grid5000.fr"
 ENV_NAME = "https://api.grid5000.fr/sid/sites/rennes/public/rrichard/mendevi_env.yaml"
 ROLES = ["magelan"]
-WALLTIME = "48:00:00"
+WALLTIME = "72:00:00"
 
 SLEEP_INIT = 10.0  # initial sleeping time
 SLEEP_FINAL = 600.0  # final sleeping time
@@ -47,7 +47,7 @@ def run_script(cmd: str | list[str], local: bool=False):
     conf = (  # doc: https://discovery.gitlabpages.inria.fr/enoslib/apidoc/infra.html#g5k-schema
         enoslib.G5kConf.from_settings(
             env_name=ENV_NAME,
-            job_name="mendevi",
+            job_name="Mesures Encodage et Decodage Video",
             job_type=["deploy"],
             key="~/.ssh/id_ed25519.pub",
             walltime=WALLTIME,

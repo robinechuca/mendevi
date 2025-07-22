@@ -238,7 +238,7 @@ def main(video: str, out: str = None, res: str = None, **kwargs):
     ):
         encoder_cmd = _get_cmd(encoder, profile, preset, crf, threads)
         file = out / (
-            f"{ref_files[profile].stem}_{threads}_{preset}_{crf}_{encoder}.mp4"
+            f"{video.stem}_{encoder}_{crf}_{preset}_{threads}_{profile}.mp4"
         )
         if file.exists():
             continue
