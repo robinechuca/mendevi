@@ -21,8 +21,8 @@ dependencies = [  # https://packaging.python.org/en/latest/specifications/depend
   "unidecode",
 ]
 readme = "README.rst"
-license = "MIT"
-license-files = ["LICEN[CS]E*"]
+license = {file = "LICENSE"}  # GPL-3.0-or-later
+# license = "GPL-3.0-or-later"
 keywords = [
   "av1",
   "energy",
