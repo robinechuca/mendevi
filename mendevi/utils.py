@@ -2,42 +2,11 @@
 
 """Provide simple tools."""
 
-import base64
-import functools
-import gzip
 import logging
 import pathlib
-import platform
-import subprocess
 import typing
 
 from cutcutcodec.core.io import VIDEO_SUFFIXES
-import av
-import unidecode
-
-
-@functools.cache
-def get_context() -> str:
-    """Return the base64 zipped context."""
-    # echo stdout | gzip -c - | base64 -w0 | base64 --decode | gunzip -c -
-    unfold = "echo %s | base64 --decode | gunzip -c -"
-    return {
-        "hostnamectl": unidecode.unidecode(
-            subprocess.run(["hostnamectl"], check=False, capture_output=True).stdout
-            .decode("utf-8")
-        ),
-        "base64_gzip_ffmpeg": unfold % base64.b64encode(gzip.compress(subprocess.run(
-            ["ffmpeg", "-version"], check=False, capture_output=True,
-        ).stdout)).decode(),
-        "base64_gzip_lshw": unfold % base64.b64encode(gzip.compress(subprocess.run(
-            ["lshw"], check=False, capture_output=True,  # sudo apt install lshw
-        ).stdout)).decode(),
-        "hostname": platform.node(),
-        "base64_gzip_pipfreeze": unfold % base64.b64encode(gzip.compress(subprocess.run(
-            ["pip", "freeze"], check=False, capture_output=True,
-        ).stdout)).decode(),
-        "pyav": av.library_versions,
-    }
 
 
 def unfold_video_files(

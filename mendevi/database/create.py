@@ -2,8 +2,13 @@
 
 """Initialize the SQL database."""
 
+import os
 import pathlib
+import platform
 import sqlite3
+import subprocess
+
+from mendevi.context import full_context
 
 
 def create_database(filename: str | bytes | pathlib.Path):
@@ -31,12 +36,23 @@ def create_database(filename: str | bytes | pathlib.Path):
             id INTEGER PRIMARY KEY,
 
             /* CONTEXT DETAILS */
-            ffmpeg MEDIUMTEXT,  -- result of 'ffmpeg -version'
-            hostname TEXT,  -- node name
-            hostnamectl MEDIUMTEXT,  -- result of 'hostnamectl'
-            lshw MEDIUMTEXT,  -- result of 'lshw'
-            pip MEDIUMTEXT,  -- result of 'pip freeze'
-            pyav MEDIUMTEXT  -- av.library_versions
+            ffmpeg_version MEDIUMTEXT NOT NULL,
+            hostname TINYTEXT NOT NULL,
+            kernel_version TINYTEXT,
+            libsvtav1_version MEDIUMTEXT,
+            libvpx_vp9_version MEDIUMTEXT,
+            libx265_version MEDIUMTEXT,
+            logical_cores INTEGER NOT NULL,
+            lshw LONGTEXT,
+            physical_cores INTEGER,
+            pip_freeze MEDIUMTEXT NOT NULL,
+            processor TINYTEXT,
+            python_compiler TINYTEXT,
+            python_version TINYTEXT NOT NULL,
+            ram INTEGER NOT NULL,
+            swap INTEGER,
+            system_version MEDIUMTEXT,
+            vvc_version MEDIUMTEXT,
 
             /* IDLE MEASURES */
             start TIMESTAMP,  -- absolute start timestamp
@@ -47,11 +63,20 @@ def create_database(filename: str | bytes | pathlib.Path):
             wattmeter_power LONGBLOB,  -- list of the sampled power in watt in each point
             ps_dt LONGBLOB,  -- list of the duration of each interval in seconds
             ps_core LONGBLOB,  -- tensor of detailed usage of each logical core in %
-            ps_ram LONGBLOB  -- list of the sampled ram usage in bytes in each point
+            ps_ram LONGBLOB,  -- list of the sampled ram usage in bytes in each point
+
+            /* CONSTRAINTS */
+            UNIQUE(
+                ffmpeg_version,
+                hostname,
+                logical_cores,
+                pip_freeze,
+                python_version,
+                ram
+            ) ON CONFLICT REPLACE
         )""")
         cursor.execute("""CREATE TABLE video (
-            id INTEGER PRIMARY KEY,
-            hash BLOB NOT NULL,  -- md5 hash of the video
+            id BINARY(128) PRIMARY KEY,  -- md5 hash of the video
 
             /* VIDEO CONTENT */
             height SMALLINT CHECK(height > 0),  -- display height
@@ -73,7 +98,7 @@ def create_database(filename: str | bytes | pathlib.Path):
         )""")
         cursor.execute("""CREATE TABLE decode (
             id INTEGER PRIMARY KEY,
-            video_id INTEGER REFERENCES video(id),  -- link to video table
+            video BINARY(128) REFERENCES video(id),  -- link to video table
             environement_id INTEGER REFERENCES environement(id),  -- link to environement table
 
             /* MEASURES */
@@ -89,7 +114,7 @@ def create_database(filename: str | bytes | pathlib.Path):
         )""")
         cursor.execute("""CREATE TABLE encode (
             id INTEGER PRIMARY KEY,
-            video_id INTEGER REFERENCES video(id),  -- link to video table
+            video BINARY(128) REFERENCES video(id),  -- link to video table
             environement_id INTEGER REFERENCES environement(id),  -- link to environement table
 
             /* TASK DESCRIPTION */
@@ -114,4 +139,80 @@ def create_database(filename: str | bytes | pathlib.Path):
             ps_ram LONGBLOB  -- list of the sampled ram usage in bytes in each point
         )""")
         cursor.close()
+
+
+def is_sqlite(file: str | bytes | pathlib.Path):
+    """Test if the provided path is an sqlite3 database.
+
+    Examples
+    --------
+    >>> import os, pathlib, tempfile
+    >>> from mendevi.database import create_database, is_sqlite
+    >>> database = pathlib.Path(tempfile.mktemp())
+    >>> is_sqlite(database)
+    False
+    >>> create_database(database)
+    >>> is_sqlite(database)
+    True
+    >>> os.remove(database)
+    >>>
+    """
+    file = pathlib.Path(file).expanduser().resolve()
+    if not file.is_file():
+        return False
+    with open(file, "rb") as raw:
+        header = raw.read(100)
+    if len(header) < 100:  # SQLite database file header is 100 bytes
+        return False
+    return header.startswith(b"SQLite format 3")
+
+
+def add_environement(database: sqlite3.Cursor | str | bytes | pathlib.Path) -> int:
+    """Complete the environment table with the current environment.
+
+    Parameters
+    ----------
+    database : pathlike
+        The path of the existing database to be updated.
+
+    Returns
+    -------
+    id : int
+        The primary key of the freshly updated environment table.
+
+    Examples
+    --------
+    >>> import os, tempfile
+    >>> from mendevi.database.create import create_database, add_environement
+    >>> create_database(database := tempfile.mktemp(suffix=".sqlite"))
+    >>> add_environement(database)
+    1
+    >>> os.remove(database)
+    >>>
+    """
+    # open file
+    if not isinstance(database, sqlite3.Cursor):
+        database = pathlib.Path(database).expanduser().resolve()
+        assert is_sqlite(database), database
+        with sqlite3.connect(database) as sql_database:
+            # sql_database.execute("PRAGMA journal_mode=WAL")
+            cursor = sql_database.cursor()
+            key = add_environement(cursor)
+            cursor.close()
+            return key
+
+    # get context
+    context = full_context()
+
+    # search if context is in database
+    # database.row_factory = None
+    keys = list(context)
+    (env_id,) = database.execute(
+        f"INSERT INTO environement ({', '.join(keys)}) VALUES ({', '.join(['?']*len(keys))}) RETURNING id",
+        [context[k] for k in keys],
+    ).fetchone()
+
+    # print(database.execute("SELECT id FROM environement").fetchall())
+
+    return env_id
 
