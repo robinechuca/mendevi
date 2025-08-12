@@ -2,13 +2,8 @@
 
 """Initialize the SQL database."""
 
-import os
 import pathlib
-import platform
 import sqlite3
-import subprocess
-
-from mendevi.context import full_context
 
 
 def create_database(filename: str | bytes | pathlib.Path):
@@ -165,54 +160,3 @@ def is_sqlite(file: str | bytes | pathlib.Path):
     if len(header) < 100:  # SQLite database file header is 100 bytes
         return False
     return header.startswith(b"SQLite format 3")
-
-
-def add_environement(database: sqlite3.Cursor | str | bytes | pathlib.Path) -> int:
-    """Complete the environment table with the current environment.
-
-    Parameters
-    ----------
-    database : pathlike
-        The path of the existing database to be updated.
-
-    Returns
-    -------
-    id : int
-        The primary key of the freshly updated environment table.
-
-    Examples
-    --------
-    >>> import os, tempfile
-    >>> from mendevi.database.create import create_database, add_environement
-    >>> create_database(database := tempfile.mktemp(suffix=".sqlite"))
-    >>> add_environement(database)
-    1
-    >>> os.remove(database)
-    >>>
-    """
-    # open file
-    if not isinstance(database, sqlite3.Cursor):
-        database = pathlib.Path(database).expanduser().resolve()
-        assert is_sqlite(database), database
-        with sqlite3.connect(database) as sql_database:
-            # sql_database.execute("PRAGMA journal_mode=WAL")
-            cursor = sql_database.cursor()
-            key = add_environement(cursor)
-            cursor.close()
-            return key
-
-    # get context
-    context = full_context()
-
-    # search if context is in database
-    # database.row_factory = None
-    keys = list(context)
-    (env_id,) = database.execute(
-        f"INSERT INTO environement ({', '.join(keys)}) VALUES ({', '.join(['?']*len(keys))}) RETURNING id",
-        [context[k] for k in keys],
-    ).fetchone()
-
-    # print(database.execute("SELECT id FROM environement").fetchall())
-
-    return env_id
-

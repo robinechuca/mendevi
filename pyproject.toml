@@ -11,6 +11,7 @@ maintainers = [
 ]
 dependencies = [  # https://packaging.python.org/en/latest/specifications/dependency-specifiers/#dependency-specifiers
   "click",
+  "context_verbose",
   "cutcutcodec",
   "enoslib",
   "filelock",

@@ -16,7 +16,7 @@ class Usage(threading.Thread):
     Examples
     --------
     >>> import time
-    >>> from mendevi.usage import Usage
+    >>> from mendevi.psutil import Usage
     >>> with Usage() as usage:
     ...     time.sleep(1)
     ...
@@ -26,7 +26,7 @@ class Usage(threading.Thread):
     def __init__(self, sleep: numbers.Real=50e-3):
         """Initialize the usage context.
 
-        Paremeters
+        Parameters
         ----------
         sleep : float, default=50e-3
             The time interval between 2 measures (in s).
@@ -66,4 +66,4 @@ class Usage(threading.Thread):
         """Stop the measure and update the dictionary returnd by __enter__."""
         self._stop = True
         self.join()  # wait the last update of self.run
-        self.res["cpu"] = psutil.cpu_count() * float(np.mean(self.res["cpus"])) / 100.0
+        self.res["cpu"] = float(np.mean(self.res["cpus"], axis=0).sum())

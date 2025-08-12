@@ -22,7 +22,7 @@ from .merge import merge_file
 from .profiles import PROFILES
 from .rapl import RAPL
 from .usage import Usage
-from .utils import get_context
+from .context import full_context
 
 
 ENCODERS = ["libx264", "libx265", "libvpx-vp9", "libsvtav1", "vvc"]
@@ -299,7 +299,7 @@ def main(video: str, out: str = None, res: str = None, **kwargs):
             "cmd": encoder_cmd,
             "compression_ratio": ref_files[profile].stat().st_size / tmp.stat().st_size,
             "crf": crf,
-            "encode_context": get_context(),
+            "encode_context": full_context(),
             "encode_idle_rapl": idle_rapl,
             "encode_idle_usage": idle_usage,
             "encode_idle_wattmeter": idle_wattmeter,

@@ -9,7 +9,6 @@ import pathlib
 import re
 import typing
 
-import context_verbose
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import numpy as np
@@ -154,53 +153,45 @@ def main(filename: str, **kwargs):
     # extract the database content
     filename = pathlib.Path(filename).expanduser()
     assert filename.is_file(), f"the given file {filename} doesn't exists"
-    with context_verbose.Printer("Load json...") as printer:
-        with open(filename, "rb") as raw:
-            data = json.load(raw)
-            printer.print_time()
+    with open(filename, "rb") as raw:
+        data = json.load(raw)
 
     # filter
-    with context_verbose.Printer("Filtering...") as printer:
-        if kwargs.get("filter", ""):
-            key, *pattern = kwargs["filter"].split("=")
-            pattern = "=".join(pattern)
-            plt.title(f"{key} = {pattern}")
-            if not (data := {
-                name: values for name, values in data.items()
-                if re.search(pattern, get_value(values, key) or "") is not None
-            }):
-                raise KeyError(f"the filter {key} = {pattern} reject everything")
-        printer.print_time()
+    if kwargs.get("filter", ""):
+        key, *pattern = kwargs["filter"].split("=")
+        pattern = "=".join(pattern)
+        plt.title(f"{key} = {pattern}")
+        if not (data := {
+            name: values for name, values in data.items()
+            if re.search(pattern, get_value(values, key) or "") is not None
+        }):
+            raise KeyError(f"the filter {key} = {pattern} reject everything")
 
     # select values
-    with context_verbose.Printer("Select values...") as printer:
-        values = {
-            "x": {n: get_value(v, kwargs["x"]) for n, v in data.items()},
-            "y": {n: get_value(v, kwargs["y"]) for n, v in data.items()},
-            "c": {n: get_value(v, kwargs["color"]) for n, v in data.items()},
-            "s": {n: get_value(v, kwargs["shape"]) for n, v in data.items()},
-            "w": {n: get_value(v, kwargs["window"]) for n, v in data.items()},
-        }
-        printer.print_time()
+    values = {
+        "x": {n: get_value(v, kwargs["x"]) for n, v in data.items()},
+        "y": {n: get_value(v, kwargs["y"]) for n, v in data.items()},
+        "c": {n: get_value(v, kwargs["color"]) for n, v in data.items()},
+        "s": {n: get_value(v, kwargs["shape"]) for n, v in data.items()},
+        "w": {n: get_value(v, kwargs["window"]) for n, v in data.items()},
+    }
 
     # unfold values
-    with context_verbose.Printer("Unfold...") as printer:
-        for field in kwargs["unfold"]:
-            for name in data.copy():
-                if not isinstance(values[field][name], list | tuple):
-                    continue
-                for i in range(len(values[field][name])):
-                    new_name = f"x{i+1}_{name}"
-                    for field_ in "xycsw":
-                        if isinstance(values[field_][name], list | tuple):
-                            values[field_][new_name] = values[field_][name][i]
-                        else:
-                            values[field_][new_name] = values[field_][name]
-                    data[new_name] = data[name]
-                del data[name]
+    for field in kwargs["unfold"]:
+        for name in data.copy():
+            if not isinstance(values[field][name], list | tuple):
+                continue
+            for i in range(len(values[field][name])):
+                new_name = f"x{i+1}_{name}"
                 for field_ in "xycsw":
-                    del values[field_][name]
-        printer.print_time()
+                    if isinstance(values[field_][name], list | tuple):
+                        values[field_][new_name] = values[field_][name][i]
+                    else:
+                        values[field_][new_name] = values[field_][name]
+                data[new_name] = data[name]
+            del data[name]
+            for field_ in "xycsw":
+                del values[field_][name]
 
     # convert to scalar
     values["x"] = {n: get_float_mean(v) for n, v in values["x"].items()}

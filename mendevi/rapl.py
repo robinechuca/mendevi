@@ -30,7 +30,7 @@ class RAPL:
     def __init__(self, sleep: numbers.Real=50e-3, no_fail: bool=False):
         """Initalize the perf context.
 
-        Paremeters
+        Parameters
         ----------
         sleep : float, default=50e-3
             The time interval between 2 measures (in s).
