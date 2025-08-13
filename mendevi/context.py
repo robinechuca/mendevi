@@ -254,4 +254,3 @@ def full_context() -> dict:
         "lshw": get_lshw(),
         **get_platform()
     }
-

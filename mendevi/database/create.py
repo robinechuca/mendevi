@@ -65,7 +65,6 @@ def create_database(filename: str | bytes | pathlib.Path):
                 ffmpeg_version,
                 hostname,
                 logical_cores,
-                pip_freeze,
                 python_version,
                 ram
             ) ON CONFLICT REPLACE
