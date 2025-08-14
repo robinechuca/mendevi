@@ -44,34 +44,6 @@ def create_database(filename: str | bytes | pathlib.Path):
             act_ps_core LONGBLOB,  -- tensor of detailed usage of each logical core in %
             act_ps_ram LONGBLOB  -- list of the sampled ram usage in bytes in each point
         )""")
-        cursor.execute(f"""CREATE TABLE IF NOT EXISTS t_env_environement (
-            env_id INTEGER PRIMARY KEY AUTOINCREMENT,
-
-            /* CONTEXT DETAILS */
-            env_ffmpeg_version MEDIUMTEXT NOT NULL,
-            env_hostname TINYTEXT NOT NULL,
-            env_kernel_version TINYTEXT,
-            env_libsvtav1_version MEDIUMTEXT,
-            env_libvpx_vp9_version MEDIUMTEXT,
-            env_libx265_version MEDIUMTEXT,
-            env_logical_cores INTEGER NOT NULL,
-            env_lshw LONGTEXT,
-            env_physical_cores INTEGER,
-            env_pip_freeze MEDIUMTEXT NOT NULL,
-            env_processor TINYTEXT,
-            env_python_compiler TINYTEXT,
-            env_python_version TINYTEXT NOT NULL,
-            env_ram INTEGER NOT NULL,
-            env_swap INTEGER,
-            env_system_version MEDIUMTEXT,
-            env_vvc_version MEDIUMTEXT,
-
-            /* IDLE MEASURES */
-            env_act_id INTEGER REFERENCES t_act_activity(act_id),  -- link to activity table
-
-            /* CONSTRAINTS */
-            UNIQUE({", ".join(ENV_UNIQUE)}) ON CONFLICT FAIL
-        )""")
         cursor.execute("""CREATE TABLE IF NOT EXISTS t_vid_video (
             vid_id BINARY(128) PRIMARY KEY,  -- md5 hash of the video
 
@@ -94,6 +66,34 @@ def create_database(filename: str | bytes | pathlib.Path):
             vid_ssim LONGBLOB,  -- list of the ssim (6, 1, 1) metric for each frame, gauss win 11x11
             vid_uvq LONGBLOB  -- list of the google uvq metric for each second of video
         )""")
+        cursor.execute(f"""CREATE TABLE IF NOT EXISTS t_env_environement (
+            env_id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+            /* CONTEXT DETAILS */
+            env_ffmpeg_version MEDIUMTEXT NOT NULL,
+            env_hostname TINYTEXT NOT NULL,
+            env_kernel_version TINYTEXT,
+            env_libsvtav1_version MEDIUMTEXT,
+            env_libvpx_vp9_version MEDIUMTEXT,
+            env_libx265_version MEDIUMTEXT,
+            env_logical_cores INTEGER NOT NULL CHECK(env_logical_cores > 0),
+            env_lshw LONGTEXT,
+            env_physical_cores INTEGER,
+            env_pip_freeze MEDIUMTEXT,
+            env_processor TINYTEXT,
+            env_python_compiler TINYTEXT,
+            env_python_version TINYTEXT,
+            env_ram INTEGER NOT NULL CHECK(env_ram > 0),
+            env_swap INTEGER,
+            env_system_version MEDIUMTEXT,
+            env_vvc_version MEDIUMTEXT,
+
+            /* IDLE MEASURES */
+            env_act_id INTEGER REFERENCES t_act_activity(act_id),  -- link to activity table
+
+            /* CONSTRAINTS */
+            UNIQUE({", ".join(ENV_UNIQUE)}) ON CONFLICT FAIL
+        )""")
         cursor.execute("""CREATE TABLE IF NOT EXISTS t_dec_decode (
             dec_id INTEGER PRIMARY KEY AUTOINCREMENT,
             dec_vid_id BINARY(128) NOT NULL REFERENCES t_vid_video(vid_id) ON DELETE CASCADE,  -- link to video table
@@ -104,17 +104,107 @@ def create_database(filename: str | bytes | pathlib.Path):
             enc_id INTEGER PRIMARY KEY AUTOINCREMENT,
             enc_vid_id BINARY(128) NOT NULL REFERENCES t_vid_video(vid_id) ON DELETE CASCADE,  -- link to video table
             enc_env_id INTEGER NOT NULL REFERENCES t_env_environement(env_id) ON DELETE CASCADE,  -- link to environement table
-            dec_act_id INTEGER REFERENCES t_act_activity(act_id),  -- link to activity table
+            enc_act_id INTEGER REFERENCES t_act_activity(act_id),  -- link to activity table
 
             /* TASK DESCRIPTION */
-            enc_cmd TEXT NOT NULL,  -- exact ffmpeg command used
-            enc_effort TINYTEXT,  -- equivalent preset used for encoding
-            enc_encoder TINYTEXT,  -- the encoder name
-            enc_file TEXT,  -- stem name of the source video file
-            enc_profile TINYTEXT,  -- general profile used
-            enc_quality FLOAT,  -- normlize crf in [0, 1]
+            enc_cmd TEXT,  -- exact ffmpeg command used
+            enc_effort TINYTEXT CHECK(enc_effort IN ('fast', 'medium', 'slow')),  -- equivalent preset used for encoding
+            enc_encoder TINYTEXT CHECK(enc_profile IN ('libx264', 'libx265', 'libvpx-vp9', 'libsvtav1', 'vvc')),  -- the encoder name
+            enc_file TEXT,  -- name of the source video file
+            enc_profile TINYTEXT CHECK(enc_profile IN ('sd', 'hd', 'uhd', 'uhd4k')),  -- general profile used
+            enc_quality FLOAT CHECK(enc_quality >= 0.0 AND enc_quality <= 1.0),  -- normlize crf in [0, 1]
             enc_threads SMALLINT  -- number of threads used
         )""")
+        cursor.execute("""
+            CREATE TRIGGER IF NOT EXISTS trigger_insert_env_act_unicity
+            BEFORE INSERT ON t_env_environement
+            BEGIN
+                SELECT
+                    CASE
+                        WHEN NEW.env_act_id IN (
+                            SELECT enc_act_id FROM t_enc_encode
+                            UNION ALL SELECT dec_act_id FROM t_dec_decode
+                            UNION ALL SELECT env_act_id FROM t_env_environement
+                        ) THEN
+                            RAISE (ABORT, 'act_id has to be unique')
+                    END;
+            END;
+        """)
+        cursor.execute("""
+            CREATE TRIGGER IF NOT EXISTS trigger_update_env_act_unicity
+            BEFORE UPDATE OF env_act_id ON t_env_environement
+            BEGIN
+                SELECT
+                    CASE
+                        WHEN NEW.env_act_id IN (
+                            SELECT enc_act_id FROM t_enc_encode
+                            UNION ALL SELECT dec_act_id FROM t_dec_decode
+                            UNION ALL SELECT env_act_id FROM t_env_environement
+                        ) THEN
+                            RAISE (ABORT, 'act_id has to be unique')
+                    END;
+            END;
+        """)
+        cursor.execute("""
+            CREATE TRIGGER IF NOT EXISTS trigger_insert_enc_act_unicity
+            BEFORE INSERT ON t_enc_encode
+            BEGIN
+                SELECT
+                    CASE
+                        WHEN NEW.enc_act_id IN (
+                            SELECT enc_act_id FROM t_enc_encode
+                            UNION ALL SELECT dec_act_id FROM t_dec_decode
+                            UNION ALL SELECT env_act_id FROM t_env_environement
+                        ) THEN
+                            RAISE (ABORT, 'act_id has to be unique')
+                    END;
+            END;
+        """)
+        cursor.execute("""
+            CREATE TRIGGER IF NOT EXISTS trigger_insert_enc_act_unicity
+            BEFORE UPDATE OF enc_act_id ON t_enc_encode
+            BEGIN
+                SELECT
+                    CASE
+                        WHEN NEW.enc_act_id IN (
+                            SELECT enc_act_id FROM t_enc_encode
+                            UNION ALL SELECT dec_act_id FROM t_dec_decode
+                            UNION ALL SELECT env_act_id FROM t_env_environement
+                        ) THEN
+                            RAISE (ABORT, 'act_id has to be unique')
+                    END;
+            END;
+        """)
+        cursor.execute("""
+            CREATE TRIGGER IF NOT EXISTS trigger_insert_dec_act_unicity
+            BEFORE INSERT ON t_dec_decode
+            BEGIN
+                SELECT
+                    CASE
+                        WHEN NEW.dec_act_id IN (
+                            SELECT enc_act_id FROM t_enc_encode
+                            UNION ALL SELECT dec_act_id FROM t_dec_decode
+                            UNION ALL SELECT env_act_id FROM t_env_environement
+                        ) THEN
+                            RAISE (ABORT, 'act_id has to be unique')
+                    END;
+            END;
+        """)
+        cursor.execute("""
+            CREATE TRIGGER IF NOT EXISTS trigger_insert_dec_act_unicity
+            BEFORE UPDATE OF dec_act_id ON t_dec_decode
+            BEGIN
+                SELECT
+                    CASE
+                        WHEN NEW.dec_act_id IN (
+                            SELECT enc_act_id FROM t_enc_encode
+                            UNION ALL SELECT dec_act_id FROM t_dec_decode
+                            UNION ALL SELECT env_act_id FROM t_env_environement
+                        ) THEN
+                            RAISE (ABORT, 'act_id has to be unique')
+                    END;
+            END;
+        """)
         cursor.close()
 
 
