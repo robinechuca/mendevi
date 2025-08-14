@@ -109,11 +109,11 @@ def create_database(filename: str | bytes | pathlib.Path):
             /* TASK DESCRIPTION */
             enc_cmd TEXT,  -- exact ffmpeg command used
             enc_effort TINYTEXT CHECK(enc_effort IN ('fast', 'medium', 'slow')),  -- equivalent preset used for encoding
-            enc_encoder TINYTEXT CHECK(enc_profile IN ('libx264', 'libx265', 'libvpx-vp9', 'libsvtav1', 'vvc')),  -- the encoder name
+            enc_encoder TINYTEXT CHECK(enc_encoder IN ('libx264', 'libx265', 'libvpx-vp9', 'libsvtav1', 'vvc')),  -- the encoder name
             enc_file TEXT,  -- name of the source video file
             enc_profile TINYTEXT CHECK(enc_profile IN ('sd', 'hd', 'uhd', 'uhd4k')),  -- general profile used
             enc_quality FLOAT CHECK(enc_quality >= 0.0 AND enc_quality <= 1.0),  -- normlize crf in [0, 1]
-            enc_threads SMALLINT  -- number of threads used
+            enc_threads SMALLINT CHECK(enc_threads >= 0)  -- number of threads used
         )""")
         cursor.execute("""
             CREATE TRIGGER IF NOT EXISTS trigger_insert_env_act_unicity

@@ -146,7 +146,7 @@ def encode_and_store(
     database.execute("""INSERT INTO t_enc_encode
         (
             enc_vid_id, enc_env_id, enc_act_id,
-            enc_cmd, enc_effort, enc_encoder, enc_file, enc_profile, enc_quality, enc_quality, enc_threads
+            enc_cmd, enc_effort, enc_encoder, enc_file, enc_profile, enc_quality, enc_threads
         )
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
         (
