@@ -12,11 +12,12 @@ import numpy as np
 
 from mendevi.context import full_context
 from mendevi.utils import Activity
-from .create import is_sqlite
+from .create import ENV_UNIQUE, is_sqlite
+from .serialize import list_to_binary, tensor_to_binary
 
 
-def idle(duration: float=60.0) -> dict:
-    """Measure the idle consuption.
+def get_idle(duration: float=60.0) -> dict:
+    """Measure the idle consumption.
 
     Parameters
     ----------
@@ -38,8 +39,8 @@ def idle(duration: float=60.0) -> dict:
 
     Examples
     --------
-    >>> from mendevi.database.complete import idle
-    >>> idle()
+    >>> from mendevi.database.complete import get_idle
+    >>> get_idle()
     >>>
     """
     assert isinstance(duration, float), duration.__class__.__name__
@@ -59,18 +60,7 @@ def idle(duration: float=60.0) -> dict:
         if "wattmeter_power" in activity:
             printer.print(f"avg wattmeter power: {activity['wattmeter_power']:.2g} W")
 
-    # select and rename fields
-    return {
-        "duration": activity["duration"],
-        "ps_core": activity["ps_cores"],
-        "ps_dt": activity["ps_dt"],
-        "ps_ram": activity["ps_ram"],
-        "rapl_dt": activity.get("rapl_dt", None),
-        "rapl_power": activity.get("rapl_powers", None),
-        "start": activity["start"],
-        "wattmeter_dt": activity.get("wattmeter_dt", None),
-        "wattmeter_power": activity.get("wattmeter_powers", None),
-    }
+    return activity
 
 
 def add_environement(database: sqlite3.Cursor | str | bytes | pathlib.Path) -> int:
@@ -108,15 +98,54 @@ def add_environement(database: sqlite3.Cursor | str | bytes | pathlib.Path) -> i
             cursor.close()
             return key
 
-    # get context
-    context = full_context()
+    # try to set the context
+    environement = full_context()
+    environement = {f"env_{k}": v for k, v in environement.items()}
+    keys = list(environement)  # to keep order
+    try:
+        (env_id,) = database.execute(
+            (
+                f"INSERT INTO t_env_environement ({', '.join(keys)}) "
+                f"VALUES ({', '.join('?'*len(keys))}) RETURNING env_id"
+            ),
+            [environement[k] for k in keys],
+        ).fetchone()
+    except sqlite3.IntegrityError:
+        (env_id,) = database.execute(
+            (
+                "SELECT env_id FROM t_env_environement "
+                f"WHERE {' AND '.join(f'{k}=?' for k in ENV_UNIQUE)}"
+            ),
+            [environement[k] for k in ENV_UNIQUE],
+        ).fetchone()
+        return env_id
 
-    # search if context is in database
-    keys = list(context)
-    (env_id,) = database.execute(
-        f"INSERT INTO environement ({', '.join(keys)}) VALUES ({', '.join('?'*len(keys))}) RETURNING id",
-        [context[k] for k in keys],
+    # get idle
+    idle = get_idle()
+    idle = {
+        "act_duration": idle["duration"],
+        "act_ps_core": tensor_to_binary(idle["ps_cores"]),
+        "act_ps_dt": list_to_binary(idle["ps_dt"]),
+        "act_ps_ram": list_to_binary(idle["ps_ram"]),
+        "act_rapl_dt": list_to_binary(idle.get("rapl_dt", None)),
+        "act_rapl_power": list_to_binary(idle.get("rapl_powers", None)),
+        "act_start": idle["start"],
+        "act_wattmeter_dt": list_to_binary(idle.get("wattmeter_dt", None)),
+        "act_wattmeter_power": list_to_binary(idle.get("wattmeter_powers", None)),
+    }
+    keys = list(idle)
+    (act_id,) = database.execute(
+        (
+            f"INSERT INTO t_act_activity ({', '.join(keys)}) "
+            f"VALUES ({', '.join('?'*len(keys))}) RETURNING act_id"
+        ),
+        [idle[k] for k in keys],
     ).fetchone()
-
+    database.execute(
+        (
+            f"UPDATE t_env_environement SET env_act_id={act_id} "
+            f"WHERE {' AND '.join(f'{k}=?' for k in ENV_UNIQUE)}"
+        ),
+        [environement[k] for k in ENV_UNIQUE],
+    )
     return env_id
-

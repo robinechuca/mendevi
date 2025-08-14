@@ -6,6 +6,9 @@ import pathlib
 import sqlite3
 
 
+ENV_UNIQUE = ["env_ffmpeg_version", "env_hostname", "env_logical_cores", "env_ram"]
+
+
 def create_database(filename: str | bytes | pathlib.Path):
     """Create a new SQL database to store all video informations.
 
@@ -27,110 +30,90 @@ def create_database(filename: str | bytes | pathlib.Path):
 
     with sqlite3.connect(filename) as sql_database:
         cursor = sql_database.cursor()
-        cursor.execute("""CREATE TABLE environement (
-            id INTEGER PRIMARY KEY,
+        cursor.execute("""CREATE TABLE IF NOT EXISTS t_act_activity (
+            act_id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+            /* MEASURES */
+            act_start TIMESTAMP NOT NULL,  -- absolute start timestamp
+            act_duration FLOAT NOT NULL CHECK(act_duration > 0.0),  -- full encoding time in seconds
+            act_rapl_dt LONGBLOB,  -- list of the duration of each interval in seconds
+            act_rapl_power LONGBLOB,  -- list of the average power in watt in each interval
+            act_wattmeter_dt LONGBLOB,  -- list of the duration of each interval in seconds
+            act_wattmeter_power LONGBLOB,  -- list of the sampled power in watt in each point
+            act_ps_dt LONGBLOB,  -- list of the duration of each interval in seconds
+            act_ps_core LONGBLOB,  -- tensor of detailed usage of each logical core in %
+            act_ps_ram LONGBLOB  -- list of the sampled ram usage in bytes in each point
+        )""")
+        cursor.execute(f"""CREATE TABLE IF NOT EXISTS t_env_environement (
+            env_id INTEGER PRIMARY KEY AUTOINCREMENT,
 
             /* CONTEXT DETAILS */
-            ffmpeg_version MEDIUMTEXT NOT NULL,
-            hostname TINYTEXT NOT NULL,
-            kernel_version TINYTEXT,
-            libsvtav1_version MEDIUMTEXT,
-            libvpx_vp9_version MEDIUMTEXT,
-            libx265_version MEDIUMTEXT,
-            logical_cores INTEGER NOT NULL,
-            lshw LONGTEXT,
-            physical_cores INTEGER,
-            pip_freeze MEDIUMTEXT NOT NULL,
-            processor TINYTEXT,
-            python_compiler TINYTEXT,
-            python_version TINYTEXT NOT NULL,
-            ram INTEGER NOT NULL,
-            swap INTEGER,
-            system_version MEDIUMTEXT,
-            vvc_version MEDIUMTEXT,
+            env_ffmpeg_version MEDIUMTEXT NOT NULL,
+            env_hostname TINYTEXT NOT NULL,
+            env_kernel_version TINYTEXT,
+            env_libsvtav1_version MEDIUMTEXT,
+            env_libvpx_vp9_version MEDIUMTEXT,
+            env_libx265_version MEDIUMTEXT,
+            env_logical_cores INTEGER NOT NULL,
+            env_lshw LONGTEXT,
+            env_physical_cores INTEGER,
+            env_pip_freeze MEDIUMTEXT NOT NULL,
+            env_processor TINYTEXT,
+            env_python_compiler TINYTEXT,
+            env_python_version TINYTEXT NOT NULL,
+            env_ram INTEGER NOT NULL,
+            env_swap INTEGER,
+            env_system_version MEDIUMTEXT,
+            env_vvc_version MEDIUMTEXT,
 
             /* IDLE MEASURES */
-            start TIMESTAMP,  -- absolute start timestamp
-            duration FLOAT CHECK(duration > 0.0),  -- full encoding time in seconds
-            rapl_dt LONGBLOB,  -- list of the duration of each interval in seconds
-            rapl_power LONGBLOB,  -- list of the average power in watt in each interval
-            wattmeter_dt LONGBLOB,  -- list of the duration of each interval in seconds
-            wattmeter_power LONGBLOB,  -- list of the sampled power in watt in each point
-            ps_dt LONGBLOB,  -- list of the duration of each interval in seconds
-            ps_core LONGBLOB,  -- tensor of detailed usage of each logical core in %
-            ps_ram LONGBLOB,  -- list of the sampled ram usage in bytes in each point
+            env_act_id INTEGER REFERENCES t_act_activity(act_id),  -- link to activity table
 
             /* CONSTRAINTS */
-            UNIQUE(
-                ffmpeg_version,
-                hostname,
-                logical_cores,
-                python_version,
-                ram
-            ) ON CONFLICT REPLACE
+            UNIQUE({", ".join(ENV_UNIQUE)}) ON CONFLICT FAIL
         )""")
-        cursor.execute("""CREATE TABLE video (
-            id BINARY(128) PRIMARY KEY,  -- md5 hash of the video
+        cursor.execute("""CREATE TABLE IF NOT EXISTS t_vid_video (
+            vid_id BINARY(128) PRIMARY KEY,  -- md5 hash of the video
 
             /* VIDEO CONTENT */
-            height SMALLINT CHECK(height > 0),  -- display height
-            width SMALLINT CHECK(width > 0),  -- display width
-            eotf TINYTEXT,  -- name of the electro optical transfer function
-            gamut TINYTEXT,  -- name of the color space
-            subsampling TINYTEXT CHECK(subsampling IN ('444', '422', '420')),  -- yuv pixel subsampling
-            codec TINYTEXT,  -- the codec name
-            duration FLOAT CHECK(duration > 0.0),  -- video duration in second
-            size BIGINT CHECK(width >= 0),  -- file size in bytes
-            frames LONGBLOB,  -- serialized version of the metadata of all frames
+            vid_codec TINYTEXT,  -- the codec name
+            vid_duration FLOAT CHECK(vid_duration > 0.0),  -- video duration in second
+            vid_eotf TINYTEXT,  -- name of the electro optical transfer function
+            vid_fps FLOAT CHECK(vid_fps > 0.0),  -- theorical framerate of the video
+            vid_frames LONGBLOB,  -- serialized version of the metadata of all frames
+            vid_gamut TINYTEXT,  -- name of the color space
+            vid_height SMALLINT CHECK(vid_height > 0),  -- display height
+            vid_size BIGINT CHECK(vid_width >= 0),  -- file size in bytes
+            vid_subsampling TINYTEXT CHECK(vid_subsampling IN ('444', '422', '420')),  -- yuv pixel subsampling
+            vid_width SMALLINT CHECK(vid_width > 0),  -- display width
 
             /* METRICS */
-            lpips_alex LONGBLOB,  -- list lpips with alex for each frame
-            lpips_vgg LONGBLOB,  -- list lpips with vgg for each frame
-            psnr LONGBLOB,  -- list of the psnr (6, 1, 1) metric for each frame
-            ssim LONGBLOB,  -- list of the ssim (6, 1, 1) metric for each frame, gauss win 11x11
-            uvq LONGBLOB  -- list of the google uvq metric for each second of video
+            vid_lpips_alex LONGBLOB,  -- list lpips with alex for each frame
+            vid_lpips_vgg LONGBLOB,  -- list lpips with vgg for each frame
+            vid_psnr LONGBLOB,  -- list of the psnr (6, 1, 1) metric for each frame
+            vid_ssim LONGBLOB,  -- list of the ssim (6, 1, 1) metric for each frame, gauss win 11x11
+            vid_uvq LONGBLOB  -- list of the google uvq metric for each second of video
         )""")
-        cursor.execute("""CREATE TABLE decode (
-            id INTEGER PRIMARY KEY,
-            video BINARY(128) REFERENCES video(id),  -- link to video table
-            environement_id INTEGER REFERENCES environement(id),  -- link to environement table
-
-            /* MEASURES */
-            start TIMESTAMP,  -- absolute start timestamp
-            duration FLOAT CHECK(duration > 0.0),  -- full encoding time in seconds
-            rapl_dt LONGBLOB,  -- list of the duration of each interval in seconds
-            rapl_power LONGBLOB,  -- list of the average power in watt in each interval
-            wattmeter_dt LONGBLOB,  -- list of the duration of each interval in seconds
-            wattmeter_power LONGBLOB,  -- list of the sampled power in watt in each point
-            ps_dt LONGBLOB,  -- list of the duration of each interval in seconds
-            ps_core LONGBLOB,  -- tensor of detailed usage of each logical core in %
-            ps_ram LONGBLOB  -- list of the sampled ram usage in bytes in each point
+        cursor.execute("""CREATE TABLE IF NOT EXISTS t_dec_decode (
+            dec_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            dec_vid_id BINARY(128) NOT NULL REFERENCES t_vid_video(vid_id) ON DELETE CASCADE,  -- link to video table
+            dec_env_id INTEGER NOT NULL REFERENCES t_env_environement(env_id) ON DELETE CASCADE,  -- link to environement table
+            dec_act_id INTEGER REFERENCES t_act_activity(act_id)  -- link to activity table
         )""")
-        cursor.execute("""CREATE TABLE encode (
-            id INTEGER PRIMARY KEY,
-            video BINARY(128) REFERENCES video(id),  -- link to video table
-            environement_id INTEGER REFERENCES environement(id),  -- link to environement table
+        cursor.execute("""CREATE TABLE IF NOT EXISTS t_enc_encode (
+            enc_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            enc_vid_id BINARY(128) NOT NULL REFERENCES t_vid_video(vid_id) ON DELETE CASCADE,  -- link to video table
+            enc_env_id INTEGER NOT NULL REFERENCES t_env_environement(env_id) ON DELETE CASCADE,  -- link to environement table
+            dec_act_id INTEGER REFERENCES t_act_activity(act_id),  -- link to activity table
 
             /* TASK DESCRIPTION */
-            cmd TEXT NOT NULL,  -- exact ffmpeg command used
-            effort TINYTEXT,  -- equivalent preset used for encoding
-            encoder TINYTEXT,  -- the encoder name
-            file TEXT,  -- stem name of the source video file
-            fps FLOAT,  -- framerate of the encoded video
-            profile TINYTEXT,  -- general profile used
-            quality FLOAT,  -- normlize crf in [0, 1]
-            threads SMALLINT,  -- number of threads used
-
-            /* MEASURES */
-            start TIMESTAMP,  -- absolute start timestamp
-            duration FLOAT CHECK(duration > 0.0),  -- full encoding time in seconds
-            rapl_dt LONGBLOB,  -- list of the duration of each interval in seconds
-            rapl_power LONGBLOB,  -- list of the average power in watt in each interval
-            wattmeter_dt LONGBLOB,  -- list of the duration of each interval in seconds
-            wattmeter_power LONGBLOB,  -- list of the sampled power in watt in each point
-            ps_dt LONGBLOB,  -- list of the duration of each interval in seconds
-            ps_core LONGBLOB,  -- tensor of detailed usage of each logical core in %
-            ps_ram LONGBLOB  -- list of the sampled ram usage in bytes in each point
+            enc_cmd TEXT NOT NULL,  -- exact ffmpeg command used
+            enc_effort TINYTEXT,  -- equivalent preset used for encoding
+            enc_encoder TINYTEXT,  -- the encoder name
+            enc_file TEXT,  -- stem name of the source video file
+            enc_profile TINYTEXT,  -- general profile used
+            enc_quality FLOAT,  -- normlize crf in [0, 1]
+            enc_threads SMALLINT  -- number of threads used
         )""")
         cursor.close()
 
