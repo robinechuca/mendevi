@@ -19,14 +19,14 @@
     :alt: [downloads]
     :target: https://www.pepy.tech/projects/mendevi
 
-.. image:: https://readthedocs.org/projects/cutcutcodec/badge/?version=latest
+.. image:: https://readthedocs.org/projects/mendevi/badge/?version=latest
     :alt: [documentation]
-    :target: https://mendevi.readthedocs.io
+    :target: https://mendevi.readthedocs.io/stable
 
 Useful links:
-`Binary Installers <https://pypi.org/project/cutcutcodec>`_ |
-`Source Repository <https://framagit.org/robinechuca/cutcutcodec>`_ |
-`Online Documentation <https://cutcutcodec.readthedocs.io/stable>`_ |
+`Binary Installers <https://pypi.org/project/mendevi>`_ |
+`Source Repository <https://gitlab.inria.fr/rrichard/mendevi>`_ |
+`Online Documentation <https://mendevi.readthedocs.io/stable>`_ |
 
 
 Description
@@ -44,6 +44,14 @@ It manages the following parameters:
 #. Energy measurements are catched with ``RAPL`` and an external wattmeter on ``Grid'5000``.
 #. Get the ``cpu`` and ``ram`` activity.
 #. Get a full environement context
+
+
+Pipeline
+========
+
+.. image:: https://gitlab.inria.fr/rrichard/mendevi/-/blob/main/docs/images/database.svg
+    :alt: Pipeline
+
 
 
 Alternatives

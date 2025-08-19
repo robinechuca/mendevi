@@ -1,0 +1,93 @@
+# dot -Tsvg pipeline.dot > pipeline.svg
+digraph pipeline {
+    rankdir=LR
+
+    # data
+    src [label="Input", shape=Mdiamond, style=filled, fillcolor=white]
+    ref [label="Reference", shape=Mdiamond, style=filled, fillcolor=white]
+    dst [label="Output", shape=Mdiamond, style=filled, fillcolor=white]
+
+    # parameters
+    colorspace [label="Colorspace", shape=note, style=filled, fillcolor=white]
+    fps [label="fps", shape=note, style=filled, fillcolor=white]
+    pxl [label="Pxl Format", shape=note, style=filled, fillcolor=white]
+    resol [label="Resolution", shape=note, style=filled, fillcolor=white]
+
+    effort [label="Effort", shape=note, style=filled, fillcolor=white]
+    encoder [label="Encoder", shape=note, style=filled, fillcolor=white]
+    quality [label="Quality", shape=note, style=filled, fillcolor=white]
+    threads [label="Threads", shape=note, style=filled, fillcolor=white]
+
+    database [label="Database", shape=folder, style=filled, fillcolor=white]
+
+    # process
+    prepare [label="Transcode", style=filled, fillcolor=white]
+    trans1 [label="Transcode 1", style=filled, fillcolor=white]
+    trans2 [label="Transcode 2", style=filled, fillcolor=white]
+    transi [label="...", style=filled, fillcolor=white]
+    transn [label="Transcode n", style=filled, fillcolor=white]
+    decode [label="Decode", style=filled, fillcolor=white]
+    probe [label="Probe", style=filled, fillcolor=white]
+    idle [label="IDLE", style=filled, fillcolor=white]
+
+    # blocs
+    subgraph clus_prepare {
+        cluster=true
+        label="step: Preparation"
+        bgcolor="#e0ffff"
+        prepare
+    }
+    subgraph clus_energy {
+        cluster=true
+        label="Measure activity"
+        bgcolor="#ffffe0"
+        subgraph clus_encode {
+            cluster=true
+            label="step: Encode"
+            bgcolor="#e0ffff"
+            trans1
+            trans2
+            transi
+            transn
+        }
+        subgraph clus_decode {
+            cluster=true
+            label="step: Decode"
+            bgcolor="#e0ffff"
+            decode
+        }
+        idle
+    }
+    subgraph clus_probe {
+        cluster=true
+        label="step: Probe"
+        bgcolor="#e0ffff"
+        probe
+    }
+
+    # parameters blocs
+    subgraph clus_param_prepare {
+        cluster=true
+        label="Parameters"
+        bgcolor="#ffe0ff"
+        colorspace
+        fps
+        pxl
+        resol
+    }
+    subgraph clus_param_encode {
+        cluster=true
+        label="Parameters"
+        bgcolor="#ffe0ff"
+        effort
+        encoder
+        quality
+        threads
+    }
+
+    # pipeline
+    src -> prepare -> ref -> {decode, probe, trans1, trans2, transi, transi} -> dst -> {decode, probe}
+    {colorspace, fps, pxl, resol} -> prepare [arrowhead=none, style=dashed]
+    {effort, encoder, quality, threads} -> transn [arrowhead=none, style=dashed]
+    {idle, transn, decode, probe} -> database [style=dotted, minlen=2]
+}
