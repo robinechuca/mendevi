@@ -21,12 +21,12 @@
 
 .. image:: https://readthedocs.org/projects/mendevi/badge/?version=latest
     :alt: [documentation]
-    :target: https://mendevi.readthedocs.io/stable
+    :target: https://mendevi.readthedocs.io
 
 Useful links:
 `Binary Installers <https://pypi.org/project/mendevi>`_ |
 `Source Repository <https://gitlab.inria.fr/rrichard/mendevi>`_ |
-`Online Documentation <https://mendevi.readthedocs.io/stable>`_ |
+`Online Documentation <https://mendevi.readthedocs.io>`_ |
 
 
 Description
@@ -49,7 +49,7 @@ It manages the following parameters:
 Pipeline
 ========
 
-.. image:: https://gitlab.inria.fr/rrichard/mendevi/-/blob/main/docs/images/database.svg
+.. image:: https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/docs/images/pipeline.svg
     :alt: Pipeline
 
 
