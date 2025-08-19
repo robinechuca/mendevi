@@ -54,7 +54,7 @@ graph database {
         <TR><TD ALIGN="LEFT">env_libvpx_vp9_version</TD><TD ALIGN="LEFT">MEDIUMTEXT</TD></TR>
         <TR><TD ALIGN="LEFT">env_libx265_version</TD><TD ALIGN="LEFT">MEDIUMTEXT</TD></TR>
         <TR><TD ALIGN="LEFT">env_logical_cores</TD><TD ALIGN="LEFT">INTEGER</TD></TR>
-        <TR><TD ALIGN="LEFT">env_lshw</TD><TD ALIGN="LEFT">LONGTEXT</TD></TR>
+        <TR><TD ALIGN="LEFT">env_lshw</TD><TD ALIGN="LEFT">JSON</TD></TR>
         <TR><TD ALIGN="LEFT">env_physical_cores</TD><TD ALIGN="LEFT">INTEGER</TD></TR>
         <TR><TD ALIGN="LEFT">env_pip_freeze</TD><TD ALIGN="LEFT">MEDIUMTEXT</TD></TR>
         <TR><TD ALIGN="LEFT">env_processor</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>

@@ -174,7 +174,7 @@
 <polygon fill="none" stroke="black" points="108,-650 108,-675 287,-675 287,-650 108,-650"/>
 <text text-anchor="start" x="113" y="-658.8" font-family="Times,serif" font-size="14.00">env_lshw</text>
 <polygon fill="none" stroke="black" points="287,-650 287,-675 403,-675 403,-650 287,-650"/>
-<text text-anchor="start" x="292" y="-658.8" font-family="Times,serif" font-size="14.00">LONGTEXT</text>
+<text text-anchor="start" x="292" y="-658.8" font-family="Times,serif" font-size="14.00">JSON</text>
 <polygon fill="none" stroke="black" points="108,-625 108,-650 287,-650 287,-625 108,-625"/>
 <text text-anchor="start" x="113" y="-633.8" font-family="Times,serif" font-size="14.00">env_physical_cores</text>
 <polygon fill="none" stroke="black" points="287,-625 287,-650 403,-650 403,-625 287,-625"/>

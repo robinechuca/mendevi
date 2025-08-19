@@ -49,7 +49,7 @@ env_hostname
 | env_hostname | `TINYTEXT` |
 +--------------+------------+
 
-The username, given by `platform.node()`, from the function `get_platform <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.context.get_platform.html>`_.
+The username, given by ``platform.node()``, from the function `get_platform <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.context.get_platform.html>`_.
 
 .. code:: text
 
@@ -62,9 +62,116 @@ env_kernel_version
 | env_kernel_version | `TINYTEXT` |
 +--------------------+------------+
 
-The version of the Linux kernel, given by `platform.platform()`, from the function `get_platform <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.context.get_platform.html>`_.
+The version of the Linux kernel, given by ``platform.platform()``, from the function `get_platform <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.context.get_platform.html>`_.
 
 .. code:: text
 
     Linux-6.11.0-29-generic-x86_64-with-glibc2.40
 
+env_libsvtav1_version
+---------------------
+
++-----------------------+------------+
+| env_libsvtav1_version | MEDIUMTEXT |
++-----------------------+------------+
+
+The version of the libsvtav1 encoder and the version of the compiler for this library. It comes from the function `get_libsvtav1_version <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.context.get_libsvtav1_version.html>`_.
+
+.. code:: text
+
+    v3.0.2-103-gc10214fa
+    GCC 14.2.0 64 bit
+
+env_libvpx_vp9_version
+----------------------
+
++------------------------+------------+
+| env_libvpx_vp9_version | MEDIUMTEXT |
++------------------------+------------+
+
+The version of the libvpx-vp9 encoder. It comes from the function `get_libvpx_vp9_version <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.context.get_libvpx_vp9_version.html>`_.
+
+.. code:: text
+
+    v1.14.1
+
+env_libx265_version
+-------------------
+
++---------------------+------------+
+| env_libx265_version | MEDIUMTEXT |
++---------------------+------------+
+
+The version of the libx265 encoder and the version of the compiler for this library. It comes from the function `get_libx265_version <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.context.get_libx265_version.html>`_.
+
+.. code:: text
+
+    4.1+188-cd4f0d6e9
+    [Linux][GCC 14.2.0][64 bit] 8bit+10bit+12bit
+    MMX2 SSE2Fast LZCNT SSSE3 SSE4.2 AVX FMA3 BMI2 AVX2
+
+env_logical_cores
+-----------------
+
++-------------------+---------+
+| env_logical_cores | INTEGER |
++-------------------+---------+
+
+The number of logical (threaded) cores, in general more than the number of physical cores. It is given by ``psutil.cpu_count(logical=True)``, from the function `get_platform <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.context.get_platform.html>`_.
+
+
+env_lshw
+--------
+
++----------+------+
+| env_lshw | JSON |
++----------+------+
+
+A wealth of information on machine components, processor architecture, etc.
+
+.. important::
+
+    The **lshw** library must be installed.
+    Refer the :ref:`full_installation` guide.
+
+.. note::
+
+    To access all information, the programme must have root privileges.
+    Otherwise, some of the information will be missing.
+
+.. code:: json
+
+    {
+        "id": "ptb-5cg4414jjd",
+        "class": "system",
+        "claimed": true,
+        "description": "Computer",
+        "width": 64,
+        "capabilities": {
+            "smp" : "Symmetric Multi-Processing",
+            "vsyscall32" : "processus 32 bits"
+        },
+        "children" : [
+            {
+                "id": "core",
+                "class": "bus",
+                "claimed": true,
+                "description": "Motherboard",
+                "physid": "0",
+                "children": ...
+            },
+            {
+                "id" : "cpu",
+                "class" : "processor",
+                ...
+                "configuration" : {
+                    "microcode" : "36"
+                },
+                "capabilities" : {
+                    "fpu" : "mathematical co-processor",
+                    ...
+                    "cpufreq" : "CPU Frequency scaling"
+                }
+            }
+        ]
+    }

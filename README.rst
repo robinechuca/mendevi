@@ -41,7 +41,7 @@ It manages the following parameters:
 #. Distortions are measured using the ``lpips``, ``psnr``, ``ssim`` and ``vmaf`` metrics.
 #. Encoding efforts are ``fast``, ``medium`` and ``slow``.
 #. Iterate over different ``threads``, ``quality``, ``effort``, ...
-#. Energy measurements are catched with ``RAPL`` and an external wattmeter on ``Grid'5000``.
+#. Energy measurements are catched with ``RAPL`` and an external wattmeter on ``grid'5000``.
 #. Get the ``cpu`` and ``ram`` activity.
 #. Get a full environement context
 
