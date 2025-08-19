@@ -2,21 +2,31 @@
 
 """Perform encoding measures."""
 
+import fractions
 import hashlib
+import itertools
 import pathlib
+import re
 import shlex
 import shutil
 import sqlite3
 import subprocess
 import tempfile
 
-from mendevi.database.create import is_sqlite
+from context_verbose import Printer
+import click
+import cutcutcodec
+import numpy as np
+import tqdm
+
+from mendevi.database.complete import add_environement
+from mendevi.database.create import create_database, is_sqlite
 from mendevi.database.serialize import list_to_binary, tensor_to_binary
 from .utils import Activity
 from .profiles import PROFILES
 
 
-ENCODERS = ["libx264", "libx265", "libvpx-vp9", "libsvtav1", "vvc"]
+ENCODERS = {"libx264", "libx265", "libvpx-vp9", "libsvtav1", "vvc"}
 
 
 def encode(src: pathlib.Path, *args, **kwargs) -> tuple[pathlib.Path, dict[str]]:
@@ -32,7 +42,7 @@ def encode(src: pathlib.Path, *args, **kwargs) -> tuple[pathlib.Path, dict[str]]
     Returns
     -------
     dst : pathlib.Path
-        The transcoded video path. The stem is the md5 hash of the file content.
+        The transcoded video path. The stem contains the md5 hash of the file content.
     cmd : str
         The ffmpeg command
     activity : dict[str]
@@ -46,24 +56,65 @@ def encode(src: pathlib.Path, *args, **kwargs) -> tuple[pathlib.Path, dict[str]]
     signature = hashlib.md5(bytes(src) + (" ".join(cmd)).encode("utf-8")).hexdigest()
     dst = pathlib.Path(tempfile.gettempdir()) / f"{signature}.mp4"
 
-    # transcode
-    cmd = [
-        "ffmpeg", "-y", "-hide_banner",
-        "-i", str(src), "-c:v", *cmd,
-        str(dst),
-    ]
-    with Activity() as activity:
-        process = subprocess.run(cmd, check=True)
+    # display
+    with Printer(f"Execute: <{' '.join(map(shlex.quote, cmd))}>...", color="white") as prt:
+        prt.print(f"input video: {src.name}")
+        duration = round(float(cutcutcodec.get_duration_video(src)), 2)
+        load = tqdm.tqdm(
+            dynamic_ncols=True,
+            leave=False,
+            smoothing=1e-2,
+            total=duration,
+            unit="s",
+        )
 
-    # compute file hash
-    with open(dst, "rb") as raw:
-        signature = hashlib.file_digest(raw, "md5").hexdigest()
+        # transcode
+        cmd = [
+            "ffmpeg", "-y", "-hide_banner",
+            "-i", str(src), "-c:v", *cmd,
+            str(dst),
+        ]
+        with Activity() as activity, subprocess.Popen(cmd, stderr=subprocess.PIPE) as process:
+            out = b""
+            is_finish = False
+            while not is_finish:
+                while (
+                    match := re.search(br"time=(?P<h>\d+):(?P<m>\d{1,2}):(?P<s>\d{1,2}\.\d*)", out)
+                ) is None:
+                    if not (buff := process.stderr.read(32)):
+                        is_finish = True
+                        break
+                    out += buff
+                else:
+                    out = out[match.endpos:]
+                    elapsed = round(
+                        3600.0*float(match["h"]) + 60.0*float(match["m"]) + float(match["s"]),
+                        2,
+                    )
+                    load.total = max(load.total, elapsed)
+                    load.update(elapsed-load.n)
+            load.close()
+            if process.returncode:
+                raise RuntimeError(f"failed to execute {cmd}")
+
+        # print
+        prt.print(f"avg cpu usage: {activity['ps_core']:.1f} %")
+        prt.print(f"avg ram usage: {1e-9*np.mean(activity['ps_ram']):.2g} Go")
+        if "rapl_power" in activity:
+            prt.print(f"avg rapl power: {activity['rapl_power']:.2g} W")
+        if "wattmeter_power" in activity:
+            prt.print(f"avg wattmeter power: {activity['wattmeter_power']:.2g} W")
+
+        # compute file hash
+        with open(dst, "rb") as raw:
+            signature = hashlib.file_digest(raw, "md5").hexdigest()
+        prt.print(f"output video: sample_{signature}.mp4")
 
     # move file
-    final_dst = src.parent / f"{signature}.mp4"
+    final_dst = src.parent / f"sample_{signature}.mp4"
     if not final_dst.exists():
-        shutil.copy(dst, src.parent / f"{signature}_partial.mp4")
-        shutil.move(src.parent / f"{signature}_partial.mp4", final_dst)
+        shutil.copy(dst, src.parent / f"sample_{signature}_partial.mp4")
+        shutil.move(src.parent / f"sample_{signature}_partial.mp4", final_dst)
     dst.unlink()
 
     cmd = " ".join(map(shlex.quote, cmd))
@@ -115,7 +166,7 @@ def encode_and_store(
     file, cmd, activity = encode(src, **kwargs)
 
     # fill video table
-    vid_id = file.stem
+    vid_id = re.search(r"[0-9a-f]{32}", file.stem).group()
     try:
         database.execute("INSERT INTO t_vid_video (vid_id) VALUES (?)", (vid_id,))
     except sqlite3.IntegrityError:
@@ -146,26 +197,25 @@ def encode_and_store(
     database.execute("""INSERT INTO t_enc_encode
         (
             enc_vid_id, enc_env_id, enc_act_id,
-            enc_cmd, enc_effort, enc_encoder, enc_file, enc_profile, enc_quality, enc_threads
+            enc_cmd, enc_effort, enc_encoder, enc_file, enc_quality, enc_threads
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
         (
             vid_id, env_id, act_id,
-            cmd, kwargs["effort"], kwargs["encoder"], src.name, kwargs["profile"], kwargs["quality"], kwargs["threads"]
+            cmd, kwargs["effort"], kwargs["encoder"], src.name, kwargs["quality"], kwargs["threads"]
         )
     )
 
 
 def get_transcode_cmd(
-    encoder: str, profile: str, effort: str, quality: float, threads: int
+    encoder: str, effort: str, quality: float, threads: int
 ) -> list[str]:
     """Return the ffmpeg encode cmd."""
     assert isinstance(encoder, str), encoder.__class__.__name__
-    assert isinstance(profile, str), profile.__class__.__name__
+    assert encoder in ENCODERS, encoder
     assert isinstance(effort, str), effort.__class__.__name__
     assert isinstance(quality, float), quality.__class__.__name__
     assert isinstance(threads, int), threads.__class__.__name__
-    assert profile in PROFILES, profile
     assert effort in {"slow", "medium", "fast"}, effort
     assert 0.0 <= quality <= 1.0, quality
     assert threads > 0, threads
@@ -179,10 +229,6 @@ def get_transcode_cmd(
         # lp=4 -> threads=12
         # lp=5 -> threads=16
         # lp=6 -> threads=20
-        lp = [1, 2, 3, 4, 5, 6]
-        threads = [1, 2, 8, 12, 16, 20]
-        plt.scatter(threads, lp)
-        plt.show()
         return {  # threads to lp
             1: 1,
             2: 2, 3: 2, 4: 2, 5: 2,
@@ -226,6 +272,7 @@ def get_transcode_cmd(
                 # "-threads", str(threads),
             ]
         case "vvc":
+            profile = "uhd"  # TODO: détecter automatiquement grace a la video source
             bit = int(re.search(r"(?P<bit>\d+)le", PROFILES[profile]["pix_fmt"] + "8le")["bit"])
             return [
                 "vvc",
@@ -236,3 +283,171 @@ def get_transcode_cmd(
                 "-threads", str(threads),
             ]
 
+
+@click.command()
+@click.argument("videos", type=click.Path(), nargs=-1)
+@click.option("-d", "--database", type=click.Path(), help="The database path.")
+@click.option(
+    "-r", "--repeat",
+    type=int,
+    default=2,
+    help="The number of times the experiment is repeated.",
+)
+@click.option(
+    "-e", "--effort",
+    type=click.Choice(["fast", "medium", "slow"]),
+    default=["medium"],
+    multiple=True,
+    help="The compression effort (default = medium).",
+)
+@click.option(
+    "-c", "--encoder",
+    type=click.Choice(sorted(ENCODERS)),
+    default=sorted(ENCODERS),
+    multiple=True,
+    help="The encoder name.",
+)
+@click.option(
+    "-n", "--points",
+    type=int,
+    default=24,
+    help="The number of quality point per encoder.",
+)
+@click.option(
+    "-t", "--threads",
+    type=int,
+    default=[8],
+    multiple=True,
+    help="The number of threads used by encoders.",
+)
+def main(videos: tuple, database: str = None, **kwargs):
+    """Measures activity during encoding.
+
+    \b
+    Parameters
+    ----------
+    videos : tuple[pathlike]
+        The source videos to be transcoded.
+    database : pathlike, optional
+        The path to the database where all measurements are stored.
+        By default, it is created right next to the video.
+    repeat : int, default=2
+        The number of times the experiment is repeated.
+        This allows us to estimate the variance of measurements.
+    effort : tuple[str], default=("medium",)
+        The effort made to compress, `fast`, `medium` or `slow`.
+    encoder : tuple[str], default=("libsvtav1", "libvpx-vp9", "libx264", "libx265", "vvc")
+        The encoders and therefore the codecs to use.
+    points : int, default=24
+        The number of different qualities to use.
+        It is an indirect way to determine the CRF or the QP.
+        The quality values are distributed evenly over ]0, 1[,
+        for example, points=3 => qualities=[0.25, 0.5, 0.75].
+    threads : int, default=8
+        The theoretical number of threads used by the encoder.
+        This roughly reflects the number of logical cores used.
+    """
+    with Printer("Parse configuration...") as prt:
+        # video
+        assert isinstance(videos, tuple), videos.__class__.__name__
+        assert videos, "at least one video is required"
+        videos = [pathlib.Path(v).expanduser() for v in videos]
+        assert all(v.is_file() for v in videos), videos
+        prt.print(f"videos   : {', '.join(map(str, videos))}")
+
+        # database
+        database = pathlib.Path(database or videos[0].parent / "mendevi.db").expanduser()
+        if not database.exists():
+            create_database(database)
+        prt.print(f"database : {database}")
+
+        # repeat
+        assert "repeat" in kwargs, sorted(kwargs)
+        assert isinstance(kwargs["repeat"], int), kwargs["repeat"].__class__.__name__
+        assert kwargs["repeat"] >= 1, kwargs["repeat"]
+        prt.print(f"repeat   : {kwargs['repeat']}")
+
+        # effort
+        assert "effort" in kwargs, sorted(kwargs)
+        assert isinstance(kwargs["effort"], tuple), kwargs["effort"].__class__.__name__
+        assert all(isinstance(p, str) for p in kwargs["effort"]), kwargs["effort"].__class__.__name__
+        assert all(p in {"fast", "medium", "slow"} for p in kwargs["effort"]), kwargs["effort"]
+        prt.print(f"efforts  : {', '.join(kwargs['effort'])}")
+
+        # encoder
+        assert "encoder" in kwargs, sorted(kwargs)
+        assert isinstance(kwargs["encoder"], tuple), kwargs["encoder"].__class__.__name__
+        assert all(isinstance(e, str) for e in kwargs["encoder"]), kwargs["encoder"].__class__.__name__
+        assert all(e in ENCODERS for e in kwargs["encoder"]), kwargs["encoder"]
+        prt.print(f"encoders : {', '.join(kwargs['encoder'])}")
+
+        # points
+        assert "points" in kwargs, sorted(kwargs)
+        assert isinstance(kwargs["points"], int), kwargs["points"].__class__.__name__
+        assert kwargs["points"] >= 1, kwargs["points"]
+        kwargs["quality"] = [
+            fractions.Fraction(i+1, kwargs["points"]+2)
+            for i in range(kwargs["points"])
+        ]
+        prt.print(f"qualities: k * {kwargs['quality'][0]}, k \u2208 [1, {kwargs['points']}]")
+        kwargs["quality"] = list(map(float, kwargs["quality"]))
+
+        # threads
+        assert "threads" in kwargs, sorted(kwargs)
+        assert isinstance(kwargs["threads"], tuple), kwargs["threads"].__class__.__name__
+        assert all(isinstance(t, int) for t in kwargs["threads"]), kwargs["threads"].__class__.__name__
+        assert all(t >= 1 for t in kwargs["threads"]), kwargs["threads"]
+        prt.print(f"threads  : {', '.join(map(str, kwargs['threads']))}")
+
+    # retrieves the settings for videos that have already been transcoded
+    env_id = add_environement(database)
+    with sqlite3.connect(database) as sql_database:
+        # sql_database.execute("PRAGMA journal_mode=WAL")
+        done: dict[tuple, int] = {}
+        for key in sql_database.execute(
+            """
+            SELECT enc_effort, enc_encoder, enc_file, enc_quality, enc_threads
+            FROM t_enc_encode WHERE enc_env_id=?
+            """,
+            (env_id,)
+        ):
+            done[key] = done.get(key, 0) + 1
+
+    # iterate on all the parameters
+    nbr = (
+        kwargs["repeat"]
+        * len(kwargs["threads"])
+        * len(kwargs["effort"])
+        * kwargs["points"]
+        * len(kwargs["encoder"])
+    )
+    for i, (repeat, video, threads, effort, quality, encoder) in enumerate(
+        itertools.product(
+            range(kwargs["repeat"]),
+            videos,
+            kwargs["threads"],
+            kwargs["effort"],
+            kwargs["quality"],
+            kwargs["encoder"],
+        )
+    ):
+        key = (effort, encoder, video.name, quality, threads)
+        if done.get(key, 0) > repeat:
+            continue
+        with Printer(
+            (
+                f"Encode {i}/{nbr}: "
+                f"video={video.name}, "
+                f"threads={threads}, "
+                f"effort={effort}, "
+                f"quality={quality:.2f}, "
+                f"encoder={encoder}..."
+            ),
+            color="cyan",
+        ) as prt:
+            encode_and_store(
+                database, env_id, video,
+                threads=threads, effort=effort, quality=quality, encoder=encoder,
+            )
+            done[key] = done.get(key, 0) + 1
+            prt.print_time()
