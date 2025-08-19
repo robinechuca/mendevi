@@ -26,16 +26,21 @@ license = {file = "LICENSE"}  # GPL-3.0-or-later
 # license = "GPL-3.0-or-later"
 keywords = [
   "av1",
+  "consumption",
   "energy",
   "h264",
   "h265",
   "h266",
   "measure",
+  "power",
   "psnr",
   "ssim",
+  "video decoding",
+  "video encoding",
   "video",
   "vmaf",
   "vp9",
+  "wattmeter",
 ]
 classifiers = [  # all classifiers https://pypi.org/classifiers/
   "Development Status :: 4 - Beta",

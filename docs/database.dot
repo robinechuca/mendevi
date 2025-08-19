@@ -1,0 +1,100 @@
+graph database {
+  node [shape=plaintext]
+  t_act_activity [
+    label=<
+      <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+        <TR><TD COLSPAN="2" BGCOLOR="lightblue"><B>t_act_activity</B></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT COLOR="gray">act_id</FONT></TD><TD ALIGN="LEFT"><FONT COLOR="blue">INTEGER</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT">act_start</TD><TD ALIGN="LEFT">TIMESTAMP</TD></TR>
+        <TR><TD ALIGN="LEFT">act_duration</TD><TD ALIGN="LEFT">FLOAT</TD></TR>
+        <TR><TD ALIGN="LEFT">act_rapl_dt</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
+        <TR><TD ALIGN="LEFT">act_rapl_power</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
+        <TR><TD ALIGN="LEFT">act_wattmeter_dt</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
+        <TR><TD ALIGN="LEFT">act_wattmeter_power</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
+        <TR><TD ALIGN="LEFT">act_ps_dt</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
+        <TR><TD ALIGN="LEFT">act_ps_core</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
+        <TR><TD ALIGN="LEFT">act_ps_ram</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
+      </TABLE>
+    >
+  ];
+  t_vid_video [
+    label=<
+      <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+        <TR><TD COLSPAN="2" BGCOLOR="lightblue"><B>t_vid_video</B></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT COLOR="gray">vid_id</FONT></TD><TD ALIGN="LEFT"><FONT COLOR="blue">BINARY(128)</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT">vid_codec</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>
+        <TR><TD ALIGN="LEFT">vid_duration</TD><TD ALIGN="LEFT">FLOAT</TD></TR>
+        <TR><TD ALIGN="LEFT">vid_eotf</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>
+        <TR><TD ALIGN="LEFT">vid_fps</TD><TD ALIGN="LEFT">FLOAT</TD></TR>
+        <TR><TD ALIGN="LEFT">vid_frames</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
+        <TR><TD ALIGN="LEFT">vid_gamut</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>
+        <TR><TD ALIGN="LEFT">vid_height</TD><TD ALIGN="LEFT">SMALLINT</TD></TR>
+        <TR><TD ALIGN="LEFT">vid_size</TD><TD ALIGN="LEFT">BIGINT</TD></TR>
+        <TR><TD ALIGN="LEFT">vid_subsampling</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>
+        <TR><TD ALIGN="LEFT">vid_width</TD><TD ALIGN="LEFT">SMALLINT</TD></TR>
+        <TR><TD ALIGN="LEFT">vid_bit_depth</TD><TD ALIGN="LEFT">SMALLINT</TD></TR>
+      </TABLE>
+    >
+  ];
+  t_env_environement [
+    label=<
+      <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+        <TR><TD COLSPAN="2" BGCOLOR="lightblue"><B>t_env_environement</B></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT COLOR="gray">env_id</FONT></TD><TD ALIGN="LEFT"><FONT COLOR="blue">INTEGER</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT">env_ffmpeg_version</TD><TD ALIGN="LEFT">MEDIUMTEXT</TD></TR>
+        <TR><TD ALIGN="LEFT">env_hostname</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>
+        <TR><TD ALIGN="LEFT">env_kernel_version</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>
+        <TR><TD ALIGN="LEFT">env_libsvtav1_version</TD><TD ALIGN="LEFT">MEDIUMTEXT</TD></TR>
+        <TR><TD ALIGN="LEFT">env_libvpx_vp9_version</TD><TD ALIGN="LEFT">MEDIUMTEXT</TD></TR>
+        <TR><TD ALIGN="LEFT">env_libx265_version</TD><TD ALIGN="LEFT">MEDIUMTEXT</TD></TR>
+        <TR><TD ALIGN="LEFT">env_logical_cores</TD><TD ALIGN="LEFT">INTEGER</TD></TR>
+        <TR><TD ALIGN="LEFT">env_lshw</TD><TD ALIGN="LEFT">LONGTEXT</TD></TR>
+        <TR><TD ALIGN="LEFT">env_physical_cores</TD><TD ALIGN="LEFT">INTEGER</TD></TR>
+        <TR><TD ALIGN="LEFT">env_pip_freeze</TD><TD ALIGN="LEFT">MEDIUMTEXT</TD></TR>
+        <TR><TD ALIGN="LEFT">env_processor</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>
+        <TR><TD ALIGN="LEFT">env_python_compiler</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>
+        <TR><TD ALIGN="LEFT">env_python_version</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>
+        <TR><TD ALIGN="LEFT">env_ram</TD><TD ALIGN="LEFT">INTEGER</TD></TR>
+        <TR><TD ALIGN="LEFT">env_swap</TD><TD ALIGN="LEFT">INTEGER</TD></TR>
+        <TR><TD ALIGN="LEFT">env_system_version</TD><TD ALIGN="LEFT">MEDIUMTEXT</TD></TR>
+        <TR><TD ALIGN="LEFT">env_vvc_version</TD><TD ALIGN="LEFT">MEDIUMTEXT</TD></TR>
+        <TR><TD ALIGN="LEFT">env_act_id</TD><TD ALIGN="LEFT">INTEGER</TD></TR>
+      </TABLE>
+    >
+  ];
+  t_dec_decode [
+    label=<
+      <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+        <TR><TD COLSPAN="2" BGCOLOR="lightblue"><B>t_dec_decode</B></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT COLOR="gray">dec_id</FONT></TD><TD ALIGN="LEFT"><FONT COLOR="blue">INTEGER</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT">dec_vid_id</TD><TD ALIGN="LEFT">BINARY(128)</TD></TR>
+        <TR><TD ALIGN="LEFT">dec_env_id</TD><TD ALIGN="LEFT">INTEGER</TD></TR>
+        <TR><TD ALIGN="LEFT">dec_act_id</TD><TD ALIGN="LEFT">INTEGER</TD></TR>
+      </TABLE>
+    >
+  ];
+  t_enc_encode [
+    label=<
+      <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+        <TR><TD COLSPAN="2" BGCOLOR="lightblue"><B>t_enc_encode</B></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT COLOR="gray">enc_id</FONT></TD><TD ALIGN="LEFT"><FONT COLOR="blue">INTEGER</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT">enc_vid_id</TD><TD ALIGN="LEFT">BINARY(128)</TD></TR>
+        <TR><TD ALIGN="LEFT">enc_env_id</TD><TD ALIGN="LEFT">INTEGER</TD></TR>
+        <TR><TD ALIGN="LEFT">enc_act_id</TD><TD ALIGN="LEFT">INTEGER</TD></TR>
+        <TR><TD ALIGN="LEFT">enc_cmd</TD><TD ALIGN="LEFT">TEXT</TD></TR>
+        <TR><TD ALIGN="LEFT">enc_effort</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>
+        <TR><TD ALIGN="LEFT">enc_encoder</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>
+        <TR><TD ALIGN="LEFT">enc_file</TD><TD ALIGN="LEFT">TEXT</TD></TR>
+        <TR><TD ALIGN="LEFT">enc_quality</TD><TD ALIGN="LEFT">FLOAT</TD></TR>
+        <TR><TD ALIGN="LEFT">enc_threads</TD><TD ALIGN="LEFT">SMALLINT</TD></TR>
+      </TABLE>
+    >
+  ];
+  t_enc_encode -- t_act_activity [minlen=3, taillabel="1", headlabel="1", xlabel="encoding\nressources", labeldistance=2.0]
+  t_enc_encode -- t_env_environement [minlen=3, taillabel="1", headlabel="*", xlabel="machine\ncontext", labeldistance=2.0]
+  t_enc_encode -- t_vid_video [minlen=3, taillabel="1", headlabel="*", xlabel="output\nvideo", labeldistance=2.0]
+  t_dec_decode -- t_act_activity [minlen=3, taillabel="1", headlabel="1", xlabel="decoding\nresources", labeldistance=2.0]
+  t_dec_decode -- t_env_environement [minlen=3, taillabel="1", headlabel="*", xlabel="machine\ncontext", labeldistance=2.0]
+  t_dec_decode -- t_vid_video [minlen=3, taillabel="1", headlabel="*", xlabel="input\nvideo", labeldistance=2.0]
+  t_env_environement -- t_act_activity [minlen=3, taillabel="1", headlabel="1", xlabel="idle\nresources", labeldistance=2.0]
+}
