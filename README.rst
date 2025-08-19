@@ -40,7 +40,7 @@ It manages the following parameters:
 #. It supports the ``libx264``, ``libx265``, ``libvpx-vp9``, ``libsvtav1`` and ``vvc`` encoders.
 #. Distortions are measured using the ``lpips``, ``psnr``, ``ssim`` and ``vmaf`` metrics.
 #. Encoding efforts are ``fast``, ``medium`` and ``slow``.
-#. Iterate over different ``threads``, ``quality (crf)``, ``effort``, ...
+#. Iterate over different ``threads``, ``quality``, ``effort``, ...
 #. Energy measurements are catched with ``RAPL`` and an external wattmeter on ``Grid'5000``.
 #. Get the ``cpu`` and ``ram`` activity.
 #. Get a full environement context
@@ -50,8 +50,31 @@ Pipeline
 ========
 
 .. image:: https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/docs/images/pipeline.svg
-    :alt: Pipeline
+    :alt: Pipeline diagram
 
+The measurement process consists of four steps:
+
+1: Preparation
+--------------
+
+This phase allows you to generate a ‘perfect’ raw video file, in the sense that it contains all the metadata necessary for the next steps.
+
+Based on cutcutcodec, this step is very slow but extremely rigorous.
+
+2: Encode
+---------
+
+This phase consists of transcoding the reference video in many different ways and measuring the machine's activity during this encoding process.
+
+3.a: Decode
+-----------
+
+This phase consists of measuring the machine's activity during video decoding.
+
+3.b: Probe
+----------
+
+This phase calculates the various metrics and properties of a transcoded video.
 
 
 Alternatives

@@ -15,6 +15,15 @@ API documentation
     api_reference.rst
 
 
+Database Content
+================
+
+.. toctree::
+    :maxdeph: 2
+
+    database.rst
+
+
 Reference
 =========
 
