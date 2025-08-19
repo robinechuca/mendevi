@@ -3,8 +3,6 @@ Mendevi |release|
 
 .. include:: ../README.rst
 
-The documentation was generated on |today|.
-
 
 Database Content
 ================
@@ -32,3 +30,5 @@ Reference
 
     modindex
     genindex
+
+The documentation was generated on |today|.

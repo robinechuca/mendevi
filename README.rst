@@ -56,10 +56,8 @@ The measurement process consists of four steps:
 
 1) **Preparation**: This phase allows you to generate a "perfect" raw video file, in the sense that it contains all the metadata necessary for the next steps.
 2) **Encode**: This phase consists of transcoding the reference video in many different ways and measuring the machine's activity during this encoding process.
-3)
-
-    - **Decode**: This phase consists of measuring the machine's activity during video decoding.
-    - **Probe**: This phase calculates the various metrics and properties of a transcoded video.
+3) **Decode**: This phase consists of measuring the machine's activity during video decoding.
+4) **Probe**: This phase calculates the various metrics and properties of a transcoded video.
 
 
 Alternatives
