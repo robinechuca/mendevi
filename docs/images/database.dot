@@ -1,3 +1,4 @@
+# dot -Tsvg database.dot > database.svg
 graph database {
   node [shape=plaintext]
   t_act_activity [
@@ -33,6 +34,11 @@ graph database {
         <TR><TD ALIGN="LEFT">vid_subsampling</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>
         <TR><TD ALIGN="LEFT">vid_width</TD><TD ALIGN="LEFT">SMALLINT</TD></TR>
         <TR><TD ALIGN="LEFT">vid_bit_depth</TD><TD ALIGN="LEFT">SMALLINT</TD></TR>
+        <TR><TD ALIGN="LEFT">vid_lpips_alex</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
+        <TR><TD ALIGN="LEFT">vid_lpips_vgg</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
+        <TR><TD ALIGN="LEFT">vid_psnr</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
+        <TR><TD ALIGN="LEFT">vid_ssim</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
+        <TR><TD ALIGN="LEFT">vid_uvq</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
       </TABLE>
     >
   ];

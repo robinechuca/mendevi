@@ -60,58 +60,78 @@
 <!-- t_vid_video -->
 <g id="node2" class="node">
 <title>t_vid_video</title>
-<polygon fill="lightblue" stroke="transparent" points="439,-787 439,-812 673,-812 673,-787 439,-787"/>
-<polygon fill="none" stroke="black" points="439,-787 439,-812 673,-812 673,-787 439,-787"/>
-<text text-anchor="start" x="513.5" y="-796.8" font-family="Times,serif" font-weight="bold" font-size="14.00">t_vid_video</text>
-<polygon fill="none" stroke="black" points="439,-762 439,-787 569,-787 569,-762 439,-762"/>
-<text text-anchor="start" x="444" y="-770.8" font-family="Times,serif" font-size="14.00" fill="gray">vid_id</text>
-<polygon fill="none" stroke="black" points="569,-762 569,-787 673,-787 673,-762 569,-762"/>
-<text text-anchor="start" x="574" y="-770.8" font-family="Times,serif" font-size="14.00" fill="blue">BINARY(128)</text>
-<polygon fill="none" stroke="black" points="439,-737 439,-762 569,-762 569,-737 439,-737"/>
-<text text-anchor="start" x="444" y="-745.8" font-family="Times,serif" font-size="14.00">vid_codec</text>
-<polygon fill="none" stroke="black" points="569,-737 569,-762 673,-762 673,-737 569,-737"/>
-<text text-anchor="start" x="574" y="-745.8" font-family="Times,serif" font-size="14.00">TINYTEXT</text>
-<polygon fill="none" stroke="black" points="439,-712 439,-737 569,-737 569,-712 439,-712"/>
-<text text-anchor="start" x="444" y="-720.8" font-family="Times,serif" font-size="14.00">vid_duration</text>
-<polygon fill="none" stroke="black" points="569,-712 569,-737 673,-737 673,-712 569,-712"/>
-<text text-anchor="start" x="574" y="-720.8" font-family="Times,serif" font-size="14.00">FLOAT</text>
-<polygon fill="none" stroke="black" points="439,-687 439,-712 569,-712 569,-687 439,-687"/>
-<text text-anchor="start" x="444" y="-695.8" font-family="Times,serif" font-size="14.00">vid_eotf</text>
-<polygon fill="none" stroke="black" points="569,-687 569,-712 673,-712 673,-687 569,-687"/>
-<text text-anchor="start" x="574" y="-695.8" font-family="Times,serif" font-size="14.00">TINYTEXT</text>
-<polygon fill="none" stroke="black" points="439,-662 439,-687 569,-687 569,-662 439,-662"/>
-<text text-anchor="start" x="444" y="-670.8" font-family="Times,serif" font-size="14.00">vid_fps</text>
-<polygon fill="none" stroke="black" points="569,-662 569,-687 673,-687 673,-662 569,-662"/>
-<text text-anchor="start" x="574" y="-670.8" font-family="Times,serif" font-size="14.00">FLOAT</text>
-<polygon fill="none" stroke="black" points="439,-637 439,-662 569,-662 569,-637 439,-637"/>
-<text text-anchor="start" x="444" y="-645.8" font-family="Times,serif" font-size="14.00">vid_frames</text>
-<polygon fill="none" stroke="black" points="569,-637 569,-662 673,-662 673,-637 569,-637"/>
-<text text-anchor="start" x="574" y="-645.8" font-family="Times,serif" font-size="14.00">LONGBLOB</text>
-<polygon fill="none" stroke="black" points="439,-612 439,-637 569,-637 569,-612 439,-612"/>
-<text text-anchor="start" x="444" y="-620.8" font-family="Times,serif" font-size="14.00">vid_gamut</text>
-<polygon fill="none" stroke="black" points="569,-612 569,-637 673,-637 673,-612 569,-612"/>
-<text text-anchor="start" x="574" y="-620.8" font-family="Times,serif" font-size="14.00">TINYTEXT</text>
-<polygon fill="none" stroke="black" points="439,-587 439,-612 569,-612 569,-587 439,-587"/>
-<text text-anchor="start" x="444" y="-595.8" font-family="Times,serif" font-size="14.00">vid_height</text>
-<polygon fill="none" stroke="black" points="569,-587 569,-612 673,-612 673,-587 569,-587"/>
-<text text-anchor="start" x="574" y="-595.8" font-family="Times,serif" font-size="14.00">SMALLINT</text>
-<polygon fill="none" stroke="black" points="439,-562 439,-587 569,-587 569,-562 439,-562"/>
-<text text-anchor="start" x="444" y="-570.8" font-family="Times,serif" font-size="14.00">vid_size</text>
-<polygon fill="none" stroke="black" points="569,-562 569,-587 673,-587 673,-562 569,-562"/>
-<text text-anchor="start" x="574" y="-570.8" font-family="Times,serif" font-size="14.00">BIGINT</text>
-<polygon fill="none" stroke="black" points="439,-537 439,-562 569,-562 569,-537 439,-537"/>
-<text text-anchor="start" x="444" y="-545.8" font-family="Times,serif" font-size="14.00">vid_subsampling</text>
-<polygon fill="none" stroke="black" points="569,-537 569,-562 673,-562 673,-537 569,-537"/>
-<text text-anchor="start" x="574" y="-545.8" font-family="Times,serif" font-size="14.00">TINYTEXT</text>
-<polygon fill="none" stroke="black" points="439,-512 439,-537 569,-537 569,-512 439,-512"/>
-<text text-anchor="start" x="444" y="-520.8" font-family="Times,serif" font-size="14.00">vid_width</text>
-<polygon fill="none" stroke="black" points="569,-512 569,-537 673,-537 673,-512 569,-512"/>
-<text text-anchor="start" x="574" y="-520.8" font-family="Times,serif" font-size="14.00">SMALLINT</text>
-<polygon fill="none" stroke="black" points="439,-487 439,-512 569,-512 569,-487 439,-487"/>
-<text text-anchor="start" x="444" y="-495.8" font-family="Times,serif" font-size="14.00">vid_bit_depth</text>
-<polygon fill="none" stroke="black" points="569,-487 569,-512 673,-512 673,-487 569,-487"/>
-<text text-anchor="start" x="574" y="-495.8" font-family="Times,serif" font-size="14.00">SMALLINT</text>
-<polygon fill="none" stroke="black" points="438,-486.5 438,-813.5 674,-813.5 674,-486.5 438,-486.5"/>
+<polygon fill="lightblue" stroke="transparent" points="439,-850 439,-875 673,-875 673,-850 439,-850"/>
+<polygon fill="none" stroke="black" points="439,-850 439,-875 673,-875 673,-850 439,-850"/>
+<text text-anchor="start" x="513.5" y="-859.8" font-family="Times,serif" font-weight="bold" font-size="14.00">t_vid_video</text>
+<polygon fill="none" stroke="black" points="439,-825 439,-850 569,-850 569,-825 439,-825"/>
+<text text-anchor="start" x="444" y="-833.8" font-family="Times,serif" font-size="14.00" fill="gray">vid_id</text>
+<polygon fill="none" stroke="black" points="569,-825 569,-850 673,-850 673,-825 569,-825"/>
+<text text-anchor="start" x="574" y="-833.8" font-family="Times,serif" font-size="14.00" fill="blue">BINARY(128)</text>
+<polygon fill="none" stroke="black" points="439,-800 439,-825 569,-825 569,-800 439,-800"/>
+<text text-anchor="start" x="444" y="-808.8" font-family="Times,serif" font-size="14.00">vid_codec</text>
+<polygon fill="none" stroke="black" points="569,-800 569,-825 673,-825 673,-800 569,-800"/>
+<text text-anchor="start" x="574" y="-808.8" font-family="Times,serif" font-size="14.00">TINYTEXT</text>
+<polygon fill="none" stroke="black" points="439,-775 439,-800 569,-800 569,-775 439,-775"/>
+<text text-anchor="start" x="444" y="-783.8" font-family="Times,serif" font-size="14.00">vid_duration</text>
+<polygon fill="none" stroke="black" points="569,-775 569,-800 673,-800 673,-775 569,-775"/>
+<text text-anchor="start" x="574" y="-783.8" font-family="Times,serif" font-size="14.00">FLOAT</text>
+<polygon fill="none" stroke="black" points="439,-750 439,-775 569,-775 569,-750 439,-750"/>
+<text text-anchor="start" x="444" y="-758.8" font-family="Times,serif" font-size="14.00">vid_eotf</text>
+<polygon fill="none" stroke="black" points="569,-750 569,-775 673,-775 673,-750 569,-750"/>
+<text text-anchor="start" x="574" y="-758.8" font-family="Times,serif" font-size="14.00">TINYTEXT</text>
+<polygon fill="none" stroke="black" points="439,-725 439,-750 569,-750 569,-725 439,-725"/>
+<text text-anchor="start" x="444" y="-733.8" font-family="Times,serif" font-size="14.00">vid_fps</text>
+<polygon fill="none" stroke="black" points="569,-725 569,-750 673,-750 673,-725 569,-725"/>
+<text text-anchor="start" x="574" y="-733.8" font-family="Times,serif" font-size="14.00">FLOAT</text>
+<polygon fill="none" stroke="black" points="439,-700 439,-725 569,-725 569,-700 439,-700"/>
+<text text-anchor="start" x="444" y="-708.8" font-family="Times,serif" font-size="14.00">vid_frames</text>
+<polygon fill="none" stroke="black" points="569,-700 569,-725 673,-725 673,-700 569,-700"/>
+<text text-anchor="start" x="574" y="-708.8" font-family="Times,serif" font-size="14.00">LONGBLOB</text>
+<polygon fill="none" stroke="black" points="439,-675 439,-700 569,-700 569,-675 439,-675"/>
+<text text-anchor="start" x="444" y="-683.8" font-family="Times,serif" font-size="14.00">vid_gamut</text>
+<polygon fill="none" stroke="black" points="569,-675 569,-700 673,-700 673,-675 569,-675"/>
+<text text-anchor="start" x="574" y="-683.8" font-family="Times,serif" font-size="14.00">TINYTEXT</text>
+<polygon fill="none" stroke="black" points="439,-650 439,-675 569,-675 569,-650 439,-650"/>
+<text text-anchor="start" x="444" y="-658.8" font-family="Times,serif" font-size="14.00">vid_height</text>
+<polygon fill="none" stroke="black" points="569,-650 569,-675 673,-675 673,-650 569,-650"/>
+<text text-anchor="start" x="574" y="-658.8" font-family="Times,serif" font-size="14.00">SMALLINT</text>
+<polygon fill="none" stroke="black" points="439,-625 439,-650 569,-650 569,-625 439,-625"/>
+<text text-anchor="start" x="444" y="-633.8" font-family="Times,serif" font-size="14.00">vid_size</text>
+<polygon fill="none" stroke="black" points="569,-625 569,-650 673,-650 673,-625 569,-625"/>
+<text text-anchor="start" x="574" y="-633.8" font-family="Times,serif" font-size="14.00">BIGINT</text>
+<polygon fill="none" stroke="black" points="439,-600 439,-625 569,-625 569,-600 439,-600"/>
+<text text-anchor="start" x="444" y="-608.8" font-family="Times,serif" font-size="14.00">vid_subsampling</text>
+<polygon fill="none" stroke="black" points="569,-600 569,-625 673,-625 673,-600 569,-600"/>
+<text text-anchor="start" x="574" y="-608.8" font-family="Times,serif" font-size="14.00">TINYTEXT</text>
+<polygon fill="none" stroke="black" points="439,-575 439,-600 569,-600 569,-575 439,-575"/>
+<text text-anchor="start" x="444" y="-583.8" font-family="Times,serif" font-size="14.00">vid_width</text>
+<polygon fill="none" stroke="black" points="569,-575 569,-600 673,-600 673,-575 569,-575"/>
+<text text-anchor="start" x="574" y="-583.8" font-family="Times,serif" font-size="14.00">SMALLINT</text>
+<polygon fill="none" stroke="black" points="439,-550 439,-575 569,-575 569,-550 439,-550"/>
+<text text-anchor="start" x="444" y="-558.8" font-family="Times,serif" font-size="14.00">vid_bit_depth</text>
+<polygon fill="none" stroke="black" points="569,-550 569,-575 673,-575 673,-550 569,-550"/>
+<text text-anchor="start" x="574" y="-558.8" font-family="Times,serif" font-size="14.00">SMALLINT</text>
+<polygon fill="none" stroke="black" points="439,-525 439,-550 569,-550 569,-525 439,-525"/>
+<text text-anchor="start" x="444" y="-533.8" font-family="Times,serif" font-size="14.00">vid_lpips_alex</text>
+<polygon fill="none" stroke="black" points="569,-525 569,-550 673,-550 673,-525 569,-525"/>
+<text text-anchor="start" x="574" y="-533.8" font-family="Times,serif" font-size="14.00">LONGBLOB</text>
+<polygon fill="none" stroke="black" points="439,-500 439,-525 569,-525 569,-500 439,-500"/>
+<text text-anchor="start" x="444" y="-508.8" font-family="Times,serif" font-size="14.00">vid_lpips_vgg</text>
+<polygon fill="none" stroke="black" points="569,-500 569,-525 673,-525 673,-500 569,-500"/>
+<text text-anchor="start" x="574" y="-508.8" font-family="Times,serif" font-size="14.00">LONGBLOB</text>
+<polygon fill="none" stroke="black" points="439,-475 439,-500 569,-500 569,-475 439,-475"/>
+<text text-anchor="start" x="444" y="-483.8" font-family="Times,serif" font-size="14.00">vid_psnr</text>
+<polygon fill="none" stroke="black" points="569,-475 569,-500 673,-500 673,-475 569,-475"/>
+<text text-anchor="start" x="574" y="-483.8" font-family="Times,serif" font-size="14.00">LONGBLOB</text>
+<polygon fill="none" stroke="black" points="439,-450 439,-475 569,-475 569,-450 439,-450"/>
+<text text-anchor="start" x="444" y="-458.8" font-family="Times,serif" font-size="14.00">vid_ssim</text>
+<polygon fill="none" stroke="black" points="569,-450 569,-475 673,-475 673,-450 569,-450"/>
+<text text-anchor="start" x="574" y="-458.8" font-family="Times,serif" font-size="14.00">LONGBLOB</text>
+<polygon fill="none" stroke="black" points="439,-425 439,-450 569,-450 569,-425 439,-425"/>
+<text text-anchor="start" x="444" y="-433.8" font-family="Times,serif" font-size="14.00">vid_uvq</text>
+<polygon fill="none" stroke="black" points="569,-425 569,-450 673,-450 673,-425 569,-425"/>
+<text text-anchor="start" x="574" y="-433.8" font-family="Times,serif" font-size="14.00">LONGBLOB</text>
+<polygon fill="none" stroke="black" points="438,-424 438,-876 674,-876 674,-424 438,-424"/>
 </g>
 <!-- t_env_environement -->
 <g id="node3" class="node">
@@ -242,10 +262,10 @@
 <!-- t_dec_decode&#45;&#45;t_vid_video -->
 <g id="edge6" class="edge">
 <title>t_dec_decode&#45;&#45;t_vid_video</title>
-<path fill="none" stroke="black" d="M301.51,-1089.82C335.81,-1039.76 382.93,-969.1 421,-905 437.58,-877.09 454.44,-846.98 470.37,-817.58"/>
-<text text-anchor="middle" x="370.14" y="-974.99" font-family="Times,serif" font-size="14.00">input</text>
-<text text-anchor="middle" x="370.14" y="-959.99" font-family="Times,serif" font-size="14.00">video</text>
-<text text-anchor="middle" x="469.14" y="-833.85" font-family="Times,serif" font-size="14.00">*</text>
+<path fill="none" stroke="black" d="M301.51,-1089.82C335.81,-1039.76 382.93,-969.1 421,-905 425.85,-896.84 430.72,-888.5 435.58,-880.03"/>
+<text text-anchor="middle" x="350.86" y="-1005.25" font-family="Times,serif" font-size="14.00">input</text>
+<text text-anchor="middle" x="350.86" y="-990.25" font-family="Times,serif" font-size="14.00">video</text>
+<text text-anchor="middle" x="433.86" y="-896.26" font-family="Times,serif" font-size="14.00">*</text>
 <text text-anchor="middle" x="304.74" y="-1066.39" font-family="Times,serif" font-size="14.00">1</text>
 </g>
 <!-- t_dec_decode&#45;&#45;t_env_environement -->
@@ -317,18 +337,18 @@
 <!-- t_enc_encode&#45;&#45;t_vid_video -->
 <g id="edge3" class="edge">
 <title>t_enc_encode&#45;&#45;t_vid_video</title>
-<path fill="none" stroke="black" d="M556,-1014.68C556,-953.5 556,-881.49 556,-817.77"/>
-<text text-anchor="middle" x="532" y="-935.98" font-family="Times,serif" font-size="14.00">output</text>
-<text text-anchor="middle" x="532" y="-920.98" font-family="Times,serif" font-size="14.00">video</text>
-<text text-anchor="middle" x="564.45" y="-832.19" font-family="Times,serif" font-size="14.00">*</text>
+<path fill="none" stroke="black" d="M556,-1014.68C556,-972.92 556,-926.11 556,-880.34"/>
+<text text-anchor="middle" x="532" y="-967.82" font-family="Times,serif" font-size="14.00">output</text>
+<text text-anchor="middle" x="532" y="-952.82" font-family="Times,serif" font-size="14.00">video</text>
+<text text-anchor="middle" x="564.45" y="-894.77" font-family="Times,serif" font-size="14.00">*</text>
 <text text-anchor="middle" x="547.55" y="-992.86" font-family="Times,serif" font-size="14.00">1</text>
 </g>
 <!-- t_enc_encode&#45;&#45;t_env_environement -->
 <g id="edge2" class="edge">
 <title>t_enc_encode&#45;&#45;t_env_environement</title>
 <path fill="none" stroke="black" d="M471.55,-1014.68C451.21,-980.51 428.85,-942.97 406.47,-905.37"/>
-<text text-anchor="middle" x="470.28" y="-980.11" font-family="Times,serif" font-size="14.00">machine</text>
-<text text-anchor="middle" x="470.28" y="-965.11" font-family="Times,serif" font-size="14.00">context</text>
+<text text-anchor="middle" x="409.28" y="-980.11" font-family="Times,serif" font-size="14.00">machine</text>
+<text text-anchor="middle" x="409.28" y="-965.11" font-family="Times,serif" font-size="14.00">context</text>
 <text text-anchor="middle" x="423" y="-912.92" font-family="Times,serif" font-size="14.00">*</text>
 <text text-anchor="middle" x="455.02" y="-999.73" font-family="Times,serif" font-size="14.00">1</text>
 </g>
