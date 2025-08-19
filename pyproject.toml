@@ -54,6 +54,32 @@ classifiers = [  # all classifiers https://pypi.org/classifiers/
   "Topic :: Multimedia :: Video :: Conversion",
 ]
 
+[project.optional-dependencies]
+doc = [
+  "ipykernel",  # for nbsphinx
+  "mathjax",  # for sphinx latex math
+  "nbsphinx",
+  "pandoc",  # for nbsphinx (sudo apt install pandoc)
+  "recommonmark",
+  "sphinx==7.4.7",  # 8.2.0 failed on readthedoc
+  "sphinx-copybutton",
+  "sphinx-inline-tabs",
+  "sphinx-rtd-dark-mode",
+  "sphinx-rtd-theme",
+  "sphinxcontrib-video",
+  "sphinxext-opengraph",
+]
+test = [
+  "colour-science",
+  "pydocstyle<=6.1.1",  # 6.1.2 bug on pylama 8.4.1
+  "pylama[all,toml]",
+  "pytest",
+]
+gui = [
+  "jupyter",
+  "matplotlib",
+]
+
 [project.scripts]
 mendevi = "mendevi.__main__:main"
 
