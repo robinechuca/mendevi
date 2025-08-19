@@ -1,0 +1,38 @@
+# Read the Docs configuration file
+# See https://docs.readthedocs.io/en/stable/config-file/v2.html
+# and https://docs.readthedocs.com/platform/stable/build-customization.html for details
+
+# Required
+version: 2
+
+# Set the OS, Python version and other tools you might need
+build:
+  os: "ubuntu-24.04"  # "ubuntu-lts-latest"
+  tools:
+    python: "3.13"  # "latest"
+  apt_packages:
+    - python-dev-is-python3
+    - pkg-config
+    - pandoc  # for nbsphinx
+  # jobs:
+  #   post_install:  # to create importable *.so files inside the module
+  #     # all option in https://github.com/pypa/pip/blob/main/src/pip/_internal/cli/cmdoptions.py
+  #     - pip install --verbose --no-deps --editable .
+
+# Build documentation in the docs/ directory with Sphinx
+sphinx:
+  configuration: docs/conf.py
+  fail_on_warning: false
+
+# # Optionally build your docs in additional formats such as PDF and ePub
+# formats: all
+
+# Explicitly set the version of Python and its requirements
+python:
+  install:
+    # - requirements: docs/requirements.txt
+    # Install our python package before building the docs
+    - method: pip
+      path: .
+      extra_requirements:
+        - doc

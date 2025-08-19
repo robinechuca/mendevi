@@ -58,6 +58,7 @@ def create_database(filename: str | bytes | pathlib.Path):
             vid_size BIGINT CHECK(vid_width >= 0),  -- file size in bytes
             vid_subsampling TINYTEXT CHECK(vid_subsampling IN ('444', '422', '420')),  -- yuv pixel subsampling
             vid_width SMALLINT CHECK(vid_width > 0),  -- display width
+            vid_bit_depth SMALLINT CHECK(vid_bit_depth IN (8, 10, 12)),  -- bit per sample
 
             /* METRICS */
             vid_lpips_alex LONGBLOB,  -- list lpips with alex for each frame
@@ -111,7 +112,6 @@ def create_database(filename: str | bytes | pathlib.Path):
             enc_effort TINYTEXT CHECK(enc_effort IN ('fast', 'medium', 'slow')),  -- equivalent preset used for encoding
             enc_encoder TINYTEXT CHECK(enc_encoder IN ('libx264', 'libx265', 'libvpx-vp9', 'libsvtav1', 'vvc')),  -- the encoder name
             enc_file TEXT,  -- name of the source video file
-            enc_profile TINYTEXT CHECK(enc_profile IN ('sd', 'hd', 'uhd', 'uhd4k')),  -- general profile used
             enc_quality FLOAT CHECK(enc_quality >= 0.0 AND enc_quality <= 1.0),  -- normlize crf in [0, 1]
             enc_threads SMALLINT CHECK(enc_threads >= 0)  -- number of threads used
         )""")
