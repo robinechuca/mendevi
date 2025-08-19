@@ -1,7 +1,7 @@
 .. rst syntax: https://deusyss.developpez.com/tutoriels/Python/SphinxDoc/
 .. version conv: https://peps.python.org/pep-0440/
 
-**Me** sures d'**En** codage et **Dé** codage **Vi** déo.
+**Me**\sures d'**En**\codage et **Dé**\codage **Vi**\déo.
 *********************************************************
 
 .. image:: https://img.shields.io/badge/License-GPL-green.svg
@@ -54,27 +54,13 @@ Pipeline
 
 The measurement process consists of four steps:
 
-1: Preparation
---------------
+1) **Preparation**: This phase allows you to generate a "perfect" raw video file, in the sense that it contains all the metadata necessary for the next steps.
 
-This phase allows you to generate a ‘perfect’ raw video file, in the sense that it contains all the metadata necessary for the next steps.
+2) **Encode**: This phase consists of transcoding the reference video in many different ways and measuring the machine's activity during this encoding process.
 
-Based on cutcutcodec, this step is very slow but extremely rigorous.
+3.a) **Decode**: This phase consists of measuring the machine's activity during video decoding.
 
-2: Encode
----------
-
-This phase consists of transcoding the reference video in many different ways and measuring the machine's activity during this encoding process.
-
-3.a: Decode
------------
-
-This phase consists of measuring the machine's activity during video decoding.
-
-3.b: Probe
-----------
-
-This phase calculates the various metrics and properties of a transcoded video.
+3.b) **Probe**: This phase calculates the various metrics and properties of a transcoded video.
 
 
 Alternatives

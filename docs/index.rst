@@ -6,6 +6,15 @@ Mendevi |release|
 The documentation was generated on |today|.
 
 
+Database Content
+================
+
+.. toctree::
+    :maxdeph: 2
+
+    sql_content.rst
+
+
 API documentation
 =================
 
@@ -13,15 +22,6 @@ API documentation
     :maxdepth: 2
 
     api_reference.rst
-
-
-Database Content
-================
-
-.. toctree::
-    :maxdeph: 2
-
-    database.rst
 
 
 Reference
