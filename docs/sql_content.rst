@@ -3,6 +3,8 @@
 .. image:: https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/docs/images/database.svg
     :alt: SQL database diagram
 
+.. _t_env_environement
+
 Table t_env_environement
 ========================
 
@@ -32,4 +34,8 @@ This is human-readable text, returned by the function `get_ffmpeg_version <https
 
     import sqlite3
     import mendevi
+
+env_hostname
+------------
+
 
