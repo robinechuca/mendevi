@@ -8,7 +8,7 @@ Database Content
 ================
 
 .. toctree::
-    :maxdeph: 2
+    :maxdepth: 2
 
     sql_content.rst
 
