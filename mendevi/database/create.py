@@ -61,6 +61,7 @@ def create_database(filename: str | bytes | pathlib.Path):
             vid_bit_depth SMALLINT CHECK(vid_bit_depth IN (8, 10, 12)),  -- bit per sample
 
             /* METRICS */
+            vid_ref_vid_id BINARY(128),  -- link to the reference video for comparative metrics
             vid_lpips_alex LONGBLOB,  -- list lpips with alex for each frame
             vid_lpips_vgg LONGBLOB,  -- list lpips with vgg for each frame
             vid_psnr LONGBLOB,  -- list of the psnr (6, 1, 1) metric for each frame
@@ -90,7 +91,7 @@ def create_database(filename: str | bytes | pathlib.Path):
             env_vvc_version MEDIUMTEXT,
 
             /* IDLE MEASURES */
-            env_act_id INTEGER REFERENCES t_act_activity(act_id),  -- link to activity table
+            env_idle_act_id INTEGER REFERENCES t_act_activity(act_id),  -- link to activity table
 
             /* CONSTRAINTS */
             UNIQUE({", ".join(ENV_UNIQUE)}) ON CONFLICT FAIL
@@ -109,11 +110,16 @@ def create_database(filename: str | bytes | pathlib.Path):
 
             /* TASK DESCRIPTION */
             enc_cmd TEXT,  -- exact ffmpeg command used
+            enc_bit_depth SMALLINT CHECK(enc_bit_depth IN (8, 10, 12)),  -- target conversion bit per sample
             enc_effort TINYTEXT CHECK(enc_effort IN ('fast', 'medium', 'slow')),  -- equivalent preset used for encoding
             enc_encoder TINYTEXT CHECK(enc_encoder IN ('libx264', 'libx265', 'libvpx-vp9', 'libsvtav1', 'vvc')),  -- the encoder name
             enc_file TEXT,  -- name of the source video file
+            enc_fps FLOAT CHECK(vid_fps > 0.0),  -- target conversion fps
+            enc_height SMALLINT CHECK(enc_height > 0),  -- target conversion resolution
             enc_quality FLOAT CHECK(enc_quality >= 0.0 AND enc_quality <= 1.0),  -- normlize crf in [0, 1]
+            enc_subsampling TINYTEXT CHECK(enc_subsampling IN ('444', '422', '420')),  -- target conversion yuv pixel subsampling
             enc_threads SMALLINT CHECK(enc_threads >= 0)  -- number of threads used
+            enc_width SMALLINT CHECK(enc_width > 0),  -- target conversion resolution
         )""")
         cursor.execute("""
             CREATE TRIGGER IF NOT EXISTS trigger_insert_env_act_unicity
@@ -121,10 +127,10 @@ def create_database(filename: str | bytes | pathlib.Path):
             BEGIN
                 SELECT
                     CASE
-                        WHEN NEW.env_act_id IN (
+                        WHEN NEW.env_idle_act_id IN (
                             SELECT enc_act_id FROM t_enc_encode
                             UNION ALL SELECT dec_act_id FROM t_dec_decode
-                            UNION ALL SELECT env_act_id FROM t_env_environement
+                            UNION ALL SELECT env_idle_act_id FROM t_env_environement
                         ) THEN
                             RAISE (ABORT, 'act_id has to be unique')
                     END;
@@ -132,14 +138,14 @@ def create_database(filename: str | bytes | pathlib.Path):
         """)
         cursor.execute("""
             CREATE TRIGGER IF NOT EXISTS trigger_update_env_act_unicity
-            BEFORE UPDATE OF env_act_id ON t_env_environement
+            BEFORE UPDATE OF env_idle_act_id ON t_env_environement
             BEGIN
                 SELECT
                     CASE
-                        WHEN NEW.env_act_id IN (
+                        WHEN NEW.env_idle_act_id IN (
                             SELECT enc_act_id FROM t_enc_encode
                             UNION ALL SELECT dec_act_id FROM t_dec_decode
-                            UNION ALL SELECT env_act_id FROM t_env_environement
+                            UNION ALL SELECT env_idle_act_id FROM t_env_environement
                         ) THEN
                             RAISE (ABORT, 'act_id has to be unique')
                     END;
@@ -154,7 +160,7 @@ def create_database(filename: str | bytes | pathlib.Path):
                         WHEN NEW.enc_act_id IN (
                             SELECT enc_act_id FROM t_enc_encode
                             UNION ALL SELECT dec_act_id FROM t_dec_decode
-                            UNION ALL SELECT env_act_id FROM t_env_environement
+                            UNION ALL SELECT env_idle_act_id FROM t_env_environement
                         ) THEN
                             RAISE (ABORT, 'act_id has to be unique')
                     END;
@@ -169,7 +175,7 @@ def create_database(filename: str | bytes | pathlib.Path):
                         WHEN NEW.enc_act_id IN (
                             SELECT enc_act_id FROM t_enc_encode
                             UNION ALL SELECT dec_act_id FROM t_dec_decode
-                            UNION ALL SELECT env_act_id FROM t_env_environement
+                            UNION ALL SELECT env_idle_act_id FROM t_env_environement
                         ) THEN
                             RAISE (ABORT, 'act_id has to be unique')
                     END;
@@ -184,7 +190,7 @@ def create_database(filename: str | bytes | pathlib.Path):
                         WHEN NEW.dec_act_id IN (
                             SELECT enc_act_id FROM t_enc_encode
                             UNION ALL SELECT dec_act_id FROM t_dec_decode
-                            UNION ALL SELECT env_act_id FROM t_env_environement
+                            UNION ALL SELECT env_idle_act_id FROM t_env_environement
                         ) THEN
                             RAISE (ABORT, 'act_id has to be unique')
                     END;
@@ -199,7 +205,7 @@ def create_database(filename: str | bytes | pathlib.Path):
                         WHEN NEW.dec_act_id IN (
                             SELECT enc_act_id FROM t_enc_encode
                             UNION ALL SELECT dec_act_id FROM t_dec_decode
-                            UNION ALL SELECT env_act_id FROM t_env_environement
+                            UNION ALL SELECT env_idle_act_id FROM t_env_environement
                         ) THEN
                             RAISE (ABORT, 'act_id has to be unique')
                     END;

@@ -143,7 +143,7 @@ def add_environement(database: sqlite3.Cursor | str | bytes | pathlib.Path) -> i
     ).fetchone()
     database.execute(
         (
-            f"UPDATE t_env_environement SET env_act_id={act_id} "
+            f"UPDATE t_env_environement SET env_idle_act_id={act_id} "
             f"WHERE {' AND '.join(f'{k}=?' for k in ENV_UNIQUE)}"
         ),
         [environement[k] for k in ENV_UNIQUE],

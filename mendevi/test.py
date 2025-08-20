@@ -42,7 +42,7 @@ def test_unicity_activity_from_env():
     # insert environement OK
     with sqlite3.connect(database) as sql_database:
         sql_database.execute("""INSERT INTO t_env_environement
-            (env_ffmpeg_version, env_hostname, env_logical_cores, env_ram, env_act_id)
+            (env_ffmpeg_version, env_hostname, env_logical_cores, env_ram, env_idle_act_id)
             VALUES (?, ?, ?, ?, ?)
             """,
             ("ffmpeg 0.0.0", "my_name", 8, 1024, 2)
@@ -51,7 +51,7 @@ def test_unicity_activity_from_env():
     # insert environnement FAIL
     with sqlite3.connect(database) as sql_database, pytest.raises(sqlite3.IntegrityError):
         sql_database.execute("""INSERT INTO t_env_environement
-            (env_ffmpeg_version, env_hostname, env_logical_cores, env_ram, env_act_id)
+            (env_ffmpeg_version, env_hostname, env_logical_cores, env_ram, env_idle_act_id)
             VALUES (?, ?, ?, ?, ?)
             """,
             ("ffmpeg 0.0.1", "my_name", 8, 1024, 2)
@@ -60,13 +60,13 @@ def test_unicity_activity_from_env():
     # insert environement OK
     with sqlite3.connect(database) as sql_database:
         sql_database.execute("""INSERT INTO t_env_environement
-            (env_ffmpeg_version, env_hostname, env_logical_cores, env_ram, env_act_id)
+            (env_ffmpeg_version, env_hostname, env_logical_cores, env_ram, env_idle_act_id)
             VALUES (?, ?, ?, ?, ?)
             """,
             ("ffmpeg 0.0.2", "my_name", 8, 1024, 3)
         )
 
-    # insert environement OK null env_act_id
+    # insert environement OK null env_idle_act_id
     with sqlite3.connect(database) as sql_database:
         sql_database.execute("""INSERT INTO t_env_environement
             (env_ffmpeg_version, env_hostname, env_logical_cores, env_ram)
@@ -75,7 +75,7 @@ def test_unicity_activity_from_env():
             ("ffmpeg 0.0.3", "my_name", 8, 1024)
         )
 
-    # insert environement OK null env_act_id second time
+    # insert environement OK null env_idle_act_id second time
     with sqlite3.connect(database) as sql_database:
         sql_database.execute("""INSERT INTO t_env_environement
             (env_ffmpeg_version, env_hostname, env_logical_cores, env_ram)
@@ -86,7 +86,7 @@ def test_unicity_activity_from_env():
 
     # update environement FAIL
     with sqlite3.connect(database) as sql_database, pytest.raises(sqlite3.IntegrityError):
-        sql_database.execute("""UPDATE t_env_environement SET env_act_id=3
+        sql_database.execute("""UPDATE t_env_environement SET env_idle_act_id=3
             WHERE env_ffmpeg_version=? AND env_hostname=? AND env_logical_cores=? AND env_ram=?
             """,
             ("ffmpeg 0.0.3", "my_name", 8, 1024)

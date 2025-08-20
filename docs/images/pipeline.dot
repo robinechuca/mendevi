@@ -8,10 +8,14 @@ digraph pipeline {
     dst [label="Output", shape=Mdiamond, style=filled, fillcolor=white]
 
     # parameters
-    colorspace [label="Colorspace", shape=note, style=filled, fillcolor=white]
-    fps [label="fps", shape=note, style=filled, fillcolor=white]
-    pxl [label="Pxl Format", shape=note, style=filled, fillcolor=white]
-    resol [label="Resolution", shape=note, style=filled, fillcolor=white]
+    p_colorspace [label="Colorspace", shape=note, style=filled, fillcolor=white]
+    p_fps [label="fps", shape=note, style=filled, fillcolor=white]
+    p_pxl [label="Pxl Format", shape=note, style=filled, fillcolor=white]
+    p_resol [label="Resolution", shape=note, style=filled, fillcolor=white]
+
+    c_fps [label="fps", shape=note, style=filled, fillcolor=white]
+    c_pxl [label="Pxl Format", shape=note, style=filled, fillcolor=white]
+    c_resol [label="Resolution", shape=note, style=filled, fillcolor=white]
 
     effort [label="Effort", shape=note, style=filled, fillcolor=white]
     encoder [label="Encoder", shape=note, style=filled, fillcolor=white]
@@ -22,11 +26,17 @@ digraph pipeline {
 
     # process
     prepare [label="Transcode", style=filled, fillcolor=white]
+    t_dec [label="Decode", style=filled, fillcolor=white]
+    t_conv1 [label="Convert 1", style=filled, fillcolor=white]
+    t_conv2 [label="Convert 2", style=filled, fillcolor=white]
+    t_convi [label="...", style=filled, fillcolor=white]
+    t_convn [label="Convert n", style=filled, fillcolor=white]
     trans1 [label="Transcode 1", style=filled, fillcolor=white]
     trans2 [label="Transcode 2", style=filled, fillcolor=white]
     transi [label="...", style=filled, fillcolor=white]
     transn [label="Transcode n", style=filled, fillcolor=white]
     decode [label="Decode", style=filled, fillcolor=white]
+    convert [label="Convert", style=filled, fillcolor=white]
     probe [label="Probe", style=filled, fillcolor=white]
     idle [label="IDLE", style=filled, fillcolor=white]
 
@@ -45,6 +55,11 @@ digraph pipeline {
             cluster=true
             label="step: Encode"
             bgcolor="#e0ffff"
+            t_dec
+            t_conv1
+            t_conv2
+            t_convi
+            t_convn
             trans1
             trans2
             transi
@@ -55,6 +70,7 @@ digraph pipeline {
             label="step: Decode"
             bgcolor="#e0ffff"
             decode
+            convert
         }
         idle
     }
@@ -70,10 +86,18 @@ digraph pipeline {
         cluster=true
         label="Parameters"
         bgcolor="#ffe0ff"
-        colorspace
-        fps
-        pxl
-        resol
+        p_colorspace
+        p_fps
+        p_pxl
+        p_resol
+    }
+    subgraph clus_param_convert {
+        cluster=true
+        label="Parameters"
+        bgcolor="#ffe0ff"
+        c_fps
+        c_pxl
+        c_resol
     }
     subgraph clus_param_encode {
         cluster=true
@@ -86,8 +110,14 @@ digraph pipeline {
     }
 
     # pipeline
-    src -> prepare -> ref -> {decode, probe, trans1, trans2, transi, transi} -> dst -> {decode, probe}
-    {colorspace, fps, pxl, resol} -> prepare [arrowhead=none, style=dashed]
-    {effort, encoder, quality, threads} -> transn [arrowhead=none, style=dashed]
-    {idle, transn, decode, probe} -> database [style=dotted, minlen=2]
+    src -> prepare -> ref -> t_dec -> {t_conv1, t_conv2, t_convi, t_convn} -> {trans1, trans2, transi, transn} -> dst -> {decode, probe}
+    ref -> {decode, probe}
+    decode -> convert
+    {idle, transn, decode, probe} -> database [style=dotted] # minlen=2
+
+    # arguments
+    {p_colorspace, p_fps, p_pxl, p_resol} -> prepare [arrowhead=none, style=dashed]
+    {c_fps, c_pxl, c_resol} -> t_conv1 [arrowhead=none, style=dashed]
+    {c_pxl, c_resol} -> convert [arrowhead=none, style=dashed]
+    {effort, encoder, quality, threads} -> trans1 [arrowhead=none, style=dashed]
 }

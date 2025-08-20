@@ -1,9 +1,9 @@
-.. _sql_content
+.. _sql_content:
 
 .. image:: https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/docs/images/database.svg
     :alt: SQL database diagram
 
-.. _t_env_environement
+.. _t_env_environement:
 
 Table t_env_environement
 ========================
@@ -300,17 +300,17 @@ The version of the vvenc encoder. It comes from the function `get_vvc_version <h
 
     1.13.1
 
-env_act_id
-----------
+env_idle_act_id
+---------------
 
-+------------+---------+
-| env_act_id | INTEGER |
-+------------+---------+
++-----------------+---------+
+| env_idle_act_id | INTEGER |
++-----------------+---------+
 
 The id in the table :ref:`t_act_activity` of the IDLE measure of the machine.
 
 
-.. _t_act_activity
+.. _t_act_activity:
 
 Table t_act_activity
 ====================
@@ -405,3 +405,30 @@ To deserialize into an exploitable numpy array, please use the function `binary_
 
 act_ps_dt
 ---------
+
++-----------+----------+
+| act_ps_dt | LONGBLOB |
++-----------+----------+
+
+The list of time intervals in seconds between two consecutive psutil measures.
+To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
+
+act_ps_core
+-----------
+
++-------------+----------+
+| act_ps_core | LONGBLOB |
++-------------+----------+
+
+The percent usage of each logical core average activity for each interval.
+To deserialize into an exploitable numpy array, please use the function `binary_to_tensor <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.database.serialize.binary_to_tensor.html>`_.
+
+act_ps_ram
+----------
+
++------------+----------+
+| act_ps_ram | LONGBLOB |
++------------+----------+
+
+The sampled total usage of ram in bytes.
+To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
