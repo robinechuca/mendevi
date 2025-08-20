@@ -175,3 +175,147 @@ A wealth of information on machine components, processor architecture, etc.
             }
         ]
     }
+
+env_physical_cores
+------------------
+
++--------------------+---------+
+| env_physical_cores | INTEGER |
++--------------------+---------+
+
+The number of physical cores, in general less than the number of logical physical cores. It is given by ``psutil.cpu_count(logical=False)``, from the function `get_platform <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.context.get_platform.html>`_.
+
+env_pip_freeze
+--------------
+
++----------------+------------+
+| env_pip_freeze | MEDIUMTEXT |
++----------------+------------+
+
+The list of the version of the python packages. The function `get_pip_freeze <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.context.get_pip_freeze.html>`_ parse the command ``pip freeze``.
+
+
+.. code:: text
+
+    aiohappyeyeballs==2.6.1
+    aiohttp==3.11.16
+    aiosignal==1.3.2
+    ansible-core==2.17.11
+    astroid==3.3.10
+    asttokens==3.0.0
+    attrs==25.3.0
+    av==14.3.0
+    bcrypt==4.3.0
+    black==25.1.0
+    cairocffi==1.7.1
+    CairoSVG==2.7.1
+    certifi==2025.1.31
+    cffi==1.17.1
+    charset-normalizer==3.4.1
+    click==8.1.8
+    colorama==0.4.6
+    ...
+
+env_processor
+-------------
+
++---------------+-----------+
+| env_processor |  TINYTEXT |
++---------------+-----------+
+
+The proccessor familly, given by ``platform.processor()``, from the function `get_platform <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.context.get_platform.html>`_.
+
+.. code:: text
+
+    x86_64
+
+env_python_compiler
+-------------------
+
++---------------------+----------+
+| env_python_compiler | TINYTEXT |
++---------------------+----------+
+
+The cython compiler and version, given by ``platform.python_compiler()``, from the function `get_platform <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.context.get_platform.html>`_.
+
+.. code:: text
+
+    GCC 14.2.0
+
+
+env_python_version
+------------------
+
++--------------------+----------+
+| env_python_version | TINYTEXT |
++--------------------+----------+
+
+The version of python, given by ``platform.python_version()``, from the function `get_platform <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.context.get_platform.html>`_.
+
+.. code:: text
+
+    3.13.2
+
+env_ram
+-------
+
++---------+---------+
+| env_ram | INTEGER |
++---------+---------+
+
+The total physical memory (exclusive swap) in bytes, given by ``psutil.virtual_memory().total``, from the function `get_platform <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.context.get_platform.html>`_.
+
+env_swap
+--------
+
++----------+---------+
+| env_swap | INTEGER |
++----------+---------+
+
+The total swap memory in bytes, given by ``psutil.swap_memory().total``, from the function `get_platform <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.context.get_platform.html>`_.
+
+env_system_version
+------------------
+
++--------------------+------------+
+| env_system_version | MEDIUMTEXT |
++--------------------+------------+
+
+The name and the version of linux, given by ``platform.version()``,from the function `get_platform <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.context.get_platform.html>`_.
+
+.. code:: text
+
+    #29-Ubuntu SMP PREEMPT_DYNAMIC Fri Jun 13 20:29:41 UTC 2025
+
+env_vvc_version
+---------------
+
++-----------------+------------+
+| env_vvc_version | MEDIUMTEXT |
++-----------------+------------+
+
+The version of the vvenc encoder. It comes from the function `get_vvc_version <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.context.get_vvc_version.html>`_.
+
+.. code:: text
+
+    1.13.1
+
+env_act_id
+----------
+
++------------+---------+
+| env_act_id | INTEGER |
++------------+---------+
+
+The id in the table :ref:`t_act_activity` of the IDLE measure of the machine
+
+
+.. _t_act_activity
+
+Table t_act_activity
+====================
+
+Captures machine activity over a period of time.
+
+act_id
+------
