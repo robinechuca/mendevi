@@ -63,7 +63,7 @@ def encode(src: pathlib.Path, *args, **kwargs) -> tuple[pathlib.Path, dict[str]]
         load = tqdm.tqdm(
             dynamic_ncols=True,
             leave=False,
-            smoothing=1e-2,
+            smoothing=1e-3,
             total=duration,
             unit="s",
         )
@@ -208,7 +208,7 @@ def encode_and_store(
 
 
 def get_transcode_cmd(
-    encoder: str, effort: str, quality: float, threads: int
+    encoder: str, effort: str, quality: float, threads: int, video: pathlib.Path | None = None
 ) -> list[str]:
     """Return the ffmpeg encode cmd."""
     assert isinstance(encoder, str), encoder.__class__.__name__
@@ -272,8 +272,7 @@ def get_transcode_cmd(
                 # "-threads", str(threads),
             ]
         case "vvc":
-            profile = "uhd"  # TODO: détecter automatiquement grace a la video source
-            bit = int(re.search(r"(?P<bit>\d+)le", PROFILES[profile]["pix_fmt"] + "8le")["bit"])
+            bit = int(re.search(r"(?P<bit>\d+)le", video_pxl_fmt + "8le")["bit"])
             return [
                 "vvc",
                 "-qp", str(round(quality*63.0)),
