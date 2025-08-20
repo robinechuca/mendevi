@@ -307,7 +307,7 @@ env_act_id
 | env_act_id | INTEGER |
 +------------+---------+
 
-The id in the table :ref:`t_act_activity` of the IDLE measure of the machine
+The id in the table :ref:`t_act_activity` of the IDLE measure of the machine.
 
 
 .. _t_act_activity
@@ -319,3 +319,89 @@ Captures machine activity over a period of time.
 
 act_id
 ------
+
++--------+-----------+
+| act_id | `INTEGER` |
++--------+-----------+
+
+Unique primary key, with no particular meaning.
+
+act_start
+---------
+
++-----------+-----------+
+| act_start | TIMESTAMP |
++-----------+-----------+
+
+The date when the measure starts, the number of second from the 1st january 1970 at 00:00:00 UTC.
+
+act_duration
+------------
+
++--------------+-------+
+| act_duration | FLOAT |
++--------------+-------+
+
+The duration of the measurement in seconds.
+
+act_rapl_dt
+-----------
+
++-------------+----------+
+| act_rapl_dt | LONGBLOB |
++-------------+----------+
+
+The list of time intervals in seconds between two consecutive rapl measures.
+To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
+
+act_rapl_power
+--------------
+
++----------------+----------+
+| act_rapl_power | LONGBLOB |
++----------------+----------+
+
+List of average power measurement in w with the wattmeter directly integrated into the processor *power/energy-pkg/*.
+To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
+
+.. important::
+
+    The **perf** library must be installed.
+    Refer the :ref:`full_installation` guide.
+
+.. note::
+
+    To access all information, the programme may require root privileges.
+    Or you must give the permission with ``sudo sysctl -w kernel.perf_event_paranoid=0``,
+    otherwise, the sensor is not reachable.
+
+act_wattmeter_dt
+----------------
+
++------------------+----------+
+| act_wattmeter_dt | LONGBLOB |
++------------------+----------+
+
+The list of time intervals in seconds between two consecutive wattmeter measures.
+To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
+
+.. tip::
+
+    Only available for the measures taken on grid'5000.
+
+act_wattmeter_power
+-------------------
+
++---------------------+----------+
+| act_wattmeter_power | LONGBLOB |
++---------------------+----------+
+
+The sampled external wattmeter measurement in w.
+To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
+
+.. tip::
+
+    Only available for the measures taken on grid'5000.
+
+act_ps_dt
+---------
