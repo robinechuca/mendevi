@@ -5,8 +5,8 @@
 import click
 
 from .draw import main as main_draw
-from .encode import main as main_encode
 from .merge import main as main_merge
+from mendevi.cli.encode import main as main_encode
 
 
 @click.group()

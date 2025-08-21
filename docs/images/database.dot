@@ -85,7 +85,6 @@ graph database {
       <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
         <TR><TD ALIGN="LEFT"><FONT COLOR="gray">enc_id</FONT></TD><TD ALIGN="LEFT"><FONT COLOR="blue">INTEGER</FONT></TD></TR>
         <TR><TD ALIGN="LEFT">enc_act_id</TD><TD ALIGN="LEFT">INTEGER</TD></TR>
-        <TR><TD ALIGN="LEFT">enc_bit_depth</TD><TD ALIGN="LEFT">SMALLINT</TD></TR>
         <TR><TD ALIGN="LEFT">enc_cmd</TD><TD ALIGN="LEFT">TEXT</TD></TR>
         <TR><TD ALIGN="LEFT">enc_effort</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>
         <TR><TD ALIGN="LEFT">enc_encoder</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>
@@ -93,8 +92,8 @@ graph database {
         <TR><TD ALIGN="LEFT">enc_file</TD><TD ALIGN="LEFT">TEXT</TD></TR>
         <TR><TD ALIGN="LEFT">enc_fps</TD><TD ALIGN="LEFT">FLOAT</TD></TR>
         <TR><TD ALIGN="LEFT">enc_height</TD><TD ALIGN="LEFT">SMALLINT</TD></TR>
+        <TR><TD ALIGN="LEFT">enc_pxl_format</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>
         <TR><TD ALIGN="LEFT">enc_quality</TD><TD ALIGN="LEFT">FLOAT</TD></TR>
-        <TR><TD ALIGN="LEFT">enc_subsampling</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>
         <TR><TD ALIGN="LEFT">enc_threads</TD><TD ALIGN="LEFT">SMALLINT</TD></TR>
         <TR><TD ALIGN="LEFT">enc_vid_id</TD><TD ALIGN="LEFT">BINARY(128)</TD></TR>
         <TR><TD ALIGN="LEFT">enc_width</TD><TD ALIGN="LEFT">SMALLINT</TD></TR>
