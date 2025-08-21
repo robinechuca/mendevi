@@ -33,17 +33,18 @@ Description
 ===========
 
 This module performs **measurements** on video encoding and decoding.
-It also provides a detailed **database**.
+It also provides a detailed **dataset**.
 
 It manages the following parameters:
 
 #. It supports the ``libx264``, ``libx265``, ``libvpx-vp9``, ``libsvtav1`` and ``vvc`` encoders.
 #. Distortions are measured using the ``lpips``, ``psnr``, ``ssim`` and ``vmaf`` metrics.
 #. Encoding efforts are ``fast``, ``medium`` and ``slow``.
-#. Iterate over different ``threads``, ``quality``, ``effort``, ...
+#. It takes care about the colorspaces.
+#. Iterate over different ``effort``, ``encoder``, ``quality``, ``threads``, ``fps``, ``resolution`` and ``pxl_format``.
 #. Energy measurements are catched with ``RAPL`` and an external wattmeter on ``grid'5000``.
 #. Get the ``cpu`` and ``ram`` activity.
-#. Get a full environement context.
+#. Get a full environement context, including harware and software version.
 
 
 Pipeline

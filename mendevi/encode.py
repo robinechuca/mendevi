@@ -161,9 +161,19 @@ def encode_and_store(
         cursor = sql_database.cursor()
 
         # fill video table
-        vid_id = re.search(r"[0-9a-f]{32}", dst.stem).group()
         try:
-            cursor.execute("INSERT INTO t_vid_video (vid_id) VALUES (?)", (vid_id,))
+            cursor.execute(
+                "INSERT INTO t_vid_video (vid_id, vid_name) VALUES (?, ?)",
+                (kwargs["src_vid_id"].encode(), src.name)
+            )
+        except sqlite3.IntegrityError:
+            pass
+        dst_vid_id = re.search(r"[0-9a-f]{32}", dst.stem).group()
+        try:
+            cursor.execute(
+                "INSERT INTO t_vid_video (vid_id, vid_name) VALUES (?, ?)",
+                (dst_vid_id.encode(), dst.name)
+            )
         except sqlite3.IntegrityError:
             pass
 
@@ -192,6 +202,7 @@ def encode_and_store(
         values = {
             "enc_act_id": act_id,
             "enc_cmd": cmd,
+            "enc_dst_vid_id": dst_vid_id.encode(),
             "enc_effort": kwargs["effort"],
             "enc_encoder": kwargs["encoder"],
             "enc_env_id": env_id,
@@ -199,9 +210,8 @@ def encode_and_store(
             "enc_height": kwargs["resolution"][0],
             "enc_pxl_format": kwargs["pxl_format"],
             "enc_quality": kwargs["quality"],
+            "enc_src_vid_id": kwargs["src_vid_id"].encode(),
             "enc_threads": kwargs["threads"],
-            "enc_vid_id": vid_id,
-            "enc_video_name": src.name,
             "enc_width": kwargs["resolution"][1],
         }
         keys = list(values)
@@ -300,172 +310,3 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs) -> list[st
     # final
     cmd.append(str(dst))
     return cmd
-
-
-@click.command()
-@click.argument("videos", type=click.Path(), nargs=-1)
-@click.option("-d", "--database", type=click.Path(), help="The database path.")
-@click.option(
-    "-r", "--repeat",
-    type=int,
-    default=2,
-    help="The number of times the experiment is repeated.",
-)
-@click.option(
-    "-e", "--effort",
-    type=click.Choice(["fast", "medium", "slow"]),
-    default=["medium"],
-    multiple=True,
-    help="The compression effort (default = medium).",
-)
-@click.option(
-    "-c", "--encoder",
-    type=click.Choice(sorted(ENCODERS)),
-    default=sorted(ENCODERS),
-    multiple=True,
-    help="The encoder name.",
-)
-@click.option(
-    "-n", "--points",
-    type=int,
-    default=24,
-    help="The number of quality point per encoder.",
-)
-@click.option(
-    "-t", "--threads",
-    type=int,
-    default=[8],
-    multiple=True,
-    help="The number of threads used by encoders.",
-)
-def main(videos: tuple, database: str = None, **kwargs):
-    """Measures activity during encoding.
-
-    \b
-    Parameters
-    ----------
-    videos : tuple[pathlike]
-        The source videos to be transcoded.
-    database : pathlike, optional
-        The path to the database where all measurements are stored.
-        By default, it is created right next to the video.
-    repeat : int, default=2
-        The number of times the experiment is repeated.
-        This allows us to estimate the variance of measurements.
-    effort : tuple[str], default=("medium",)
-        The effort made to compress, `fast`, `medium` or `slow`.
-    encoder : tuple[str], default=("libsvtav1", "libvpx-vp9", "libx264", "libx265", "vvc")
-        The encoders and therefore the codecs to use.
-    points : int, default=24
-        The number of different qualities to use.
-        It is an indirect way to determine the CRF or the QP.
-        The quality values are distributed evenly over ]0, 1[,
-        for example, points=3 => qualities=[0.25, 0.5, 0.75].
-    threads : int, default=8
-        The theoretical number of threads used by the encoder.
-        This roughly reflects the number of logical cores used.
-    """
-    with Printer("Parse configuration...") as prt:
-        # video
-        assert isinstance(videos, tuple), videos.__class__.__name__
-        assert videos, "at least one video is required"
-        videos = [pathlib.Path(v).expanduser() for v in videos]
-        assert all(v.is_file() for v in videos), videos
-        prt.print(f"videos   : {', '.join(map(str, videos))}")
-
-        # database
-        database = pathlib.Path(database or videos[0].parent / "mendevi.db").expanduser()
-        if not database.exists():
-            create_database(database)
-        prt.print(f"database : {database}")
-
-        # repeat
-        assert "repeat" in kwargs, sorted(kwargs)
-        assert isinstance(kwargs["repeat"], int), kwargs["repeat"].__class__.__name__
-        assert kwargs["repeat"] >= 1, kwargs["repeat"]
-        prt.print(f"repeat   : {kwargs['repeat']}")
-
-        # effort
-        assert "effort" in kwargs, sorted(kwargs)
-        assert isinstance(kwargs["effort"], tuple), kwargs["effort"].__class__.__name__
-        assert all(isinstance(p, str) for p in kwargs["effort"]), kwargs["effort"].__class__.__name__
-        assert all(p in {"fast", "medium", "slow"} for p in kwargs["effort"]), kwargs["effort"]
-        prt.print(f"efforts  : {', '.join(kwargs['effort'])}")
-
-        # encoder
-        assert "encoder" in kwargs, sorted(kwargs)
-        assert isinstance(kwargs["encoder"], tuple), kwargs["encoder"].__class__.__name__
-        assert all(isinstance(e, str) for e in kwargs["encoder"]), kwargs["encoder"].__class__.__name__
-        assert all(e in ENCODERS for e in kwargs["encoder"]), kwargs["encoder"]
-        prt.print(f"encoders : {', '.join(kwargs['encoder'])}")
-
-        # points
-        assert "points" in kwargs, sorted(kwargs)
-        assert isinstance(kwargs["points"], int), kwargs["points"].__class__.__name__
-        assert kwargs["points"] >= 1, kwargs["points"]
-        kwargs["quality"] = [
-            fractions.Fraction(i+1, kwargs["points"]+2)
-            for i in range(kwargs["points"])
-        ]
-        prt.print(f"qualities: k * {kwargs['quality'][0]}, k \u2208 [1, {kwargs['points']}]")
-        kwargs["quality"] = list(map(float, kwargs["quality"]))
-
-        # threads
-        assert "threads" in kwargs, sorted(kwargs)
-        assert isinstance(kwargs["threads"], tuple), kwargs["threads"].__class__.__name__
-        assert all(isinstance(t, int) for t in kwargs["threads"]), kwargs["threads"].__class__.__name__
-        assert all(t >= 1 for t in kwargs["threads"]), kwargs["threads"]
-        prt.print(f"threads  : {', '.join(map(str, kwargs['threads']))}")
-
-    # retrieves the settings for videos that have already been transcoded
-    env_id = add_environement(database)
-    with sqlite3.connect(database) as sql_database:
-        # sql_database.execute("PRAGMA journal_mode=WAL")
-        done: dict[tuple, int] = {}
-        for key in sql_database.execute(
-            """
-            SELECT enc_effort, enc_encoder, enc_video_name, enc_quality, enc_threads
-            FROM t_enc_encode WHERE enc_env_id=?
-            """,
-            (env_id,)
-        ):
-            done[key] = done.get(key, 0) + 1
-
-    # iterate on all the parameters
-    nbr = (
-        kwargs["repeat"]
-        * len(kwargs["threads"])
-        * len(kwargs["effort"])
-        * kwargs["points"]
-        * len(kwargs["encoder"])
-    )
-    for i, (repeat, video, threads, effort, quality, encoder) in enumerate(
-        itertools.product(
-            range(kwargs["repeat"]),
-            videos,
-            kwargs["threads"],
-            kwargs["effort"],
-            kwargs["quality"],
-            kwargs["encoder"],
-        )
-    ):
-        key = (effort, encoder, video.name, quality, threads)
-        if done.get(key, 0) > repeat:
-            continue
-        with Printer(
-            (
-                f"Encode {i}/{nbr}: "
-                f"video={video.name}, "
-                f"threads={threads}, "
-                f"effort={effort}, "
-                f"quality={quality:.2f}, "
-                f"encoder={encoder}..."
-            ),
-            color="cyan",
-        ) as prt:
-            encode_and_store(
-                database, env_id, video,
-                threads=threads, effort=effort, quality=quality, encoder=encoder,
-            )
-            done[key] = done.get(key, 0) + 1
-            prt.print_time()

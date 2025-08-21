@@ -31,7 +31,7 @@ def test_unicity_activity_from_env():
     # insert encode and decode
     with sqlite3.connect(database) as sql_database:
         sql_database.execute(
-            "INSERT INTO t_enc_encode (enc_vid_id, enc_env_id) VALUES (?, ?)",
+            "INSERT INTO t_enc_encode (enc_dst_vid_id, enc_env_id) VALUES (?, ?)",
             ((0).to_bytes(16), 0)
         )
         sql_database.execute(

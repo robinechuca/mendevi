@@ -4,6 +4,7 @@
 
 import fractions
 import functools
+import hashlib
 import itertools
 import operator
 import pathlib
@@ -235,10 +236,15 @@ def main(videos: tuple, database: str = None, **kwargs):
         # others
         _parse_args(prt, kwargs)
 
-
-
     # preparation of context
-    env_id = add_environement(database)
+    with Printer("Get context and video checksum...") as prt:
+        env_id = add_environement(database)
+        kwargs["src_vid_id"]: dict[pathlib.Path, str] = {}
+        for video in videos:
+            with open(video, "rb") as raw:
+                kwargs["src_vid_id"][video] = hashlib.file_digest(raw, "md5").hexdigest()
+            prt.print(f"{video.name} -> {kwargs["src_vid_id"][video]}")
+
     keys = ["threads", "effort", "quality", "encoder", "fps", "resolution", "pxl_format"]
 
     # retrieves the settings for videos that have already been transcoded
@@ -255,10 +261,10 @@ def main(videos: tuple, database: str = None, **kwargs):
                 "pxl_format": values["enc_pxl_format"],
                 "quality": float(values["enc_quality"]),
                 "resolution": (values["enc_height"], values["enc_width"]),
+                "src_vid_id": values["enc_src_vid_id"],
                 "threads": values["enc_threads"],
-                "video_name": values["enc_video_name"],
             }
-            values = tuple(values[k] for k in ["video_name", *keys])
+            values = tuple(values[k] for k in ["src_vid_id", *keys])
             done[values] = done.get(values, 0) + 1
 
     # iterate on all the parameters
@@ -267,13 +273,14 @@ def main(videos: tuple, database: str = None, **kwargs):
         itertools.product(range(kwargs["repeat"]), videos, *(kwargs[k] for k in keys))
     ):
         values = dict(zip(["repeat", "video", *keys], values), repeat=values[0])
+        values["src_vid_id"] = kwargs["src_vid_id"][values["video"]]
         values["fps"] = values["fps"] or get_rate_video(values["video"])
         values["resolution"] = values["resolution"] or get_resolution(values["video"])
         values["pxl_format"] = values["pxl_format"] or get_pxl_format(values["video"])
-        key = (values["video"].name,) + tuple(values[k] for k in keys)
+        key = (values["src_vid_id"].encode(),) + tuple(values[k] for k in keys)
         if done.get(key, 0) > values["repeat"]:
             continue
         with Printer(f"Encode {i}/{loops}...", color="cyan") as prt:
-            encode_and_store(database, env_id, values.pop("video"), **{k: values[k] for k in keys})
+            encode_and_store(database, env_id, values.pop("video"), **values)
             done[key] = done.get(key, 0) + 1
             prt.print_time()

@@ -46,6 +46,7 @@ def create_database(filename: str | bytes | pathlib.Path):
         )""")
         cursor.execute("""CREATE TABLE IF NOT EXISTS t_vid_video (
             vid_id BINARY(128) PRIMARY KEY,  -- md5 hash of the video
+            vid_name TEXT,  -- the path video name
 
             /* VIDEO CONTENT */
             vid_codec TINYTEXT,  -- the codec name
@@ -55,10 +56,9 @@ def create_database(filename: str | bytes | pathlib.Path):
             vid_frames LONGBLOB,  -- serialized version of the metadata of all frames
             vid_gamut TINYTEXT,  -- name of the color space
             vid_height SMALLINT CHECK(vid_height > 0),  -- display height
+            vid_pxl_format TINYTEXT,  -- the name of the pixel format
             vid_size BIGINT CHECK(vid_width >= 0),  -- file size in bytes
-            vid_subsampling TINYTEXT CHECK(vid_subsampling IN ('444', '422', '420')),  -- yuv pixel subsampling
             vid_width SMALLINT CHECK(vid_width > 0),  -- display width
-            vid_bit_depth SMALLINT CHECK(vid_bit_depth IN (8, 10, 12)),  -- bit per sample
 
             /* METRICS */
             vid_ref_vid_id BINARY(128),  -- link to the reference video for comparative metrics
@@ -100,11 +100,15 @@ def create_database(filename: str | bytes | pathlib.Path):
             dec_id INTEGER PRIMARY KEY AUTOINCREMENT,
             dec_vid_id BINARY(128) NOT NULL REFERENCES t_vid_video(vid_id) ON DELETE CASCADE,  -- link to video table
             dec_env_id INTEGER NOT NULL REFERENCES t_env_environement(env_id) ON DELETE CASCADE,  -- link to environement table
-            dec_act_id INTEGER REFERENCES t_act_activity(act_id)  -- link to activity table
+            dec_act_id INTEGER REFERENCES t_act_activity(act_id),  -- link to activity table
+            dec_height SMALLINT CHECK(dec_height > 0),  -- display resolution
+            dec_pxl_format TINYTEXT,  -- display pixel format
+            dec_width SMALLINT CHECK(dec_width > 0)  -- display resolution
         )""")
         cursor.execute("""CREATE TABLE IF NOT EXISTS t_enc_encode (
             enc_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            enc_vid_id BINARY(128) NOT NULL REFERENCES t_vid_video(vid_id) ON DELETE CASCADE,  -- link to video table
+            enc_src_vid_id BINARY(128) REFERENCES t_vid_video(vid_id),  -- link to video table, src video
+            enc_dst_vid_id BINARY(128) NOT NULL REFERENCES t_vid_video(vid_id) ON DELETE CASCADE,  -- link to video table, dst video
             enc_env_id INTEGER NOT NULL REFERENCES t_env_environement(env_id) ON DELETE CASCADE,  -- link to environement table
             enc_act_id INTEGER REFERENCES t_act_activity(act_id),  -- link to activity table
 
@@ -117,7 +121,6 @@ def create_database(filename: str | bytes | pathlib.Path):
             enc_pxl_format TINYTEXT,  -- target conversion pixel format
             enc_quality FLOAT CHECK(enc_quality >= 0.0 AND enc_quality <= 1.0),  -- normlize crf in [0, 1]
             enc_threads SMALLINT CHECK(enc_threads >= 0),  -- number of threads used
-            enc_video_name TEXT,  -- name of the source video file
             enc_width SMALLINT CHECK(enc_width > 0)  -- target conversion resolution
         )""")
         cursor.execute("""
