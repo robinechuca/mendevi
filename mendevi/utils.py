@@ -2,6 +2,7 @@
 
 """Provide simple tools."""
 
+import functools
 import logging
 import numbers
 import pathlib
@@ -12,10 +13,11 @@ import time
 import typing
 
 from cutcutcodec.core.io import VIDEO_SUFFIXES
+import cutcutcodec
 
 from mendevi.g5kpower import g5kpower
-from mendevi.rapl import RAPL
 from mendevi.psutil import Usage
+from mendevi.rapl import RAPL
 
 
 class Activity(threading.Thread):
@@ -117,6 +119,24 @@ class Activity(threading.Thread):
                 "wattmeter_power": wattmeter["power"],
                 "wattmeter_power": wattmeter["powers"],
             }
+
+
+@functools.cache
+def get_pxl_format(*args):
+    """Alias to cutcutcodec func."""
+    return cutcutcodec.get_pxl_format(*args)
+
+
+@functools.cache
+def get_rate_video(*args):
+    """Alias to cutcutcodec func."""
+    return cutcutcodec.get_rate_video(*args)
+
+
+@functools.cache
+def get_resolution(*args):
+    """Alias to cutcutcodec func."""
+    return cutcutcodec.get_resolution(*args)
 
 
 def unfold_video_files(

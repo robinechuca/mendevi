@@ -9,6 +9,9 @@ import re
 import cutcutcodec
 
 
+from mendevi.utils import get_pxl_format, get_rate_video, get_resolution
+
+
 def get_convert_cmd(
     video: pathlib.Path | str,
     fps: fractions.Fraction | None,
@@ -63,11 +66,11 @@ def get_convert_cmd(
     filters: list[str] = []
 
     # scale (the slowest)
-    if resolution is not None and (src := cutcutcodec.get_resolution(video)) != resolution:
+    if resolution is not None and (src := get_resolution(video)) != resolution:
         filters = [f"scale=h={resolution[0]}:w={resolution[1]}:sws_flags=bicubic"]
 
     # format (medium)
-    if pxl_format is not None and (src := cutcutcodec.get_pxl_format(video)) != pxl_format:
+    if pxl_format is not None and (src := get_pxl_format(video)) != pxl_format:
         match = re.search(r"yuv(?P<samp>\d{3})p(?P<bit>\d+)le", src + "8le")
         bit_per_bloc_src = float(match["bit"]) * sum(map(int, match["samp"]))
         match = re.search(r"yuv(?P<samp>\d{3})p(?P<bit>\d+)le", pxl_format + "8le")
@@ -78,7 +81,7 @@ def get_convert_cmd(
             filters.append(f"format={pxl_format}")
 
     # fps (the fastest)
-    if fps is not None and (src := cutcutcodec.get_rate_video(video)) != fps:
+    if fps is not None and (src := get_rate_video(video)) != fps:
         if fps < src:
             filters.insert(0, f"fps={fps}")
         else:

@@ -89,13 +89,13 @@ graph database {
         <TR><TD ALIGN="LEFT">enc_effort</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>
         <TR><TD ALIGN="LEFT">enc_encoder</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>
         <TR><TD ALIGN="LEFT">enc_env_id</TD><TD ALIGN="LEFT">INTEGER</TD></TR>
-        <TR><TD ALIGN="LEFT">enc_file</TD><TD ALIGN="LEFT">TEXT</TD></TR>
         <TR><TD ALIGN="LEFT">enc_fps</TD><TD ALIGN="LEFT">FLOAT</TD></TR>
         <TR><TD ALIGN="LEFT">enc_height</TD><TD ALIGN="LEFT">SMALLINT</TD></TR>
         <TR><TD ALIGN="LEFT">enc_pxl_format</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>
         <TR><TD ALIGN="LEFT">enc_quality</TD><TD ALIGN="LEFT">FLOAT</TD></TR>
         <TR><TD ALIGN="LEFT">enc_threads</TD><TD ALIGN="LEFT">SMALLINT</TD></TR>
         <TR><TD ALIGN="LEFT">enc_vid_id</TD><TD ALIGN="LEFT">BINARY(128)</TD></TR>
+        <TR><TD ALIGN="LEFT">enc_video_name</TD><TD ALIGN="LEFT">TEXT</TD></TR>
         <TR><TD ALIGN="LEFT">enc_width</TD><TD ALIGN="LEFT">SMALLINT</TD></TR>
         <TR><TD COLSPAN="2" BGCOLOR="lightblue"><B>t_enc_encode</B></TD></TR>
       </TABLE>

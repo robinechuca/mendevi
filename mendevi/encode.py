@@ -19,6 +19,7 @@ import cutcutcodec
 import numpy as np
 import tqdm
 
+from mendevi.convert import get_convert_cmd
 from mendevi.database.complete import add_environement
 from mendevi.database.create import create_database, is_sqlite
 from mendevi.database.serialize import list_to_binary, tensor_to_binary
@@ -29,14 +30,14 @@ from .profiles import PROFILES
 ENCODERS = {"libx264", "libx265", "libvpx-vp9", "libsvtav1", "vvc"}
 
 
-def encode(src: pathlib.Path, *args, **kwargs) -> tuple[pathlib.Path, dict[str]]:
+def encode(src: pathlib.Path, **kwargs) -> tuple[pathlib.Path, dict[str]]:
     """Transcode an existing video.
 
     Parameters
     ----------
     src : pathlib.Path
         The source video file to be transcoded.
-    *args, **kwargs
+    **kwargs : dict
         Transmitted to :py:func:`get_transcode_cmd`.
 
     Returns
@@ -52,12 +53,20 @@ def encode(src: pathlib.Path, *args, **kwargs) -> tuple[pathlib.Path, dict[str]]
     assert src.is_file(), src
 
     # find tempfile name
-    cmd = get_transcode_cmd(*args, **kwargs)
-    signature = hashlib.md5(bytes(src) + (" ".join(cmd)).encode("utf-8")).hexdigest()
+    " ".join(str(kwargs[k]) for k in sorted(kwargs)).encode("utf-8")
+    signature = hashlib.md5(
+        bytes(src) + " ".join(str(kwargs[k]) for k in sorted(kwargs)).encode("utf-8")
+    ).hexdigest()
     dst = pathlib.Path(tempfile.gettempdir()) / f"{signature}.mp4"
 
+    # get cmd
+    cmd = get_transcode_cmd(src, dst, **kwargs)
+
     # display
-    with Printer(f"Execute: <{' '.join(map(shlex.quote, cmd))}>...", color="white") as prt:
+    prt_cmd = " ".join(
+        map(shlex.quote, [{str(src): "src.mp4", str(dst): "dst.mp4"}.get(c, c) for c in cmd[:-1]])
+    )
+    with Printer(prt_cmd, color="green") as prt:
         prt.print(f"input video: {src.name}")
         duration = round(float(cutcutcodec.get_duration_video(src)), 2)
         load = tqdm.tqdm(
@@ -69,11 +78,6 @@ def encode(src: pathlib.Path, *args, **kwargs) -> tuple[pathlib.Path, dict[str]]
         )
 
         # transcode
-        cmd = [
-            "ffmpeg", "-y", "-hide_banner",
-            "-i", str(src), "-c:v", *cmd,
-            str(dst),
-        ]
         with Activity() as activity, subprocess.Popen(cmd, stderr=subprocess.PIPE) as process:
             out = b""
             is_finish = False
@@ -117,12 +121,11 @@ def encode(src: pathlib.Path, *args, **kwargs) -> tuple[pathlib.Path, dict[str]]
         shutil.move(src.parent / f"sample_{signature}_partial.mp4", final_dst)
     dst.unlink()
 
-    cmd = " ".join(map(shlex.quote, cmd))
-    return final_dst, cmd, activity
+    return final_dst, prt_cmd, activity
 
 
 def encode_and_store(
-    database: sqlite3.Cursor | str | bytes | pathlib.Path,
+    database: pathlib.Path,
     env_id: int,
     src: pathlib.Path,
     **kwargs,
@@ -151,74 +154,65 @@ def encode_and_store(
     >>> database.unlink()
     >>>
     """
-    # open database
-    if not isinstance(database, sqlite3.Cursor):
-        database = pathlib.Path(database).expanduser().resolve()
-        assert is_sqlite(database), database
-        with sqlite3.connect(database) as sql_database:
-            # sql_database.execute("PRAGMA journal_mode=WAL")
-            cursor = sql_database.cursor()
-            res = encode_and_store(cursor, env_id, src, **kwargs)
-            cursor.close()
-            return res
-
     # transcode the video
-    file, cmd, activity = encode(src, **kwargs)
+    dst, cmd, activity = encode(src, **kwargs)
 
-    # fill video table
-    vid_id = re.search(r"[0-9a-f]{32}", file.stem).group()
-    try:
-        database.execute("INSERT INTO t_vid_video (vid_id) VALUES (?)", (vid_id,))
-    except sqlite3.IntegrityError:
-        pass
+    with sqlite3.connect(database) as sql_database:
+        cursor = sql_database.cursor()
 
-    # fill activity table
-    activity = {
-        "act_duration": activity["duration"],
-        "act_ps_core": tensor_to_binary(activity["ps_cores"]),
-        "act_ps_dt": list_to_binary(activity["ps_dt"]),
-        "act_ps_ram": list_to_binary(activity["ps_ram"]),
-        "act_rapl_dt": list_to_binary(activity.get("rapl_dt", None)),
-        "act_rapl_power": list_to_binary(activity.get("rapl_powers", None)),
-        "act_start": activity["start"],
-        "act_wattmeter_dt": list_to_binary(activity.get("wattmeter_dt", None)),
-        "act_wattmeter_power": list_to_binary(activity.get("wattmeter_powers", None)),
-    }
-    keys = list(activity)
-    (act_id,) = database.execute(
-        (
-            f"INSERT INTO t_act_activity ({', '.join(keys)}) "
-            f"VALUES ({', '.join('?'*len(keys))}) RETURNING act_id"
-        ),
-        [activity[k] for k in keys],
-    ).fetchone()
+        # fill video table
+        vid_id = re.search(r"[0-9a-f]{32}", dst.stem).group()
+        try:
+            cursor.execute("INSERT INTO t_vid_video (vid_id) VALUES (?)", (vid_id,))
+        except sqlite3.IntegrityError:
+            pass
 
-    # fill encode table
-    database.execute("""INSERT INTO t_enc_encode
-        (
-            enc_vid_id, enc_env_id, enc_act_id,
-            enc_cmd, enc_effort, enc_encoder, enc_file, enc_quality, enc_threads
+        # fill activity table
+        activity = {
+            "act_duration": activity["duration"],
+            "act_ps_core": tensor_to_binary(activity["ps_cores"]),
+            "act_ps_dt": list_to_binary(activity["ps_dt"]),
+            "act_ps_ram": list_to_binary(activity["ps_ram"]),
+            "act_rapl_dt": list_to_binary(activity.get("rapl_dt", None)),
+            "act_rapl_power": list_to_binary(activity.get("rapl_powers", None)),
+            "act_start": activity["start"],
+            "act_wattmeter_dt": list_to_binary(activity.get("wattmeter_dt", None)),
+            "act_wattmeter_power": list_to_binary(activity.get("wattmeter_powers", None)),
+        }
+        keys = list(activity)
+        (act_id,) = cursor.execute(
+            (
+                f"INSERT INTO t_act_activity ({', '.join(keys)}) "
+                f"VALUES ({', '.join('?'*len(keys))}) RETURNING act_id"
+            ),
+            [activity[k] for k in keys],
+        ).fetchone()
+
+        # fill encode table
+        values = {
+            "enc_act_id": act_id,
+            "enc_cmd": cmd,
+            "enc_effort": kwargs["effort"],
+            "enc_encoder": kwargs["encoder"],
+            "enc_env_id": env_id,
+            "enc_fps": float(kwargs["fps"]),
+            "enc_height": kwargs["resolution"][0],
+            "enc_pxl_format": kwargs["pxl_format"],
+            "enc_quality": kwargs["quality"],
+            "enc_threads": kwargs["threads"],
+            "enc_vid_id": vid_id,
+            "enc_video_name": src.name,
+            "enc_width": kwargs["resolution"][1],
+        }
+        keys = list(values)
+        cursor.execute(
+            f"INSERT INTO t_enc_encode ({', '.join(keys)}) VALUES ({', '.join('?'*len(keys))})",
+            [values[k] for k in keys]
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-        (
-            vid_id, env_id, act_id,
-            cmd, kwargs["effort"], kwargs["encoder"], src.name, kwargs["quality"], kwargs["threads"]
-        )
-    )
 
 
-def get_transcode_cmd(
-    encoder: str, effort: str, quality: float, threads: int, video: pathlib.Path | None = None
-) -> list[str]:
+def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs) -> list[str]:
     """Return the ffmpeg encode cmd."""
-    assert isinstance(encoder, str), encoder.__class__.__name__
-    assert encoder in ENCODERS, encoder
-    assert isinstance(effort, str), effort.__class__.__name__
-    assert isinstance(quality, float), quality.__class__.__name__
-    assert isinstance(threads, int), threads.__class__.__name__
-    assert effort in {"slow", "medium", "fast"}, effort
-    assert 0.0 <= quality <= 1.0, quality
-    assert threads > 0, threads
 
     def libsvtav1_lp(threads: int) -> int:
         """Convert threads in parralel level."""
@@ -237,50 +231,75 @@ def get_transcode_cmd(
             15: 5, 16: 5, 17: 5,
         }.get(threads, 6)
 
-    match encoder:
+    # header
+    cmd: list[str] = ["ffmpeg", "-y", "-i", str(src)]
+
+    # filter
+    if (
+        filter_cmd := get_convert_cmd(
+            src,
+            fps=kwargs["fps"],
+            pxl_format=kwargs["pxl_format"],
+            resolution=kwargs["resolution"],
+        )
+    ):
+        cmd.extend(["-vf", filter_cmd])
+
+    # transcode
+    cmd.append("-c:v")
+    match kwargs["encoder"]:
         case "libx264":
-            return [  # https://ffmpeg.party/x264/
+            cmd.extend([  # https://ffmpeg.party/x264/
                 "libx264",
-                "-crf", str(round(quality*51.0, 1)),
-                "-preset", effort,
+                "-crf", str(round(kwargs["quality"]*51.0, 1)),
+                "-preset", kwargs["effort"],
                 "-tune", "ssim",
-                "-threads", str(threads),
-            ]
+                "-threads", str(kwargs["threads"]),
+            ])
         case "libx265":
-            return [   # https://x265.readthedocs.io/en/master/cli.html
+            cmd.extend([   # https://x265.readthedocs.io/en/master/cli.html
                 "libx265",
-                "-crf", str(round(quality*51.0, 1)),
-                "-preset", effort,
+                "-crf", str(round(kwargs["quality"]*51.0, 1)),
+                "-preset", kwargs["effort"],
                 "-tune", "ssim",
                 "-x265-params",
-                f"frame-threads={threads}:pools={threads}:wpp={1 if threads != 1 else 0}",
-            ]
+                (
+                    f"frame-threads={kwargs['threads']}:"
+                    f"pools={kwargs['threads']}:"
+                    f"wpp={1 if kwargs['threads'] != 1 else 0}"
+                ),
+            ])
         case "libvpx-vp9":
-            return [  # https://wiki.webmproject.org/ffmpeg/vp9-encoding-guide
+            cmd.extend([  # https://wiki.webmproject.org/ffmpeg/vp9-encoding-guide
                 "libvpx-vp9",
-                "-crf", str(round(quality*63.0)),
-                "-speed", {"slow": "-2", "medium": "1", "fast": "8"}[effort],  # in [-16, 16]
+                "-crf", str(round(kwargs["quality"]*63.0)),
+                # in [-16, 16]
+                "-speed", {"slow": "-2", "medium": "1", "fast": "8"}[kwargs["effort"]],
                 "-tune", "ssim",
-                "-row-mt", "1", "-threads", str(threads),
-            ]
+                "-row-mt", "1", "-threads", str(kwargs["threads"]),
+            ])
         case "libsvtav1":
-            return [
+            cmd.extend([
                 "libsvtav1",
-                "-crf", str(round(quality*63.0)),
-                "-preset", {"slow": "4", "medium": "6", "fast": "8"}[effort],
-                "-svtav1-params", f"film-grain=0:lp={libsvtav1_lp(threads)}",  # tune=2 broken in v3.0.2
-                # "-threads", str(threads),
-            ]
+                "-crf", str(round(kwargs["quality"]*63.0)),
+                "-preset", {"slow": "4", "medium": "6", "fast": "8"}[kwargs["effort"]],
+                # tune=2 broken in v3.0.2
+                "-svtav1-params", f"film-grain=0:lp={libsvtav1_lp(kwargs['threads'])}",
+            ])
         case "vvc":
-            bit = int(re.search(r"(?P<bit>\d+)le", video_pxl_fmt + "8le")["bit"])
-            return [
+            bit = int(re.search(r"(?P<bit>\d+)le", kwargs["pxl_format"] + "8le")["bit"])
+            cmd.extend([
                 "vvc",
-                "-qp", str(round(quality*63.0)),
-                "-preset", effort,
+                "-qp", str(round(kwargs["quality"]*63.0)),
+                "-preset", kwargs["effort"],
                 "-qpa", "1",
                 "-vvenc-params", f"internalbitdepth={bit}",
-                "-threads", str(threads),
-            ]
+                "-threads", str(kwargs['threads']),
+            ])
+
+    # final
+    cmd.append(str(dst))
+    return cmd
 
 
 @click.command()
@@ -405,7 +424,7 @@ def main(videos: tuple, database: str = None, **kwargs):
         done: dict[tuple, int] = {}
         for key in sql_database.execute(
             """
-            SELECT enc_effort, enc_encoder, enc_file, enc_quality, enc_threads
+            SELECT enc_effort, enc_encoder, enc_video_name, enc_quality, enc_threads
             FROM t_enc_encode WHERE enc_env_id=?
             """,
             (env_id,)

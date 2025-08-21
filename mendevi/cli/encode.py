@@ -12,9 +12,13 @@ import sqlite3
 
 from context_verbose import Printer
 import click
+import cutcutcodec
+import numpy as np
 
 from mendevi.database.complete import add_environement
 from mendevi.database.create import create_database
+from mendevi.encode import encode_and_store
+from mendevi.utils import get_pxl_format, get_rate_video, get_resolution
 
 
 
@@ -23,6 +27,7 @@ ENCODERS = {"libx264", "libx265", "libvpx-vp9", "libsvtav1", "vvc"}
 
 
 class PixelParamType(click.ParamType):
+    """Parse the pixel format."""
     name = "pixel"
 
     def convert(self, value, param, ctx):
@@ -33,6 +38,7 @@ class PixelParamType(click.ParamType):
 
 
 class ResolutionParamType(click.ParamType):
+    """Parse the resolution."""
     name = "resolution"
 
     def convert(self, value, param, ctx):
@@ -44,6 +50,79 @@ class ResolutionParamType(click.ParamType):
             return (int(match["d1"]), int(match["d2"]))
         return (int(match["d2"]), int(match["d1"]))
 
+
+def _parse_args(prt: Printer, kwargs: dict):
+    """Verification of the arguments."""
+    # repeat
+    assert "repeat" in kwargs, sorted(kwargs)
+    assert isinstance(kwargs["repeat"], int), kwargs["repeat"].__class__.__name__
+    assert kwargs["repeat"] >= 1, kwargs["repeat"]
+    prt.print(f"repeat    : {kwargs['repeat']}")
+
+    # effort
+    assert "effort" in kwargs, sorted(kwargs)
+    assert isinstance(kwargs["effort"], tuple), kwargs["effort"].__class__.__name__
+    assert all(isinstance(p, str) for p in kwargs["effort"]), kwargs["effort"]
+    assert all(p in {"fast", "medium", "slow"} for p in kwargs["effort"]), kwargs["effort"]
+    prt.print(f"efforts   : {', '.join(kwargs['effort'])}")
+
+    # encoder
+    assert "encoder" in kwargs, sorted(kwargs)
+    assert isinstance(kwargs["encoder"], tuple), kwargs["encoder"].__class__.__name__
+    assert all(isinstance(e, str) for e in kwargs["encoder"]), kwargs["encoder"]
+    assert all(e in ENCODERS for e in kwargs["encoder"]), kwargs["encoder"]
+    prt.print(f"encoders  : {', '.join(kwargs['encoder'])}")
+
+    # points
+    assert "points" in kwargs, sorted(kwargs)
+    assert isinstance(kwargs["points"], int), kwargs["points"].__class__.__name__
+    assert kwargs["points"] >= 1, kwargs["points"]
+    kwargs["quality"] = np.linspace(
+        1.0/(kwargs["points"]+1),
+        kwargs["points"]/(kwargs["points"]+1),
+        kwargs["points"],
+        dtype=np.float16,
+    ).tolist()
+    prt.print(f"qualities : k/{kwargs['points']+1}, k \u2208 [1, {kwargs['points']}]")
+
+    # threads
+    assert "threads" in kwargs, sorted(kwargs)
+    assert isinstance(kwargs["threads"], tuple), kwargs["threads"].__class__.__name__
+    assert all(isinstance(t, int) for t in kwargs["threads"]), kwargs["threads"]
+    assert all(t >= 1 for t in kwargs["threads"]), kwargs["threads"]
+    prt.print(f"threads   : {', '.join(map(str, kwargs['threads']))}")
+
+    # fps
+    assert "fps" in kwargs, sorted(kwargs)
+    assert isinstance(kwargs["fps"], tuple), kwargs["fps"].__class__.__name__
+    assert all(isinstance(f, fractions.Fraction) for f in kwargs["fps"]), kwargs["fps"]
+    assert all(f > 0 for f in kwargs["fps"]), kwargs["fps"]
+    if kwargs["fps"]:
+        kwargs["fps"] = [f.limit_denominator(1001) for f in kwargs["fps"]]
+        prt.print(f"fps       : {', '.join(map(str, kwargs['fps']))}")
+    else:
+        kwargs["fps"] = (None,)
+
+    # resolution
+    assert "resolution" in kwargs, sorted(kwargs)
+    assert isinstance(kwargs["resolution"], tuple), kwargs["resolution"].__class__.__name__
+    assert all(
+        isinstance(r, tuple) and len(r) == 2 and all(isinstance(s, int) and s > 0 for s in r)
+        for r in kwargs["resolution"]
+    ), kwargs["resolution"]
+    if kwargs["resolution"]:
+        prt.print(f"resolution: {', '.join(f'w={w}:h={h}' for h, w in kwargs['resolution'])}")
+    else:
+        kwargs["resolution"] = (None,)
+
+    # pxl_format
+    assert "pxl_format" in kwargs, sorted(kwargs)
+    assert isinstance(kwargs["pxl_format"], tuple), kwargs["pxl_format"].__class__.__name__
+    assert all(isinstance(p, str) for p in kwargs["pxl_format"]), kwargs["pxl_format"]
+    if kwargs["pxl_format"]:
+        prt.print(f"pxl_format: {', '.join(kwargs['pxl_format'])}")
+    else:
+        kwargs["pxl_format"] = (None,)
 
 
 @click.command()
@@ -153,74 +232,10 @@ def main(videos: tuple, database: str = None, **kwargs):
             create_database(database)
         prt.print(f"database  : {database}")
 
-        # repeat
-        assert "repeat" in kwargs, sorted(kwargs)
-        assert isinstance(kwargs["repeat"], int), kwargs["repeat"].__class__.__name__
-        assert kwargs["repeat"] >= 1, kwargs["repeat"]
-        prt.print(f"repeat    : {kwargs['repeat']}")
+        # others
+        _parse_args(prt, kwargs)
 
-        # effort
-        assert "effort" in kwargs, sorted(kwargs)
-        assert isinstance(kwargs["effort"], tuple), kwargs["effort"].__class__.__name__
-        assert all(isinstance(p, str) for p in kwargs["effort"]), kwargs["effort"]
-        assert all(p in {"fast", "medium", "slow"} for p in kwargs["effort"]), kwargs["effort"]
-        prt.print(f"efforts   : {', '.join(kwargs['effort'])}")
 
-        # encoder
-        assert "encoder" in kwargs, sorted(kwargs)
-        assert isinstance(kwargs["encoder"], tuple), kwargs["encoder"].__class__.__name__
-        assert all(isinstance(e, str) for e in kwargs["encoder"]), kwargs["encoder"]
-        assert all(e in ENCODERS for e in kwargs["encoder"]), kwargs["encoder"]
-        prt.print(f"encoders  : {', '.join(kwargs['encoder'])}")
-
-        # points
-        assert "points" in kwargs, sorted(kwargs)
-        assert isinstance(kwargs["points"], int), kwargs["points"].__class__.__name__
-        assert kwargs["points"] >= 1, kwargs["points"]
-        kwargs["quality"] = [
-            fractions.Fraction(i+1, kwargs["points"]+2)
-            for i in range(kwargs["points"])
-        ]
-        prt.print(f"qualities : k * {kwargs['quality'][0]}, k \u2208 [1, {kwargs['points']}]")
-        kwargs["quality"] = list(map(float, kwargs["quality"]))
-
-        # threads
-        assert "threads" in kwargs, sorted(kwargs)
-        assert isinstance(kwargs["threads"], tuple), kwargs["threads"].__class__.__name__
-        assert all(isinstance(t, int) for t in kwargs["threads"]), kwargs["threads"]
-        assert all(t >= 1 for t in kwargs["threads"]), kwargs["threads"]
-        prt.print(f"threads   : {', '.join(map(str, kwargs['threads']))}")
-
-        # fps
-        assert "fps" in kwargs, sorted(kwargs)
-        assert isinstance(kwargs["fps"], tuple), kwargs["fps"].__class__.__name__
-        assert all(isinstance(f, fractions.Fraction) for f in kwargs["fps"]), kwargs["fps"]
-        assert all(f > 0 for f in kwargs["fps"]), kwargs["fps"]
-        if kwargs["fps"]:
-            prt.print(f"fps       : {', '.join(map(str, kwargs['fps']))}")
-        else:
-            kwargs["fps"] = (None,)
-
-        # resolution
-        assert "resolution" in kwargs, sorted(kwargs)
-        assert isinstance(kwargs["resolution"], tuple), kwargs["resolution"].__class__.__name__
-        assert all(
-            isinstance(r, tuple) and len(r) == 2 and all(isinstance(s, int) and s > 0 for s in r)
-            for r in kwargs["resolution"]
-        ), kwargs["resolution"]
-        if kwargs["resolution"]:
-            prt.print(f"resolution: {', '.join(f'w={w}:h={h}' for h, w in kwargs['resolution'])}")
-        else:
-            kwargs["resolution"] = (None,)
-
-        # pxl_format
-        assert "pxl_format" in kwargs, sorted(kwargs)
-        assert isinstance(kwargs["pxl_format"], tuple), kwargs["pxl_format"].__class__.__name__
-        assert all(isinstance(p, str) for p in kwargs["pxl_format"]), kwargs["pxl_format"]
-        if kwargs["pxl_format"]:
-            prt.print(f"pxl_format: {', '.join(kwargs['pxl_format'])}")
-        else:
-            kwargs["pxl_format"] = (None,)
 
     # preparation of context
     env_id = add_environement(database)
@@ -228,39 +243,37 @@ def main(videos: tuple, database: str = None, **kwargs):
 
     # retrieves the settings for videos that have already been transcoded
     with sqlite3.connect(database) as sql_database:
-        # sql_database.execute("PRAGMA journal_mode=WAL")
+        sql_database.row_factory = sqlite3.Row
         done: dict[tuple, int] = {}
-        for value in sql_database.execute(
-            """
-            SELECT enc_effort, enc_encoder, enc_file, enc_quality, enc_threads
-            FROM t_enc_encode WHERE enc_env_id=?
-            """,
-            (env_id,)
+        for values in sql_database.execute(
+            "SELECT * FROM t_enc_encode WHERE enc_env_id=?", (env_id,)
         ):
-            done[value] = done.get(value, 0) + 1
+            values = {
+                "effort": values["enc_effort"],
+                "encoder": values["enc_encoder"],
+                "fps": fractions.Fraction(values["enc_fps"]).limit_denominator(1001),
+                "pxl_format": values["enc_pxl_format"],
+                "quality": float(values["enc_quality"]),
+                "resolution": (values["enc_height"], values["enc_width"]),
+                "threads": values["enc_threads"],
+                "video_name": values["enc_video_name"],
+            }
+            values = tuple(values[k] for k in ["video_name", *keys])
+            done[values] = done.get(values, 0) + 1
 
     # iterate on all the parameters
     loops = functools.reduce(operator.mul, [kwargs["repeat"], *(len(kwargs[k]) for k in keys)])
     for i, values in enumerate(
         itertools.product(range(kwargs["repeat"]), videos, *(kwargs[k] for k in keys))
     ):
-        key = (effort, encoder, video.name, quality, threads)
-        if done.get(key, 0) > repeat:
+        values = dict(zip(["repeat", "video", *keys], values), repeat=values[0])
+        values["fps"] = values["fps"] or get_rate_video(values["video"])
+        values["resolution"] = values["resolution"] or get_resolution(values["video"])
+        values["pxl_format"] = values["pxl_format"] or get_pxl_format(values["video"])
+        key = (values["video"].name,) + tuple(values[k] for k in keys)
+        if done.get(key, 0) > values["repeat"]:
             continue
-        with Printer(
-            (
-                f"Encode {i}/{nbr}: "
-                f"video={video.name}, "
-                f"threads={threads}, "
-                f"effort={effort}, "
-                f"quality={quality:.2f}, "
-                f"encoder={encoder}..."
-            ),
-            color="cyan",
-        ) as prt:
-            encode_and_store(
-                database, env_id, video,
-                threads=threads, effort=effort, quality=quality, encoder=encoder,
-            )
+        with Printer(f"Encode {i}/{loops}...", color="cyan") as prt:
+            encode_and_store(database, env_id, values.pop("video"), **{k: values[k] for k in keys})
             done[key] = done.get(key, 0) + 1
             prt.print_time()
