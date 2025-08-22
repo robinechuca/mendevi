@@ -20,7 +20,7 @@ PROFILES = {
         "pix_fmt": "yuv420p",
         "primaries": "smpte170m",
         "range": "tv",
-        "resolution": (720, 480),
+        "resolution": (480, 720),
         "transfer": "smpte170m",
     },
     "hd": {
@@ -29,7 +29,7 @@ PROFILES = {
         "pix_fmt": "yuv420p",
         "primaries": "bt709",  # sRGB
         "range": "tv",
-        "resolution": (1280, 720),
+        "resolution": (720, 1280),
         "transfer": "iec61966-2-1, iec61966_2_1",  # sRGB
     },
     "uhd": {
@@ -38,7 +38,7 @@ PROFILES = {
         "pix_fmt": "yuv420p10le",
         "primaries": "bt709",
         "range": "tv",
-        "resolution": (1920, 1080),
+        "resolution": (1080, 1920),
         "transfer": "bt709",
     },
     "hd4k": {  # partialy given by https://trac.ffmpeg.org/wiki/Encode/AV1
@@ -47,7 +47,7 @@ PROFILES = {
         "pix_fmt": "yuv420p10le",
         "primaries": "bt2020",
         "range": "pc",
-        "resolution": (3840, 2160),
+        "resolution": (2160, 3840),
         "transfer": "smpte2084",
     },
 }

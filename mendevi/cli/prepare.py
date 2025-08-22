@@ -6,6 +6,7 @@ import click
 import fractions
 import math
 import pathlib
+import shutil
 
 from context_verbose import Printer
 import cutcutcodec
@@ -46,6 +47,11 @@ from .parse import PixelParamType, ResolutionParamType
     "--transfer",
     type=click.Choice(list(cutcutcodec.core.colorspace.cst.TRC)),
     help="The electro-optical transfer function.",
+)
+@click.option(
+    "--range",
+    type=click.Choice(["tv", "pc"]),
+    help="The pixel coding range."
 )
 def main(video: str, **kwargs):
     """Pre-Process the source video before performing the transcoding measurements.
@@ -89,12 +95,15 @@ def main(video: str, **kwargs):
         The electro-optical transfer function
         that allows you to define the light intensity curve of the pixels.
         The possible values are those supported by *cutcutcodec.core.colorspace.cst.TRC*.
+    range : str, optional
+        The default value is defined in the profile.
+        You can specify ``tv`` for limited range or ``pc`` for full range.
     """
     with Printer("Parse configuration...") as prt:
         # video
         video = pathlib.Path(video).expanduser().resolve()
         assert video.is_file(), video
-        prt.print(f"video     : {video}")
+        prt.print(f"src video : {video}")
 
         # profile
         kwargs["profile"] = kwargs.get("profile", None)
@@ -127,7 +136,7 @@ def main(video: str, **kwargs):
             isinstance(kwargs["resolution"], tuple) and len(kwargs["resolution"]) == 2
             and all(isinstance(s, int) and s > 0 for s in kwargs["resolution"])
         ), kwargs["resolution"]
-        prt.print(f"resolution: w={kwargs['resolution'][0]}:h={kwargs['resolution'][1]}")
+        prt.print(f"resolution: h={kwargs['resolution'][0]}:w={kwargs['resolution'][1]}")
 
         # pix_fmt
         kwargs["pix_fmt"] = kwargs.get("pix_fmt", None) or PROFILES[kwargs["profile"]]["pix_fmt"]
@@ -148,5 +157,51 @@ def main(video: str, **kwargs):
         assert kwargs["transfer"] in cutcutcodec.core.colorspace.cst.TRC, kwargs["transfer"]
         prt.print(f"transfer  : {kwargs['transfer']}")
 
-    # find filename
-    raise NotImplementedError
+        # range
+        kwargs["range"] = kwargs.get("range", None) or PROFILES[kwargs["profile"]]["range"]
+        assert isinstance(kwargs["range"], str), kwargs["range"].__class__.__name__
+        assert kwargs["range"] in {"tv", "pc"}, kwargs["range"]
+        prt.print(f"range     : {kwargs['range']}")
+
+        # find filename
+        file = []
+        for profile in PROFILES:
+            file.append(["reference", video.stem, profile])
+            if kwargs["fps"] != PROFILES[profile]["fps"]:
+                file[-1].append(f"{float(kwargs['fps']):.2f}fps")
+            if kwargs["resolution"] != PROFILES[profile]["resolution"]:
+                file[-1].append(f"{kwargs['resolution'][1]}x{kwargs['resolution'][0]}")
+            if kwargs["pix_fmt"] != PROFILES[profile]["pix_fmt"]:
+                file[-1].append(kwargs["pix_fmt"])
+            if kwargs["primaries"] != PROFILES[profile]["primaries"]:
+                file[-1].append(f"p_{kwargs['primaries']}")
+            if kwargs["transfer"] != PROFILES[profile]["transfer"]:
+                file[-1].append(f"t_{kwargs['transfer']}")
+            if kwargs["range"] != PROFILES[profile]["range"]:
+                file[-1].append(f"r_{kwargs['range']}")
+            file[-1] = "_".join(file[-1]) + ".mkv"
+        file = {len(f): f for f in file}
+        file = file[min(file)]  # select the shortest name
+        file = video.parent / file  # TODO: give the choice of the folder
+        prt.print(f"dst video : {file}")
+
+    # write the file
+    if not file.exists():
+        tmp = file.with_stem(f"{file.stem}_in_process")
+        with cutcutcodec.read(video) as container:
+            stream = container.out_select("video")[0]
+            cutcutcodec.write(
+                [stream],
+                tmp,
+                colorspace=cutcutcodec.Colorspace(
+                    "y'pbpr", kwargs["primaries"], kwargs["transfer"]
+                ),
+                streams_settings=[{  # extension .mkv
+                    "encodec": "ffv1",  # fast lossless compression
+                    "rate": kwargs["fps"],
+                    "shape": kwargs["resolution"],
+                    "pix_fmt": kwargs["pix_fmt"],
+                }],
+            )
+        shutil.move(tmp, file)
+    return file
