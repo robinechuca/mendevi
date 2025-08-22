@@ -19,37 +19,13 @@ import numpy as np
 from mendevi.database.complete import add_environement
 from mendevi.database.create import create_database
 from mendevi.encode import encode_and_store
-from mendevi.utils import get_pxl_format, get_rate_video, get_resolution
+from mendevi.utils import get_pix_fmt, get_rate_video, get_resolution
+from .parse import PixelParamType, ResolutionParamType
 
 
 
 ENCODERS = {"libx264", "libx265", "libvpx-vp9", "libsvtav1", "vvc"}
 
-
-
-class PixelParamType(click.ParamType):
-    """Parse the pixel format."""
-    name = "pixel"
-
-    def convert(self, value, param, ctx):
-        value = value.lower()
-        if not re.fullmatch(r"yuv4[24][024]p(?:10le|12le)?", value):
-            self.fail(f"{value!r} is not a valid pixel format", param, ctx)
-        return value
-
-
-class ResolutionParamType(click.ParamType):
-    """Parse the resolution."""
-    name = "resolution"
-
-    def convert(self, value, param, ctx):
-        if (match := re.search(
-            r"(?P<t1>he)?\D*(?P<d1>\d+)\D+?(?P<t2>w)?\D*(?P<d2>\d+)", value.lower()
-        )) is None:
-            self.fail(f"{value!r} is not a valid video shape", param, ctx)
-        if match["t1"] == "he" or match["t2"] == "w":
-            return (int(match["d1"]), int(match["d2"]))
-        return (int(match["d2"]), int(match["d1"]))
 
 
 def _parse_args(prt: Printer, kwargs: dict):
@@ -116,14 +92,14 @@ def _parse_args(prt: Printer, kwargs: dict):
     else:
         kwargs["resolution"] = (None,)
 
-    # pxl_format
-    assert "pxl_format" in kwargs, sorted(kwargs)
-    assert isinstance(kwargs["pxl_format"], tuple), kwargs["pxl_format"].__class__.__name__
-    assert all(isinstance(p, str) for p in kwargs["pxl_format"]), kwargs["pxl_format"]
-    if kwargs["pxl_format"]:
-        prt.print(f"pxl_format: {', '.join(kwargs['pxl_format'])}")
+    # pix_fmt
+    assert "pix_fmt" in kwargs, sorted(kwargs)
+    assert isinstance(kwargs["pix_fmt"], tuple), kwargs["pix_fmt"].__class__.__name__
+    assert all(isinstance(p, str) for p in kwargs["pix_fmt"]), kwargs["pix_fmt"]
+    if kwargs["pix_fmt"]:
+        prt.print(f"pix_fmt: {', '.join(kwargs['pix_fmt'])}")
     else:
-        kwargs["pxl_format"] = (None,)
+        kwargs["pix_fmt"] = (None,)
 
 
 @click.command()
@@ -175,7 +151,7 @@ def _parse_args(prt: Printer, kwargs: dict):
     help="The optional video shape conversion during encoding.",
 )
 @click.option(
-    "--pxl_format",
+    "--pix_fmt",
     type=PixelParamType(),
     multiple=True,
     help="The optional pixel format conversion during encoding.",
@@ -215,7 +191,7 @@ def main(videos: tuple, database: str = None, **kwargs):
         If provided, the reference video will be reshaped on fly just before being encoded.
         This is therefore the resolution of the transcoded video.
         If this argument is not provided, the resolution remains unchanged.
-    pxl_format : str, optional
+    pix_fmt : str, optional
         If provided, A pixel conversion is performed during encoding.
     """
     with Printer("Parse configuration...") as prt:
@@ -245,7 +221,7 @@ def main(videos: tuple, database: str = None, **kwargs):
                 kwargs["src_vid_id"][video] = hashlib.file_digest(raw, "md5").hexdigest()
             prt.print(f"{video.name} -> {kwargs["src_vid_id"][video]}")
 
-    keys = ["threads", "effort", "quality", "encoder", "fps", "resolution", "pxl_format"]
+    keys = ["threads", "effort", "quality", "encoder", "fps", "resolution", "pix_fmt"]
 
     # retrieves the settings for videos that have already been transcoded
     with sqlite3.connect(database) as sql_database:
@@ -258,7 +234,7 @@ def main(videos: tuple, database: str = None, **kwargs):
                 "effort": values["enc_effort"],
                 "encoder": values["enc_encoder"],
                 "fps": fractions.Fraction(values["enc_fps"]).limit_denominator(1001),
-                "pxl_format": values["enc_pxl_format"],
+                "pix_fmt": values["enc_pix_fmt"],
                 "quality": float(values["enc_quality"]),
                 "resolution": (values["enc_height"], values["enc_width"]),
                 "src_vid_id": values["enc_src_vid_id"],
@@ -276,11 +252,11 @@ def main(videos: tuple, database: str = None, **kwargs):
         values["src_vid_id"] = kwargs["src_vid_id"][values["video"]]
         values["fps"] = values["fps"] or get_rate_video(values["video"])
         values["resolution"] = values["resolution"] or get_resolution(values["video"])
-        values["pxl_format"] = values["pxl_format"] or get_pxl_format(values["video"])
+        values["pix_fmt"] = values["pix_fmt"] or get_pix_fmt(values["video"])
         key = (values["src_vid_id"].encode(),) + tuple(values[k] for k in keys)
         if done.get(key, 0) > values["repeat"]:
             continue
-        with Printer(f"Encode {i}/{loops}...", color="cyan") as prt:
+        with Printer(f"Encode {i+1}/{loops}...", color="cyan") as prt:
             encode_and_store(database, env_id, values.pop("video"), **values)
             done[key] = done.get(key, 0) + 1
             prt.print_time()

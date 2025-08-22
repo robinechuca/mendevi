@@ -1,0 +1,152 @@
+#!/usr/bin/env python3
+
+"""Preprocess step."""
+
+import click
+import fractions
+import math
+import pathlib
+
+from context_verbose import Printer
+import cutcutcodec
+
+from mendevi.cst import PROFILES
+from mendevi.utils import get_resolution
+from .parse import PixelParamType, ResolutionParamType
+
+
+@click.command()
+@click.argument("video", type=click.Path())
+@click.option(
+    "-p", "--profile",
+    type=click.Choice(list(PROFILES)),
+    help="The video profile.",
+)
+@click.option(
+    "-f", "--fps",
+    type=fractions.Fraction,
+    help="The framerate of the reference video.",
+)
+@click.option(
+    "--resolution",
+    type=ResolutionParamType(),
+    help="The video resolution.",
+)
+@click.option(
+    "--pix_fmt",
+    type=PixelParamType(),
+    help="The video pixel format.",
+)
+@click.option(
+    "--primaries",
+    type=click.Choice(list(cutcutcodec.core.colorspace.cst.PRIMARIES)),
+    help="The colorspace.",
+)
+@click.option(
+    "--transfer",
+    type=click.Choice(list(cutcutcodec.core.colorspace.cst.TRC)),
+    help="The electro-optical transfer function.",
+)
+def main(video: str, **kwargs):
+    """Pre-Process the source video before performing the transcoding measurements.
+
+    This step is required to provide the following guarantees:
+
+    \b
+    * Ensure a square pixel ratio.
+    * Ensure that you have a lossless encoded video with a codec that allows for fast decoding.
+    * Ensure high-quality resizing without spectral aliasing and blur.
+    * Ensure the correct management of colour space and associated metadata.
+    * Ensures that the appearance of the video is not distorted.
+
+    \b
+    Parameters
+    ----------
+    video : pathlike
+        The source video to be prepared.
+    profile : str, default=autodetect
+        A value among ``sd``, ``hd``, ``uhd`` or ``hd4k``.
+        This represents a typical video profile, which includes a pixel format,
+        and image resolution, a sampling frequency, and a colour space.
+        For more details, see :py:module:`mendevi.cst.profiles`.
+        By default, it is automatically detected based on the number of pixels of the video.
+    fps : fractions.Fraction, optional
+        The default value is defined in the profile.
+        The exact frame rate of the video. The video is not encoded with a variable frame rate.
+    resolution : tuple[int, int], optional
+        The default value is defined in the profile.
+        The resolution of the output video. The interpolation is high quality,
+        ensuring minimal blurring, no spectral overlap and preservation of proportions.
+    pix_fmt : str, optional
+        The default value is defined in the profile.
+        The pixel format of the video.
+    primaries : str, optional
+        The default value is defined in the profile.
+        The colorspace primaries name of the tristimulus.
+        The possible values are those supported by *cutcutcodec.core.colorspace.cst.PRIMARIES*.
+    transfer : str, optional
+        The default value is defined in the profile.
+        The electro-optical transfer function
+        that allows you to define the light intensity curve of the pixels.
+        The possible values are those supported by *cutcutcodec.core.colorspace.cst.TRC*.
+    """
+    with Printer("Parse configuration...") as prt:
+        # video
+        video = pathlib.Path(video).expanduser().resolve()
+        assert video.is_file(), video
+        prt.print(f"video     : {video}")
+
+        # profile
+        kwargs["profile"] = kwargs.get("profile", None)
+        if kwargs["profile"] is not None:
+            assert isinstance(kwargs["profile"], str), kwargs["profile"].__class__.__name__
+            kwargs["profile"] = kwargs["profile"].lower()
+            assert kwargs["profile"] in PROFILES, (kwargs["profile"], PROFILES)
+        else:  # autodetect profile based on the number of pixels
+            kwargs["profile"] = get_resolution(video)  # height, width
+            kwargs["profile"] = math.sqrt(kwargs["profile"][0] * kwargs["profile"][1])  # size
+            kwargs["profile"] = {  # distance
+                abs(math.sqrt(v["resolution"][0] * v["resolution"][1]) - kwargs["profile"]): p
+                for p, v in PROFILES.items()
+            }
+            kwargs["profile"] = kwargs["profile"][min(kwargs["profile"])]  # get the
+        prt.print(f"profile   : {kwargs['profile']}")
+
+        # fps
+        kwargs["fps"] = kwargs.get("fps", None) or PROFILES[kwargs["profile"]]["fps"]
+        assert isinstance(kwargs["fps"], fractions.Fraction), kwargs["fps"].__class__.__name__
+        assert kwargs["fps"] > 0, kwargs["fps"]
+        prt.print(f"fps       : {kwargs['fps']}")
+
+        # resolution
+        kwargs["resolution"] = (
+            kwargs.get("resolution", None) or PROFILES[kwargs["profile"]]["resolution"]
+        )
+        assert isinstance(kwargs["resolution"], tuple), kwargs["resolution"].__class__.__name__
+        assert (
+            isinstance(kwargs["resolution"], tuple) and len(kwargs["resolution"]) == 2
+            and all(isinstance(s, int) and s > 0 for s in kwargs["resolution"])
+        ), kwargs["resolution"]
+        prt.print(f"resolution: w={kwargs['resolution'][0]}:h={kwargs['resolution'][1]}")
+
+        # pix_fmt
+        kwargs["pix_fmt"] = kwargs.get("pix_fmt", None) or PROFILES[kwargs["profile"]]["pix_fmt"]
+        assert isinstance(kwargs["pix_fmt"], str), kwargs["pix_fmt"].__class__.__name__
+        prt.print(f"pix_fmt   : {kwargs['pix_fmt']}")
+
+        # primaries
+        kwargs["primaries"] = (
+            kwargs.get("primaries", None) or PROFILES[kwargs["profile"]]["primaries"]
+        )
+        assert isinstance(kwargs["primaries"], str), kwargs["primaries"].__class__.__name__
+        assert kwargs["primaries"] in cutcutcodec.core.colorspace.cst.PRIMARIES, kwargs["primaries"]
+        prt.print(f"primaries : {kwargs['primaries']}")
+
+        # transfer
+        kwargs["transfer"] = kwargs.get("transfer", None) or PROFILES[kwargs["profile"]]["transfer"]
+        assert isinstance(kwargs["transfer"], str), kwargs["transfer"].__class__.__name__
+        assert kwargs["transfer"] in cutcutcodec.core.colorspace.cst.TRC, kwargs["transfer"]
+        prt.print(f"transfer  : {kwargs['transfer']}")
+
+    # find filename
+    raise NotImplementedError

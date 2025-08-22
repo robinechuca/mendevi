@@ -56,7 +56,7 @@ def create_database(filename: str | bytes | pathlib.Path):
             vid_frames LONGBLOB,  -- serialized version of the metadata of all frames
             vid_gamut TINYTEXT,  -- name of the color space
             vid_height SMALLINT CHECK(vid_height > 0),  -- display height
-            vid_pxl_format TINYTEXT,  -- the name of the pixel format
+            vid_pix_fmt TINYTEXT,  -- the name of the pixel format
             vid_size BIGINT CHECK(vid_width >= 0),  -- file size in bytes
             vid_width SMALLINT CHECK(vid_width > 0),  -- display width
 
@@ -102,7 +102,7 @@ def create_database(filename: str | bytes | pathlib.Path):
             dec_env_id INTEGER NOT NULL REFERENCES t_env_environement(env_id) ON DELETE CASCADE,  -- link to environement table
             dec_act_id INTEGER REFERENCES t_act_activity(act_id),  -- link to activity table
             dec_height SMALLINT CHECK(dec_height > 0),  -- display resolution
-            dec_pxl_format TINYTEXT,  -- display pixel format
+            dec_pix_fmt TINYTEXT,  -- display pixel format
             dec_width SMALLINT CHECK(dec_width > 0)  -- display resolution
         )""")
         cursor.execute("""CREATE TABLE IF NOT EXISTS t_enc_encode (
@@ -118,7 +118,7 @@ def create_database(filename: str | bytes | pathlib.Path):
             enc_encoder TINYTEXT CHECK(enc_encoder IN ('libx264', 'libx265', 'libvpx-vp9', 'libsvtav1', 'vvc')),  -- the encoder name
             enc_fps FLOAT CHECK(enc_fps > 0.0),  -- target conversion fps
             enc_height SMALLINT CHECK(enc_height > 0),  -- target conversion resolution
-            enc_pxl_format TINYTEXT,  -- target conversion pixel format
+            enc_pix_fmt TINYTEXT,  -- target conversion pixel format
             enc_quality FLOAT CHECK(enc_quality >= 0.0 AND enc_quality <= 1.0),  -- normlize crf in [0, 1]
             enc_threads SMALLINT CHECK(enc_threads >= 0),  -- number of threads used
             enc_width SMALLINT CHECK(enc_width > 0)  -- target conversion resolution

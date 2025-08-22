@@ -2,9 +2,7 @@
 
 """Perform encoding measures."""
 
-import fractions
 import hashlib
-import itertools
 import pathlib
 import re
 import shlex
@@ -14,17 +12,13 @@ import subprocess
 import tempfile
 
 from context_verbose import Printer
-import click
 import cutcutcodec
 import numpy as np
 import tqdm
 
 from mendevi.convert import get_convert_cmd
-from mendevi.database.complete import add_environement
-from mendevi.database.create import create_database, is_sqlite
 from mendevi.database.serialize import list_to_binary, tensor_to_binary
 from .utils import Activity
-from .profiles import PROFILES
 
 
 ENCODERS = {"libx264", "libx265", "libvpx-vp9", "libsvtav1", "vvc"}
@@ -53,7 +47,6 @@ def encode(src: pathlib.Path, **kwargs) -> tuple[pathlib.Path, dict[str]]:
     assert src.is_file(), src
 
     # find tempfile name
-    " ".join(str(kwargs[k]) for k in sorted(kwargs)).encode("utf-8")
     signature = hashlib.md5(
         bytes(src) + " ".join(str(kwargs[k]) for k in sorted(kwargs)).encode("utf-8")
     ).hexdigest()
@@ -68,29 +61,30 @@ def encode(src: pathlib.Path, **kwargs) -> tuple[pathlib.Path, dict[str]]:
     )
     with Printer(prt_cmd, color="green") as prt:
         prt.print(f"input video: {src.name}")
-        duration = round(float(cutcutcodec.get_duration_video(src)), 2)
         load = tqdm.tqdm(
             dynamic_ncols=True,
             leave=False,
-            smoothing=1e-3,
-            total=duration,
+            smoothing=1e-4,
+            total=round(float(cutcutcodec.get_duration_video(src)), 2),
             unit="s",
         )
 
         # transcode
         with Activity() as activity, subprocess.Popen(cmd, stderr=subprocess.PIPE) as process:
-            out = b""
+            signature = b""
             is_finish = False
             while not is_finish:
                 while (
-                    match := re.search(br"time=(?P<h>\d+):(?P<m>\d{1,2}):(?P<s>\d{1,2}\.\d*)", out)
+                    match := re.search(
+                        br"time=(?P<h>\d+):(?P<m>\d{1,2}):(?P<s>\d{1,2}\.\d*)", signature
+                    )
                 ) is None:
                     if not (buff := process.stderr.read(32)):
                         is_finish = True
                         break
-                    out += buff
+                    signature += buff
                 else:
-                    out = out[match.endpos:]
+                    signature = signature[match.endpos:]
                     elapsed = round(
                         3600.0*float(match["h"]) + 60.0*float(match["m"]) + float(match["s"]),
                         2,
@@ -110,8 +104,8 @@ def encode(src: pathlib.Path, **kwargs) -> tuple[pathlib.Path, dict[str]]:
             prt.print(f"avg wattmeter power: {activity['wattmeter_power']:.2g} W")
 
         # compute file hash
-        with open(dst, "rb") as raw:
-            signature = hashlib.file_digest(raw, "md5").hexdigest()
+        with open(dst, "rb") as buff:
+            signature = hashlib.file_digest(buff, "md5").hexdigest()
         prt.print(f"output video: sample_{signature}.mp4")
 
     # move file
@@ -149,7 +143,8 @@ def encode_and_store(
     >>> create_database(database := pathlib.Path(tempfile.mktemp(suffix=".sqlite")))
     >>> env_id = add_environement(database)
     >>> encode_and_store(
-    ...     database, env_id, src, encoder="libx264", profile="sd", effort="fast", quality=0.5, threads=8
+    ...     database, env_id, src,
+    ...     encoder="libx264", profile="sd", effort="fast", quality=0.5, threads=8
     ... )
     >>> database.unlink()
     >>>
@@ -208,7 +203,7 @@ def encode_and_store(
             "enc_env_id": env_id,
             "enc_fps": float(kwargs["fps"]),
             "enc_height": kwargs["resolution"][0],
-            "enc_pxl_format": kwargs["pxl_format"],
+            "enc_pix_fmt": kwargs["pix_fmt"],
             "enc_quality": kwargs["quality"],
             "enc_src_vid_id": kwargs["src_vid_id"].encode(),
             "enc_threads": kwargs["threads"],
@@ -249,7 +244,7 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs) -> list[st
         filter_cmd := get_convert_cmd(
             src,
             fps=kwargs["fps"],
-            pxl_format=kwargs["pxl_format"],
+            pix_fmt=kwargs["pix_fmt"],
             resolution=kwargs["resolution"],
         )
     ):
@@ -297,7 +292,7 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs) -> list[st
                 "-svtav1-params", f"film-grain=0:lp={libsvtav1_lp(kwargs['threads'])}",
             ])
         case "vvc":
-            bit = int(re.search(r"(?P<bit>\d+)le", kwargs["pxl_format"] + "8le")["bit"])
+            bit = int(re.search(r"(?P<bit>\d+)le", kwargs["pix_fmt"] + "8le")["bit"])
             cmd.extend([
                 "vvc",
                 "-qp", str(round(kwargs["quality"]*63.0)),

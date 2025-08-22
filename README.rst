@@ -41,7 +41,7 @@ It manages the following parameters:
 #. Distortions are measured using the ``lpips``, ``psnr``, ``ssim`` and ``vmaf`` metrics.
 #. Encoding efforts are ``fast``, ``medium`` and ``slow``.
 #. It takes care about the colorspaces.
-#. Iterate over different ``effort``, ``encoder``, ``quality``, ``threads``, ``fps``, ``resolution`` and ``pxl_format``.
+#. Iterate over different ``effort``, ``encoder``, ``quality``, ``threads``, ``fps``, ``resolution`` and ``pix_fmt``.
 #. Energy measurements are catched with ``RAPL`` and an external wattmeter on ``grid'5000``.
 #. Get the ``cpu`` and ``ram`` activity.
 #. Get a full environement context, including harware and software version.

@@ -122,9 +122,9 @@ class Activity(threading.Thread):
 
 
 @functools.cache
-def get_pxl_format(*args):
+def get_pix_fmt(*args):
     """Alias to cutcutcodec func."""
-    return cutcutcodec.get_pxl_format(*args)
+    return cutcutcodec.get_pix_fmt(*args)
 
 
 @functools.cache

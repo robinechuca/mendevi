@@ -100,7 +100,7 @@
 <polygon fill="none" stroke="black" points="555,-637 555,-662 659,-662 659,-637 555,-637"/>
 <text text-anchor="start" x="560" y="-645.8" font-family="Times,serif" font-size="14.00">SMALLINT</text>
 <polygon fill="none" stroke="black" points="439,-612 439,-637 555,-637 555,-612 439,-612"/>
-<text text-anchor="start" x="444" y="-620.8" font-family="Times,serif" font-size="14.00">vid_pxl_format</text>
+<text text-anchor="start" x="444" y="-620.8" font-family="Times,serif" font-size="14.00">vid_pix_fmt</text>
 <polygon fill="none" stroke="black" points="555,-612 555,-637 659,-637 659,-612 555,-612"/>
 <text text-anchor="start" x="560" y="-620.8" font-family="Times,serif" font-size="14.00">TINYTEXT</text>
 <polygon fill="none" stroke="black" points="439,-587 439,-612 555,-612 555,-587 439,-587"/>
@@ -257,7 +257,7 @@
 <polygon fill="none" stroke="black" points="263,-1157.5 263,-1182.5 367,-1182.5 367,-1157.5 263,-1157.5"/>
 <text text-anchor="start" x="268" y="-1166.3" font-family="Times,serif" font-size="14.00">SMALLINT</text>
 <polygon fill="none" stroke="black" points="144,-1132.5 144,-1157.5 263,-1157.5 263,-1132.5 144,-1132.5"/>
-<text text-anchor="start" x="149" y="-1141.3" font-family="Times,serif" font-size="14.00">dec_pxl_format</text>
+<text text-anchor="start" x="149" y="-1141.3" font-family="Times,serif" font-size="14.00">dec_pix_fmt</text>
 <polygon fill="none" stroke="black" points="263,-1132.5 263,-1157.5 367,-1157.5 367,-1132.5 263,-1132.5"/>
 <text text-anchor="start" x="268" y="-1141.3" font-family="Times,serif" font-size="14.00">TINYTEXT</text>
 <polygon fill="none" stroke="black" points="144,-1107.5 144,-1132.5 263,-1132.5 263,-1107.5 144,-1107.5"/>
@@ -304,49 +304,49 @@
 <polygon fill="none" stroke="black" points="557,-1344.5 557,-1369.5 661,-1369.5 661,-1344.5 557,-1344.5"/>
 <text text-anchor="start" x="562" y="-1353.3" font-family="Times,serif" font-size="14.00" fill="blue">INTEGER</text>
 <polygon fill="none" stroke="black" points="438,-1319.5 438,-1344.5 557,-1344.5 557,-1319.5 438,-1319.5"/>
-<text text-anchor="start" x="443" y="-1328.3" font-family="Times,serif" font-size="14.00">enc_act_id</text>
+<text text-anchor="start" x="443" y="-1328.3" font-family="Times,serif" font-size="14.00">enc_src_vid_id</text>
 <polygon fill="none" stroke="black" points="557,-1319.5 557,-1344.5 661,-1344.5 661,-1319.5 557,-1319.5"/>
-<text text-anchor="start" x="562" y="-1328.3" font-family="Times,serif" font-size="14.00">INTEGER</text>
+<text text-anchor="start" x="562" y="-1328.3" font-family="Times,serif" font-size="14.00">BINARY(128)</text>
 <polygon fill="none" stroke="black" points="438,-1294.5 438,-1319.5 557,-1319.5 557,-1294.5 438,-1294.5"/>
-<text text-anchor="start" x="443" y="-1303.3" font-family="Times,serif" font-size="14.00">enc_cmd</text>
+<text text-anchor="start" x="443" y="-1303.3" font-family="Times,serif" font-size="14.00">enc_dst_vid_id</text>
 <polygon fill="none" stroke="black" points="557,-1294.5 557,-1319.5 661,-1319.5 661,-1294.5 557,-1294.5"/>
-<text text-anchor="start" x="562" y="-1303.3" font-family="Times,serif" font-size="14.00">TEXT</text>
+<text text-anchor="start" x="562" y="-1303.3" font-family="Times,serif" font-size="14.00">BINARY(128)</text>
 <polygon fill="none" stroke="black" points="438,-1269.5 438,-1294.5 557,-1294.5 557,-1269.5 438,-1269.5"/>
-<text text-anchor="start" x="443" y="-1278.3" font-family="Times,serif" font-size="14.00">enc_dst_vid_id</text>
+<text text-anchor="start" x="443" y="-1278.3" font-family="Times,serif" font-size="14.00">enc_env_id</text>
 <polygon fill="none" stroke="black" points="557,-1269.5 557,-1294.5 661,-1294.5 661,-1269.5 557,-1269.5"/>
-<text text-anchor="start" x="562" y="-1278.3" font-family="Times,serif" font-size="14.00">BINARY(128)</text>
+<text text-anchor="start" x="562" y="-1278.3" font-family="Times,serif" font-size="14.00">INTEGER</text>
 <polygon fill="none" stroke="black" points="438,-1244.5 438,-1269.5 557,-1269.5 557,-1244.5 438,-1244.5"/>
-<text text-anchor="start" x="443" y="-1253.3" font-family="Times,serif" font-size="14.00">enc_effort</text>
+<text text-anchor="start" x="443" y="-1253.3" font-family="Times,serif" font-size="14.00">enc_act_id</text>
 <polygon fill="none" stroke="black" points="557,-1244.5 557,-1269.5 661,-1269.5 661,-1244.5 557,-1244.5"/>
-<text text-anchor="start" x="562" y="-1253.3" font-family="Times,serif" font-size="14.00">TINYTEXT</text>
+<text text-anchor="start" x="562" y="-1253.3" font-family="Times,serif" font-size="14.00">INTEGER</text>
 <polygon fill="none" stroke="black" points="438,-1219.5 438,-1244.5 557,-1244.5 557,-1219.5 438,-1219.5"/>
-<text text-anchor="start" x="443" y="-1228.3" font-family="Times,serif" font-size="14.00">enc_encoder</text>
+<text text-anchor="start" x="443" y="-1228.3" font-family="Times,serif" font-size="14.00">enc_cmd</text>
 <polygon fill="none" stroke="black" points="557,-1219.5 557,-1244.5 661,-1244.5 661,-1219.5 557,-1219.5"/>
-<text text-anchor="start" x="562" y="-1228.3" font-family="Times,serif" font-size="14.00">TINYTEXT</text>
+<text text-anchor="start" x="562" y="-1228.3" font-family="Times,serif" font-size="14.00">TEXT</text>
 <polygon fill="none" stroke="black" points="438,-1194.5 438,-1219.5 557,-1219.5 557,-1194.5 438,-1194.5"/>
-<text text-anchor="start" x="443" y="-1203.3" font-family="Times,serif" font-size="14.00">enc_env_id</text>
+<text text-anchor="start" x="443" y="-1203.3" font-family="Times,serif" font-size="14.00">enc_effort</text>
 <polygon fill="none" stroke="black" points="557,-1194.5 557,-1219.5 661,-1219.5 661,-1194.5 557,-1194.5"/>
-<text text-anchor="start" x="562" y="-1203.3" font-family="Times,serif" font-size="14.00">INTEGER</text>
+<text text-anchor="start" x="562" y="-1203.3" font-family="Times,serif" font-size="14.00">TINYTEXT</text>
 <polygon fill="none" stroke="black" points="438,-1169.5 438,-1194.5 557,-1194.5 557,-1169.5 438,-1169.5"/>
-<text text-anchor="start" x="443" y="-1178.3" font-family="Times,serif" font-size="14.00">enc_fps</text>
+<text text-anchor="start" x="443" y="-1178.3" font-family="Times,serif" font-size="14.00">enc_encoder</text>
 <polygon fill="none" stroke="black" points="557,-1169.5 557,-1194.5 661,-1194.5 661,-1169.5 557,-1169.5"/>
-<text text-anchor="start" x="562" y="-1178.3" font-family="Times,serif" font-size="14.00">FLOAT</text>
+<text text-anchor="start" x="562" y="-1178.3" font-family="Times,serif" font-size="14.00">TINYTEXT</text>
 <polygon fill="none" stroke="black" points="438,-1144.5 438,-1169.5 557,-1169.5 557,-1144.5 438,-1144.5"/>
-<text text-anchor="start" x="443" y="-1153.3" font-family="Times,serif" font-size="14.00">enc_height</text>
+<text text-anchor="start" x="443" y="-1153.3" font-family="Times,serif" font-size="14.00">enc_fps</text>
 <polygon fill="none" stroke="black" points="557,-1144.5 557,-1169.5 661,-1169.5 661,-1144.5 557,-1144.5"/>
-<text text-anchor="start" x="562" y="-1153.3" font-family="Times,serif" font-size="14.00">SMALLINT</text>
+<text text-anchor="start" x="562" y="-1153.3" font-family="Times,serif" font-size="14.00">FLOAT</text>
 <polygon fill="none" stroke="black" points="438,-1119.5 438,-1144.5 557,-1144.5 557,-1119.5 438,-1119.5"/>
-<text text-anchor="start" x="443" y="-1128.3" font-family="Times,serif" font-size="14.00">enc_pxl_format</text>
+<text text-anchor="start" x="443" y="-1128.3" font-family="Times,serif" font-size="14.00">enc_height</text>
 <polygon fill="none" stroke="black" points="557,-1119.5 557,-1144.5 661,-1144.5 661,-1119.5 557,-1119.5"/>
-<text text-anchor="start" x="562" y="-1128.3" font-family="Times,serif" font-size="14.00">TINYTEXT</text>
+<text text-anchor="start" x="562" y="-1128.3" font-family="Times,serif" font-size="14.00">SMALLINT</text>
 <polygon fill="none" stroke="black" points="438,-1094.5 438,-1119.5 557,-1119.5 557,-1094.5 438,-1094.5"/>
-<text text-anchor="start" x="443" y="-1103.3" font-family="Times,serif" font-size="14.00">enc_quality</text>
+<text text-anchor="start" x="443" y="-1103.3" font-family="Times,serif" font-size="14.00">enc_pix_fmt</text>
 <polygon fill="none" stroke="black" points="557,-1094.5 557,-1119.5 661,-1119.5 661,-1094.5 557,-1094.5"/>
-<text text-anchor="start" x="562" y="-1103.3" font-family="Times,serif" font-size="14.00">FLOAT</text>
+<text text-anchor="start" x="562" y="-1103.3" font-family="Times,serif" font-size="14.00">TINYTEXT</text>
 <polygon fill="none" stroke="black" points="438,-1069.5 438,-1094.5 557,-1094.5 557,-1069.5 438,-1069.5"/>
-<text text-anchor="start" x="443" y="-1078.3" font-family="Times,serif" font-size="14.00">enc_src_vid_id</text>
+<text text-anchor="start" x="443" y="-1078.3" font-family="Times,serif" font-size="14.00">enc_quality</text>
 <polygon fill="none" stroke="black" points="557,-1069.5 557,-1094.5 661,-1094.5 661,-1069.5 557,-1069.5"/>
-<text text-anchor="start" x="562" y="-1078.3" font-family="Times,serif" font-size="14.00">BINARY(128)</text>
+<text text-anchor="start" x="562" y="-1078.3" font-family="Times,serif" font-size="14.00">FLOAT</text>
 <polygon fill="none" stroke="black" points="438,-1044.5 438,-1069.5 557,-1069.5 557,-1044.5 438,-1044.5"/>
 <text text-anchor="start" x="443" y="-1053.3" font-family="Times,serif" font-size="14.00">enc_threads</text>
 <polygon fill="none" stroke="black" points="557,-1044.5 557,-1069.5 661,-1069.5 661,-1044.5 557,-1044.5"/>
