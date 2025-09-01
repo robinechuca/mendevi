@@ -24,7 +24,7 @@ from .utils import Activity
 ENCODERS = {"libx264", "libx265", "libvpx-vp9", "libsvtav1", "vvc"}
 
 
-def encode(src: pathlib.Path, **kwargs) -> tuple[pathlib.Path, dict[str]]:
+def encode(src: pathlib.Path, **kwargs) -> tuple[pathlib.Path, str, dict[str]]:
     """Transcode an existing video.
 
     Parameters
@@ -39,7 +39,7 @@ def encode(src: pathlib.Path, **kwargs) -> tuple[pathlib.Path, dict[str]]:
     dst : pathlib.Path
         The transcoded video path. The stem contains the md5 hash of the file content.
     cmd : str
-        The ffmpeg command
+        The ffmpeg command.
     activity : dict[str]
         The computeur activity during the transcoding process.
     """
@@ -57,7 +57,7 @@ def encode(src: pathlib.Path, **kwargs) -> tuple[pathlib.Path, dict[str]]:
 
     # display
     prt_cmd = " ".join(
-        map(shlex.quote, [{str(src): "src.mp4", str(dst): "dst.mp4"}.get(c, c) for c in cmd[:-1]])
+        map(shlex.quote, [{str(src): "src.mp4", str(dst): "dst.mp4"}.get(c, c) for c in cmd])
     )
     with Printer(prt_cmd, color="green") as prt:
         prt.print(f"input video: {src.name}")

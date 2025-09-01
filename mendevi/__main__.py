@@ -4,6 +4,7 @@
 
 import click
 
+from mendevi.cli.decode import main as main_decode
 from mendevi.cli.encode import main as main_encode
 from mendevi.cli.prepare import main as main_prepare
 
@@ -14,6 +15,7 @@ def main() -> int:
     return 0
 
 
+main.add_command(main_decode, "decode")
 main.add_command(main_encode, "encode")
 main.add_command(main_prepare, "prepare")
 

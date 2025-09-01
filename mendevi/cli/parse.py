@@ -2,8 +2,10 @@
 
 """Parse and verify some user input."""
 
-import click
 import re
+
+import click
+
 
 
 class PixelParamType(click.ParamType):

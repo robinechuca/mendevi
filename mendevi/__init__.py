@@ -7,4 +7,4 @@ from .utils import Activity
 
 __all__ = ["Activity"]
 __author__ = "Robin RICHARD (robinechuca)"
-__version__ = "0.2.3"  # pep 440
+__version__ = "0.2.4"  # pep 440

@@ -8,18 +8,16 @@ import hashlib
 import itertools
 import operator
 import pathlib
-import re
 import sqlite3
 
 from context_verbose import Printer
 import click
-import cutcutcodec
 import numpy as np
 
 from mendevi.database.complete import add_environement
 from mendevi.database.create import create_database
 from mendevi.encode import encode_and_store
-from mendevi.utils import get_pix_fmt, get_rate_video, get_resolution
+from mendevi.utils import get_pix_fmt, get_rate_video, get_resolution, unfold_video_files
 from .parse import PixelParamType, ResolutionParamType
 
 
@@ -109,7 +107,7 @@ def _parse_args(prt: Printer, kwargs: dict):
     "-r", "--repeat",
     type=int,
     default=2,
-    help="The number of times the experiment is repeated.",
+    help="The number of times the encoding is repeated on this machine.",
 )
 @click.option(
     "-e", "--effort",
@@ -164,12 +162,13 @@ def main(videos: tuple, database: str = None, **kwargs):
     ----------
     videos : tuple[pathlike]
         The source videos to be transcoded.
+        It can be a glob expression, a directory or a file path.
     database : pathlike, optional
         The path to the database where all measurements are stored.
         If a folder is provided, the database is created inside this folder.
         By default, it is created right next to the video.
     repeat : int, default=2
-        The number of times the experiment is repeated.
+        The number of times the experiment is repeated on this environement.
         This allows us to estimate the variance of measurements.
     effort : tuple[str], default=("medium",)
         The effort made to compress, `fast`, `medium` or `slow`.
@@ -198,8 +197,7 @@ def main(videos: tuple, database: str = None, **kwargs):
         # video
         assert isinstance(videos, tuple), videos.__class__.__name__
         assert videos, "at least one video is required"
-        videos = [pathlib.Path(v).expanduser() for v in videos]
-        assert all(v.is_file() for v in videos), videos
+        videos = list(unfold_video_files(videos))
         prt.print(f"videos    : {', '.join(map(str, videos))}")
 
         # database
@@ -244,7 +242,9 @@ def main(videos: tuple, database: str = None, **kwargs):
             done[values] = done.get(values, 0) + 1
 
     # iterate on all the parameters
-    loops = functools.reduce(operator.mul, [kwargs["repeat"], *(len(kwargs[k]) for k in keys)])
+    loops = functools.reduce(
+        operator.mul, [kwargs["repeat"], len(videos), *(len(kwargs[k]) for k in keys)]
+    )
     for i, values in enumerate(
         itertools.product(range(kwargs["repeat"]), videos, *(kwargs[k] for k in keys))
     ):

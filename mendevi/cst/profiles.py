@@ -16,7 +16,6 @@ from fractions import Fraction
 PROFILES = {
     "sd": {
         "fps": Fraction(24000, 1001),
-        "matrix": "smpte170m",
         "pix_fmt": "yuv420p",
         "primaries": "smpte170m",
         "range": "tv",
@@ -25,7 +24,6 @@ PROFILES = {
     },
     "hd": {
         "fps": Fraction(25000, 1001),
-        "matrix": "bt709",
         "pix_fmt": "yuv420p",
         "primaries": "bt709",  # sRGB
         "range": "tv",
@@ -34,7 +32,6 @@ PROFILES = {
     },
     "uhd": {
         "fps": Fraction(30000, 1001),
-        "matrix": "bt709",
         "pix_fmt": "yuv420p10le",
         "primaries": "bt709",
         "range": "tv",
@@ -43,7 +40,6 @@ PROFILES = {
     },
     "hd4k": {  # partialy given by https://trac.ffmpeg.org/wiki/Encode/AV1
         "fps": Fraction(60000, 1001),
-        "matrix": "bt2020nc",
         "pix_fmt": "yuv420p10le",
         "primaries": "bt2020",
         "range": "pc",
