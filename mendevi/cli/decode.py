@@ -3,6 +3,7 @@
 """Perform decoding measures."""
 
 import hashlib
+import multiprocessing.pool
 import pathlib
 import sqlite3
 
@@ -10,6 +11,7 @@ from context_verbose import Printer
 import click
 
 from mendevi.database.complete import add_environement
+from mendevi.database.create import is_sqlite
 from mendevi.decode import decode_and_store
 from mendevi.utils import unfold_video_files
 from .parse import ResolutionParamType
@@ -22,7 +24,7 @@ def _parse_args(prt: Printer, kwargs: dict):
     assert "repeat" in kwargs, sorted(kwargs)
     assert isinstance(kwargs["repeat"], int), kwargs["repeat"].__class__.__name__
     assert kwargs["repeat"] >= 1, kwargs["repeat"]
-    prt.print(f"repeat: {kwargs['repeat']}")
+    prt.print(f"repeat  : {kwargs['repeat']}")
 
     # resolution
     assert "resolution" in kwargs, sorted(kwargs)
@@ -37,9 +39,32 @@ def _parse_args(prt: Printer, kwargs: dict):
         kwargs["resolution"] = (None,)
 
 
+def _guess_database(files: tuple[str]) -> str | None:
+    """Try to find if one of the file is a database file."""
+    candidates: set[str] = set()
+    for file in files:
+        if is_sqlite(file):
+            candidates.add(file)
+    if len(candidates) == 1:
+        return candidates.pop()
+    elif len(candidates) > 1:
+        raise ValueError(f"only one database must be provided, {candidates} are given")
+    for file in files:
+        file = pathlib.Path(file) / "mendevi.db"
+        if is_sqlite(file):
+            candidates.add(str(file))
+    if len(candidates) == 1:
+        return candidates.pop()
+    return None
+
+
+def _compute_md5(files: set[pathlib.Path]):
+    """Compute the md5 checksum of."""
+
+
 @click.command()
 @click.argument("videos", nargs=-1, type=click.Path())
-@click.option("-d", "--database", type=click.Path(), required=True, help="The database path.")
+@click.option("-d", "--database", type=click.Path(), help="The database path.")
 @click.option(
     "-r", "--repeat",
     type=int,
@@ -71,16 +96,28 @@ def main(videos: tuple[str], database: str = None, **kwargs):
         If this argument is not provided, the resolution remains unchanged.
     """
     with Printer("Parse configuration...") as prt:
+        # test if database is provided
+        assert isinstance(videos, tuple), videos.__class__.__name__
+        assert all(isinstance(v, str) for v in videos), videos
+        database = database or _guess_database(videos)
+
         # videos
         videos = set(unfold_video_files(videos))
-        prt.print(f"videos: {', '.join(map(str, videos))}")
+        prt.print(f"videos  : {len(videos)} files founded")
 
         # database
-        database = pathlib.Path(database or videos[0].parent / "mendevi.db").expanduser()
-        database = database / "mendevi.db" if database.is_dir() else database
+        if not database:
+            database = {v.parent for v in videos}
+            database = {f / "mendevi.db" for f in database}
+            if not (database := sorted({d for d in database if d.is_file()})):
+                raise ValueError("please provide the database path")
+            database = database.pop()
+        else:
+            database = pathlib.Path(database).expanduser()
+            database = database / "mendevi.db" if database.is_dir() else database
         if not database.exists():
             create_database(database)
-        prt.print(f"database  : {database}")
+        prt.print(f"database: {database}")
 
         # others
         _parse_args(prt, kwargs)

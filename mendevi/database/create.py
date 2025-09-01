@@ -6,7 +6,9 @@ import pathlib
 import sqlite3
 
 
-ENV_UNIQUE = ["env_ffmpeg_version", "env_hostname", "env_logical_cores", "env_ram"]
+ENV_UNIQUE = [
+    "env_ffmpeg_version", "env_hostname", "env_logical_cores", "env_pip_freeze", "env_processor"
+]
 
 
 def create_database(filename: str | bytes | pathlib.Path):
@@ -232,7 +234,7 @@ def is_sqlite(file: str | bytes | pathlib.Path):
     >>> os.remove(database)
     >>>
     """
-    file = pathlib.Path(file).expanduser().resolve()
+    file = pathlib.Path(file).expanduser()
     if not file.is_file():
         return False
     with open(file, "rb") as raw:

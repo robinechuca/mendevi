@@ -4,6 +4,7 @@
 
 import functools
 import logging
+import multiprocessing.pool
 import numbers
 import pathlib
 import platform
@@ -18,6 +19,8 @@ import cutcutcodec
 from mendevi.g5kpower import g5kpower
 from mendevi.psutil import Usage
 from mendevi.rapl import RAPL
+
+PATHLIKE = str | bytes | pathlib.Path
 
 
 class Activity(threading.Thread):
@@ -121,6 +124,14 @@ class Activity(threading.Thread):
             }
 
 
+def compute_video_hash(videos: PATHLIKE | typing.Iterable[PATHLIKE]) -> bytes | dict[bytes]:
+    r"""Compute the checksum of the video.
+
+    For :math:`n` hash of :math:`b` bits, the proba of the colision :math:`C` is
+    :math:`p(C) = 1 - \left(\frac{2^k-1}{2^k}\right)^{\frac{n(n-1)}{2}}`.
+    """
+
+
 @functools.cache
 def get_pix_fmt(*args):
     """Alias to cutcutcodec func."""
@@ -140,7 +151,7 @@ def get_resolution(*args):
 
 
 def unfold_video_files(
-    paths: typing.Iterable[str | bytes | pathlib.Path]
+    paths: typing.Iterable[PATHLIKE]
 ) -> typing.Iterable[pathlib.Path]:
     """Explore recursively the folders to find the video path.
 
@@ -152,11 +163,11 @@ def unfold_video_files(
     Yields
     ------
     filename : pathlib.Path
-        The full path of the image.
+        The path of the video.
     """
     assert hasattr(paths, "__iter__"), paths.__class__.__name__
     for path in paths:
-        path = pathlib.Path(path).expanduser().resolve()
+        path = pathlib.Path(path).expanduser()
         if path.is_file():
             yield path
         elif path.is_dir():
