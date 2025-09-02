@@ -215,6 +215,7 @@ def main(videos: tuple, database: str = None, **kwargs):
     with Printer("Get context and video checksum...") as prt:
         env_id = add_environement(database)
         kwargs["src_vid_id"]: dict[pathlib.Path, bytes] = compute_video_hash(videos)
+        prt.print_time()
 
     keys = ["threads", "effort", "quality", "encoder", "fps", "resolution", "pix_fmt"]
 

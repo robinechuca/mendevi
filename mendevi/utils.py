@@ -156,7 +156,7 @@ def compute_video_hash(
     def _hash(video: PATHLIKE) -> pathlib.Path:
         video = pathlib.Path(video)
         if match := re.search(r"[2-7a-z]{26}", video.stem):
-            return signature_to_hash(match.group())
+            return video, signature_to_hash(match.group())
         if not (video := video.expanduser()).is_file():
             return video, None
         with open(video, "rb") as raw:

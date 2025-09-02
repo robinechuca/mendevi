@@ -65,15 +65,15 @@ The measurement process consists of four steps:
 .. image:: https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/docs/images/encode.avif
     :alt: mendevi encode reference_bbb_hd.mkv
 
-3) **Decode**: This phase consists of measuring the machine's activity during video decoding.
+3) **Probe**: This phase calculates the various metrics and properties of a transcoded video.
 
 .. image:: https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/docs/images/decode.avif
-    :alt: mendevi decode
+    :alt: mendevi probe
 
-4) **Probe**: This phase calculates the various metrics and properties of a transcoded video.
+4) **Decode**: This phase consists of measuring the machine's activity during video decoding.
 
 .. image:: https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/docs/images/decode.avif
-    :alt: mendevi decode
+    :alt: mendevi decode reference* sample*
 
 
 Alternatives

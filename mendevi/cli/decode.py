@@ -2,6 +2,8 @@
 
 """Perform decoding measures."""
 
+import itertools
+import operator
 import pathlib
 import sqlite3
 
@@ -11,7 +13,7 @@ import click
 from mendevi.database.complete import add_environement
 from mendevi.database.create import is_sqlite
 from mendevi.decode import decode_and_store
-from mendevi.utils import compute_video_hash, unfold_video_files
+from mendevi.utils import compute_video_hash, get_resolution, unfold_video_files
 from .parse import ResolutionParamType
 
 
@@ -22,7 +24,7 @@ def _parse_args(prt: Printer, kwargs: dict):
     assert "repeat" in kwargs, sorted(kwargs)
     assert isinstance(kwargs["repeat"], int), kwargs["repeat"].__class__.__name__
     assert kwargs["repeat"] >= 1, kwargs["repeat"]
-    prt.print(f"repeat  : {kwargs['repeat']}")
+    prt.print(f"repeat    : {kwargs['repeat']}")
 
     # resolution
     assert "resolution" in kwargs, sorted(kwargs)
@@ -69,7 +71,7 @@ def _guess_database(files: tuple[str]) -> str | None:
     "--resolution",
     type=ResolutionParamType(),
     multiple=True,
-    help="The optional video shape conversion during encoding.",
+    help="The optional video shape conversion during decoding.",
 )
 def main(videos: tuple[str], database: str = None, **kwargs):
     """Measures activity during decoding.
@@ -86,7 +88,7 @@ def main(videos: tuple[str], database: str = None, **kwargs):
         The number of times the experiment is repeated on this environement.
         This allows us to estimate the variance of measurements.
     resolution : tuple[int, int], optional
-        If provided, the reference video will be reshaped on fly.
+        If provided, the decoded video will be reshaped on fly.
         If this argument is not provided, the resolution remains unchanged.
     """
     with Printer("Parse configuration...") as prt:
@@ -96,8 +98,8 @@ def main(videos: tuple[str], database: str = None, **kwargs):
         database = database or _guess_database(videos)
 
         # videos
-        videos = set(unfold_video_files(videos))
-        prt.print(f"videos  : {len(videos)} files founded")
+        videos = list(unfold_video_files(videos))
+        prt.print(f"videos    : {len(videos)} files founded")
 
         # database
         if not database:
@@ -111,7 +113,7 @@ def main(videos: tuple[str], database: str = None, **kwargs):
             database = database / "mendevi.db" if database.is_dir() else database
         if not database.exists():
             create_database(database)
-        prt.print(f"database: {database}")
+        prt.print(f"database  : {database}")
 
         # others
         _parse_args(prt, kwargs)
@@ -119,7 +121,8 @@ def main(videos: tuple[str], database: str = None, **kwargs):
     # preparation of context
     with Printer("Get context and video checksum...") as prt:
         env_id = add_environement(database)
-        kwargs["src_vid_id"]: dict[pathlib.Path, bytes] = compute_video_hash(videos)
+        kwargs["dec_vid_id"]: dict[pathlib.Path, bytes] = compute_video_hash(videos)
+        prt.print_time()
 
     # retrieves the settings for videos that have already been decoded
     with sqlite3.connect(database) as sql_database:
@@ -128,13 +131,21 @@ def main(videos: tuple[str], database: str = None, **kwargs):
         for values in sql_database.execute(
             "SELECT * FROM t_dec_decode WHERE dec_env_id=?", (env_id,)
         ):
-            values = {
-                "fps": fractions.Fraction(values["dec_fps"]).limit_denominator(1001),
-                "resolution": (values["dec_height"], values["dec_width"]),
-            }
-            values = tuple(values[k] for k in ["src_vid_id", *keys])
+            values = (values["dec_vid_id"], (values["dec_height"], values["dec_width"]))
             done[values] = done.get(values, 0) + 1
 
-
-    raise NotImplementedError
-    decode_and_store(video)
+    # iterate on all the parameters
+    loops = kwargs["repeat"] * len(videos) * len(kwargs["resolution"])
+    for i, values in enumerate(
+        itertools.product(range(kwargs["repeat"]), videos, kwargs["resolution"])
+    ):
+        values = dict(zip(("repeat", "video", "resolution"), values))
+        values["dec_vid_id"] = kwargs["dec_vid_id"][values["video"]]
+        values["resolution"] = values["resolution"] or get_resolution(values["video"])
+        key = (values["dec_vid_id"], values["resolution"])
+        if done.get(key, 0) > values["repeat"]:
+            continue
+        with Printer(f"Decode {i+1}/{loops}...", color="cyan") as prt:
+            decode_and_store(database, env_id, values.pop("video"), **values)
+            done[key] = done.get(key, 0) + 1
+            prt.print_time()

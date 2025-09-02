@@ -6,9 +6,7 @@ import pathlib
 import sqlite3
 
 
-ENV_UNIQUE = [
-    "env_ffmpeg_version", "env_hostname", "env_logical_cores", "env_pip_freeze", "env_processor"
-]
+ENV_UNIQUE = ["env_ffmpeg_version", "env_hostname", "env_logical_cores", "env_processor"]
 
 
 def create_database(filename: str | bytes | pathlib.Path):

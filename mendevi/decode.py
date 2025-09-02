@@ -5,9 +5,11 @@
 import os
 import pathlib
 import shlex
+import sqlite3
 import subprocess
 
 from context_verbose import Printer
+import numpy as np
 
 from mendevi.database.serialize import list_to_binary, tensor_to_binary
 from mendevi.utils import Activity, get_resolution
@@ -34,9 +36,18 @@ def decode(src: pathlib.Path, **kwargs) -> tuple[str, dict[str]]:
     cmd = get_decode_cmd(src, kwargs.get("resolution", None))
     prt_cmd = " ".join(map(shlex.quote, [{str(src): "src.mp4"}.get(c, c) for c in cmd]))
     with Printer(prt_cmd, color="green") as prt:
-        prt.print(f"input video: {src.name}")
+        prt.print(f"video: {src.name}")
         with Activity() as activity:
             subprocess.run(cmd, check=True, capture_output=True)
+
+        # print
+        prt.print(f"avg cpu usage: {activity['ps_core']:.1f} %")
+        prt.print(f"avg ram usage: {1e-9*np.mean(activity['ps_ram']):.2g} Go")
+        if "rapl_power" in activity:
+            prt.print(f"avg rapl power: {activity['rapl_power']:.2g} W")
+        if "wattmeter_power" in activity:
+            prt.print(f"avg wattmeter power: {activity['wattmeter_power']:.2g} W")
+
     return prt_cmd, activity
 
 
@@ -56,7 +67,7 @@ def decode_and_store(
         Transmitted to :py:func:`decode`.
     """
     # decode the video
-    cmd, activity = encode(src, **kwargs)
+    cmd, activity = decode(src, **kwargs)
 
     with sqlite3.connect(database) as sql_database:
         cursor = sql_database.cursor()
@@ -65,7 +76,7 @@ def decode_and_store(
         try:
             cursor.execute(
                 "INSERT INTO t_vid_video (vid_id, vid_name) VALUES (?, ?)",
-                (kwargs["src_vid_id"], src.name)
+                (kwargs["dec_vid_id"], src.name)
             )
         except sqlite3.IntegrityError:
             pass
@@ -97,7 +108,7 @@ def decode_and_store(
             "dec_env_id": env_id,
             "dec_height": kwargs.get("resolution", (None, None))[0],
             "dec_pix_fmt": "rgb24",
-            "dec_vid_id": kwargs["src_vid_id"],
+            "dec_vid_id": kwargs["dec_vid_id"],
             "dec_width": kwargs.get("resolution", (None, None))[1],
         }
         keys = list(values)
