@@ -3,9 +3,9 @@ digraph pipeline {
     rankdir=LR
 
     # data
-    src [label="Input", shape=Mdiamond, style=filled, fillcolor=white]
-    ref [label="Reference", shape=Mdiamond, style=filled, fillcolor=white]
-    dst [label="Output", shape=Mdiamond, style=filled, fillcolor=white]
+    src [label="Input\nvideo file", shape=Mdiamond, style=filled, fillcolor=white]
+    ref [label="Reference\nvideo file", shape=Mdiamond, style=filled, fillcolor=white]
+    dst [label="Encoded\nvideo file", shape=Mdiamond, style=filled, fillcolor=white]
 
     # parameters
     p_colorspace [label="Colorspace", shape=note, style=filled, fillcolor=white]
@@ -27,14 +27,8 @@ digraph pipeline {
     # process
     prepare [label="Transcode", style=filled, fillcolor=white]
     t_dec [label="Decode", style=filled, fillcolor=white]
-    t_conv1 [label="Convert 1", style=filled, fillcolor=white]
-    t_conv2 [label="Convert 2", style=filled, fillcolor=white]
-    t_convi [label="...", style=filled, fillcolor=white]
-    t_convn [label="Convert n", style=filled, fillcolor=white]
-    trans1 [label="Transcode 1", style=filled, fillcolor=white]
-    trans2 [label="Transcode 2", style=filled, fillcolor=white]
-    transi [label="...", style=filled, fillcolor=white]
-    transn [label="Transcode n", style=filled, fillcolor=white]
+    t_convert [label="Convert", style=filled, fillcolor=white]
+    t_encode [label="Encode", style=filled, fillcolor=white]
     decode [label="Decode", style=filled, fillcolor=white]
     convert [label="Convert", style=filled, fillcolor=white]
     probe [label="Probe", style=filled, fillcolor=white]
@@ -56,14 +50,8 @@ digraph pipeline {
             label="step: Encode"
             bgcolor="#e0ffff"
             t_dec
-            t_conv1
-            t_conv2
-            t_convi
-            t_convn
-            trans1
-            trans2
-            transi
-            transn
+            t_convert
+            t_encode
         }
         subgraph clus_decode {
             cluster=true
@@ -110,14 +98,13 @@ digraph pipeline {
     }
 
     # pipeline
-    src -> prepare -> ref -> t_dec -> {t_conv1, t_conv2, t_convi, t_convn} -> {trans1, trans2, transi, transn} -> dst -> {decode, probe}
-    ref -> {decode, probe}
+    src -> prepare -> ref -> t_dec -> t_convert -> t_encode -> dst -> {decode, probe}
     decode -> convert
-    {idle, transn, decode, probe} -> database [style=dotted] # minlen=2
+    {idle, t_encode, convert, probe} -> database [style=dotted] # minlen=2
 
     # arguments
     {p_colorspace, p_fps, p_pxl, p_resol} -> prepare [arrowhead=none, style=dashed]
-    {c_fps, c_pxl, c_resol} -> t_conv1 [arrowhead=none, style=dashed]
-    {c_pxl, c_resol} -> convert [arrowhead=none, style=dashed]
-    {effort, encoder, quality, threads} -> trans1 [arrowhead=none, style=dashed]
+    {c_fps, c_pxl, c_resol} -> t_convert [arrowhead=none, style=dashed]
+    {effort, encoder, quality, threads} -> t_encode [arrowhead=none, style=dashed]
+    {c_resol} -> convert [arrowhead=none, style=dashed]
 }

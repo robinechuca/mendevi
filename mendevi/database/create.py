@@ -68,6 +68,11 @@ def create_database(filename: str | bytes | pathlib.Path):
             vid_ssim LONGBLOB,  -- list of the ssim (6, 1, 1) metric for each frame, gauss win 11x11
             vid_uvq LONGBLOB  -- list of the google uvq metric for each second of video
         )""")
+        # cursor.execute("""CREATE TABLE IF NOT EXISTS t_met_metric (
+        #     met_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        #     met_ref_vid_id BINARY(128) NOT NULL,
+        #     ...
+        # )""")
         cursor.execute(f"""CREATE TABLE IF NOT EXISTS t_env_environement (
             env_id INTEGER PRIMARY KEY AUTOINCREMENT,
 

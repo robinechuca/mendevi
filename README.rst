@@ -67,7 +67,7 @@ The measurement process consists of four steps:
 
 3) **Probe**: This phase calculates the various metrics and properties of a transcoded video.
 
-.. image:: https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/docs/images/decode.avif
+.. image:: https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/docs/images/probe.avif
     :alt: mendevi probe
 
 4) **Decode**: This phase consists of measuring the machine's activity during video decoding.
