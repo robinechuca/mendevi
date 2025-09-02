@@ -34,12 +34,22 @@ graph database {
         <TR><TD ALIGN="LEFT">vid_pix_fmt</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>
         <TR><TD ALIGN="LEFT">vid_size</TD><TD ALIGN="LEFT">BIGINT</TD></TR>
         <TR><TD ALIGN="LEFT">vid_width</TD><TD ALIGN="LEFT">SMALLINT</TD></TR>
-        <TR><TD ALIGN="LEFT">vid_ref_vid_id</TD><TD ALIGN="LEFT">BINARY(128)</TD></TR>
-        <TR><TD ALIGN="LEFT">vid_lpips_alex</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
-        <TR><TD ALIGN="LEFT">vid_lpips_vgg</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
-        <TR><TD ALIGN="LEFT">vid_psnr</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
-        <TR><TD ALIGN="LEFT">vid_ssim</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
         <TR><TD ALIGN="LEFT">vid_uvq</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
+      </TABLE>
+    >
+  ];
+  t_met_metric [
+    label=<
+      <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+        <TR><TD COLSPAN="2" BGCOLOR="lightblue"><B>t_met_metric</B></TD></TR>
+        <TR><TD ALIGN="LEFT"><FONT COLOR="gray">met_id</FONT></TD><TD ALIGN="LEFT"><FONT COLOR="blue">INTEGER</FONT></TD></TR>
+        <TR><TD ALIGN="LEFT">met_vid_id</TD><TD ALIGN="LEFT">BINARY(128)</TD></TR>
+        <TR><TD ALIGN="LEFT">met_ref_vid_id</TD><TD ALIGN="LEFT">BINARY(128)</TD></TR>
+        <TR><TD ALIGN="LEFT">met_lpips_alex</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
+        <TR><TD ALIGN="LEFT">met_lpips_vgg</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
+        <TR><TD ALIGN="LEFT">met_psnr</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
+        <TR><TD ALIGN="LEFT">met_ssim</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
+        <TR><TD ALIGN="LEFT">met_uvq</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
       </TABLE>
     >
   ];
@@ -107,6 +117,7 @@ graph database {
   t_enc_encode -- t_act_activity [minlen=3, taillabel="1", headlabel="1", xlabel="encoding\nressources", labeldistance=2.0]
   t_enc_encode -- t_env_environement [minlen=3, taillabel="1", headlabel="*", xlabel="machine\ncontext", labeldistance=2.0]
   t_enc_encode -- t_vid_video [minlen=3, taillabel="1", headlabel="*", xlabel="output\nvideo", labeldistance=2.0]
+  t_met_metric -- t_vid_video [minlen=3, taillabel="1", headlabel="*", xlabel="video\nquality", labeldistance=2.0]
   t_dec_decode -- t_act_activity [minlen=3, taillabel="1", headlabel="1", xlabel="decoding\nresources", labeldistance=2.0]
   t_dec_decode -- t_env_environement [minlen=3, taillabel="1", headlabel="*", xlabel="machine\ncontext", labeldistance=2.0]
   t_dec_decode -- t_vid_video [minlen=3, taillabel="1", headlabel="*", xlabel="input\nvideo", labeldistance=2.0]
