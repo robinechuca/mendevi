@@ -65,7 +65,7 @@ def decode_and_store(
         try:
             cursor.execute(
                 "INSERT INTO t_vid_video (vid_id, vid_name) VALUES (?, ?)",
-                (kwargs["src_vid_id"].encode(), src.name)
+                (kwargs["src_vid_id"], src.name)
             )
         except sqlite3.IntegrityError:
             pass
@@ -97,7 +97,7 @@ def decode_and_store(
             "dec_env_id": env_id,
             "dec_height": kwargs.get("resolution", (None, None))[0],
             "dec_pix_fmt": "rgb24",
-            "dec_vid_id": kwargs["src_vid_id"].encode(),
+            "dec_vid_id": kwargs["src_vid_id"],
             "dec_width": kwargs.get("resolution", (None, None))[1],
         }
         keys = list(values)

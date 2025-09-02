@@ -93,4 +93,3 @@ def test_unicity_activity_from_env():
         )
 
     os.remove(database)
-

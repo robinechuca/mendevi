@@ -18,6 +18,7 @@ import tqdm
 
 from mendevi.convert import get_convert_cmd
 from mendevi.database.serialize import list_to_binary, tensor_to_binary
+from mendevi.utils import compute_video_hash, hash_to_signature
 from .utils import Activity
 
 
@@ -104,8 +105,7 @@ def encode(src: pathlib.Path, **kwargs) -> tuple[pathlib.Path, str, dict[str]]:
             prt.print(f"avg wattmeter power: {activity['wattmeter_power']:.2g} W")
 
         # compute file hash
-        with open(dst, "rb") as buff:
-            signature = hashlib.file_digest(buff, "md5").hexdigest()
+        signature = hash_to_signature(compute_video_hash(dst))
         prt.print(f"output video: sample_{signature}.mp4")
 
     # move file
@@ -159,15 +159,15 @@ def encode_and_store(
         try:
             cursor.execute(
                 "INSERT INTO t_vid_video (vid_id, vid_name) VALUES (?, ?)",
-                (kwargs["src_vid_id"].encode(), src.name)
+                (kwargs["src_vid_id"], src.name)
             )
         except sqlite3.IntegrityError:
             pass
-        dst_vid_id = re.search(r"[0-9a-f]{32}", dst.stem).group()
+        dst_vid_id: bytes = compute_video_hash(dst)
         try:
             cursor.execute(
                 "INSERT INTO t_vid_video (vid_id, vid_name) VALUES (?, ?)",
-                (dst_vid_id.encode(), dst.name)
+                (dst_vid_id, dst.name)
             )
         except sqlite3.IntegrityError:
             pass
@@ -197,7 +197,7 @@ def encode_and_store(
         values = {
             "enc_act_id": act_id,
             "enc_cmd": cmd,
-            "enc_dst_vid_id": dst_vid_id.encode(),
+            "enc_dst_vid_id": dst_vid_id,
             "enc_effort": kwargs["effort"],
             "enc_encoder": kwargs["encoder"],
             "enc_env_id": env_id,
@@ -205,7 +205,7 @@ def encode_and_store(
             "enc_height": kwargs["resolution"][0],
             "enc_pix_fmt": kwargs["pix_fmt"],
             "enc_quality": kwargs["quality"],
-            "enc_src_vid_id": kwargs["src_vid_id"].encode(),
+            "enc_src_vid_id": kwargs["src_vid_id"],
             "enc_threads": kwargs["threads"],
             "enc_width": kwargs["resolution"][1],
         }

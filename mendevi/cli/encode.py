@@ -17,7 +17,8 @@ import numpy as np
 from mendevi.database.complete import add_environement
 from mendevi.database.create import create_database
 from mendevi.encode import encode_and_store
-from mendevi.utils import get_pix_fmt, get_rate_video, get_resolution, unfold_video_files
+from mendevi.utils import (compute_video_hash, get_pix_fmt, get_rate_video, get_resolution,
+                           unfold_video_files)
 from .parse import PixelParamType, ResolutionParamType
 
 
@@ -213,11 +214,7 @@ def main(videos: tuple, database: str = None, **kwargs):
     # preparation of context
     with Printer("Get context and video checksum...") as prt:
         env_id = add_environement(database)
-        kwargs["src_vid_id"]: dict[pathlib.Path, str] = {}
-        for video in videos:
-            with open(video, "rb") as raw:
-                kwargs["src_vid_id"][video] = hashlib.file_digest(raw, "md5").hexdigest()
-            prt.print(f"{video.name} -> {kwargs["src_vid_id"][video]}")
+        kwargs["src_vid_id"]: dict[pathlib.Path, bytes] = compute_video_hash(videos)
 
     keys = ["threads", "effort", "quality", "encoder", "fps", "resolution", "pix_fmt"]
 
@@ -253,7 +250,7 @@ def main(videos: tuple, database: str = None, **kwargs):
         values["fps"] = values["fps"] or get_rate_video(values["video"])
         values["resolution"] = values["resolution"] or get_resolution(values["video"])
         values["pix_fmt"] = values["pix_fmt"] or get_pix_fmt(values["video"])
-        key = (values["src_vid_id"].encode(),) + tuple(values[k] for k in keys)
+        key = (values["src_vid_id"],) + tuple(values[k] for k in keys)
         if done.get(key, 0) > values["repeat"]:
             continue
         with Printer(f"Encode {i+1}/{loops}...", color="cyan") as prt:

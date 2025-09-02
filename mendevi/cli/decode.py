@@ -2,8 +2,6 @@
 
 """Perform decoding measures."""
 
-import hashlib
-import multiprocessing.pool
 import pathlib
 import sqlite3
 
@@ -13,7 +11,7 @@ import click
 from mendevi.database.complete import add_environement
 from mendevi.database.create import is_sqlite
 from mendevi.decode import decode_and_store
-from mendevi.utils import unfold_video_files
+from mendevi.utils import compute_video_hash, unfold_video_files
 from .parse import ResolutionParamType
 
 
@@ -56,10 +54,6 @@ def _guess_database(files: tuple[str]) -> str | None:
     if len(candidates) == 1:
         return candidates.pop()
     return None
-
-
-def _compute_md5(files: set[pathlib.Path]):
-    """Compute the md5 checksum of."""
 
 
 @click.command()
@@ -125,16 +119,22 @@ def main(videos: tuple[str], database: str = None, **kwargs):
     # preparation of context
     with Printer("Get context and video checksum...") as prt:
         env_id = add_environement(database)
-        kwargs["src_vid_id"]: dict[pathlib.Path, str] = {}
-        for video in videos:
-            with open(video, "rb") as raw:
-                kwargs["src_vid_id"][video] = hashlib.file_digest(raw, "md5").hexdigest()
-            prt.print(f"{video.name} -> {kwargs["src_vid_id"][video]}")
+        kwargs["src_vid_id"]: dict[pathlib.Path, bytes] = compute_video_hash(videos)
 
-    # get the full video list
+    # retrieves the settings for videos that have already been decoded
     with sqlite3.connect(database) as sql_database:
-        for (vid_id, vid_name) in sql_database.execute("SELECT vid_id, vid_name FROM t_vid_video"):
-            print(vid_id, vid_name)
+        sql_database.row_factory = sqlite3.Row
+        done: dict[tuple, int] = {}
+        for values in sql_database.execute(
+            "SELECT * FROM t_dec_decode WHERE dec_env_id=?", (env_id,)
+        ):
+            values = {
+                "fps": fractions.Fraction(values["dec_fps"]).limit_denominator(1001),
+                "resolution": (values["dec_height"], values["dec_width"]),
+            }
+            values = tuple(values[k] for k in ["src_vid_id", *keys])
+            done[values] = done.get(values, 0) + 1
+
 
     raise NotImplementedError
     decode_and_store(video)
