@@ -87,6 +87,7 @@ graph database {
         <TR><TD ALIGN="LEFT">dec_vid_id</TD><TD ALIGN="LEFT">BINARY(128)</TD></TR>
         <TR><TD ALIGN="LEFT">dec_env_id</TD><TD ALIGN="LEFT">INTEGER</TD></TR>
         <TR><TD ALIGN="LEFT">dec_act_id</TD><TD ALIGN="LEFT">INTEGER</TD></TR>
+        <TR><TD ALIGN="LEFT">dec_cmd</TD><TD ALIGN="LEFT">TEXT</TD></TR>
         <TR><TD ALIGN="LEFT">dec_height</TD><TD ALIGN="LEFT">SMALLINT</TD></TR>
         <TR><TD ALIGN="LEFT">dec_pix_fmt</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>
         <TR><TD ALIGN="LEFT">dec_width</TD><TD ALIGN="LEFT">SMALL</TD></TR>

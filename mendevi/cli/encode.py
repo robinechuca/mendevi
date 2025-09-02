@@ -4,7 +4,6 @@
 
 import fractions
 import functools
-import hashlib
 import itertools
 import operator
 import pathlib
@@ -15,11 +14,9 @@ import click
 import numpy as np
 
 from mendevi.database.complete import add_environement
-from mendevi.database.create import create_database
 from mendevi.encode import encode_and_store
-from mendevi.utils import (compute_video_hash, get_pix_fmt, get_rate_video, get_resolution,
-                           unfold_video_files)
-from .parse import PixelParamType, ResolutionParamType
+from mendevi.utils import compute_video_hash, get_pix_fmt, get_rate_video, get_resolution
+from .parse import PixelParamType, ResolutionParamType, parse_videos_database
 
 
 
@@ -195,27 +192,13 @@ def main(videos: tuple, database: str = None, **kwargs):
         If provided, A pixel conversion is performed during encoding.
     """
     with Printer("Parse configuration...") as prt:
-        # video
-        assert isinstance(videos, tuple), videos.__class__.__name__
+        videos, database = parse_videos_database(prt, videos, database)
         assert videos, "at least one video is required"
-        videos = list(unfold_video_files(videos))
-        prt.print(f"videos    : {', '.join(map(str, videos))}")
-
-        # database
-        database = pathlib.Path(database or videos[0].parent / "mendevi.db").expanduser()
-        database = database / "mendevi.db" if database.is_dir() else database
-        if not database.exists():
-            create_database(database)
-        prt.print(f"database  : {database}")
-
-        # others
         _parse_args(prt, kwargs)
 
     # preparation of context
-    with Printer("Get context and video checksum...") as prt:
-        env_id = add_environement(database)
-        kwargs["src_vid_id"]: dict[pathlib.Path, bytes] = compute_video_hash(videos)
-        prt.print_time()
+    env_id = add_environement(database)
+    kwargs["src_vid_id"]: dict[pathlib.Path, bytes] = compute_video_hash(videos)
 
     keys = ["threads", "effort", "quality", "encoder", "fps", "resolution", "pix_fmt"]
 

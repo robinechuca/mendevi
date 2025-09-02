@@ -109,6 +109,7 @@ def create_database(filename: str | bytes | pathlib.Path):
             dec_vid_id BINARY(128) NOT NULL REFERENCES t_vid_video(vid_id) ON DELETE CASCADE,  -- link to video table
             dec_env_id INTEGER NOT NULL REFERENCES t_env_environement(env_id) ON DELETE CASCADE,  -- link to environement table
             dec_act_id INTEGER REFERENCES t_act_activity(act_id),  -- link to activity table
+            dec_cmd TEXT,  -- exact ffmpeg command used
             dec_height SMALLINT CHECK(dec_height > 0),  -- display resolution
             dec_pix_fmt TINYTEXT,  -- display pixel format
             dec_width SMALLINT CHECK(dec_width > 0)  -- display resolution

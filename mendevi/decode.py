@@ -105,6 +105,7 @@ def decode_and_store(
         # fill decode table
         values = {
             "dec_act_id": act_id,
+            "dec_cmd": cmd,
             "dec_env_id": env_id,
             "dec_height": kwargs.get("resolution", (None, None))[0],
             "dec_pix_fmt": "rgb24",
@@ -152,7 +153,7 @@ def get_decode_cmd(video: pathlib.Path, resolution: tuple[int, int] | None) -> l
         assert (resolution[0], resolution[1]) > (0, 0), resolution
 
     filters: list[str] = []
-    if resolution is not None and (src := get_resolution(video)) != resolution:
+    if resolution is not None and get_resolution(video) != resolution:
         filters = [f"scale=h={resolution[0]}:w={resolution[1]}:sws_flags=bicubic"]
     filters.append("format=rgb24")  # to match monitor pixel conversion
     filters = ",".join(filters)

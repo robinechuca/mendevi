@@ -3,7 +3,6 @@
 """Fill the SQL database."""
 
 import pathlib
-import platform
 import sqlite3
 import time
 

@@ -166,6 +166,7 @@ def compute_video_hash(
         with multiprocessing.pool.ThreadPool() as pool:
             return dict(tqdm.tqdm(
                 pool.imap_unordered(_hash, videos),
+                desc="compute videos checksum",
                 dynamic_ncols=True,
                 leave=False,
                 smoothing=1e-4,
