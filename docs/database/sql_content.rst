@@ -1,17 +1,20 @@
 .. _sql_content:
 
+SQL Database Content
+====================
+
 .. image:: https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/docs/images/database.svg
     :alt: SQL database diagram
 
 .. _t_env_environement:
 
 Table t_env_environement
-========================
+------------------------
 
 Captures the physical characteristics and configuration of a machine. This table also captures the library version of a given measurement.
 
 env_id
-------
+^^^^^^
 
 +--------+-----------+
 | env_id | `INTEGER` |
@@ -20,7 +23,7 @@ env_id
 Unique primary key, with no particular meaning.
 
 env_ffmpeg_version
-------------------
+^^^^^^^^^^^^^^^^^^
 
 +--------------------+--------------+
 | env_ffmpeg_version | `MEDIUMTEXT` |
@@ -43,7 +46,7 @@ This is human-readable text, returned by the function `get_ffmpeg_version <https
     libswresample   6.  0.100 /  6.  0.100
 
 env_hostname
-------------
+^^^^^^^^^^^^
 
 +--------------+------------+
 | env_hostname | `TINYTEXT` |
@@ -56,7 +59,7 @@ The username, given by ``platform.node()``, from the function `get_platform <htt
     PTB-5CG4414JJD
 
 env_kernel_version
-------------------
+^^^^^^^^^^^^^^^^^^
 
 +--------------------+------------+
 | env_kernel_version | `TINYTEXT` |
@@ -69,7 +72,7 @@ The version of the Linux kernel, given by ``platform.platform()``, from the func
     Linux-6.11.0-29-generic-x86_64-with-glibc2.40
 
 env_libsvtav1_version
----------------------
+^^^^^^^^^^^^^^^^^^^^^
 
 +-----------------------+------------+
 | env_libsvtav1_version | MEDIUMTEXT |
@@ -83,7 +86,7 @@ The version of the libsvtav1 encoder and the version of the compiler for this li
     GCC 14.2.0 64 bit
 
 env_libvpx_vp9_version
-----------------------
+^^^^^^^^^^^^^^^^^^^^^^
 
 +------------------------+------------+
 | env_libvpx_vp9_version | MEDIUMTEXT |
@@ -96,7 +99,7 @@ The version of the libvpx-vp9 encoder. It comes from the function `get_libvpx_vp
     v1.14.1
 
 env_libx265_version
--------------------
+^^^^^^^^^^^^^^^^^^^
 
 +---------------------+------------+
 | env_libx265_version | MEDIUMTEXT |
@@ -111,7 +114,7 @@ The version of the libx265 encoder and the version of the compiler for this libr
     MMX2 SSE2Fast LZCNT SSSE3 SSE4.2 AVX FMA3 BMI2 AVX2
 
 env_logical_cores
------------------
+^^^^^^^^^^^^^^^^^
 
 +-------------------+---------+
 | env_logical_cores | INTEGER |
@@ -121,7 +124,7 @@ The number of logical (threaded) cores, in general more than the number of physi
 
 
 env_lshw
---------
+^^^^^^^^
 
 +----------+------+
 | env_lshw | JSON |
@@ -177,7 +180,7 @@ A wealth of information on machine components, processor architecture, etc.
     }
 
 env_physical_cores
-------------------
+^^^^^^^^^^^^^^^^^^
 
 +--------------------+---------+
 | env_physical_cores | INTEGER |
@@ -186,7 +189,7 @@ env_physical_cores
 The number of physical cores, in general less than the number of logical physical cores. It is given by ``psutil.cpu_count(logical=False)``, from the function `get_platform <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.context.get_platform.html>`_.
 
 env_pip_freeze
---------------
+^^^^^^^^^^^^^^
 
 +----------------+------------+
 | env_pip_freeze | MEDIUMTEXT |
@@ -217,7 +220,7 @@ The list of the version of the python packages. The function `get_pip_freeze <ht
     ...
 
 env_processor
--------------
+^^^^^^^^^^^^^
 
 +---------------+-----------+
 | env_processor |  TINYTEXT |
@@ -230,7 +233,7 @@ The proccessor familly, given by ``platform.processor()``, from the function `ge
     x86_64
 
 env_python_compiler
--------------------
+^^^^^^^^^^^^^^^^^^^
 
 +---------------------+----------+
 | env_python_compiler | TINYTEXT |
@@ -244,7 +247,7 @@ The cython compiler and version, given by ``platform.python_compiler()``, from t
 
 
 env_python_version
-------------------
+^^^^^^^^^^^^^^^^^^
 
 +--------------------+----------+
 | env_python_version | TINYTEXT |
@@ -257,7 +260,7 @@ The version of python, given by ``platform.python_version()``, from the function
     3.13.2
 
 env_ram
--------
+^^^^^^^
 
 +---------+---------+
 | env_ram | INTEGER |
@@ -266,7 +269,7 @@ env_ram
 The total physical memory (exclusive swap) in bytes, given by ``psutil.virtual_memory().total``, from the function `get_platform <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.context.get_platform.html>`_.
 
 env_swap
---------
+^^^^^^^^
 
 +----------+---------+
 | env_swap | INTEGER |
@@ -275,7 +278,7 @@ env_swap
 The total swap memory in bytes, given by ``psutil.swap_memory().total``, from the function `get_platform <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.context.get_platform.html>`_.
 
 env_system_version
-------------------
+^^^^^^^^^^^^^^^^^^
 
 +--------------------+------------+
 | env_system_version | MEDIUMTEXT |
@@ -288,7 +291,7 @@ The name and the version of linux, given by ``platform.version()``,from the func
     #29-Ubuntu SMP PREEMPT_DYNAMIC Fri Jun 13 20:29:41 UTC 2025
 
 env_vvc_version
----------------
+^^^^^^^^^^^^^^^
 
 +-----------------+------------+
 | env_vvc_version | MEDIUMTEXT |
@@ -301,7 +304,7 @@ The version of the vvenc encoder. It comes from the function `get_vvc_version <h
     1.13.1
 
 env_idle_act_id
----------------
+^^^^^^^^^^^^^^^
 
 +-----------------+---------+
 | env_idle_act_id | INTEGER |
@@ -313,12 +316,12 @@ The id in the table :ref:`t_act_activity` of the IDLE measure of the machine.
 .. _t_act_activity:
 
 Table t_act_activity
-====================
+--------------------
 
 Captures machine activity over a period of time.
 
 act_id
-------
+^^^^^^
 
 +--------+-----------+
 | act_id | `INTEGER` |
@@ -327,7 +330,7 @@ act_id
 Unique primary key, with no particular meaning.
 
 act_start
----------
+^^^^^^^^^
 
 +-----------+-----------+
 | act_start | TIMESTAMP |
@@ -336,7 +339,7 @@ act_start
 The date when the measure starts, the number of second from the 1st january 1970 at 00:00:00 UTC.
 
 act_duration
-------------
+^^^^^^^^^^^^
 
 +--------------+-------+
 | act_duration | FLOAT |
@@ -345,7 +348,7 @@ act_duration
 The duration of the measurement in seconds.
 
 act_rapl_dt
------------
+^^^^^^^^^^^
 
 +-------------+----------+
 | act_rapl_dt | LONGBLOB |
@@ -355,7 +358,7 @@ The list of time intervals in seconds between two consecutive rapl measures.
 To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
 
 act_rapl_power
---------------
+^^^^^^^^^^^^^^
 
 +----------------+----------+
 | act_rapl_power | LONGBLOB |
@@ -376,7 +379,7 @@ To deserialize into an exploitable numpy array, please use the function `binary_
     otherwise, the sensor is not reachable.
 
 act_wattmeter_dt
-----------------
+^^^^^^^^^^^^^^^^
 
 +------------------+----------+
 | act_wattmeter_dt | LONGBLOB |
@@ -390,7 +393,7 @@ To deserialize into an exploitable numpy array, please use the function `binary_
     Only available for the measures taken on grid'5000.
 
 act_wattmeter_power
--------------------
+^^^^^^^^^^^^^^^^^^^
 
 +---------------------+----------+
 | act_wattmeter_power | LONGBLOB |
@@ -404,7 +407,7 @@ To deserialize into an exploitable numpy array, please use the function `binary_
     Only available for the measures taken on grid'5000.
 
 act_ps_dt
----------
+^^^^^^^^^
 
 +-----------+----------+
 | act_ps_dt | LONGBLOB |
@@ -414,7 +417,7 @@ The list of time intervals in seconds between two consecutive psutil measures.
 To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
 
 act_ps_core
------------
+^^^^^^^^^^^
 
 +-------------+----------+
 | act_ps_core | LONGBLOB |
@@ -424,7 +427,7 @@ The percent usage of each logical core average activity for each interval.
 To deserialize into an exploitable numpy array, please use the function `binary_to_tensor <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.database.serialize.binary_to_tensor.html>`_.
 
 act_ps_ram
-----------
+^^^^^^^^^^
 
 +------------+----------+
 | act_ps_ram | LONGBLOB |

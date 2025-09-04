@@ -19,7 +19,8 @@ Database Content
 .. toctree::
     :maxdepth: 2
 
-    sql_content.rst
+    database/json_content.rst
+    database/sql_content.rst
 
 
 Developer guide

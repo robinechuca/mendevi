@@ -182,6 +182,24 @@ def get_pix_fmt(*args):
     return cutcutcodec.get_pix_fmt(*args)
 
 
+def get_project_root() -> pathlib.Path:
+    """Return the absolute project root folder.
+
+    Examples
+    --------
+    >>> from mendevi.utils import get_project_root
+    >>> root = get_project_root()
+    >>> root.is_dir()
+    True
+    >>> root.name
+    'mendevi'
+    >>> sorted(p.name for p in root.iterdir())  # doctest: +ELLIPSIS
+    ['__init__.py', '__main__.py', ...]
+    >>>
+    """
+    return pathlib.Path(__file__).resolve().parent
+
+
 @functools.cache
 def get_rate_video(*args):
     """Alias to cutcutcodec func."""

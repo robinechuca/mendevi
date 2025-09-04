@@ -251,7 +251,6 @@ If you have a GPU, please install CUDA or ROC then follow the `PyTorch installat
     It is important to configure your environement variable to hook cuda to PyTorch.
     Good luck with the `official guide <https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html>`_.
 
-
 vamf (optional)
 ^^^^^^^^^^^^^^^
 
