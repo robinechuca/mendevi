@@ -4,6 +4,15 @@ Mendevi |release|
 .. include:: ../README.rst
 
 
+Getting started
+===============
+
+.. toctree::
+    :maxdepth: 2
+
+    getting_started/installation.rst
+
+
 Database Content
 ================
 
@@ -11,6 +20,15 @@ Database Content
     :maxdepth: 2
 
     sql_content.rst
+
+
+Developer guide
+===============
+
+.. toctree::
+    :maxdepth: 2
+
+    developer_guide/installation.rst
 
 
 API documentation

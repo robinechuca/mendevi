@@ -4,7 +4,7 @@
 Api Reference
 =============
 
-This is the definitive place to find all the details on CutCutCodec API documentation.
+This is the definitive place to find all the details on *mendevi* API documentation.
 
 
 .. autosummary::
