@@ -1,7 +1,3 @@
---index-url https://download.pytorch.org/whl/cpu
-# fallback to PyPI
---extra-index-url https://pypi.org/simple
-
 alabaster==0.7.16
 ansible-core==2.17.13
 asttokens==3.0.0

@@ -18,6 +18,9 @@ build:
       - uv venv "${READTHEDOCS_VIRTUALENV_PATH}"
     install:
       - uv pip sync docs/requirements.txt
+    post_install:  # to create importable *.so files inside the module
+      # all option in https://github.com/pypa/pip/blob/main/src/pip/_internal/cli/cmdoptions.py
+      - uv pip install --verbose --editable .
 
 sphinx:
   configuration: docs/conf.py
