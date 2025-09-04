@@ -10,6 +10,8 @@ build:
   tools:
     python: "3.13"  # "latest"
   apt_packages:
+    - linux-perf
+    - lshw
     - pkg-config
   jobs:
     pre_create_environment:
