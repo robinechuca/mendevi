@@ -76,10 +76,6 @@ test = [
   "pylama[all,toml]",
   "pytest",
 ]
-gui = [
-  "jupyter",
-  "matplotlib",
-]
 
 [project.scripts]
 mendevi = "mendevi.__main__:main"

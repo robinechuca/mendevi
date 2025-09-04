@@ -72,7 +72,7 @@ def _fill_vid_table(database: pathlib.Path, vid_id: bytes, video: pathlib.Path, 
                     prop["vid_height"] = cutcutcodec.get_resolution(video)[0]
                     prt.print(f"{'height':<{pad}}: {prop['vid_height']} pixels")
                 case "vid_width":
-                    prop["vid_width"] = cutcutcodec.get_resolution(video)[0]
+                    prop["vid_width"] = cutcutcodec.get_resolution(video)[1]
                     prt.print(f"{'width':<{pad}}: {prop['vid_width']} pixels")
                 case "vid_pix_fmt":
                     prop["vid_pix_fmt"] = cutcutcodec.get_pix_fmt(video)

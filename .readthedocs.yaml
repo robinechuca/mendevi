@@ -2,7 +2,6 @@
 # See https://docs.readthedocs.io/en/stable/config-file/v2.html
 # and https://docs.readthedocs.com/platform/stable/build-customization.html for details
 
-# Required
 version: 2
 
 # Set the OS, Python version and other tools you might need
@@ -11,13 +10,19 @@ build:
   tools:
     python: "3.13"  # "latest"
   apt_packages:
-    - python-dev-is-python3
     - pkg-config
-    - pandoc  # for nbsphinx
-  # jobs:
-  #   post_install:  # to create importable *.so files inside the module
-  #     # all option in https://github.com/pypa/pip/blob/main/src/pip/_internal/cli/cmdoptions.py
-  #     - pip install --verbose --no-deps --editable .
+  jobs:
+    pre_create_environment:
+      - asdf plugin add uv
+      - asdf install uv latest
+      - asdf global uv latest
+    create_environment:
+      - uv venv "${READTHEDOCS_VIRTUALENV_PATH}"
+    install:
+      - uv pip sync docs/requirements.txt
+    # post_install:  # to create importable *.so files inside the module
+    #   # all option in https://github.com/pypa/pip/blob/main/src/pip/_internal/cli/cmdoptions.py
+    #   - uv pip install --verbose --editable .[doc,test]
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
