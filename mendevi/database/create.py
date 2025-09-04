@@ -6,7 +6,13 @@ import pathlib
 import sqlite3
 
 
-ENV_UNIQUE = ["env_ffmpeg_version", "env_hostname", "env_logical_cores", "env_processor"]
+ENV_UNIQUE = [
+    "env_ffmpeg_version",
+    "env_hostname",
+    "env_logical_cores",
+    "env_pip_freeze",
+    "env_processor",
+]
 
 
 def create_database(filename: str | bytes | pathlib.Path):
@@ -65,16 +71,17 @@ def create_database(filename: str | bytes | pathlib.Path):
         )""")
         cursor.execute("""CREATE TABLE IF NOT EXISTS t_met_metric (
             met_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            met_vid_id BINARY(128) NOT NULL,  -- link to the transcoded video
             met_ref_vid_id BINARY(128) NOT NULL,  -- link to the reference video
+            met_dis_vid_id BINARY(128) NOT NULL,  -- link to the distorded video
 
             /*  COMPARATIVE METRICS */
             met_lpips_alex LONGBLOB,  -- list lpips with alex for each frame
             met_lpips_vgg LONGBLOB,  -- list lpips with vgg for each frame
             met_psnr LONGBLOB,  -- list of the psnr (6, 1, 1) metric for each frame
             met_ssim LONGBLOB,  -- list of the ssim (6, 1, 1) metric for each frame, gauss win 11x11
+            met_vmaf LONGBLOB,  -- list of the vmaf metric for each frame
 
-            UNIQUE(met_vid_id, met_ref_vid_id) ON CONFLICT FAIL
+            UNIQUE(met_ref_vid_id, met_dis_vid_id) ON CONFLICT FAIL
         )""")
         cursor.execute(f"""CREATE TABLE IF NOT EXISTS t_env_environement (
             env_id INTEGER PRIMARY KEY AUTOINCREMENT,

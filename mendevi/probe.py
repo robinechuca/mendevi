@@ -3,6 +3,7 @@
 """Perform the metrics and video properties measures."""
 
 import json
+import logging
 import pathlib
 import sqlite3
 
@@ -23,7 +24,7 @@ def _fill_vid_table(database: pathlib.Path, vid_id: bytes, video: pathlib.Path, 
         prop = cursor.execute(
             "SELECT * FROM t_vid_video WHERE vid_id=?", (vid_id,)
         ).fetchone()
-    prop = dict(prop)
+    prop = {} if prop is None else dict(prop)
 
     # missing fields
     fields = {
@@ -77,7 +78,7 @@ def _fill_vid_table(database: pathlib.Path, vid_id: bytes, video: pathlib.Path, 
                 case "vid_uvq":
                     uvq = cutcutcodec.compare(None, video, uvq=True)["uvq"]
                     prop["vid_uvq"] = list_to_binary(uvq)
-                    prt.print(f"{'uvq':<{pad}}: {np.mean(uvq):.1f} +/- {np.std(uvq):.1f}")
+                    prt.print(f"{'uvq':<{pad}}: {np.mean(uvq):.2f} +/- {np.std(uvq):.2f}")
                 case "vid_size":
                     prop["vid_size"] = video.stat().st_size
                     prt.print(f"{'size':<{pad}}: {prop['vid_size']*1e-6:.2f} MB")
@@ -96,7 +97,11 @@ def _fill_vid_table(database: pathlib.Path, vid_id: bytes, video: pathlib.Path, 
 
     # update result
     with sqlite3.connect(database) as sql_database:
-        sql_database.execute(
+        cursor = sql_database.cursor()
+        cursor.execute(
+            "INSERT OR IGNORE INTO t_vid_video (vid_id) VALUES (?)", (vid_id,)
+        )
+        cursor.execute(
             (
                 f"UPDATE t_vid_video SET {', '.join(f'{k}=?' for k in fields)} "
                 "WHERE vid_id=?"
@@ -104,6 +109,72 @@ def _fill_vid_table(database: pathlib.Path, vid_id: bytes, video: pathlib.Path, 
             [prop[k] for k in fields] + [vid_id],
         )
 
+
+def _fill_met_table(
+    database: pathlib.Path,
+    ref_id: bytes,
+    ref_path: pathlib.Path,
+    dis_id: bytes,
+    dis_path: pathlib.Path,
+    **kwargs,
+):
+    """Complete the table t_met_metric."""
+    # get actual informations
+    with sqlite3.connect(database) as sql_database:
+        sql_database.row_factory = sqlite3.Row
+        cursor = sql_database.cursor()
+        metrics = cursor.execute(
+            "SELECT * FROM t_met_metric WHERE met_ref_vid_id=? AND met_dis_vid_id=?",
+            (ref_id, dis_id)
+        ).fetchone()
+    metrics = {} if metrics is None else dict(metrics)
+
+    # missing fields
+    fields = [
+        *(("met_lpips_alex",) if kwargs["lpips_alex"] else ()),
+        *(("met_lpips_vgg",) if kwargs["lpips_vgg"] else ()),
+        *(("met_psnr",) if kwargs["psnr"] else ()),
+        *(("met_ssim",) if kwargs["ssim"] else ()),
+        *(("met_vmaf",) if kwargs["vmaf"] else ()),
+    ]
+    fields = set(fields)
+    fields -= {k for k, v in metrics.items() if v is not None}
+    if not fields:
+        return None
+    fields = sorted(fields)  # to frozen order in sql request and for printing repetability
+
+    # fill missing fields
+    pad = max(map(len, fields)) - 4
+    with Printer(
+        f"Compute metrics between {ref_path.name} and {dis_path.name}...", color="green"
+    ) as prt:
+        new_metrics = cutcutcodec.compare(
+            ref_path, dis_path,
+            lpips_alex=kwargs["lpips_alex"],
+            lpips_vgg=kwargs["lpips_vgg"],
+            psnr=kwargs["psnr"],
+            ssim=kwargs["ssim"],
+            vmaf=kwargs["vmaf"],
+        )
+        for metric in sorted(new_metrics):
+            values = new_metrics[metric]
+            prt.print(f"{metric:<{pad}}: {np.mean(values):.2f} +/- {np.std(values):.2f}")
+    metrics = {f"met_{m}": list_to_binary(v) for m, v in new_metrics.items()}
+
+    # update result
+    with sqlite3.connect(database) as sql_database:
+        cursor = sql_database.cursor()
+        cursor.execute(
+            "INSERT OR IGNORE INTO t_met_metric (met_ref_vid_id, met_dis_vid_id) VALUES (?, ?)",
+            (ref_id, dis_id)
+        )
+        cursor.execute(
+            (
+                f"UPDATE t_met_metric SET {', '.join(f'{k}=?' for k in fields)} "
+                "WHERE met_ref_vid_id=? AND met_dis_vid_id=?"
+            ),
+            [metrics[k] for k in fields] + [ref_id, dis_id],
+        )
 
 
 def probe_and_store(database: pathlib.Path, video: pathlib.Path, **kwargs):
@@ -125,3 +196,25 @@ def probe_and_store(database: pathlib.Path, video: pathlib.Path, **kwargs):
 
     _fill_vid_table(database, vid_id, video, **kwargs)
 
+    # get the references videos for comparative comparisons
+    references: dict[pathlib.Path, bytes] = kwargs["ref"].copy()
+    with sqlite3.connect(database) as sql_database:
+        cursor = sql_database.cursor()
+        for ref_name, ref_id in cursor.execute("""
+            SELECT vid_name, enc_src_vid_id FROM t_enc_encode
+            JOIN t_vid_video ON enc_src_vid_id=vid_id
+            WHERE enc_dst_vid_id=?""",
+            (vid_id,),
+        ):
+            # try to find video full path
+            if (ref := database.with_name(ref_name)).is_file():
+                references[ref] = ref_id
+            elif (ref := video.with_name(ref_name)).is_file():
+                references[ref] = ref_id
+            else:
+                warning.info("failed to find the reference video %s", ref)
+    references = {ref: ref_id for ref, ref_id in references.items() if ref_id != vid_id}
+
+    # perform the comparative comparisons
+    for ref, ref_id in references.items():
+        _fill_met_table(database, ref_id, ref, vid_id, video, **kwargs)
