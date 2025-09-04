@@ -28,7 +28,6 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", ".venv"]
 html_theme = "sphinx_rtd_theme"
 pygments_style = "sphinx"
 extensions = [
-    "nbsphinx",  # to display jupyter-notebook, requires pandoc (sudo apt install pandoc)
     # "numpydoc",  # to include the numpy functions
     "recommonmark",
     "sphinx.ext.autodoc",
@@ -57,7 +56,3 @@ autosectionlabel_prefix_document = True
 autosummary_generate = True
 templates_path = ["_templates"]  # add any paths that contain templates here, relative to this directory
 autoclass_content = "both"  # include dunder methods (like __init__) documentation
-
-# --link notebook ------------------------------------------------------------
-# it is possible to use nbsphinx_link as well
-shutil.copytree(root / "examples", root / "docs" / "build" / "examples", dirs_exist_ok=True)
