@@ -47,7 +47,7 @@ def _fill_vid_table(database: pathlib.Path, vid_id: bytes, video: pathlib.Path, 
     if kwargs["uvq"] is False:
         fields -= {"vid_uvq"}
     if not fields:
-        return None
+        return
     fields = sorted(fields)  # to frozen order in sql request and for printing repetability
 
     # fill missing fields
@@ -145,7 +145,7 @@ def _fill_met_table(
     fields = set(fields)
     fields -= {k for k, v in metrics.items() if v is not None}
     if not fields:
-        return None
+        return
     fields = sorted(fields)  # to frozen order in sql request and for printing repetability
 
     # fill missing fields
@@ -220,7 +220,7 @@ def probe_and_store(database: pathlib.Path, video: pathlib.Path, **kwargs):
             elif (ref := video.with_name(ref_name)).is_file():
                 references[ref] = ref_id
             else:
-                warning.info("failed to find the reference video %s", ref)
+                logging.info("failed to find the reference video %s", ref)
     references = {ref: ref_id for ref, ref_id in references.items() if ref_id != vid_id}
 
     # perform the comparative comparisons

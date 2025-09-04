@@ -19,7 +19,7 @@ def _parse_args(prt: Printer, kwargs: dict):
     kwargs["ref"] = kwargs.get("ref", ())
     assert isinstance(kwargs["ref"], tuple), kwargs["ref"]
     assert all(isinstance(r, str) for r in kwargs["ref"]), kwargs["ref"]
-    kwargs["ref"] = [pathlib.Path(r).expand_user() for r in kwargs["ref"]]
+    kwargs["ref"] = [pathlib.Path(r).expanduser() for r in kwargs["ref"]]
     assert all(r.is_file() for r in kwargs["ref"]), kwargs["ref"]
     if kwargs["ref"]:
         prt.print(f"ref       : {', '.join(r.name for r in kwargs['ref'])}")
