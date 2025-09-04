@@ -1,5 +1,6 @@
-# more repo for torch cpu
--f https://download.pytorch.org/whl/torch_stable.html
+--index-url https://download.pytorch.org/whl/cpu
+# fallback to PyPI
+--extra-index-url https://pypi.org/simple
 
 alabaster==0.7.16
 ansible-core==2.17.13
@@ -103,8 +104,8 @@ sshtunnel==0.4.0
 stack-data==0.6.3
 sympy==1.13.3
 tinycss2==1.4.0
-torch==2.8.0+cpu
-torchvision==0.23.0+cpu
+torch==2.8.0
+torchvision==0.23.0
 tqdm==4.67.1
 traitlets==5.14.3
 typing-extensions==4.12.2
