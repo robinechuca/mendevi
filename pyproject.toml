@@ -2,7 +2,7 @@
 name = "mendevi"
 description = "Video encoding and decoding measures."
 dynamic = ["version"]
-requires-python = ">=3.11,<3.14"
+requires-python = ">=3.11,<3.15"
 authors = [
   {name = "Robin RICHARD (robinechuca)", email = "robin.richard@inria.fr"},
 ]
@@ -44,7 +44,7 @@ keywords = [
   "wattmeter",
 ]
 classifiers = [  # all classifiers https://pypi.org/classifiers/
-  "Development Status :: 4 - Beta",
+  "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Education",
   "Intended Audience :: Science/Research",
   "Natural Language :: English",
@@ -57,10 +57,7 @@ classifiers = [  # all classifiers https://pypi.org/classifiers/
 
 [project.optional-dependencies]
 doc = [
-  "ipykernel",  # for nbsphinx
   "mathjax",  # for sphinx latex math
-  "nbsphinx",
-  "pandoc",  # for nbsphinx (sudo apt install pandoc)
   "recommonmark",
   "sphinx==7.4.7",  # 8.2.0 failed on readthedoc
   "sphinx-copybutton",
@@ -81,6 +78,7 @@ test = [
 mendevi = "mendevi.__main__:main"
 
 [project.urls]
+Documentation = "https://mendevi.readthedocs.io/en/stable"
 Repository = "https://gitlab.inria.fr/rrichard/mendevi"
 
 [tool.setuptools.packages.find]
