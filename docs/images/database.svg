@@ -128,11 +128,11 @@
 <polygon fill="none" stroke="black" points="701,-1269.5 701,-1294.5 805,-1294.5 805,-1269.5 701,-1269.5"/>
 <text text-anchor="start" x="706" y="-1278.3" font-family="Times,serif" font-size="14.00" fill="blue">INTEGER</text>
 <polygon fill="none" stroke="black" points="585,-1244.5 585,-1269.5 701,-1269.5 701,-1244.5 585,-1244.5"/>
-<text text-anchor="start" x="590" y="-1253.3" font-family="Times,serif" font-size="14.00">met_vid_id</text>
+<text text-anchor="start" x="590" y="-1253.3" font-family="Times,serif" font-size="14.00">met_ref_vid_id</text>
 <polygon fill="none" stroke="black" points="701,-1244.5 701,-1269.5 805,-1269.5 805,-1244.5 701,-1244.5"/>
 <text text-anchor="start" x="706" y="-1253.3" font-family="Times,serif" font-size="14.00">BINARY(128)</text>
 <polygon fill="none" stroke="black" points="585,-1219.5 585,-1244.5 701,-1244.5 701,-1219.5 585,-1219.5"/>
-<text text-anchor="start" x="590" y="-1228.3" font-family="Times,serif" font-size="14.00">met_ref_vid_id</text>
+<text text-anchor="start" x="590" y="-1228.3" font-family="Times,serif" font-size="14.00">met_dis_vid_id</text>
 <polygon fill="none" stroke="black" points="701,-1219.5 701,-1244.5 805,-1244.5 805,-1219.5 701,-1219.5"/>
 <text text-anchor="start" x="706" y="-1228.3" font-family="Times,serif" font-size="14.00">BINARY(128)</text>
 <polygon fill="none" stroke="black" points="585,-1194.5 585,-1219.5 701,-1219.5 701,-1194.5 585,-1194.5"/>
@@ -152,7 +152,7 @@
 <polygon fill="none" stroke="black" points="701,-1119.5 701,-1144.5 805,-1144.5 805,-1119.5 701,-1119.5"/>
 <text text-anchor="start" x="706" y="-1128.3" font-family="Times,serif" font-size="14.00">LONGBLOB</text>
 <polygon fill="none" stroke="black" points="585,-1094.5 585,-1119.5 701,-1119.5 701,-1094.5 585,-1094.5"/>
-<text text-anchor="start" x="590" y="-1103.3" font-family="Times,serif" font-size="14.00">met_uvq</text>
+<text text-anchor="start" x="590" y="-1103.3" font-family="Times,serif" font-size="14.00">met_vmaf</text>
 <polygon fill="none" stroke="black" points="701,-1094.5 701,-1119.5 805,-1119.5 805,-1094.5 701,-1094.5"/>
 <text text-anchor="start" x="706" y="-1103.3" font-family="Times,serif" font-size="14.00">LONGBLOB</text>
 <polygon fill="none" stroke="black" points="584,-1094 584,-1321 806,-1321 806,-1094 584,-1094"/>

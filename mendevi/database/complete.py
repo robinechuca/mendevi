@@ -2,10 +2,12 @@
 
 """Fill the SQL database."""
 
+import datetime
 import pathlib
 import sqlite3
 import time
 
+from flufl.lock import Lock
 import context_verbose as cv
 import numpy as np
 
@@ -88,9 +90,12 @@ def add_environement(database: sqlite3.Cursor | str | bytes | pathlib.Path) -> i
     """
     # open file
     if not isinstance(database, sqlite3.Cursor):
-        database = pathlib.Path(database).expanduser().resolve()
+        database = pathlib.Path(database).expanduser()
         assert is_sqlite(database), database
-        with sqlite3.connect(database) as sql_database:
+        with (
+            sqlite3.connect(database) as sql_database,
+            Lock(str(database.with_name(".dblock")), lifetime=datetime.timedelta(seconds=600)),
+        ):
             # sql_database.execute("PRAGMA journal_mode=WAL")
             cursor = sql_database.cursor()
             key = add_environement(cursor)

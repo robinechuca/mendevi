@@ -15,6 +15,7 @@ dependencies = [  # https://packaging.python.org/en/latest/specifications/depend
   "cutcutcodec",
   "enoslib",
   "filelock",
+  "flufl.lock",
   "matplotlib",
   "numpy",
   "psutil",

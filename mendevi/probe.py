@@ -2,12 +2,14 @@
 
 """Perform the metrics and video properties measures."""
 
+import datetime
 import json
 import logging
 import pathlib
 import sqlite3
 
 from context_verbose import Printer
+from flufl.lock import Lock
 import cutcutcodec
 import numpy as np
 
@@ -96,7 +98,10 @@ def _fill_vid_table(database: pathlib.Path, vid_id: bytes, video: pathlib.Path, 
                     prt.print(f"{'codec':<{pad}}: {prop['vid_codec']}")
 
     # update result
-    with sqlite3.connect(database) as sql_database:
+    with (
+        sqlite3.connect(database) as sql_database,
+        Lock(str(database.with_name(".dblock")), lifetime=datetime.timedelta(seconds=60)),
+    ):
         cursor = sql_database.cursor()
         cursor.execute(
             "INSERT OR IGNORE INTO t_vid_video (vid_id) VALUES (?)", (vid_id,)
@@ -162,7 +167,10 @@ def _fill_met_table(
     metrics = {f"met_{m}": list_to_binary(v) for m, v in new_metrics.items()}
 
     # update result
-    with sqlite3.connect(database) as sql_database:
+    with (
+        sqlite3.connect(database) as sql_database,
+        Lock(str(database.with_name(".dblock")), lifetime=datetime.timedelta(seconds=60)),
+    ):
         cursor = sql_database.cursor()
         cursor.execute(
             "INSERT OR IGNORE INTO t_met_metric (met_ref_vid_id, met_dis_vid_id) VALUES (?, ?)",

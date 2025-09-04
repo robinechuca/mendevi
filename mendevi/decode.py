@@ -2,6 +2,7 @@
 
 """Perform decoding measures."""
 
+import datetime
 import os
 import pathlib
 import shlex
@@ -9,6 +10,7 @@ import sqlite3
 import subprocess
 
 from context_verbose import Printer
+from flufl.lock import Lock
 import numpy as np
 
 from mendevi.database.serialize import list_to_binary, tensor_to_binary
@@ -69,7 +71,10 @@ def decode_and_store(
     # decode the video
     cmd, activity = decode(src, **kwargs)
 
-    with sqlite3.connect(database) as sql_database:
+    with (
+        sqlite3.connect(database) as sql_database,
+        Lock(str(database.with_name(".dblock")), lifetime=datetime.timedelta(seconds=60)),
+    ):
         cursor = sql_database.cursor()
 
         # fill video table

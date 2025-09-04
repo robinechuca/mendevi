@@ -2,6 +2,7 @@
 
 """Perform encoding measures."""
 
+import datetime
 import hashlib
 import pathlib
 import re
@@ -12,6 +13,7 @@ import subprocess
 import tempfile
 
 from context_verbose import Printer
+from flufl.lock import Lock
 import cutcutcodec
 import numpy as np
 import tqdm
@@ -152,7 +154,10 @@ def encode_and_store(
     # transcode the video
     dst, cmd, activity = encode(src, **kwargs)
 
-    with sqlite3.connect(database) as sql_database:
+    with (
+        sqlite3.connect(database) as sql_database,
+        Lock(str(database.with_name(".dblock")), lifetime=datetime.timedelta(seconds=60)),
+    ):
         cursor = sql_database.cursor()
 
         # fill video table

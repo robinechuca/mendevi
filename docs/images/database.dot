@@ -43,13 +43,13 @@ graph database {
       <TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
         <TR><TD COLSPAN="2" BGCOLOR="lightblue"><B>t_met_metric</B></TD></TR>
         <TR><TD ALIGN="LEFT"><FONT COLOR="gray">met_id</FONT></TD><TD ALIGN="LEFT"><FONT COLOR="blue">INTEGER</FONT></TD></TR>
-        <TR><TD ALIGN="LEFT">met_vid_id</TD><TD ALIGN="LEFT">BINARY(128)</TD></TR>
         <TR><TD ALIGN="LEFT">met_ref_vid_id</TD><TD ALIGN="LEFT">BINARY(128)</TD></TR>
+        <TR><TD ALIGN="LEFT">met_dis_vid_id</TD><TD ALIGN="LEFT">BINARY(128)</TD></TR>
         <TR><TD ALIGN="LEFT">met_lpips_alex</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
         <TR><TD ALIGN="LEFT">met_lpips_vgg</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
         <TR><TD ALIGN="LEFT">met_psnr</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
         <TR><TD ALIGN="LEFT">met_ssim</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
-        <TR><TD ALIGN="LEFT">met_uvq</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
+        <TR><TD ALIGN="LEFT">met_vmaf</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
       </TABLE>
     >
   ];
