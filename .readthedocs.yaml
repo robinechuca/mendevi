@@ -9,10 +9,6 @@ build:
   os: "ubuntu-24.04"  # "ubuntu-lts-latest"
   tools:
     python: "3.13"  # "latest"
-  apt_packages:
-    - linux-perf
-    - lshw
-    - pkg-config
   jobs:
     pre_create_environment:
       - asdf plugin add uv
