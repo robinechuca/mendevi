@@ -2,9 +2,12 @@
 
 """Perform the video properties measures."""
 
+import random
+
 from context_verbose import Printer
 import click
 
+from mendevi.probe import probe_and_store
 from .parse import parse_videos_database
 
 
@@ -55,3 +58,10 @@ def main(videos: tuple[str], database: str = None, **kwargs):
     with Printer("Parse configuration...") as prt:
         videos, database = parse_videos_database(prt, videos, database)
         _parse_args(prt, kwargs)
+
+    # do the job
+    random.shuffle(videos)  # heuristic to improve efficiency of multiple acces
+    for i, video in enumerate(videos):
+        with Printer(f"Probe {i+1}/{len(videos)}...", color="cyan") as prt:
+            probe_and_store(database, video, **kwargs)
+            prt.print_time()
