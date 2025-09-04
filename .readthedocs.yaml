@@ -24,20 +24,6 @@ build:
     #   # all option in https://github.com/pypa/pip/blob/main/src/pip/_internal/cli/cmdoptions.py
     #   - uv pip install --verbose --editable .[doc,test]
 
-# Build documentation in the docs/ directory with Sphinx
 sphinx:
   configuration: docs/conf.py
   fail_on_warning: false
-
-# # Optionally build your docs in additional formats such as PDF and ePub
-# formats: all
-
-# Explicitly set the version of Python and its requirements
-python:
-  install:
-    # - requirements: docs/requirements.txt
-    # Install our python package before building the docs
-    - method: pip
-      path: .
-      extra_requirements:
-        - doc
