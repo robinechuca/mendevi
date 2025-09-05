@@ -16,23 +16,23 @@ Table t_act_activity
 --------------------
 
 +----------------------------+-------------+-------------------------------+
-| :ref:`act_id`              | *INTEGER*   | Key                           |
+| :ref:`act_id`              | *INTEGER*   | key                           |
 +----------------------------+-------------+-------------------------------+
-| :ref:`act_start`           | *TIMESTAMP* | Date when measures start      |
+| :ref:`act_start`           | *TIMESTAMP* | date when measures start      |
 +----------------------------+-------------+-------------------------------+
-| :ref:`act_duration`        | *FLOAT*     | Duration of measures          |
+| :ref:`act_duration`        | *FLOAT*     | duration of measures          |
 +----------------------------+-------------+-------------------------------+
 | :ref:`act_rapl_dt`         | *LONGBLOB*  | RAPL measures intervals       |
 +----------------------------+-------------+-------------------------------+
 | :ref:`act_rapl_power`      | *LONGBLOB*  | RAPL power values             |
 +----------------------------+-------------+-------------------------------+
-| :ref:`act_wattmeter_dt`    | *LONGBLOB*  | Wattmeter measures intervals  |
+| :ref:`act_wattmeter_dt`    | *LONGBLOB*  | wattmeter measures intervals  |
 +----------------------------+-------------+-------------------------------+
-| :ref:`act_wattmeter_power` | *LONGBLOB*  | Wattmeter power values        |
+| :ref:`act_wattmeter_power` | *LONGBLOB*  | wattmeter power values        |
 +----------------------------+-------------+-------------------------------+
-| :ref:`act_ps_dt`           | *LONGBLOB*  | Time intervals for ps         |
+| :ref:`act_ps_dt`           | *LONGBLOB*  | time intervals for ps         |
 +----------------------------+-------------+-------------------------------+
-| :ref:`act_ps_core`         | *LONGBLOB*  | Core usage values             |
+| :ref:`act_ps_core`         | *LONGBLOB*  | core usage values             |
 +----------------------------+-------------+-------------------------------+
 | :ref:`act_ps_ram`          | *LONGBLOB*  | RAM usage values              |
 +----------------------------+-------------+-------------------------------+
@@ -142,29 +142,29 @@ Table t_vid_video
 -----------------
 
 +---------------------+----------------+--------------------------------+
-| :ref:`vid_id`       | *BINARY(128)*  | The video key                  |
+| :ref:`vid_id`       | *BINARY(128)*  | the video key                  |
 +---------------------+----------------+--------------------------------+
-| :ref:`vid_name`     | *TEXT*         | The basename of the video file |
+| :ref:`vid_name`     | *TEXT*         | the basename of the video file |
 +---------------------+----------------+--------------------------------+
-| :ref:`vid_codec`    | *TINYTEXT*     | The small codec name           |
+| :ref:`vid_codec`    | *TINYTEXT*     | the small codec name           |
 +---------------------+----------------+--------------------------------+
-| :ref:`vid_duration` | *FLOAT*        | The video duration             |
+| :ref:`vid_duration` | *FLOAT*        | the video duration             |
 +---------------------+----------------+--------------------------------+
-| :ref:`vid_eotf`     | *TINYTEXT*     | The color transfer name        |
+| :ref:`vid_eotf`     | *TINYTEXT*     | the color transfer name        |
 +---------------------+----------------+--------------------------------+
-| :ref:`vid_fps`      | *FLOAT*        | The framerate                  |
+| :ref:`vid_fps`      | *FLOAT*        | the framerate                  |
 +---------------------+----------------+--------------------------------+
-| :ref:`vid_frames`   | *JSON*         | Detailed content of all frames |
+| :ref:`vid_frames`   | *JSON*         | detailed content of all frames |
 +---------------------+----------------+--------------------------------+
-| :ref:`vid_gamut`    | *TINYTEXT*     | The color primaries name       |
+| :ref:`vid_gamut`    | *TINYTEXT*     | the color primaries name       |
 +---------------------+----------------+--------------------------------+
-| :ref:`vid_height`   | *SMALLINT*     | Video height in pixels         |
+| :ref:`vid_height`   | *SMALLINT*     | video height in pixels         |
 +---------------------+----------------+--------------------------------+
-| :ref:`vid_pix_fmt`  | *TINYTEXT*     | Bit depth and subsampling name |
+| :ref:`vid_pix_fmt`  | *TINYTEXT*     | bit depth and subsampling name |
 +---------------------+----------------+--------------------------------+
-| :ref:`vid_size`     | *BIGINT*       | File size in bytes             |
+| :ref:`vid_size`     | *BIGINT*       | file size in bytes             |
 +---------------------+----------------+--------------------------------+
-| :ref:`vid_width`    | *SMALLINT*     | Video width in pixels          |
+| :ref:`vid_width`    | *SMALLINT*     | video width in pixels          |
 +---------------------+----------------+--------------------------------+
 | :ref:`vid_uvq`      | *LONGLONGBLOB* | UVQ metric values              |
 +---------------------+----------------+--------------------------------+
@@ -334,21 +334,21 @@ Table t_met_metric
 ------------------
 
 +-----------------------+---------------+---------------------------------------+
-| :ref:`met_id`         | *INTEGER*     | Key                                   |
+| :ref:`met_id`         | *INTEGER*     | key                                   |
 +-----------------------+---------------+---------------------------------------+
-| :ref:`met_ref_vid_id` | *BINARY(128)* | The reference video identifier        |
+| :ref:`met_ref_vid_id` | *BINARY(128)* | the reference video identifier        |
 +-----------------------+---------------+---------------------------------------+
-| :ref:`met_dis_vid_id` | *BINARY(128)* | The identifier of the distorted video |
+| :ref:`met_dis_vid_id` | *BINARY(128)* | the identifier of the distorted video |
 +-----------------------+---------------+---------------------------------------+
-| :ref:`met_lpips_alex` | *LONGBLOB*    | Values of LPIPS ALEX metric           |
+| :ref:`met_lpips_alex` | *LONGBLOB*    | values of LPIPS ALEX metric           |
 +-----------------------+---------------+---------------------------------------+
-| :ref:`met_lpips_vgg`  | *LONGBLOB*    | Values of LPIPS VGG metric            |
+| :ref:`met_lpips_vgg`  | *LONGBLOB*    | values of LPIPS VGG metric            |
 +-----------------------+---------------+---------------------------------------+
-| :ref:`met_psnr`       | *LONGBLOB*    | Values of PSNR metric                 |
+| :ref:`met_psnr`       | *LONGBLOB*    | values of PSNR metric                 |
 +-----------------------+---------------+---------------------------------------+
-| :ref:`met_ssim`       | *LONGBLOB*    | Values of SSIM metric                 |
+| :ref:`met_ssim`       | *LONGBLOB*    | values of SSIM metric                 |
 +-----------------------+---------------+---------------------------------------+
-| :ref:`met_vmaf`       | *LONGBLOB*    | Values of VMAF metric                 |
+| :ref:`met_vmaf`       | *LONGBLOB*    | values of VMAF metric                 |
 +-----------------------+---------------+---------------------------------------+
 
 Compare the quality of a distorted video against a reference video using comparative metrics.
@@ -434,39 +434,39 @@ Table t_env_environement
 +-------------------------------+--------------+-------------------------------+
 | :ref:`env_id`                 | *INTEGER*    | Key                           |
 +-------------------------------+--------------+-------------------------------+
-| :ref:`env_ffmpeg_version`     | *MEDIUMTEXT* | The full ffmpeg version       |
+| :ref:`env_ffmpeg_version`     | *MEDIUMTEXT* | the full ffmpeg version       |
 +-------------------------------+--------------+-------------------------------+
-| :ref:`env_hostname`           | *TINYTEXT*   | The username                  |
+| :ref:`env_hostname`           | *TINYTEXT*   | the username                  |
 +-------------------------------+--------------+-------------------------------+
-| :ref:`env_kernel_version`     | *TINYTEXT*   | The linux kernel version      |
+| :ref:`env_kernel_version`     | *TINYTEXT*   | the linux kernel version      |
 +-------------------------------+--------------+-------------------------------+
-| :ref:`env_libsvtav1_version`  | *MEDIUMTEXT* | The version of libsvtav1      |
+| :ref:`env_libsvtav1_version`  | *MEDIUMTEXT* | the version of libsvtav1      |
 +-------------------------------+--------------+-------------------------------+
-| :ref:`env_libvpx_vp9_version` | *MEDIUMTEXT* | The version of libvpx-vp9     |
+| :ref:`env_libvpx_vp9_version` | *MEDIUMTEXT* | the version of libvpx-vp9     |
 +-------------------------------+--------------+-------------------------------+
-| :ref:`env_libx265_version`    | *MEDIUMTEXT* | The version of libx265        |
+| :ref:`env_libx265_version`    | *MEDIUMTEXT* | the version of libx265        |
 +-------------------------------+--------------+-------------------------------+
-| :ref:`env_logical_cores`      | *INTEGER*    | The number of visible cpu     |
+| :ref:`env_logical_cores`      | *INTEGER*    | the number of visible cpu     |
 +-------------------------------+--------------+-------------------------------+
-| :ref:`env_lshw`               | *JSON*       | The machine config            |
+| :ref:`env_lshw`               | *JSON*       | the machine config            |
 +-------------------------------+--------------+-------------------------------+
-| :ref:`env_physical_cores`     | *INTEGER*    | The real number of cpu        |
+| :ref:`env_physical_cores`     | *INTEGER*    | the real number of cpu        |
 +-------------------------------+--------------+-------------------------------+
-| :ref:`env_pip_freeze`         | *MEDIUMTEXT* | All python packages version   |
+| :ref:`env_pip_freeze`         | *MEDIUMTEXT* | all python packages version   |
 +-------------------------------+--------------+-------------------------------+
-| :ref:`env_processor`          | *TINYTEXT*   | The processos familly         |
+| :ref:`env_processor`          | *TINYTEXT*   | the processos familly         |
 +-------------------------------+--------------+-------------------------------+
-| :ref:`env_python_compiler`    | *TINYTEXT*   | Name of python compiler       |
+| :ref:`env_python_compiler`    | *TINYTEXT*   | name of python compiler       |
 +-------------------------------+--------------+-------------------------------+
-| :ref:`env_python_version`     | *TINYTEXT*   | The python version            |
+| :ref:`env_python_version`     | *TINYTEXT*   | the python version            |
 +-------------------------------+--------------+-------------------------------+
 | :ref:`env_ram`                | *INTEGER*    | Total amount of RAM           |
 +-------------------------------+--------------+-------------------------------+
 | :ref:`env_swap`               | *INTEGER*    | Total amount of SWAP          |
 +-------------------------------+--------------+-------------------------------+
-| :ref:`env_system_version`     | *MEDIUMTEXT* | The OS version                |
+| :ref:`env_system_version`     | *MEDIUMTEXT* | the OS version                |
 +-------------------------------+--------------+-------------------------------+
-| :ref:`env_vvc_version`        | *MEDIUMTEXT* | The version of vvenc          |
+| :ref:`env_vvc_version`        | *MEDIUMTEXT* | the version of vvenc          |
 +-------------------------------+--------------+-------------------------------+
 | :ref:`env_idle_act_id`        | *INTEGER*    | IDLE as :ref:`t_act_activity` |
 +-------------------------------+--------------+-------------------------------+
@@ -743,22 +743,22 @@ Table t_dec_decode
 +--------------------+---------------+--------------------------------+
 | :ref:`dec_id`      | *INTEGER*     | Key                            |
 +--------------------+---------------+--------------------------------+
-| :ref:`dec_vid_id`  | *BINARY(128)* | The reference video identifier |
+| :ref:`dec_vid_id`  | *BINARY(128)* | the reference video identifier |
 +--------------------+---------------+--------------------------------+
-| :ref:`dec_env_id`  | *INTEGER*     | The environment identifier     |
+| :ref:`dec_env_id`  | *INTEGER*     | the environment identifier     |
 +--------------------+---------------+--------------------------------+
-| :ref:`dec_act_id`  | *INTEGER*     | The activity identifier        |
+| :ref:`dec_act_id`  | *INTEGER*     | the activity identifier        |
 +--------------------+---------------+--------------------------------+
 | :ref:`dec_cmd`     | *TEXT*        | ffmpeg command used            |
 +--------------------+---------------+--------------------------------+
-| :ref:`dec_height`  | *SMALLINT*    | Decoded height                 |
+| :ref:`dec_height`  | *SMALLINT*    | decoded height                 |
 +--------------------+---------------+--------------------------------+
-| :ref:`dec_pix_fmt` | *TINYTEXT*    | Decoded pixel format           |
+| :ref:`dec_pix_fmt` | *TINYTEXT*    | decoded pixel format           |
 +--------------------+---------------+--------------------------------+
-| :ref:`dec_width`   | *SMALLINT*    | Decoded width                  |
+| :ref:`dec_width`   | *SMALLINT*    | decoded width                  |
 +--------------------+---------------+--------------------------------+
 
-Contains information about video decoding.
+Contains the informations about video decoding.
 
 .. _dec_id:
 
@@ -788,7 +788,6 @@ dec_act_id
 
 This is a reference of measuring the machine's activity during video decoding. It points to the table :ref:`t_act_activity`.
 
-
 .. _dec_cmd:
 
 dec_cmd
@@ -798,7 +797,7 @@ The ffmpeg command used for decoding:
 
 .. code:: shell
 
-    ffmpeg -i src.mp4 -vf format=rgb24 -f null /dev/null
+    ffmpeg -threads 1 -i src.mp4 -vf format=rgb24 -f null /dev/null
 
 .. _dec_height:
 
@@ -814,9 +813,151 @@ dec_pix_fmt
 
 During decoding, the pixels are converted into another format so that they can be displayed. This is the final format.
 
+.. code:: text
+
+    rgb24
+
 .. _dec_width:
 
 dec_width
 ^^^^^^^^^
 
 In order to adapt the size of the decoded images to the size of the terminal, the frames are resized on the fly. Here is the final width of the screen.
+
+
+.. _t_enc_encode:
+
+Table t_enc_encode
+------------------
+
++-----------------------+---------------+--------------------------------+
+| :ref:`enc_id`         | *INTEGER*     | Key                            |
++-----------------------+---------------+--------------------------------+
+| :ref:`enc_src_vid_id` | *BINARY(128)* | the input video                |
++-----------------------+---------------+--------------------------------+
+| :ref:`enc_dst_vid_id` | *BINARY(128)* | the ouput transcoded video     |
++-----------------------+---------------+--------------------------------+
+| :ref:`enc_env_id`     | *INTEGER*     | the environment identifier     |
++-----------------------+---------------+--------------------------------+
+| :ref:`enc_act_id`     | *INTEGER*     | the activity identifier        |
++-----------------------+---------------+--------------------------------+
+| :ref:`enc_cmd`        | *TEXT*        | ffmpeg command used            |
++-----------------------+---------------+--------------------------------+
+| :ref:`enc_effort`     | *TINYTEXT*    | the effort made by the encoder |
++-----------------------+---------------+--------------------------------+
+| :ref:`enc_encoder`    | *TINYTEXT*    | the encoder name               |
++-----------------------+---------------+--------------------------------+
+| :ref:`enc_fps`        | *FLOAT*       | the input framerate            |
++-----------------------+---------------+--------------------------------+
+| :ref:`enc_height`     | *SMALLINT*    | the input frames height        |
++-----------------------+---------------+--------------------------------+
+| :ref:`enc_pix_fmt`    | *TINYTEXT*    | the input pixel format         |
++-----------------------+---------------+--------------------------------+
+| :ref:`enc_quality`    | *FLOAT*       | the encoding crf or qp         |
++-----------------------+---------------+--------------------------------+
+| :ref:`enc_threads`    | *SMALLINT*    | the number of threads used     |
++-----------------------+---------------+--------------------------------+
+| :ref:`enc_width`      | *SMALLINT*    | the input frames width         |
++-----------------------+---------------+--------------------------------+
+
+Contains the informations about video encoding.
+
+.. _enc_id:
+
+enc_id
+^^^^^^
+
+Unique primary key, with no particular meaning.
+
+.. _enc_src_vid_id:
+
+enc_src_vid_id
+^^^^^^^^^^^^^^
+
+This is the reference of the input video that enters into the encoder. It points to the table :ref:`t_vid_video`.
+
+.. _enc_dst_vid_id:
+
+enc_dst_vid_id
+^^^^^^^^^^^^^^
+
+This is the reference of the transcoded video that exits the encoder. It points to the table :ref:`t_vid_video`.
+
+.. _enc_env_id:
+
+enc_env_id
+^^^^^^^^^^
+
+This is the reference of the context in which the encoding took place. It points to the table :ref:`t_env_environement`.
+
+.. _enc_act_id:
+
+enc_act_id
+^^^^^^^^^^
+
+This is a reference of measuring the machine's activity during video encoding. It points to the table :ref:`t_act_activity`.
+
+.. _enc_cmd:
+
+enc_cmd
+^^^^^^^
+
+The ffmpeg command used for encoding:
+
+.. code:: shell
+
+    ffmpeg -y -i src.mp4 -c:v libsvtav1 -crf 15 -preset 6 -svtav1-params film-grain=0:lp=3 dst.mp4
+
+.. _enc_effort:
+
+enc_effort
+^^^^^^^^^^
+
+The effort that the encoder puts into optimising the bit rate distortion ratio.
+Possible values are ``fast``, ``medium`` and ``fast``.
+
+.. _enc_fps:
+
+enc_fps
+^^^^^^^
+
+The frame rate in Hz of the video at the encoder input.
+
+.. _enc_height:
+
+enc_height
+^^^^^^^^^^
+
+The number of pixel of the frames along the height dimension.
+
+.. _enc_pix_fmt:
+
+pix_fmt
+^^^^^^^
+
+The pixel format used for encoding.
+
+.. code:: text
+
+    yuv420p
+
+.. _enc_quality:
+
+enc_quality
+^^^^^^^^^^^
+
+The relative quality :math:`\in [0, 1]` that the encoder aims for the final video. This number is afinally related to the ``crf`` or ``qp`` parameter. 0 corresponds to near lossless encoding, and 1 to highly lossly encoding.
+
+.. _enc_threads:
+
+enc_threads
+^^^^^^^^^^^
+
+The number of threads that the encoder uses simultaneously. This is related to the CPU utilisation rate.
+
+.. _enc_width:
+
+enc_width
+^^^^^^^^^^
+
+The number of pixel of the frames along the width dimension.

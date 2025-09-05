@@ -29,25 +29,25 @@ First install the `python dependencies <https://github.com/pyenv/pyenv/wiki#sugg
 
     .. tab:: Debian Ubuntu Mint
 
-        .. code-block:: shell
+        .. code:: shell
 
             sudo apt install libedit-dev libncurses5-dev
             sudo apt install build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev curl git libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
 
     .. tab:: RHEL CentOS Fedora
 
-        .. code-block:: shell
+        .. code:: shell
 
             sudo dnf install openssl11-devel --allowerasing
             dnf install gcc make patch zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel
 
     .. tab:: Arch Manjaro
 
-        .. code-block:: shell
+        .. code:: shell
 
             yay -S ncurses5-compat-libs
 
-    .. code-block:: shell
+    .. code:: shell
 
         curl https://pyenv.run | bash
         CONTENT=$'export PYENV_ROOT="$HOME/.pyenv"\ncommand -v pyenv > /dev/null || export PATH="$PYENV_ROOT/bin:$PATH"\neval "$(pyenv init -)"\neval "$(pyenv virtualenv-init -)"'
@@ -58,7 +58,7 @@ First install the `python dependencies <https://github.com/pyenv/pyenv/wiki#sugg
 
     You could install dependencies by using `Homebrew <https://brew.sh>`_.
 
-    .. code-block:: shell
+    .. code:: shell
 
         brew install ncurses
         brew install openssl readline sqlite3 xz zlib tcl-tk
@@ -77,7 +77,7 @@ Configure pyenv
 
 Create the virtual environement.
 
-.. code-block:: shell
+.. code:: shell
 
     pyenv update
     env PYTHON_CONFIGURE_OPTS="--enable-shared --enable-optimizations --with-lto" PYTHON_CFLAGS='-march=native -mtune=native' \
