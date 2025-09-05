@@ -36,6 +36,15 @@ def _parse_args(prt: Printer, kwargs: dict):
     else:
         kwargs["resolution"] = (None,)
 
+        # filter
+    kwargs["filter"] = kwargs.get("filter", ())
+    assert isinstance(kwargs["filter"], tuple), kwargs["filter"].__class__.__name__
+    assert all(isinstance(f, str) for f in kwargs["filter"]), kwargs["filter"]
+    if kwargs["filter"]:
+        prt.print(f"filters   : {', '.join(map(str, kwargs['filter']))}")
+    else:
+        kwargs["filter"] = ("",)
+
 
 @click.command()
 @click.argument("videos", nargs=-1, type=click.Path())
@@ -51,6 +60,12 @@ def _parse_args(prt: Printer, kwargs: dict):
     type=ResolutionParamType(),
     multiple=True,
     help="The optional video shape conversion during decoding.",
+)
+@click.option(
+    "--filter",
+    type=str,
+    multiple=True,
+    help="The ffmpeg filter to apply on fly.",
 )
 def main(videos: tuple[str], database: str = None, **kwargs):
     """Measures activity during decoding.
@@ -69,6 +84,9 @@ def main(videos: tuple[str], database: str = None, **kwargs):
     resolution : tuple[int, int], optional
         If provided, the decoded video will be reshaped on fly.
         If this argument is not provided, the resolution remains unchanged.
+    filter : str, optional
+        The additional ffmpeg video filter (after the -vf command)
+        to be applied immediately after decoding and before other conversions.
     """
     with Printer("Parse configuration...") as prt:
         videos, database = parse_videos_database(prt, videos, database)
@@ -85,16 +103,21 @@ def main(videos: tuple[str], database: str = None, **kwargs):
         for values in sql_database.execute(
             "SELECT * FROM t_dec_decode WHERE dec_env_id=?", (env_id,)
         ):
-            values = (values["dec_vid_id"], (values["dec_height"], values["dec_width"]))
+            values = (
+                values["dec_vid_id"],
+                values["dec_filter"],
+                (values["dec_height"], values["dec_width"]),
+            )
             done[values] = done.get(values, 0) + 1
 
     # iterate on all the parameters
-    loops = kwargs["repeat"] * len(videos) * len(kwargs["resolution"])
+    loops = kwargs["repeat"] * len(videos) * len(kwargs["filter"]) * len(kwargs["resolution"])
     for i, values in enumerate(
-        itertools.product(range(kwargs["repeat"]), videos, kwargs["resolution"])
+        itertools.product(range(kwargs["repeat"]), videos, kwargs["filter"], kwargs["resolution"])
     ):
-        values = dict(zip(("repeat", "video", "resolution"), values))
+        values = dict(zip(("repeat", "video", "filter", "resolution"), values))
         values["dec_vid_id"] = kwargs["dec_vid_id"][values["video"]]
+        values["filter"] = values["filter"] or ""
         values["resolution"] = values["resolution"] or get_resolution(values["video"])
         key = (values["dec_vid_id"], values["resolution"])
         if done.get(key, 0) > values["repeat"]:

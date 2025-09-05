@@ -35,7 +35,7 @@ def decode(src: pathlib.Path, **kwargs) -> tuple[str, dict[str]]:
     activity : dict[str]
         The computeur activity during the decoding process.
     """
-    cmd = get_decode_cmd(src, kwargs.get("resolution", None))
+    cmd = get_decode_cmd(src, kwargs.get("filter", None), kwargs.get("resolution", None))
     prt_cmd = " ".join(map(shlex.quote, [{str(src): "src.mp4"}.get(c, c) for c in cmd]))
     with Printer(prt_cmd, color="green") as prt:
         prt.print(f"video: {src.name}")
@@ -124,7 +124,11 @@ def decode_and_store(
         )
 
 
-def get_decode_cmd(video: pathlib.Path, resolution: tuple[int, int] | None) -> list[str]:
+def get_decode_cmd(
+    video: pathlib.Path,
+    additional_filter: str,
+    resolution: tuple[int, int] | None,
+) -> list[str]:
     """Return the ffmpeg decode cmd.
 
     Parameters
@@ -132,6 +136,8 @@ def get_decode_cmd(video: pathlib.Path, resolution: tuple[int, int] | None) -> l
     video : pathlib.Path
         The video to be decoded.
         It is required to know the resolution in order to adapt the filter.
+    additional_filter : str
+        The additional video filter, (can be an empty string).
     resolution : tuple[int, int], optional
         The new (heigh, width) video shape.
 
@@ -145,9 +151,9 @@ def get_decode_cmd(video: pathlib.Path, resolution: tuple[int, int] | None) -> l
     >>> import cutcutcodec
     >>> from mendevi.decode import get_decode_cmd
     >>> media = cutcutcodec.utils.get_project_root().parent / "media" / "video" / "intro.webm"
-    >>> get_decode_cmd(media, resolution=None)  # doctest: +ELLIPSIS
+    >>> get_decode_cmd(media, additional_filter="", resolution=None)  # doctest: +ELLIPSIS
     ['ffmpeg', '-i', '.../media/video/intro.webm', '-vf', 'format=rgb24', '-f', 'null', '/dev/null']
-    >>> get_decode_cmd(media, resolution=(480, 720))
+    >>> get_decode_cmd(media, additional_filter="", resolution=(480, 720))
     [..., '-vf', 'scale=h=480:w=720:sws_flags=bicubic,format=rgb24', '-f', 'null', '/dev/null']
     >>>
     """
@@ -158,8 +164,10 @@ def get_decode_cmd(video: pathlib.Path, resolution: tuple[int, int] | None) -> l
         assert (resolution[0], resolution[1]) > (0, 0), resolution
 
     filters: list[str] = []
+    if additional_filter:
+        filters.append(additional_filter)
     if resolution is not None and get_resolution(video) != resolution:
-        filters = [f"scale=h={resolution[0]}:w={resolution[1]}:sws_flags=bicubic"]
+        filters.append(f"scale=h={resolution[0]}:w={resolution[1]}:sws_flags=bicubic")
     filters.append("format=rgb24")  # to match monitor pixel conversion
     filters = ",".join(filters)
 
