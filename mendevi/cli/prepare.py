@@ -129,7 +129,8 @@ def main(video: str, folder: str | None = None, **kwargs) -> pathlib.Path:
     * Ensure that you have a lossless encoded video with a codec that allows for fast decoding.
     * Ensure high-quality resizing without spectral aliasing and blur.
     * Ensure the correct management of colour space and associated metadata.
-    * Ensures that the appearance of the video is not distorted.
+    * Ensure that the appearance of the video is not distorted.
+    * Ensure that the pixel format is recognised.
 
     \b
     Parameters

@@ -13,6 +13,8 @@ Full Installation
 .. _Windows Installation:
 
 
+.. _virtual_environement:
+
 Virtual Environement
 --------------------
 
@@ -96,6 +98,8 @@ Dependencies
 
 ffmpeg
 ^^^^^^
+
+If you want the latest version, please build it :ref:`build_ffmpeg`.
 
 *mendevi* has hard dependency on the FFmpeg package. You should install it first, please refer to the `FFmpeg download page <https://ffmpeg.org/download.html>`_.
 
