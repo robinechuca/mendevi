@@ -59,7 +59,7 @@ def create_database(filename: str | bytes | pathlib.Path):
             vid_duration FLOAT CHECK(vid_duration > 0.0),  -- video duration in second
             vid_eotf TINYTEXT,  -- name of the electro optical transfer function
             vid_fps FLOAT CHECK(vid_fps > 0.0),  -- theorical framerate of the video
-            vid_frames LONGBLOB,  -- serialized version of the metadata of all frames
+            vid_frames LONGTEXT,  -- json serialized version of the metadata of all frames
             vid_gamut TINYTEXT,  -- name of the color space
             vid_height SMALLINT CHECK(vid_height > 0),  -- display height
             vid_pix_fmt TINYTEXT,  -- the name of the pixel format

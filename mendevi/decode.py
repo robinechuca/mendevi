@@ -163,4 +163,4 @@ def get_decode_cmd(video: pathlib.Path, resolution: tuple[int, int] | None) -> l
     filters.append("format=rgb24")  # to match monitor pixel conversion
     filters = ",".join(filters)
 
-    return ["ffmpeg", "-i", str(video), "-vf", filters, "-f", "null", os.devnull]
+    return ["ffmpeg", "-threads", "8", "-i", str(video), "-vf", filters, "-f", "null", os.devnull]

@@ -18,6 +18,8 @@ Virtual Environement
 
 It is preferable to install *mendevi* in a virtual environment. Please refer to the `pyenv main page <https://github.com/pyenv/pyenv>`_. It is possible to use ``python3-venv`` or ``conda`` as well.
 
+.. _install_pyenv:
+
 Install pyenv
 ^^^^^^^^^^^^^
 
@@ -90,6 +92,8 @@ Create the virtual environement.
 Dependencies
 ------------
 
+.. _install_ffmpeg:
+
 ffmpeg
 ^^^^^^
 
@@ -143,6 +147,8 @@ ffmpeg
 
     It is important to configure your environement variable to hook ffmpeg to *mendevi*. You can try to follow `this guide <https://www.geeksforgeeks.org/how-to-install-ffmpeg-on-windows>`_ for example.
 
+.. _install_lshw:
+
 lshw
 ^^^^
 
@@ -167,6 +173,8 @@ To get the full environement information, *mendevi* use tha system package ``lsh
         .. code:: shell
 
             sudo pacman -S lshw
+
+.. _install_perf:
 
 perf
 ^^^^
@@ -194,6 +202,8 @@ To access the RAPL sensors.
         .. code:: shell
 
             sudo pacman -S perf
+
+.. _install_pyav:
 
 pyav (optional)
 ^^^^^^^^^^^^^^^
@@ -227,6 +237,8 @@ Although it is installed automatically, it is better to install **av** manually 
 
     On **Windows** you must build from source in order to indicate the location of ffmpeg, pleas follow the `PyAv windows installation guide <https://pyav.org/docs/develop/overview/installation.html#windows>`_ and good luck!
 
+.. _install_cuda:
+
 cuda (optional)
 ^^^^^^^^^^^^^^^
 
@@ -250,6 +262,8 @@ If you have a GPU, please install CUDA or ROC then follow the `PyTorch installat
 
     It is important to configure your environement variable to hook cuda to PyTorch.
     Good luck with the `official guide <https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html>`_.
+
+.. _install_vmaf:
 
 vamf (optional)
 ^^^^^^^^^^^^^^^

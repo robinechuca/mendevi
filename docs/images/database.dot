@@ -28,7 +28,7 @@ graph database {
         <TR><TD ALIGN="LEFT">vid_duration</TD><TD ALIGN="LEFT">FLOAT</TD></TR>
         <TR><TD ALIGN="LEFT">vid_eotf</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>
         <TR><TD ALIGN="LEFT">vid_fps</TD><TD ALIGN="LEFT">FLOAT</TD></TR>
-        <TR><TD ALIGN="LEFT">vid_frames</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
+        <TR><TD ALIGN="LEFT">vid_frames</TD><TD ALIGN="LEFT">JSON</TD></TR>
         <TR><TD ALIGN="LEFT">vid_gamut</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>
         <TR><TD ALIGN="LEFT">vid_height</TD><TD ALIGN="LEFT">SMALLINT</TD></TR>
         <TR><TD ALIGN="LEFT">vid_pix_fmt</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>
@@ -90,7 +90,7 @@ graph database {
         <TR><TD ALIGN="LEFT">dec_cmd</TD><TD ALIGN="LEFT">TEXT</TD></TR>
         <TR><TD ALIGN="LEFT">dec_height</TD><TD ALIGN="LEFT">SMALLINT</TD></TR>
         <TR><TD ALIGN="LEFT">dec_pix_fmt</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>
-        <TR><TD ALIGN="LEFT">dec_width</TD><TD ALIGN="LEFT">SMALL</TD></TR>
+        <TR><TD ALIGN="LEFT">dec_width</TD><TD ALIGN="LEFT">SMALLINT</TD></TR>
       </TABLE>
     >
   ];

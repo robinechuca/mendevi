@@ -90,7 +90,7 @@
 <polygon fill="none" stroke="black" points="477,-625 477,-650 577,-650 577,-625 477,-625"/>
 <text text-anchor="start" x="482" y="-633.8" font-family="Times,serif" font-size="14.00">vid_frames</text>
 <polygon fill="none" stroke="black" points="577,-625 577,-650 681,-650 681,-625 577,-625"/>
-<text text-anchor="start" x="582" y="-633.8" font-family="Times,serif" font-size="14.00">LONGBLOB</text>
+<text text-anchor="start" x="582" y="-633.8" font-family="Times,serif" font-size="14.00">JSON</text>
 <polygon fill="none" stroke="black" points="477,-600 477,-625 577,-625 577,-600 477,-600"/>
 <text text-anchor="start" x="482" y="-608.8" font-family="Times,serif" font-size="14.00">vid_gamut</text>
 <polygon fill="none" stroke="black" points="577,-600 577,-625 681,-625 681,-600 577,-600"/>
@@ -296,7 +296,7 @@
 <polygon fill="none" stroke="black" points="97,-1094.5 97,-1119.5 192,-1119.5 192,-1094.5 97,-1094.5"/>
 <text text-anchor="start" x="102" y="-1103.3" font-family="Times,serif" font-size="14.00">dec_width</text>
 <polygon fill="none" stroke="black" points="192,-1094.5 192,-1119.5 296,-1119.5 296,-1094.5 192,-1094.5"/>
-<text text-anchor="start" x="197" y="-1103.3" font-family="Times,serif" font-size="14.00">SMALL</text>
+<text text-anchor="start" x="197" y="-1103.3" font-family="Times,serif" font-size="14.00">SMALLINT</text>
 <polygon fill="none" stroke="black" points="95.5,-1094 95.5,-1321 296.5,-1321 296.5,-1094 95.5,-1094"/>
 </g>
 <!-- t_dec_decode&#45;&#45;t_act_activity -->
