@@ -50,6 +50,7 @@ classifiers = [  # all classifiers https://pypi.org/classifiers/
   "Natural Language :: English",
   "Operating System :: POSIX :: Linux",
   "Programming Language :: Python :: 3",
+  "Programming Language :: SQL",
   "Topic :: Database :: Database Engines/Servers",
   "Topic :: File Formats :: JSON",
   "Topic :: Multimedia :: Video :: Conversion",
@@ -78,7 +79,7 @@ test = [
 mendevi = "mendevi.__main__:main"
 
 [project.urls]
-Documentation = "https://mendevi.readthedocs.io/en/stable"
+Documentation = "https://mendevi.readthedocs.io/latest"
 Repository = "https://gitlab.inria.fr/rrichard/mendevi"
 
 [tool.setuptools.packages.find]

@@ -7,7 +7,7 @@ SQL Database Content
     :alt: SQL database diagram
 
 For a more detailed analysis of constraints and relationships, see the contents of the function
-`<https://mendevi.readthedocs.io/en/latest/_modules/mendevi/database/create.html#create_database>`_.
+`<https://mendevi.readthedocs.io/latest/_modules/mendevi/database/create.html#create_database>`_.
 
 
 .. _t_act_activity:
@@ -66,7 +66,7 @@ act_rapl_dt
 ^^^^^^^^^^^
 
 The list of time intervals in seconds between two consecutive rapl measures.
-To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
+To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
 
 .. _act_rapl_power:
 
@@ -74,7 +74,7 @@ act_rapl_power
 ^^^^^^^^^^^^^^
 
 List of average power measurement in w with the wattmeter directly integrated into the processor *power/energy-pkg/*.
-To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
+To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
 
 .. important::
 
@@ -93,7 +93,7 @@ act_wattmeter_dt
 ^^^^^^^^^^^^^^^^
 
 The list of time intervals in seconds between two consecutive wattmeter measures.
-To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
+To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
 
 .. tip::
 
@@ -105,7 +105,7 @@ act_wattmeter_power
 ^^^^^^^^^^^^^^^^^^^
 
 The sampled external wattmeter measurement in w.
-To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
+To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
 
 .. tip::
 
@@ -117,7 +117,7 @@ act_ps_dt
 ^^^^^^^^^
 
 The list of time intervals in seconds between two consecutive psutil measures.
-To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
+To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
 
 .. _act_ps_core:
 
@@ -125,7 +125,7 @@ act_ps_core
 ^^^^^^^^^^^
 
 The percent usage of each logical core average activity for each interval.
-To deserialize into an exploitable numpy array, please use the function `binary_to_tensor <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.database.serialize.binary_to_tensor.html>`_.
+To deserialize into an exploitable numpy array, please use the function `binary_to_tensor <https://mendevi.readthedocs.io/latest/build/api/mendevi.database.serialize.binary_to_tensor.html>`_.
 
 .. _act_ps_ram:
 
@@ -133,7 +133,7 @@ act_ps_ram
 ^^^^^^^^^^
 
 The sampled total usage of ram in bytes.
-To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
+To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
 
 
 .. _t_vid_video:
@@ -325,7 +325,7 @@ vid_uvq
 ^^^^^^^
 
 The serialised list of the non comparative `Google Universale Video Quality Model <https://github.com/google/uvq>`_ metric. Catched by ``cutcutcodec.compare(None, video, uvq=True)["uvq"]``.
-To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
+To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
 
 
 .. _t_met_metric:
@@ -381,7 +381,7 @@ met_lpips_alex
 
 The serialised list of the LPIPS comparative metric using the ALEX neural network.
 Catched by ``cutcutcodec.compare(ref, dis, lpips_alex=True)["lpips_alex"]``.
-To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
+To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
 
 .. _met_lpips_vgg:
 
@@ -390,7 +390,7 @@ met_lpips_vgg
 
 The serialised list of the LPIPS comparative metric using the VGG neural network.
 Catched by ``cutcutcodec.compare(ref, dis, lpips_vgg=True)["lpips_vgg"]``.
-To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
+To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
 
 .. _met_psnr:
 
@@ -399,7 +399,7 @@ met_psnr
 
 The serialised list of the yuv peak signal to noise ratio comparative metric.
 Catched by ``cutcutcodec.compare(ref, dis, psnr=True)["psnr"]``.
-To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
+To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
 
 .. _met_ssim:
 
@@ -408,7 +408,7 @@ met_ssim
 
 The serialised list of the yuv structural similarity index measure comparative metric.
 Catched by ``cutcutcodec.compare(ref, dis, ssim=True)["ssim"]``.
-To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
+To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
 
 .. _met_vmaf:
 
@@ -417,7 +417,7 @@ met_vmaf
 
 The serialised list of the comparative metric `Netflix Video Multi-Method Assessment Fusion <https://github.com/Netflix/vmaf>`_ metric.
 Catched by ``cutcutcodec.compare(ref, dis, vmaf=True)["vmaf"]``.
-To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
+To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
 
 
 .. important::
@@ -486,7 +486,7 @@ env_ffmpeg_version
 ^^^^^^^^^^^^^^^^^^
 
 The ffmpeg banner containing compilation options and library versions.
-This is human-readable text, returned by the function `get_ffmpeg_version <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.context.get_ffmpeg_version.html>`_.
+This is human-readable text, returned by the function `get_ffmpeg_version <https://mendevi.readthedocs.io/latest/build/api/mendevi.context.get_ffmpeg_version.html>`_.
 
 Please follow the :ref`install_ffmpeg`` section.
 
@@ -508,7 +508,7 @@ Please follow the :ref`install_ffmpeg`` section.
 env_hostname
 ^^^^^^^^^^^^
 
-The username, given by ``platform.node()``, from the function `get_platform <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.context.get_platform.html>`_.
+The username, given by ``platform.node()``, from the function `get_platform <https://mendevi.readthedocs.io/latest/build/api/mendevi.context.get_platform.html>`_.
 
 .. code:: text
 
@@ -519,7 +519,7 @@ The username, given by ``platform.node()``, from the function `get_platform <htt
 env_kernel_version
 ^^^^^^^^^^^^^^^^^^
 
-The version of the Linux kernel, given by ``platform.platform()``, from the function `get_platform <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.context.get_platform.html>`_.
+The version of the Linux kernel, given by ``platform.platform()``, from the function `get_platform <https://mendevi.readthedocs.io/latest/build/api/mendevi.context.get_platform.html>`_.
 
 .. code:: text
 
@@ -530,7 +530,7 @@ The version of the Linux kernel, given by ``platform.platform()``, from the func
 env_libsvtav1_version
 ^^^^^^^^^^^^^^^^^^^^^
 
-The version of the libsvtav1 encoder and the version of the compiler for this library. It comes from the function `get_libsvtav1_version <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.context.get_libsvtav1_version.html>`_.
+The version of the libsvtav1 encoder and the version of the compiler for this library. It comes from the function `get_libsvtav1_version <https://mendevi.readthedocs.io/latest/build/api/mendevi.context.get_libsvtav1_version.html>`_.
 
 .. code:: text
 
@@ -542,7 +542,7 @@ The version of the libsvtav1 encoder and the version of the compiler for this li
 env_libvpx_vp9_version
 ^^^^^^^^^^^^^^^^^^^^^^
 
-The version of the libvpx-vp9 encoder. It comes from the function `get_libvpx_vp9_version <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.context.get_libvpx_vp9_version.html>`_.
+The version of the libvpx-vp9 encoder. It comes from the function `get_libvpx_vp9_version <https://mendevi.readthedocs.io/latest/build/api/mendevi.context.get_libvpx_vp9_version.html>`_.
 
 .. code:: text
 
@@ -553,7 +553,7 @@ The version of the libvpx-vp9 encoder. It comes from the function `get_libvpx_vp
 env_libx265_version
 ^^^^^^^^^^^^^^^^^^^
 
-The version of the libx265 encoder and the version of the compiler for this library. It comes from the function `get_libx265_version <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.context.get_libx265_version.html>`_.
+The version of the libx265 encoder and the version of the compiler for this library. It comes from the function `get_libx265_version <https://mendevi.readthedocs.io/latest/build/api/mendevi.context.get_libx265_version.html>`_.
 
 .. code:: text
 
@@ -566,7 +566,7 @@ The version of the libx265 encoder and the version of the compiler for this libr
 env_logical_cores
 ^^^^^^^^^^^^^^^^^
 
-The number of logical (threaded) cores, in general more than the number of physical cores. It is given by ``psutil.cpu_count(logical=True)``, from the function `get_platform <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.context.get_platform.html>`_.
+The number of logical (threaded) cores, in general more than the number of physical cores. It is given by ``psutil.cpu_count(logical=True)``, from the function `get_platform <https://mendevi.readthedocs.io/latest/build/api/mendevi.context.get_platform.html>`_.
 
 .. _env_lshw:
 
@@ -627,14 +627,14 @@ A wealth of information on machine components, processor architecture, etc.
 env_physical_cores
 ^^^^^^^^^^^^^^^^^^
 
-The number of physical cores, in general less than the number of logical physical cores. It is given by ``psutil.cpu_count(logical=False)``, from the function `get_platform <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.context.get_platform.html>`_.
+The number of physical cores, in general less than the number of logical physical cores. It is given by ``psutil.cpu_count(logical=False)``, from the function `get_platform <https://mendevi.readthedocs.io/latest/build/api/mendevi.context.get_platform.html>`_.
 
 .. _env_pip_freeze:
 
 env_pip_freeze
 ^^^^^^^^^^^^^^
 
-The list of the version of the python packages. The function `get_pip_freeze <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.context.get_pip_freeze.html>`_ parse the command ``uv pip freeze``.
+The list of the version of the python packages. The function `get_pip_freeze <https://mendevi.readthedocs.io/latest/build/api/mendevi.context.get_pip_freeze.html>`_ parse the command ``uv pip freeze``.
 
 
 .. code:: text
@@ -663,7 +663,7 @@ The list of the version of the python packages. The function `get_pip_freeze <ht
 env_processor
 ^^^^^^^^^^^^^
 
-The proccessor familly, given by ``platform.processor()``, from the function `get_platform <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.context.get_platform.html>`_.
+The proccessor familly, given by ``platform.processor()``, from the function `get_platform <https://mendevi.readthedocs.io/latest/build/api/mendevi.context.get_platform.html>`_.
 
 .. code:: text
 
@@ -674,7 +674,7 @@ The proccessor familly, given by ``platform.processor()``, from the function `ge
 env_python_compiler
 ^^^^^^^^^^^^^^^^^^^
 
-The cython compiler and version, given by ``platform.python_compiler()``, from the function `get_platform <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.context.get_platform.html>`_.
+The cython compiler and version, given by ``platform.python_compiler()``, from the function `get_platform <https://mendevi.readthedocs.io/latest/build/api/mendevi.context.get_platform.html>`_.
 
 .. code:: text
 
@@ -685,7 +685,7 @@ The cython compiler and version, given by ``platform.python_compiler()``, from t
 env_python_version
 ^^^^^^^^^^^^^^^^^^
 
-The version of python, given by ``platform.python_version()``, from the function `get_platform <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.context.get_platform.html>`_.
+The version of python, given by ``platform.python_version()``, from the function `get_platform <https://mendevi.readthedocs.io/latest/build/api/mendevi.context.get_platform.html>`_.
 
 .. code:: text
 
@@ -696,21 +696,21 @@ The version of python, given by ``platform.python_version()``, from the function
 env_ram
 ^^^^^^^
 
-The total physical memory (exclusive swap) in bytes, given by ``psutil.virtual_memory().total``, from the function `get_platform <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.context.get_platform.html>`_.
+The total physical memory (exclusive swap) in bytes, given by ``psutil.virtual_memory().total``, from the function `get_platform <https://mendevi.readthedocs.io/latest/build/api/mendevi.context.get_platform.html>`_.
 
 .. _env_swap:
 
 env_swap
 ^^^^^^^^
 
-The total swap memory in bytes, given by ``psutil.swap_memory().total``, from the function `get_platform <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.context.get_platform.html>`_.
+The total swap memory in bytes, given by ``psutil.swap_memory().total``, from the function `get_platform <https://mendevi.readthedocs.io/latest/build/api/mendevi.context.get_platform.html>`_.
 
 .. _env_system_version:
 
 env_system_version
 ^^^^^^^^^^^^^^^^^^
 
-The name and the version of linux, given by ``platform.version()``,from the function `get_platform <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.context.get_platform.html>`_.
+The name and the version of linux, given by ``platform.version()``,from the function `get_platform <https://mendevi.readthedocs.io/latest/build/api/mendevi.context.get_platform.html>`_.
 
 .. code:: text
 
@@ -721,7 +721,7 @@ The name and the version of linux, given by ``platform.version()``,from the func
 env_vvc_version
 ^^^^^^^^^^^^^^^
 
-The version of the vvenc encoder. It comes from the function `get_vvc_version <https://mendevi.readthedocs.io/en/latest/build/api/mendevi.context.get_vvc_version.html>`_.
+The version of the vvenc encoder. It comes from the function `get_vvc_version <https://mendevi.readthedocs.io/latest/build/api/mendevi.context.get_vvc_version.html>`_.
 
 .. code:: text
 
@@ -750,6 +750,8 @@ Table t_dec_decode
 | :ref:`dec_act_id`  | *INTEGER*     | the activity identifier        |
 +--------------------+---------------+--------------------------------+
 | :ref:`dec_cmd`     | *TEXT*        | ffmpeg command used            |
++--------------------+---------------+--------------------------------+
+| :ref:`dec_filter`  | *TEXT*        | additional video filter        |
 +--------------------+---------------+--------------------------------+
 | :ref:`dec_height`  | *SMALLINT*    | decoded height                 |
 +--------------------+---------------+--------------------------------+
@@ -799,6 +801,13 @@ The ffmpeg command used for decoding:
 
     ffmpeg -threads 1 -i src.mp4 -vf format=rgb24 -f null /dev/null
 
+.. _dec_filter:
+
+dec_filter
+^^^^^^^^^^
+
+The additional ffmpeg video filter (after the -vf command) applied during decoding.
+
 .. _dec_height:
 
 dec_height
@@ -846,6 +855,8 @@ Table t_enc_encode
 | :ref:`enc_effort`     | *TINYTEXT*    | the effort made by the encoder |
 +-----------------------+---------------+--------------------------------+
 | :ref:`enc_encoder`    | *TINYTEXT*    | the encoder name               |
++-----------------------+---------------+--------------------------------+
+| :ref:`enc_filter`     | *TEXT*        | additional video filter        |
 +-----------------------+---------------+--------------------------------+
 | :ref:`enc_fps`        | *FLOAT*       | the input framerate            |
 +-----------------------+---------------+--------------------------------+
@@ -915,6 +926,20 @@ enc_effort
 
 The effort that the encoder puts into optimising the bit rate distortion ratio.
 Possible values are ``fast``, ``medium`` and ``fast``.
+
+.. _enc_encoder:
+
+enc_encoder
+^^^^^^^^^^^
+
+The ffmpeg encoder name. Possible values are ``libx264``, ``libx265``, ``libvpx-vp9``, ``libsvtav1`` and ``vvc``.
+
+.. _enc_filter:
+
+enc_filter
+^^^^^^^^^^
+
+The additional ffmpeg video filter (after the -vf command) applied during decoding.
 
 .. _enc_fps:
 

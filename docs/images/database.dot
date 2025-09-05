@@ -88,6 +88,7 @@ graph database {
         <TR><TD ALIGN="LEFT">dec_env_id</TD><TD ALIGN="LEFT">INTEGER</TD></TR>
         <TR><TD ALIGN="LEFT">dec_act_id</TD><TD ALIGN="LEFT">INTEGER</TD></TR>
         <TR><TD ALIGN="LEFT">dec_cmd</TD><TD ALIGN="LEFT">TEXT</TD></TR>
+        <TR><TD ALIGN="LEFT">dec_filter</TD><TD ALIGN="LEFT">TEXT</TD></TR>
         <TR><TD ALIGN="LEFT">dec_height</TD><TD ALIGN="LEFT">SMALLINT</TD></TR>
         <TR><TD ALIGN="LEFT">dec_pix_fmt</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>
         <TR><TD ALIGN="LEFT">dec_width</TD><TD ALIGN="LEFT">SMALLINT</TD></TR>
@@ -106,6 +107,7 @@ graph database {
         <TR><TD ALIGN="LEFT">enc_cmd</TD><TD ALIGN="LEFT">TEXT</TD></TR>
         <TR><TD ALIGN="LEFT">enc_effort</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>
         <TR><TD ALIGN="LEFT">enc_encoder</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>
+        <TR><TD ALIGN="LEFT">enc_filter</TD><TD ALIGN="LEFT">TEXT</TD></TR>
         <TR><TD ALIGN="LEFT">enc_fps</TD><TD ALIGN="LEFT">FLOAT</TD></TR>
         <TR><TD ALIGN="LEFT">enc_height</TD><TD ALIGN="LEFT">SMALLINT</TD></TR>
         <TR><TD ALIGN="LEFT">enc_pix_fmt</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>

@@ -117,6 +117,7 @@ def create_database(filename: str | bytes | pathlib.Path):
             dec_env_id INTEGER NOT NULL REFERENCES t_env_environement(env_id) ON DELETE CASCADE,  -- link to environement table
             dec_act_id INTEGER REFERENCES t_act_activity(act_id),  -- link to activity table
             dec_cmd TEXT,  -- exact ffmpeg command used
+            dec_filter TEXT,  -- ffmpeg additional video filter
             dec_height SMALLINT CHECK(dec_height > 0),  -- display resolution
             dec_pix_fmt TINYTEXT,  -- display pixel format
             dec_width SMALLINT CHECK(dec_width > 0)  -- display resolution
@@ -132,6 +133,7 @@ def create_database(filename: str | bytes | pathlib.Path):
             enc_cmd TEXT,  -- exact ffmpeg command used
             enc_effort TINYTEXT CHECK(enc_effort IN ('fast', 'medium', 'slow')),  -- equivalent preset used for encoding
             enc_encoder TINYTEXT CHECK(enc_encoder IN ('libx264', 'libx265', 'libvpx-vp9', 'libsvtav1', 'vvc')),  -- the encoder name
+            enc_filter TEXT,  -- ffmpeg additional video filter
             enc_fps FLOAT CHECK(enc_fps > 0.0),  -- target conversion fps
             enc_height SMALLINT CHECK(enc_height > 0),  -- target conversion resolution
             enc_pix_fmt TINYTEXT,  -- target conversion pixel format

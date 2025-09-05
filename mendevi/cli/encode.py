@@ -97,6 +97,15 @@ def _parse_args(prt: Printer, kwargs: dict):
     else:
         kwargs["pix_fmt"] = (None,)
 
+    # filter
+    kwargs["filter"] = kwargs.get("filter", ())
+    assert isinstance(kwargs["filter"], tuple), kwargs["filter"].__class__.__name__
+    assert all(isinstance(f, str) for f in kwargs["filter"]), kwargs["filter"]
+    if kwargs["filter"]:
+        prt.print(f"filters   : {', '.join(map(str, kwargs['filter']))}")
+    else:
+        kwargs["filter"] = ("",)
+
 
 @click.command()
 @click.argument("videos", type=click.Path(), nargs=-1)
@@ -152,6 +161,12 @@ def _parse_args(prt: Printer, kwargs: dict):
     multiple=True,
     help="The optional pixel format conversion during encoding.",
 )
+@click.option(
+    "--filter",
+    type=str,
+    multiple=True,
+    help="The ffmpeg filter to apply before encoding.",
+)
 def main(videos: tuple, database: str = None, **kwargs):
     """Measures activity during encoding.
 
@@ -190,6 +205,9 @@ def main(videos: tuple, database: str = None, **kwargs):
         If this argument is not provided, the resolution remains unchanged.
     pix_fmt : str, optional
         If provided, A pixel conversion is performed during encoding.
+    filter : str, optional
+        A video ffmpeg filter (after -vf) which applies at the time of transcoding,
+        more precisely between decoding and conversion. It is a kind of pre-conversion.
     """
     with Printer("Parse configuration...") as prt:
         videos, database = parse_videos_database(prt, videos, database)
@@ -200,7 +218,7 @@ def main(videos: tuple, database: str = None, **kwargs):
     env_id = add_environement(database)
     kwargs["src_vid_id"]: dict[pathlib.Path, bytes] = compute_video_hash(videos)
 
-    keys = ["threads", "effort", "quality", "encoder", "fps", "resolution", "pix_fmt"]
+    keys = ["threads", "effort", "quality", "encoder", "filter", "fps", "resolution", "pix_fmt"]
 
     # retrieves the settings for videos that have already been transcoded
     with sqlite3.connect(database) as sql_database:
@@ -212,6 +230,7 @@ def main(videos: tuple, database: str = None, **kwargs):
             values = {
                 "effort": values["enc_effort"],
                 "encoder": values["enc_encoder"],
+                "filter": values["enc_filter"] or None,
                 "fps": fractions.Fraction(values["enc_fps"]).limit_denominator(1001),
                 "pix_fmt": values["enc_pix_fmt"],
                 "quality": float(values["enc_quality"]),

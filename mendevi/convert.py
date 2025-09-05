@@ -11,6 +11,7 @@ from mendevi.utils import get_pix_fmt, get_rate_video, get_resolution
 
 def get_convert_cmd(
     video: pathlib.Path | str,
+    additional_filter: str,
     fps: fractions.Fraction | None,
     pix_fmt: str | None,
     resolution: tuple[int, int] | None,
@@ -22,6 +23,8 @@ def get_convert_cmd(
     video : pathlike
         The video to be filtered.
         It is required to know the relevant filters and find the best possible order.
+    additional_filter : str
+        The additional video filter, (can be an empty string).
     fps : fractions.Fraction, optional
         The new framerate.
     pix_fmt : str, optional
@@ -40,13 +43,15 @@ def get_convert_cmd(
     >>> import cutcutcodec
     >>> from mendevi.convert import get_convert_cmd
     >>> media = cutcutcodec.utils.get_project_root().parent / "media" / "video" / "intro.webm"
-    >>> get_convert_cmd(media, fps=None, pix_fmt=None, resolution=None)
+    >>> get_convert_cmd(media, filter="", fps=None, pix_fmt=None, resolution=None)
     ''
     >>> get_convert_cmd(
     ...     media, fps=Fraction(60000, 1001), pix_fmt="yuv420p10le", resolution=(1080, 1920)
     ... )
     'scale=h=1080:w=1920:sws_flags=bicubic,format=yuv420p10le,fps=60000/1001'
-    >>> get_convert_cmd(media, fps=Fraction(24000, 1001), pix_fmt="yuv420p", resolution=(480, 720))
+    >>> get_convert_cmd(
+    ...     media, filter="", fps=Fraction(24000, 1001), pix_fmt="yuv420p", resolution=(480, 720)
+    ... )
     'fps=24000/1001,scale=h=480:w=720:sws_flags=bicubic'
     >>>
     """
@@ -85,5 +90,9 @@ def get_convert_cmd(
             filters.insert(0, f"fps={fps}")
         else:
             filters.append(f"fps={fps}")
+
+    # additional filter
+    if additional_filter:
+        filters.insert(0, additional_filter)
 
     return ",".join(filters)

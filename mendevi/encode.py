@@ -248,6 +248,7 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs) -> list[st
     if (
         filter_cmd := get_convert_cmd(
             src,
+            additional_filter=kwargs["filter"],
             fps=kwargs["fps"],
             pix_fmt=kwargs["pix_fmt"],
             resolution=kwargs["resolution"],
