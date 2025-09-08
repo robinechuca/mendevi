@@ -14,4 +14,4 @@ CMD = [
 ]
 
 if __name__ == "__main__":
-    conf.run_script(CMD, local=False)
+    conf.run_script(CMD, local=False, walltime="00:30:00")

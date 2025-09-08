@@ -8,6 +8,7 @@ In the file ``~/.ansible.cfg``, put the following content:
 interpreter_python = /root/.pyenv/versions/3.13.3/envs/3.13/bin/python
 """
 
+import hashlib
 import json
 import shlex
 import subprocess
@@ -16,18 +17,19 @@ import time
 import enoslib
 
 CLUSTER = "paradoxe"
-SERVERS = ["paradoxe-7.rennes.grid5000.fr"]  # optional
+SERVERS = []  # ["paradoxe-7.rennes.grid5000.fr"]  # optional
 DATA = "/srv/storage/videoimpact@storage3.rennes.grid5000.fr"
 ENV_NAME = "https://api.grid5000.fr/sid/sites/rennes/public/rrichard/mendevi_env.yaml"
 ROLES = ["magelan"]
-WALLTIME = "72:00:00"
+WALLTIME = "1:00:00"
+NODES = 1
 
 SLEEP_INIT = 10.0  # initial sleeping time
 SLEEP_FINAL = 600.0  # final sleeping time
 SLEEP_TRANSITION = 3600.0  # the transition time between the init and final sleep
 
 
-def run_script(cmd: str | list[str], local: bool=False):
+def run_script(cmd: str | list[str], local: bool=False, **kwargs):
     """Run a script on the grid."""
     # parse the argument
     assert isinstance(local, bool), local.__class__.__name__
@@ -47,14 +49,19 @@ def run_script(cmd: str | list[str], local: bool=False):
     conf = (  # doc: https://discovery.gitlabpages.inria.fr/enoslib/apidoc/infra.html#g5k-schema
         enoslib.G5kConf.from_settings(
             env_name=ENV_NAME,
-            job_name="Mesures Encodage et Decodage Video",
+            job_name=f"mendevi {hashlib.md5(cmd.encode('utf-8')).hexdigest()}",
             job_type=["deploy"],
             key="~/.ssh/id_ed25519.pub",
-            walltime=WALLTIME,
+            walltime=kwargs.get("walltime", WALLTIME),
             monitor="wattmetre_power_watt",
             # queue="production",  # "default", "testing", "besteffort"
         )
-        .add_machine(roles=ROLES, cluster=CLUSTER, nodes=1, **({"servers": SERVERS} if SERVERS else {}))
+        .add_machine(
+            roles=ROLES,
+            cluster=CLUSTER,
+            nodes=kwargs.get("nodes", 1),
+            **({"servers": SERVERS} if SERVERS else {}),
+        )
     )
     sleep = SLEEP_INIT
     with enoslib.G5k(conf) as (roles, _):  # get and release all grid5000 resources
