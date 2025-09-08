@@ -119,7 +119,7 @@ def _parse_args(prt: Printer, video: pathlib.Path, kwargs: dict):
     type=click.Choice(["tv", "pc"]),
     help="The pixel coding range."
 )
-def main(video: str, folder: str | None = None, **kwargs) -> pathlib.Path:
+def main(video: str, output: str | None = None, **kwargs) -> pathlib.Path:
     """Pre-Process the source video before performing the transcoding measurements.
 
     This step is required to provide the following guarantees:
@@ -137,6 +137,9 @@ def main(video: str, folder: str | None = None, **kwargs) -> pathlib.Path:
     ----------
     video : pathlike
         The source video to be prepared.
+    output : pathlike, optional
+        The destination folder to store the reference file.
+        If not provided, it is store in the same folder as the input video.
     profile : str, default=autodetect
         A value among ``sd``, ``hd``, ``uhd`` or ``hd4k``.
         This represents a typical video profile, which includes a pixel format,
@@ -172,12 +175,12 @@ def main(video: str, folder: str | None = None, **kwargs) -> pathlib.Path:
         assert video.is_file(), video
         prt.print(f"src video : {video}")
 
-        # folder
-        if folder is None:
-            folder = video.parent
+        # output
+        if output is None:
+            output = video.parent
         else:
-            folder = pathlib.Path(folder).expanduser().resolve()
-            folder.mkdir(parents=True, exist_ok=True)
+            output = pathlib.Path(output).expanduser()
+            output.mkdir(parents=True, exist_ok=True)
 
         # others
         _parse_args(prt, video, kwargs)
@@ -201,7 +204,7 @@ def main(video: str, folder: str | None = None, **kwargs) -> pathlib.Path:
             file[-1] = "_".join(file[-1]) + ".mkv"
         file = {len(f): f for f in file}
         file = file[min(file)]  # select the shortest name
-        file = folder / file
+        file = output / file
         prt.print(f"dst video : {file}")
 
     # write the file
