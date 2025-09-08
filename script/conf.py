@@ -10,6 +10,7 @@ interpreter_python = /root/.pyenv/versions/3.13.7/envs/mendevi/bin/python
 
 import hashlib
 import json
+import logging
 import shlex
 import subprocess
 import time
@@ -83,4 +84,4 @@ def run_script(cmd: str | list[str], local: bool=False, **kwargs):
                         print(res["stdout"])
                         log_files.remove(log_file)
                     if (msg := res.get("stderr", "")):
-                        raise RuntimeError(msg)
+                        logging.warning(msg)
