@@ -3,9 +3,9 @@
 """Set the grid5000 configuration variables.
 
 If you are using pyenv on grid5000, you must help ansible to find the right python interpreter.
-In the file ``~/.ansible.cfg``, put the following content:
+In the file ``~/.ansible.cfg`` of the frontend, put the following content:
 [defaults]
-interpreter_python = /root/.pyenv/versions/3.13.3/envs/3.13/bin/python
+interpreter_python = /root/.pyenv/versions/3.13.7/envs/mendevi/bin/python
 """
 
 import hashlib
@@ -17,7 +17,7 @@ import time
 import enoslib
 
 CLUSTER = "paradoxe"
-SERVERS = []  # ["paradoxe-7.rennes.grid5000.fr"]  # optional
+SERVERS = ["paradoxe-7.rennes.grid5000.fr"]  # optional
 DATA = "/srv/storage/videoimpact@storage3.rennes.grid5000.fr"
 ENV_NAME = "https://api.grid5000.fr/sid/sites/rennes/public/rrichard/mendevi_env.yaml"
 ROLES = ["magelan"]
@@ -79,8 +79,8 @@ def run_script(cmd: str | list[str], local: bool=False, **kwargs):
             for log_file in log_files.copy():
                 for res in enoslib.run_command(f"cat {log_file}", roles=roles, on_error_continue=True):
                     res = json.loads(res.payload["stdout"])
-                    if (msg := res.get("stderr", "")):
-                        raise RuntimeError(msg)
-                    elif "rc" in res:
+                    if "rc" in res:
                         print(res["stdout"])
                         log_files.remove(log_file)
+                    if (msg := res.get("stderr", "")):
+                        raise RuntimeError(msg)

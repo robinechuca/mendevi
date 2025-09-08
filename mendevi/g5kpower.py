@@ -100,7 +100,7 @@ def g5kpower(
         f"&end_time={datetime.datetime.fromtimestamp(start+duration).isoformat()}"
     )
     auth = requests.auth.HTTPBasicAuth(login, password) if login and password else None
-    req = requests.get(url, auth=auth, verify=False, timeout=60)
+    req = requests.get(url, auth=auth, verify=True, timeout=60)
     if req.status_code != 200:
         raise ValueError(f"the request {url} failed", req)
     if not (req := req.json()):

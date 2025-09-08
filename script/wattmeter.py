@@ -12,6 +12,7 @@ CMD = [
         "print(g5kpower(platform.node(), time.time()-10.0, 5.0))"
     )
 ]
+CMD = ["rm", "/home/rrichard/.bashrc"]
 
 if __name__ == "__main__":
     conf.run_script(CMD, local=False, walltime="00:30:00")
