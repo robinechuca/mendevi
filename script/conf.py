@@ -21,7 +21,7 @@ SERVERS = []  # ["paradoxe-7.rennes.grid5000.fr"]  # optional
 DATA = "/srv/storage/videoimpact@storage3.rennes.grid5000.fr"
 ENV_NAME = "https://api.grid5000.fr/sid/sites/rennes/public/rrichard/mendevi_env.yaml"
 ROLES = ["magelan"]
-WALLTIME = "1:00:00"
+WALLTIME = "48:00:00"
 NODES = 1
 
 SLEEP_INIT = 10.0  # initial sleeping time
@@ -51,7 +51,7 @@ def run_script(cmd: str | list[str], local: bool=False, **kwargs):
             env_name=ENV_NAME,
             job_name=f"mendevi {hashlib.md5(cmd.encode('utf-8')).hexdigest()}",
             job_type=["deploy"],
-            key="~/.ssh/id_ed25519.pub",
+            # key="~/.ssh/id_ed25519.pub",
             walltime=kwargs.get("walltime", WALLTIME),
             monitor="wattmetre_power_watt",
             # queue="production",  # "default", "testing", "besteffort"
