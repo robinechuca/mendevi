@@ -53,6 +53,12 @@ def _parse_args(prt: Printer, kwargs: dict):
     assert isinstance(kwargs["walltime"], str), kwargs["walltime"].__class__.__name__
     prt.print(f"walltime: {kwargs['walltime']}")
 
+    # server
+    kwargs["server"] = kwargs.get("server", ())
+    assert isinstance(kwargs["server"], tuple), kwargs["server"].__class__.__name__
+    assert all(isinstance(s, str) for s in kwargs["server"]), kwargs["server"]
+    prt.print(f"servers : {', '.join(kwargs['server'])}")
+
     # cluster
     assert "cluster" in kwargs, kwargs
     assert isinstance(kwargs["cluster"], str), kwargs["cluster"].__class__.__name__
@@ -165,6 +171,12 @@ def is_g5k_frontend(fail: bool = True) -> bool:
     help="Job duration.",
 )
 @click.option(
+    "-s", "server",
+    type=str,
+    multiple=True,
+    help="The specific node name."
+)
+@click.option(
     "-c", "--cluster",
     type=str,
     help="The generique cluster name to use."
@@ -184,15 +196,17 @@ def main(cmd: str, **kwargs):
     walltime : str, default=24:00:00
         The maximum reservation time for the node.
         If the script finishes before this time, the resources are released before the expiry date.
+    server : tuple[str], optional
+        The specific node names (ex: ("paradoxe-1.rennes.grid5000.fr",)).
     cluster : str
-        The name of the cluster to used (ex: paradoxe).
+        The name of the cluster to used (ex: "paradoxe").
     """
     is_g5k_frontend()
     with Printer("Parse configuration...") as prt:
         assert isinstance(cmd, str), cmd.__class__.__name__
         if " ./" in cmd and len(data := guess_storage()) == 1:
             cmd = re.split(r"\s+\./", cmd)
-            cmd = f"{cmd[0]} {''.join(f' {data[0]}/{c}' for c in cmd[1:])}"
+            cmd = f"{cmd[0]}{''.join(f' {data[0]}/{c}' for c in cmd[1:])}"
         prt.print(f"cmd     : {cmd}")
         _parse_args(prt, kwargs)
 
@@ -214,7 +228,7 @@ def main(cmd: str, **kwargs):
             roles=guess_roles(),
             cluster=kwargs["cluster"],
             nodes=1,
-            servers=[],
+            servers=kwargs["server"],
             # SERVERS = ["paradoxe-7.rennes.grid5000.fr"]  # ``oarnodes -l``.
             # **({"servers": SERVERS} if SERVERS else {}),
         )
