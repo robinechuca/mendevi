@@ -82,7 +82,7 @@ def _parse_args(prt: Printer, video: pathlib.Path, kwargs: dict):
 @click.option(
     "-o", "--output",
     type=click.Path(),
-    help="The destination folder",
+    help="The destination folder.",
 )
 @click.option(
     "-p", "--profile",
