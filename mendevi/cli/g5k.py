@@ -228,9 +228,7 @@ def main(cmd: str, **kwargs):
             roles=guess_roles(),
             cluster=kwargs["cluster"],
             nodes=1,
-            servers=kwargs["server"],
-            # SERVERS = ["paradoxe-7.rennes.grid5000.fr"]  # ``oarnodes -l``.
-            # **({"servers": SERVERS} if SERVERS else {}),
+            **({"servers": kwargs["server"]} if kwargs["server"] else {}),
         )
     )
     sleep = SLEEP_INIT
