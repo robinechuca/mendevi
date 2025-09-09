@@ -18,7 +18,7 @@ import time
 import enoslib
 
 CLUSTER = "paradoxe"
-SERVERS = ["paradoxe-7.rennes.grid5000.fr"]  # optional
+SERVERS = []  # ["paradoxe-7.rennes.grid5000.fr"]  # optional
 DATA = "/srv/storage/videoimpact@storage3.rennes.grid5000.fr"
 ENV_NAME = "https://api.grid5000.fr/sid/sites/rennes/public/rrichard/mendevi_env.yaml"
 ROLES = ["magelan"]
