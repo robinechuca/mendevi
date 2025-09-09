@@ -16,7 +16,7 @@ CMD_ENCODE = [
 CMD_PROBE = [
     "mendevi", "probe",
     "--no-lpips-alex", "--no-lpips-vgg", "--no-psnr", "--no-ssim", "--no-uvq", "--no-vmaf",
-    f"{conf.DATA}/sample*",
+    conf.DATA,
 ]
 
 

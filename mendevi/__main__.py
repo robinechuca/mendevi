@@ -2,28 +2,47 @@
 
 """Command line interface entry point."""
 
+import importlib
 import click
 
-from mendevi.cli.decode import main as main_decode
-from mendevi.cli.doc import main as main_doc
-from mendevi.cli.encode import main as main_encode
-from mendevi.cli.g5k import main as main_g5k
-from mendevi.cli.prepare import main as main_prepare
-from mendevi.cli.probe import main as main_probe
+
+class LazyGroup(click.Group):
+    def __init__(self, *args, **kwargs):
+        self._lazy_commands = {}
+        super().__init__(*args, **kwargs)
+
+    def add_lazy_command(self, import_path: str, name: str):
+        """Register a command without importing it immediately."""
+        self._lazy_commands[name] = import_path
+
+    def get_command(self, ctx, name):
+        if name in self._lazy_commands:
+            module_path, func_name = self._lazy_commands[name].rsplit(".", 1)
+            mod = importlib.import_module(module_path)
+            cmd = getattr(mod, func_name)
+            return cmd
+
+        return super().get_command(ctx, name)
+
+    def list_commands(self, ctx):
+        """List all available command names (including lazy ones)."""
+        cmds = set(super().list_commands(ctx))
+        cmds.update(self._lazy_commands.keys())
+        return sorted(cmds)
 
 
-@click.group()
-def main() -> int:
+@click.group(cls=LazyGroup)
+def main():
     """Performs video transcoding measurements."""
-    return 0
 
 
-main.add_command(main_decode, "decode")
-main.add_command(main_doc, "doc")
-main.add_command(main_encode, "encode")
-main.add_command(main_g5k, "g5k")
-main.add_command(main_prepare, "prepare")
-main.add_command(main_probe, "probe")
+# Add subcommands lazily — no imports here!
+main.add_lazy_command("mendevi.cli.decode.main", "decode")
+main.add_lazy_command("mendevi.cli.doc.main", "doc")
+main.add_lazy_command("mendevi.cli.encode.main", "encode")
+main.add_lazy_command("mendevi.cli.g5k.main", "g5k")
+main.add_lazy_command("mendevi.cli.prepare.main", "prepare")
+main.add_lazy_command("mendevi.cli.probe.main", "probe")
 
 
 if __name__ == "__main__":

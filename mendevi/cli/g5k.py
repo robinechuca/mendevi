@@ -153,7 +153,7 @@ def is_g5k_frontend(fail: bool = True) -> bool:
     help="Job duration.",
 )
 @click.option(
-    "-c", "--cluster";
+    "-c", "--cluster",
     type=str,
     help="The generique cluster name to use."
 )
