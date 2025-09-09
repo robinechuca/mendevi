@@ -95,7 +95,7 @@ def guess_roles() -> list[str]:
         r"\S+",
         subprocess.run(["id", "-Gn"], capture_output=True, check=True).stdout.decode("utf-8"),
     )
-    roles = [r for r in roles if r != "g5k-users" and not r.starts_with("sto-")]
+    roles = [r for r in roles if r != "g5k-users" and not r.startswith("sto-")]
     return roles
 
 
@@ -214,6 +214,7 @@ def main(cmd: str, **kwargs):
             roles=guess_roles(),
             cluster=kwargs["cluster"],
             nodes=1,
+            servers=[],
             # SERVERS = ["paradoxe-7.rennes.grid5000.fr"]  # ``oarnodes -l``.
             # **({"servers": SERVERS} if SERVERS else {}),
         )
