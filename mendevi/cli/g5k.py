@@ -2,13 +2,25 @@
 
 """Help to excecute a script on a node of grid'5000."""
 
-import click
+import hashlib
+import json
 import logging
+import os
 import pathlib
+import platform
 import re
 import subprocess
+import time
 
 from context_verbose import Printer
+import click
+
+
+
+SLEEP_INIT = 10.0  # initial sleeping time
+SLEEP_FINAL = 600.0  # final sleeping time
+SLEEP_TRANSITION = 3600.0  # the transition time between the init and final sleep
+
 
 
 def _parse_args(prt: Printer, kwargs: dict):
@@ -81,7 +93,7 @@ def guess_roles() -> list[str]:
     """
     roles = re.findall(
         r"\S+",
-        subprocess.run(["id", "-Gn"], capture_output=True).stdout.decode("utf-8"),
+        subprocess.run(["id", "-Gn"], capture_output=True, check=True).stdout.decode("utf-8"),
     )
     roles = [r for r in roles if r != "g5k-users" and not r.starts_with("sto-")]
     return roles
@@ -94,7 +106,7 @@ def guess_servers() -> list[str]:
 
     # get full node list
     try:
-        servers = subprocess.run(["oarnodes", "--json"], capture_output=True)
+        servers = subprocess.run(["oarnodes", "--json"], capture_output=True, check=True)
     except FileNotFoundError:
         return []
     servers = json.loads(servers.stdout)
@@ -200,8 +212,8 @@ def main(cmd: str, **kwargs):
         )
         .add_machine(
             roles=guess_roles(),
-            cluster=CLUSTER,
-            nodes=kwargs.get("nodes", 1),
+            cluster=kwargs["cluster"],
+            nodes=1,
             # SERVERS = ["paradoxe-7.rennes.grid5000.fr"]  # ``oarnodes -l``.
             # **({"servers": SERVERS} if SERVERS else {}),
         )
@@ -229,4 +241,3 @@ def main(cmd: str, **kwargs):
                         log_files.remove(log_file)
                     if (msg := res.get("stderr", "")):
                         logging.warning(msg)
-

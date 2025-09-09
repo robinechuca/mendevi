@@ -3,10 +3,14 @@
 """Command line interface entry point."""
 
 import importlib
+
 import click
 
 
+
 class LazyGroup(click.Group):
+    """Overwite clik.Group to layy import."""
+
     def __init__(self, *args, **kwargs):
         self._lazy_commands = {}
         super().__init__(*args, **kwargs)
@@ -15,14 +19,14 @@ class LazyGroup(click.Group):
         """Register a command without importing it immediately."""
         self._lazy_commands[name] = import_path
 
-    def get_command(self, ctx, name):
-        if name in self._lazy_commands:
-            module_path, func_name = self._lazy_commands[name].rsplit(".", 1)
+    def get_command(self, ctx, cmd_name):
+        if cmd_name in self._lazy_commands:
+            module_path, func_name = self._lazy_commands[cmd_name].rsplit(".", 1)
             mod = importlib.import_module(module_path)
             cmd = getattr(mod, func_name)
             return cmd
 
-        return super().get_command(ctx, name)
+        return super().get_command(ctx, cmd_name)
 
     def list_commands(self, ctx):
         """List all available command names (including lazy ones)."""
@@ -35,8 +39,7 @@ class LazyGroup(click.Group):
 def main():
     """Performs video transcoding measurements."""
 
-
-# Add subcommands lazily — no imports here!
+# same as main.add_command but with lazy import
 main.add_lazy_command("mendevi.cli.decode.main", "decode")
 main.add_lazy_command("mendevi.cli.doc.main", "doc")
 main.add_lazy_command("mendevi.cli.encode.main", "encode")
