@@ -57,12 +57,13 @@ def _parse_args(prt: Printer, kwargs: dict):
     kwargs["server"] = kwargs.get("server", ())
     assert isinstance(kwargs["server"], tuple), kwargs["server"].__class__.__name__
     assert all(isinstance(s, str) for s in kwargs["server"]), kwargs["server"]
-    prt.print(f"servers : {', '.join(kwargs['server'])}")
+    if kwargs["server"]:
+        prt.print(f"servers : {', '.join(kwargs['server'])}")
 
     # cluster
     assert "cluster" in kwargs, kwargs
     assert isinstance(kwargs["cluster"], str), kwargs["cluster"].__class__.__name__
-    prt.print(f"cluster : {kwargs['walltime']}")
+    prt.print(f"cluster : {kwargs['cluster']}")
 
 
 def guess_envname() -> list[str]:
@@ -228,7 +229,7 @@ def main(cmd: str, **kwargs):
             roles=guess_roles(),
             cluster=kwargs["cluster"],
             nodes=1,
-            **({"servers": kwargs["server"]} if kwargs["server"] else {}),
+            **({"server": kwargs["server"]} if kwargs["server"] else {}),
         )
     )
     sleep = SLEEP_INIT
