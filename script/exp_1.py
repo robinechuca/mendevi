@@ -6,8 +6,7 @@ import conf
 
 CMD = [
     "mendevi", "encode",
-    "--profile", "sd", "--profile", "uhd",
-    "--preset", "medium",
+    "--effort", "medium",
     "--encoder", "libx264", "--encoder", "libx265", "--encoder", "libsvtav1", "--encoder", "libvpx-vp9",
     "--points", "2",
     *(f"-t{i}" for i in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]),
