@@ -161,7 +161,7 @@ def set_ansible_cfg():
     """Create and fill the file ~/.ansible.cfg."""
     path = pathlib.Path.home() / ".ansible.cfg"
     if not path.exists():
-        with open(file, "w", encoding="utf-8") as file:
+        with open(path, "w", encoding="utf-8") as file:
             file.write("[defaults]")
             file.write("interpreter_python = /root/.pyenv/shims/python")
             # file.write("interpreter_python = /root/.pyenv/versions/3.13.7/envs/mendevi/bin/python")
@@ -238,7 +238,8 @@ def main(cmd: str, **kwargs):
             roles=guess_roles(),
             cluster=kwargs["cluster"],
             nodes=1,
-            **({"servers": list(kwargs["server"])} if kwargs["server"] else {}),
+            servers=(kwargs["server"] or None),
+            # **({"servers": list(kwargs["server"])} if kwargs["server"] else {}),
         )
     )
     sleep = SLEEP_INIT
