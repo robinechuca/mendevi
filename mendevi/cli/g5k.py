@@ -16,11 +16,9 @@ from context_verbose import Printer
 import click
 
 
-
 SLEEP_INIT = 10.0  # initial sleeping time
 SLEEP_FINAL = 600.0  # final sleeping time
 SLEEP_TRANSITION = 3600.0  # the transition time between the init and final sleep
-
 
 
 def _parse_args(prt: Printer, kwargs: dict):
@@ -159,6 +157,16 @@ def is_g5k_frontend(fail: bool = True) -> bool:
     )
 
 
+def set_ansible_cfg():
+    """Create and fill the file ~/.ansible.cfg."""
+    path = pathlib.Path.home() / ".ansible.cfg"
+    if not path.exists():
+        with open(file, "w", encoding="utf-8") as file:
+            file.write("[defaults]")
+            file.write("interpreter_python = /root/.pyenv/shims/python")
+            # file.write("interpreter_python = /root/.pyenv/versions/3.13.7/envs/mendevi/bin/python")
+
+
 @click.command()
 @click.argument("cmd", type=str)
 @click.option(
@@ -203,6 +211,7 @@ def main(cmd: str, **kwargs):
         The name of the cluster to used (ex: "paradoxe").
     """
     is_g5k_frontend()
+    set_ansible_cfg()
     with Printer("Parse configuration...") as prt:
         assert isinstance(cmd, str), cmd.__class__.__name__
         if " ./" in cmd and len(data := guess_storage()) == 1:
