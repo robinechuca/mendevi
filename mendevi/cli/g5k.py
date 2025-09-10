@@ -238,8 +238,7 @@ def main(cmd: str, **kwargs):
             roles=guess_roles(),
             cluster=kwargs["cluster"],
             nodes=1,
-            servers=(kwargs["server"] or None),
-            # **({"servers": list(kwargs["server"])} if kwargs["server"] else {}),
+            **({"servers": list(kwargs["server"])} if kwargs["server"] else {}),
         )
     )
     sleep = SLEEP_INIT
