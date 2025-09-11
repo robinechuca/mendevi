@@ -14,6 +14,7 @@ import time
 
 from context_verbose import Printer
 import click
+import requests
 
 
 SLEEP_INIT = 10.0  # initial sleeping time
@@ -100,7 +101,7 @@ def guess_roles() -> list[str]:
         r"\S+",
         subprocess.run(["id", "-Gn"], capture_output=True, check=True).stdout.decode("utf-8"),
     )
-    roles = [r for r in roles if r != "g5k-users" and not r.startswith("sto-")]
+    roles = [r for r in roles if r != "g5k-users"]
     return roles
 
 
@@ -127,12 +128,40 @@ def guess_servers() -> list[str]:
 
 
 def guess_storage() -> list[str]:
-    """Return the accessible paths under /srv/storage."""
-    storages: list[str] = []
-    root = pathlib.Path("/srv/storage")
-    if not root.exists():
+    """Return the accessible paths under "/srv/storage".
+
+    If they have not been mounted for a while, NFS disks may be hidden with a simple ls command.
+    This function attempts to predict the volume name in order to increase the chances of success.
+
+    The rules are defined here: https://www.grid5000.fr/w/Group_Storage
+    """
+    # guessed with ls
+    if not (root := pathlib.Path("/srv/storage")).exists():
         return []
-    for path in root.iterdir():
+    candidates = set(root.iterdir())
+
+    # try to get server_name
+    url = "https://www.grid5000.fr/w/Group_Storage"
+    req = requests.get(url, timeout=60)
+    if req.status_code != 200:
+        logging.warning("the request %s failed", req)
+        servers = []
+    elif not (req := req.text):
+        logging.warning("the request %s gives an empty result", req)
+        servers = []
+    else:
+        servers = re.findall(r"storage\d+\.\w+\.grid5000\.fr", req)
+
+    # try to get storage_name
+    prefixes = guess_roles()
+    prefixes.extend(n for s in prefixes.copy() for n in s.split("-"))
+
+    # merge candidates together with a cartesian product
+    candidates |= {root / f"{p}@{s}" for s in set(servers) for p in set(prefixes)}
+
+    # test if exists and permision (.exists() doesn't work with this nfs)
+    storages: list[str] = []
+    for path in candidates:
         try:
             with open(path / "tmp_empty_mendevi", "wb"):
                 pass
@@ -164,7 +193,6 @@ def set_ansible_cfg():
         with open(path, "w", encoding="utf-8") as file:
             file.write("[defaults]")
             file.write("interpreter_python = /root/.pyenv/shims/python")
-            # file.write("interpreter_python = /root/.pyenv/versions/3.13.7/envs/mendevi/bin/python")
 
 
 @click.command()

@@ -87,7 +87,7 @@ def parse_videos_database(
     videos = list(unfold_video_files(videos))
     if len(videos) == 1:
         prt.print(f"video     : {videos[0]}")
-    else:
+    elif len(videos) > 1:
         prt.print(f"videos    : {len(videos)} files founded")
 
     # database
