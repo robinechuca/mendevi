@@ -66,26 +66,27 @@ def _parse_args(prt: Printer, kwargs: dict):
 
     # window
     kwargs["window"] = kwargs.get("window", None)
-    match (  # preference for y axis
-        kwargs.get("window_x", None) is None,
-        kwargs.get("window_y", None) is None,
-        len(kwargs["x"]) == 1,
-        len(kwargs["y"]) == 1,
-    ):
-        case (False, True, False, True):
-            kwargs["window_y"] = kwargs["window"]
-        case (True, False, True, False):
-            kwargs["window_x"] = kwargs["window"]
-        case (True, True, False, True):
-            kwargs["window_y"] = kwargs["window"]
-        case (True, True, True, False):
-            kwargs["window_x"] = kwargs["window"]
-        case (False, True, False, False):
-            kwargs["window_y"] = kwargs["window"]
-        case (True, False, False, False):
-            kwargs["window_x"] = kwargs["window"]
-        case _:
-            kwargs["window_y"] = kwargs["window"]
+    if kwargs["window"] is not None:
+        match (  # preference for y axis
+            kwargs.get("window_x", None) is None,
+            kwargs.get("window_y", None) is None,
+            len(kwargs["x"]) == 1,
+            len(kwargs["y"]) == 1,
+        ):
+            case (False, True, False, True):
+                kwargs["window_y"] = kwargs["window"]
+            case (True, False, True, False):
+                kwargs["window_x"] = kwargs["window"]
+            case (True, True, False, True):
+                kwargs["window_y"] = kwargs["window"]
+            case (True, True, True, False):
+                kwargs["window_x"] = kwargs["window"]
+            case (False, True, False, False):
+                kwargs["window_y"] = kwargs["window"]
+            case (True, False, False, False):
+                kwargs["window_x"] = kwargs["window"]
+            case _:
+                kwargs["window_y"] = kwargs["window"]
 
     # window_x
     kwargs["window_x"] = kwargs.get("window_x", None)

@@ -3,6 +3,7 @@
 """Generate a Python code that allows you to plot the graph."""
 
 import datetime
+import itertools
 import logging
 import pathlib
 
@@ -25,6 +26,7 @@ def printer(**kwargs) -> str:
     code.extend(print_import())
     code.extend(print_cst(**kwargs))
     code.extend(print_read_sql(**kwargs))
+    code.extend(print_fill_axe(**kwargs))
     code.extend(print_plot(**kwargs))
     code.extend(print_entry())
     return "\n".join(code)
@@ -35,7 +37,7 @@ def print_entry() -> list[str]:
     return [
         'if __name__ == "__main__":',
         "    values: dict[str] = read_sql(DATABASE)",
-        "    plot(values)",
+        "    main_plot(values)",
     ]
 
 
@@ -43,10 +45,33 @@ def print_cst(**kwargs) -> list[str]:
     """Return the code of the definition of the constants."""
     return [
         f"DATABASE = pathlib.Path({str(kwargs['database'])!r})",
-        'TITLE = "Chart of mendevi"',
         "",
         "",
     ]
+
+
+def print_fill_axe(**kwargs) -> list[str]:
+    """Return the code that fill a given axes."""
+    code = [
+        f"def fill_axe(axe: plt.Axes, values: dict[str], ylab: str, xlab: str):",
+        '    """Fill in the axis with the data provided as input."""',
+    ]
+    if kwargs["color"] is not None:
+        code.extend([
+            f"    labels = sorted(set(values[{kwargs['color']!r}]))",
+            "    for label in labels:",
+            f"        mask = [v == label for v in values[{kwargs['color']!r}]]",
+            "        sub_values = {k: [v for v, m in zip(vs, mask) if mask] for k, vs in values.items()}",
+            "        x_data, y_data = sub_values[xlab], sub_values[ylab]",
+            f'        axe.errorbar(x_data, y_data, label=f"{kwargs['color']!r}={{label}}", capsize=3, fmt="o", markersize=4)',
+        ])
+    else:
+        code.extend([
+            "    x_data, y_data = values[xlab], values[ylab]",
+            '    axe.errorbar(x_data, y_data, capsize=3, fmt="o", markersize=4)',
+        ])
+    code.extend(["", ""])
+    return code
 
 
 def print_header() -> list[str]:
@@ -62,6 +87,7 @@ def print_header() -> list[str]:
 def print_import() -> list[str]:
     """Print the importations."""
     return [
+        "import itertools",
         "import pathlib",
         "import sqlite3",
         "",
@@ -72,29 +98,75 @@ def print_import() -> list[str]:
     ]
 
 
-def print_plot(**kwargs) -> list[str]:
-    """Return the code of the function that plot the final graphic."""
-    suplabel = []
-    if len(kwargs["x"]) == 1:
-        suplabel.append(f"    fig.supxlabel({get_label_extractor(kwargs['x'][0])[0]!r})")
-    if len(kwargs["y"]) == 1:
-        suplabel.append(f"    fig.supylabel({get_label_extractor(kwargs['y'][0])[0]!r})")
-
-    return [
-        "def plot(values: dict[str]):",
-        '    """Create the chart with matplotlib."""',
-        # f"    nrows, ncols = {len(kwargs['y'])}, {len(kwargs['x'])}",
-        f"    nrows, ncols = 2, 2",
-        "    fig, axes = plt.subplots(nrows, ncols, sharex=True, sharey=True, figsize=(7, 9))",
-        *suplabel,
-        f"    axes[0, 0].errorbar(values[{kwargs['x'][0]!r}], values[{kwargs['y'][0]!r}], capsize=3, fmt='o', markersize=4)",
-        "    # lines, labels = axes[0, 0].get_legend_handles_labels()",
-        '    # fig.legend(lines, labels, loc="upper center", ncols=ncols)',
-        "    # fig.tight_layout(rect=(0, 0, 1, 0.95))",
-        "    plt.show()",
+def print_subplot(**kwargs) -> list[str]:
+    """Return the code for the subplot of a a given y and y axis."""
+    header = [
+        f"def plot_{kwargs['ylabel']}_{kwargs['xlabel']}(values: dict[str]):",
+        f'    """Create the subchart for y={kwargs["ylabel"]} and x={kwargs["xlabel"]}."""',
+    ]
+    match (kwargs["window_y"] is None, kwargs["window_x"] is None):
+        case (True, True):
+            raise NotImplementedError
+        case (False, True):
+            raise NotImplementedError
+        case (True, False):
+            raise NotImplementedError
+        case (False, False):  # 2d grid subplot
+            middle = [
+                "    # create a 2d grid subplot figure",
+                f"    all_{kwargs['window_y']}_values = sorted(set(values[{kwargs['window_y']!r}]))",
+                f"    all_{kwargs['window_x']}_values = sorted(set(values[{kwargs['window_x']!r}]))",
+                f"    nrows, ncols = len(all_{kwargs['window_y']}_values), len(all_{kwargs['window_x']}_values)",
+                "    fig, axes = plt.subplots(nrows, ncols, sharex=True, sharey=True, figsize=(10, 10))",
+                "",
+                "    # iterate over all subplots",
+                f"    for (i, {kwargs['window_y']}_value), (j, {kwargs['window_x']}_value) in itertools.product(",
+                f"        enumerate(all_{kwargs['window_y']}_values), enumerate(all_{kwargs['window_x']}_values)",
+                "    ):",
+                "        # select the correct data subset",
+                "        mask = [",
+                f"            y == {kwargs['window_y']}_value and x == {kwargs['window_x']}_value",
+                f"            for y, x in zip(values[{kwargs['window_y']!r}], values[{kwargs['window_x']!r}])",
+                "        ]",
+                "        sub_values = {k: [v for v, m in zip(vs, mask) if mask] for k, vs in values.items()}",
+                f"        axes[i, j].set_title(f'{{{kwargs['window_y']}_value}} {{{kwargs['window_x']}_value}}')",
+                f"        fill_axe(axes[i, j], sub_values, ylab={kwargs['ylabel']!r}, xlab={kwargs['xlabel']!r})",
+            ]
+    end = [
+        f"    fig.supylabel({get_label_extractor(kwargs['ylabel'])[0]!r})",
+        f"    fig.supxlabel({get_label_extractor(kwargs['xlabel'])[0]!r})",
         "",
         "",
     ]
+    return header + middle + end
+
+
+def print_plot(**kwargs) -> list[str]:
+    """Return the code of the function that plot the final graphic."""
+    code = []
+    # subplots
+    for ylabel, xlabel in itertools.product(kwargs["y"], kwargs["x"]):
+        code.extend(print_subplot(**kwargs, ylabel=ylabel, xlabel=xlabel))
+
+    # main function
+    code.extend([
+        "def main_plot(values: dict[str]):",
+        '    """Create the charts with matplotlib."""',
+    ])
+    for (i, ylabel), (j, xlabel) in itertools.product(
+        enumerate(kwargs["y"]), enumerate(kwargs["x"])
+    ):
+        code.extend([
+            "    # TODO: display in a grid rather than creating multiple windows",
+            f"    plot_{ylabel}_{xlabel}(values)  # in position rows={i+1}, cols={j+1}",
+        ])
+    code.extend([
+        "    # plt.savefig('mendevi_chart.pdf', format='pdf')",
+        "    plt.show()",
+        "",
+        "",
+    ])
+    return code
 
 
 def print_read_sql(**kwargs) -> list[str]:

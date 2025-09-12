@@ -136,7 +136,7 @@ def extract_enc_quality(raw: dict[str]) -> float:
     assert isinstance(raw, dict), raw.__class__.__name__
     assert "enc_quality" in raw, "Please correct the SQL query."
     enc_quality = raw["enc_quality"]
-    assert isinstance(enc_quality, str), enc_quality.__class__.__name__
+    assert isinstance(enc_quality, numbers.Real), enc_quality.__class__.__name__
     assert 0.0 <= enc_quality <= 1.0, enc_quality
     return float(enc_quality)
 
