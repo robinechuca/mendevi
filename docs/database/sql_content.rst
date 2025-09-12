@@ -116,7 +116,7 @@ To deserialize into an exploitable numpy array, please use the function `binary_
 act_ps_dt
 ^^^^^^^^^
 
-The list of time intervals in seconds between two consecutive psutil measures.
+The list of the duration of each measurement point (in second).
 To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
 
 .. _act_ps_core:

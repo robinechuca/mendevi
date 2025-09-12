@@ -14,11 +14,11 @@ dependencies = [  # https://packaging.python.org/en/latest/specifications/depend
   "context_verbose",
   "cutcutcodec",
   "enoslib",
-  "filelock",
   "flufl.lock",
   "matplotlib",
   "numpy",
   "psutil",
+  "pygments",
   "requests",
   "unidecode",
 ]
