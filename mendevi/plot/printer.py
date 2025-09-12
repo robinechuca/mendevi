@@ -61,7 +61,7 @@ def print_fill_axe(**kwargs) -> list[str]:
             f"    labels = sorted(set(values[{kwargs['color']!r}]))",
             "    for label in labels:",
             f"        mask = [v == label for v in values[{kwargs['color']!r}]]",
-            "        sub_values = {k: [v for v, m in zip(vs, mask) if mask] for k, vs in values.items()}",
+            "        sub_values = {k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()}",
             "        x_data, y_data = sub_values[xlab], sub_values[ylab]",
             f'        axe.errorbar(x_data, y_data, label=f"{kwargs['color']!r}={{label}}", capsize=3, fmt="o", markersize=4)',
         ])
@@ -106,11 +106,44 @@ def print_subplot(**kwargs) -> list[str]:
     ]
     match (kwargs["window_y"] is None, kwargs["window_x"] is None):
         case (True, True):
-            raise NotImplementedError
+           middle = [
+                "    # create a simple figure",
+                "    fig, axe = plt.subplots(sharex=True, figsize=(10, 10))",
+                f"    fill_axe(axe, sub_values, ylab={kwargs['ylabel']!r}, xlab={kwargs['xlabel']!r})",
+                "    lines, labels = axe.get_legend_handles_labels()",
+            ]
         case (False, True):
-            raise NotImplementedError
+            middle = [
+                "    # create a 1d vertical subplot figure",
+                f"    all_{kwargs['window_y']}_values = sorted(set(values[{kwargs['window_y']!r}]))",
+                f"    nrows = len(all_{kwargs['window_y']}_values)",
+                "    fig, axes = plt.subplots(nrows=nrows, sharex=True, figsize=(10, 10))",
+                "",
+                "    # iterate over all subplots",
+                f"    for i, {kwargs['window_y']}_value in enumerate(all_{kwargs['window_y']}_values):",
+                "        # select the correct data subset",
+                f"        mask = [y == {kwargs['window_y']}_value for y in values[{kwargs['window_y']!r}]]",
+                "        sub_values = {k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()}",
+                f"        axes[i].set_title({kwargs['window_y']}_value)",
+                f"        fill_axe(axes[i], sub_values, ylab={kwargs['ylabel']!r}, xlab={kwargs['xlabel']!r})",
+                "    lines, labels = axes[0].get_legend_handles_labels()",
+            ]
         case (True, False):
-            raise NotImplementedError
+            middle = [
+                "    # create a 1d horizontal subplot figure",
+                f"    all_{kwargs['window_x']}_values = sorted(set(values[{kwargs['window_x']!r}]))",
+                f"    ncols = len(all_{kwargs['window_x']}_values)",
+                "    fig, axes = plt.subplots(ncols=ncols, sharey=True, figsize=(10, 10))",
+                "",
+                "    # iterate over all subplots",
+                f"    for j, {kwargs['window_x']}_value in enumerate(all_{kwargs['window_x']}_values):",
+                "        # select the correct data subset",
+                f"        mask = [x == {kwargs['window_x']}_value for x in values[{kwargs['window_x']!r}]]",
+                "        sub_values = {k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()}",
+                f"        axes[j].set_title({kwargs['window_x']}_value)",
+                f"        fill_axe(axes[j], sub_values, ylab={kwargs['ylabel']!r}, xlab={kwargs['xlabel']!r})",
+                "    lines, labels = axes[0].get_legend_handles_labels()",
+            ]
         case (False, False):  # 2d grid subplot
             middle = [
                 "    # create a 2d grid subplot figure",
@@ -128,11 +161,14 @@ def print_subplot(**kwargs) -> list[str]:
                 f"            y == {kwargs['window_y']}_value and x == {kwargs['window_x']}_value",
                 f"            for y, x in zip(values[{kwargs['window_y']!r}], values[{kwargs['window_x']!r}])",
                 "        ]",
-                "        sub_values = {k: [v for v, m in zip(vs, mask) if mask] for k, vs in values.items()}",
+                "        sub_values = {k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()}",
                 f"        axes[i, j].set_title(f'{{{kwargs['window_y']}_value}} {{{kwargs['window_x']}_value}}')",
                 f"        fill_axe(axes[i, j], sub_values, ylab={kwargs['ylabel']!r}, xlab={kwargs['xlabel']!r})",
+                "    lines, labels = axes[0, 0].get_legend_handles_labels()",
             ]
     end = [
+        "    if labels:",
+        "        fig.legend(lines, labels, loc='upper center', ncols=len(labels))",
         f"    fig.supylabel({get_label_extractor(kwargs['ylabel'])[0]!r})",
         f"    fig.supxlabel({get_label_extractor(kwargs['xlabel'])[0]!r})",
         "",
@@ -161,7 +197,7 @@ def print_plot(**kwargs) -> list[str]:
             f"    plot_{ylabel}_{xlabel}(values)  # in position rows={i+1}, cols={j+1}",
         ])
     code.extend([
-        "    # plt.savefig('mendevi_chart.pdf', format='pdf')",
+        "    plt.savefig('mendevi_chart.pdf', format='pdf')",
         "    plt.show()",
         "",
         "",
