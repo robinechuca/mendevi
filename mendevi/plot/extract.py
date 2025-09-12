@@ -117,3 +117,71 @@ def extract_enc_threads(raw: dict[str]) -> int:
     assert isinstance(enc_threads, numbers.Integral), enc_threads.__class__.__name__
     assert enc_threads >= 1, enc_threads.__class__.__name__
     return int(enc_threads)
+
+
+@SqlLinker(["enc_quality"], "t_enc_encode", [])
+def extract_enc_quality(raw: dict[str]) -> float:
+    """Return the quality level passed to the encoder.
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+
+    Returns
+    -------
+    quality : float
+        Quality level passed to the encoder.
+    """
+    assert isinstance(raw, dict), raw.__class__.__name__
+    assert "enc_quality" in raw, "Please correct the SQL query."
+    enc_quality = raw["enc_quality"]
+    assert isinstance(enc_quality, str), enc_quality.__class__.__name__
+    assert 0.0 <= enc_quality <= 1.0, enc_quality
+    return float(enc_quality)
+
+
+@SqlLinker(["enc_encoder"], "t_enc_encode", [])
+def extract_enc_encoder(raw: dict[str]) -> str:
+    """Return the name of the encoder.
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+
+    Returns
+    -------
+    encoder : str
+        Name of the encoder.
+    """
+    assert isinstance(raw, dict), raw.__class__.__name__
+    assert "enc_encoder" in raw, "Please correct the SQL query."
+    enc_encoder = raw["enc_encoder"]
+    assert isinstance(enc_encoder, str), enc_encoder.__class__.__name__
+    return str(enc_encoder)
+
+
+@SqlLinker(["enc_width"], "t_enc_encode", [])
+def extract_profile(raw: dict[str]) -> str:
+    """Return the profile of the encoded video.
+
+    The profile is determined based on the width of the video.
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+
+    Returns
+    -------
+    profile : str
+        Profile of the encoded video.
+    """
+    from mendevi.cst.profiles import PROFILES
+    assert isinstance(raw, dict), raw.__class__.__name__
+    assert "enc_width" in raw, "Please correct the SQL query."
+    enc_width = raw["enc_width"]
+    assert isinstance(enc_width, numbers.Integral), enc_width.__class__.__name__
+    dist_to_profile = {abs(v["resolution"][1]-enc_width): p for p, v in PROFILES.items()}
+    return dist_to_profile[min(dist_to_profile)]

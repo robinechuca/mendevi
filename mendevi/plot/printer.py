@@ -102,6 +102,10 @@ def print_read_sql(**kwargs) -> list[str]:
     names = set(kwargs["x"]) | set(kwargs["y"])
     if kwargs["color"] is not None:
         names.add(kwargs["color"])
+    if kwargs["window_x"] is not None:
+        names.add(kwargs["window_x"])
+    if kwargs["window_y"] is not None:
+        names.add(kwargs["window_y"])
     names = sorted(names)
 
     # get sql query

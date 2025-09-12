@@ -9,7 +9,10 @@ from . import extract
 
 NAMES = [
     "enc_cores",
-    "enc_threads",
+    "enc_encoder", "encoder",
+    "enc_quality", "quality",
+    "enc_threads", "threads",
+    "profile",
 ]
 
 
@@ -36,8 +39,23 @@ def get_label_extractor(name: str):
                 "Average cumulative utilisation rate of logic cores during encoding",
                 extract.extract_enc_cores,
             )
-        case "enc_threads":
+        case "enc_encoder" | "encoder":
+            return (
+                "Name of the encoder",
+                extract.extract_enc_encoder,
+            )
+        case "enc_quality" | "quality":
+            return (
+                "Quality level passed to the encoder",
+                extract.extract_enc_quality,
+            )
+        case "enc_threads" | "threads":
             return (
                 "Number of threads provided as a parameter to the encoder",
                 extract.extract_enc_threads,
+            )
+        case "profile":
+            return (
+                "Profile of the encoded video",
+                extract.extract_profile,
             )
