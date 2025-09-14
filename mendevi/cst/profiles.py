@@ -30,7 +30,7 @@ PROFILES = {
         "resolution": (720, 1280),
         "transfer": "iec61966-2-1, iec61966_2_1",  # sRGB
     },
-    "uhd": {
+    "fhd": {  # TODO: renomer en fhd
         "fps": Fraction(30000, 1001),
         "pix_fmt": "yuv420p10le",
         "primaries": "bt709",
@@ -38,7 +38,7 @@ PROFILES = {
         "resolution": (1080, 1920),
         "transfer": "bt709",
     },
-    "hd4k": {  # partialy given by https://trac.ffmpeg.org/wiki/Encode/AV1
+    "uhd4k": {  # partialy given by https://trac.ffmpeg.org/wiki/Encode/AV1
         "fps": Fraction(60000, 1001),
         "pix_fmt": "yuv420p10le",
         "primaries": "bt2020",

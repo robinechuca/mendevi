@@ -36,8 +36,10 @@ class SqlLinker:
         if len(select_str) >= 80:
             select_str = f"SELECT\n    {',\n    '.join(self.select)}"
         table_str = f"FROM {self.table}"
-        join_str = "\n".join(re.sub(" ON ", "\n    ON ", j) for j in self.join)
-        sql = f"{select_str}\n{table_str}\n{join_str}"
+        if (join_str := "\n".join(re.sub(" ON ", "\n    ON ", j) for j in self.join)):
+            sql = f"{select_str}\n{table_str}\n{join_str}"
+        else:
+            sql = f"{select_str}\n{table_str}"
         return sql
 
     def __call__(self, func: callable) -> callable:
@@ -95,6 +97,53 @@ def extract_enc_cores(raw: dict[str]) -> float:
     integral = (act_ps_core * act_ps_dt).sum()  # act_ps_core is already the average on each dt
     average = integral / act_ps_dt.sum()
     return float(average) / 100.0  # normalisation
+
+
+@SqlLinker(
+    ["enc_act.act_duration AS enc_act_duration"],
+    "t_enc_encode",
+    ["JOIN t_act_activity AS enc_act ON t_enc_encode.enc_act_id = enc_act.act_id"],
+)
+def extract_enc_duration(raw: dict[str]) -> float:
+    """Return the video encoding time in seconds.
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+
+    Returns
+    -------
+    enc_duration : float
+        Video encoding time in seconds.
+    """
+    assert isinstance(raw, dict), raw.__class__.__name__
+    assert "enc_act_duration" in raw, "Please correct the SQL query."
+    enc_duration = raw["enc_act_duration"]
+    assert isinstance(enc_duration, numbers.Real), enc_duration.__class__.__name__
+    assert enc_duration > 0.0, enc_duration.__class__.__name__
+    return float(enc_duration)
+
+
+@SqlLinker(["enc_effort"], "t_enc_encode", [])
+def extract_enc_effort(raw: dict[str]) -> str:
+    """Return the effort provided as a parameter to the encoder.
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+
+    Returns
+    -------
+    enc_effort : str
+        Effort provided as a parameter to the encoder.
+    """
+    assert isinstance(raw, dict), raw.__class__.__name__
+    assert "enc_effort" in raw, "Please correct the SQL query."
+    enc_effort = raw["enc_effort"]
+    assert isinstance(enc_effort, str), enc_effort.__class__.__name__
+    return str(enc_effort)
 
 
 @SqlLinker(["enc_threads"], "t_enc_encode", [])
@@ -160,6 +209,66 @@ def extract_enc_encoder(raw: dict[str]) -> str:
     enc_encoder = raw["enc_encoder"]
     assert isinstance(enc_encoder, str), enc_encoder.__class__.__name__
     return str(enc_encoder)
+
+
+@SqlLinker(
+    [
+        "enc_act.act_wattmeter_dt AS enc_act_act_wattmeter_dt",
+        "enc_act.act_wattmeter_power AS enc_act_wattmeter_power",
+    ],
+    "t_enc_encode",
+    ["JOIN t_act_activity AS enc_act ON t_enc_encode.enc_act_id = enc_act.act_id"],
+)
+def extract_enc_wattmeter_energy(raw: dict[str]) -> float:
+    """Return the total encoding energy consumption in Joules.
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+
+    Returns
+    -------
+    enc_power : float
+        Total encoding energy consumption in Joules.
+    """
+    assert isinstance(raw, dict), raw.__class__.__name__
+    assert "enc_act_act_wattmeter_dt" in raw, "Please correct the SQL query."
+    assert "enc_act_wattmeter_power" in raw, "Please correct the SQL query."
+    act_dt = binary_to_list(raw["enc_act_act_wattmeter_dt"])
+    act_power = binary_to_list(raw["enc_act_wattmeter_power"])
+    integral = 0.5 * ((act_power[:-1] + act_power[1:]) * act_dt).sum()  # trapez method
+    return float(integral)
+
+
+@SqlLinker(
+    [
+        "enc_act.act_wattmeter_dt AS enc_act_act_wattmeter_dt",
+        "enc_act.act_wattmeter_power AS enc_act_wattmeter_power",
+    ],
+    "t_enc_encode",
+    ["JOIN t_act_activity AS enc_act ON t_enc_encode.enc_act_id = enc_act.act_id"],
+)
+def extract_enc_wattmeter_power(raw: dict[str]) -> float:
+    """Return the average encoding power consumption in Watts.
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+
+    Returns
+    -------
+    enc_power : float
+        Average encoding power consumption in Watts.
+    """
+    assert isinstance(raw, dict), raw.__class__.__name__
+    assert "enc_act_act_wattmeter_dt" in raw, "Please correct the SQL query."
+    assert "enc_act_wattmeter_power" in raw, "Please correct the SQL query."
+    act_dt = binary_to_list(raw["enc_act_act_wattmeter_dt"])
+    act_power = binary_to_list(raw["enc_act_wattmeter_power"])
+    integral = 0.5 * ((act_power[:-1] + act_power[1:]) * act_dt).sum()  # trapez method
+    return float(integral / act_dt.sum())
 
 
 @SqlLinker(["enc_width"], "t_enc_encode", [])

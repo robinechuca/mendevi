@@ -218,10 +218,10 @@ def main(videos: tuple, database: str = None, **kwargs):
     env_id = add_environement(database)
     kwargs["src_vid_id"]: dict[pathlib.Path, bytes] = compute_video_hash(videos)
 
-    keys = ["threads", "effort", "quality", "encoder", "filter", "fps", "resolution", "pix_fmt"]
+    keys = ["effort", "encoder", "filter", "fps", "pix_fmt", "quality", "resolution", "threads"]
 
     # retrieves the settings for videos that have already been transcoded
-    with sqlite3.connect(database) as sql_database:
+    with sqlite3.connect(database) as sql_database, Printer("Search already done...") as prt:
         sql_database.row_factory = sqlite3.Row
         done: dict[tuple, int] = {}
         for values in sql_database.execute(
@@ -240,6 +240,7 @@ def main(videos: tuple, database: str = None, **kwargs):
             }
             values = tuple(values[k] for k in ["src_vid_id", *keys])
             done[values] = done.get(values, 0) + 1
+        prt.print(f"{sum(done.values())} video already encoded under these conditions")
 
     # iterate on all the parameters
     loops = functools.reduce(
@@ -249,10 +250,11 @@ def main(videos: tuple, database: str = None, **kwargs):
         itertools.product(range(kwargs["repeat"]), videos, *(kwargs[k] for k in keys))
     ):
         values = dict(zip(["repeat", "video", *keys], values), repeat=values[0])
-        values["src_vid_id"] = kwargs["src_vid_id"][values["video"]]
+        values["filter"] = values["filter"] or None
         values["fps"] = values["fps"] or get_rate_video(values["video"])
-        values["resolution"] = values["resolution"] or get_resolution(values["video"])
         values["pix_fmt"] = values["pix_fmt"] or get_pix_fmt(values["video"])
+        values["resolution"] = values["resolution"] or get_resolution(values["video"])
+        values["src_vid_id"] = kwargs["src_vid_id"][values["video"]]
         key = (values["src_vid_id"],) + tuple(values[k] for k in keys)
         if done.get(key, 0) > values["repeat"]:
             continue

@@ -9,9 +9,13 @@ from . import extract
 
 NAMES = [
     "enc_cores",
+    "enc_duration",
+    "enc_effort", "effort",
     "enc_encoder", "encoder",
     "enc_quality", "quality",
     "enc_threads", "threads",
+    "enc_wattmeter_energy", "enc_energy",
+    "enc_wattmeter_power", "enc_power",
     "profile",
 ]
 
@@ -39,6 +43,16 @@ def get_label_extractor(name: str):
                 "Average cumulative utilisation rate of logic cores during encoding",
                 extract.extract_enc_cores,
             )
+        case "enc_effort" | "effort":
+            return (
+                "Effort provided as a parameter to the encoder",
+                extract.extract_enc_effort,
+            )
+        case "enc_duration":
+            return (
+                "Video encoding time in seconds",
+                extract.extract_enc_duration,
+            )
         case "enc_encoder" | "encoder":
             return (
                 "Name of the encoder",
@@ -53,6 +67,16 @@ def get_label_extractor(name: str):
             return (
                 "Number of threads provided as a parameter to the encoder",
                 extract.extract_enc_threads,
+            )
+        case "enc_wattmeter_energy" | "enc_energy":
+            return (
+                "Total encoding energy consumption in Joules",
+                extract.extract_enc_wattmeter_energy,
+            )
+        case "enc_wattmeter_power" | "enc_power":
+            return (
+                "Average encoding power consumption in Watts",
+                extract.extract_enc_wattmeter_power,
             )
         case "profile":
             return (

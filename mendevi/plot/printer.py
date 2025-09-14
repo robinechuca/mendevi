@@ -63,7 +63,7 @@ def print_fill_axe(**kwargs) -> list[str]:
             f"        mask = [v == label for v in values[{kwargs['color']!r}]]",
             "        sub_values = {k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()}",
             "        x_data, y_data = sub_values[xlab], sub_values[ylab]",
-            f'        axe.errorbar(x_data, y_data, label=f"{kwargs['color']!r}={{label}}", capsize=3, fmt="o", markersize=4)',
+            f'        axe.errorbar(x_data, y_data, label=f"{kwargs['color']}={{label}}", capsize=3, fmt="o", markersize=4)',
         ])
     else:
         code.extend([
@@ -108,8 +108,8 @@ def print_subplot(**kwargs) -> list[str]:
         case (True, True):
            middle = [
                 "    # create a simple figure",
-                "    fig, axe = plt.subplots(sharex=True, figsize=(10, 10))",
-                f"    fill_axe(axe, sub_values, ylab={kwargs['ylabel']!r}, xlab={kwargs['xlabel']!r})",
+                "    fig, axe = plt.subplots(sharex=True, figsize=(8, 8))",
+                f"    fill_axe(axe, values, ylab={kwargs['ylabel']!r}, xlab={kwargs['xlabel']!r})",
                 "    lines, labels = axe.get_legend_handles_labels()",
             ]
         case (False, True):
@@ -117,7 +117,7 @@ def print_subplot(**kwargs) -> list[str]:
                 "    # create a 1d vertical subplot figure",
                 f"    all_{kwargs['window_y']}_values = sorted(set(values[{kwargs['window_y']!r}]))",
                 f"    nrows = len(all_{kwargs['window_y']}_values)",
-                "    fig, axes = plt.subplots(nrows=nrows, sharex=True, figsize=(10, 10))",
+                "    fig, axes = plt.subplots(nrows=nrows, sharex=True, figsize=(8, 8))",
                 "",
                 "    # iterate over all subplots",
                 f"    for i, {kwargs['window_y']}_value in enumerate(all_{kwargs['window_y']}_values):",
@@ -133,7 +133,7 @@ def print_subplot(**kwargs) -> list[str]:
                 "    # create a 1d horizontal subplot figure",
                 f"    all_{kwargs['window_x']}_values = sorted(set(values[{kwargs['window_x']!r}]))",
                 f"    ncols = len(all_{kwargs['window_x']}_values)",
-                "    fig, axes = plt.subplots(ncols=ncols, sharey=True, figsize=(10, 10))",
+                "    fig, axes = plt.subplots(ncols=ncols, sharey=True, figsize=(8, 8))",
                 "",
                 "    # iterate over all subplots",
                 f"    for j, {kwargs['window_x']}_value in enumerate(all_{kwargs['window_x']}_values):",
@@ -150,7 +150,7 @@ def print_subplot(**kwargs) -> list[str]:
                 f"    all_{kwargs['window_y']}_values = sorted(set(values[{kwargs['window_y']!r}]))",
                 f"    all_{kwargs['window_x']}_values = sorted(set(values[{kwargs['window_x']!r}]))",
                 f"    nrows, ncols = len(all_{kwargs['window_y']}_values), len(all_{kwargs['window_x']}_values)",
-                "    fig, axes = plt.subplots(nrows, ncols, sharex=True, sharey=True, figsize=(10, 10))",
+                "    fig, axes = plt.subplots(nrows, ncols, sharex=True, sharey=True, figsize=(8, 8))",
                 "",
                 "    # iterate over all subplots",
                 f"    for (i, {kwargs['window_y']}_value), (j, {kwargs['window_x']}_value) in itertools.product(",
@@ -168,7 +168,7 @@ def print_subplot(**kwargs) -> list[str]:
             ]
     end = [
         "    if labels:",
-        "        fig.legend(lines, labels, loc='upper center', ncols=len(labels))",
+        "        fig.legend(lines, labels, loc='upper center', ncols=min(4, len(labels)))",
         f"    fig.supylabel({get_label_extractor(kwargs['ylabel'])[0]!r})",
         f"    fig.supxlabel({get_label_extractor(kwargs['xlabel'])[0]!r})",
         "",
