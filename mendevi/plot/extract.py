@@ -294,3 +294,29 @@ def extract_profile(raw: dict[str]) -> str:
     assert isinstance(enc_width, numbers.Integral), enc_width.__class__.__name__
     dist_to_profile = {abs(v["resolution"][1]-enc_width): p for p, v in PROFILES.items()}
     return dist_to_profile[min(dist_to_profile)]
+
+
+@SqlLinker(
+    ["enc_vid.vid_name AS enc_src_vid_name"],
+    "t_enc_encode",
+    ["JOIN t_vid_video AS enc_vid ON t_enc_encode.enc_src_vid_id = enc_vid.vid_id"],
+)
+def extract_src_vid(raw: dict[str]) -> str:
+    """Return the input video name.
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+
+    Returns
+    -------
+    vid_name : str
+        Input video name.
+    """
+    from mendevi.cst.profiles import PROFILES
+    assert isinstance(raw, dict), raw.__class__.__name__
+    assert "enc_src_vid_name" in raw, "Please correct the SQL query."
+    enc_src_vid_name = raw["enc_src_vid_name"]
+    assert isinstance(enc_src_vid_name, str), enc_src_vid_name.__class__.__name__
+    return str(enc_src_vid_name)

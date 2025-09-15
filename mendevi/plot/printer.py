@@ -2,6 +2,7 @@
 
 """Generate a Python code that allows you to plot the graph."""
 
+import ast
 import datetime
 import itertools
 import logging
@@ -25,9 +26,11 @@ def printer(**kwargs) -> str:
     code.extend(print_header())
     code.extend(print_import())
     code.extend(print_cst(**kwargs))
+    if kwargs["filter"] is not None:
+        code.extend(print_selector(**kwargs))
     code.extend(print_read_sql(**kwargs))
     code.extend(print_fill_axe(**kwargs))
-    code.extend(print_plot(**kwargs))
+    code.extend(print_main(**kwargs))
     code.extend(print_entry())
     return "\n".join(code)
 
@@ -37,14 +40,17 @@ def print_entry() -> list[str]:
     return [
         'if __name__ == "__main__":',
         "    values: dict[str] = read_sql(DATABASE)",
-        "    main_plot(values)",
+        "    main(values)",
     ]
 
 
 def print_cst(**kwargs) -> list[str]:
     """Return the code of the definition of the constants."""
     return [
+        "COLORS = list(mcolors.TABLEAU_COLORS.values())  # list of colors to be plotted",
         f"DATABASE = pathlib.Path({str(kwargs['database'])!r})",
+        f"FIGNAME = pathlib.Path('{'_'.join(kwargs['x'])}_as_a_function_of_{'_'.join(kwargs['y'])}.pdf')",
+        "MARKERS = ['o', 'x', '+', '^', 'v']  # list of 'dot' shapes",
         "",
         "",
     ]
@@ -57,19 +63,84 @@ def print_fill_axe(**kwargs) -> list[str]:
         '    """Fill in the axis with the data provided as input."""',
     ]
     if kwargs["color"] is not None:
-        code.extend([
-            f"    labels = sorted(set(values[{kwargs['color']!r}]))",
-            "    for label in labels:",
-            f"        mask = [v == label for v in values[{kwargs['color']!r}]]",
-            "        sub_values = {k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()}",
-            "        x_data, y_data = sub_values[xlab], sub_values[ylab]",
-            f'        axe.errorbar(x_data, y_data, label=f"{kwargs['color']}={{label}}", capsize=3, fmt="o", markersize=4)',
-        ])
-    else:
-        code.extend([
-            "    x_data, y_data = values[xlab], values[ylab]",
-            '    axe.errorbar(x_data, y_data, capsize=3, fmt="o", markersize=4)',
-        ])
+        code.append(f"    color_labels = sorted(set(values[{kwargs['color']!r}]))")
+    if kwargs["marker"] is not None:
+        code.append(f"    marker_labels = sorted(set(values[{kwargs['marker']!r}]))")
+    match (kwargs["color"] is None, kwargs["marker"] is None):
+        case (True, True):  # no color, no marker
+            code.extend([
+                "    x_data, y_data = values[xlab], values[ylab]",
+                "    axe.errorbar(",
+                "       x_data, y_data,",
+                "       color=COLORS[0],",
+                "       marker=MARKERS[0],",
+                "       capsize=3,",
+                "       fmt='o',",
+                "        markersize=4,",
+                "    )",
+            ])
+        case (False, True):  # only color
+            code.extend([
+                "    for color_label, color in zip(color_labels, itertools.cycle(COLORS)):",
+                f"        mask = [v == color_label for v in values[{kwargs['color']!r}]]",
+                "        sub_values = {k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()}",
+                "        x_data, y_data = sub_values[xlab], sub_values[ylab]",
+                f'        axe.errorbar(',
+                "            x_data, y_data,",
+                f'            label=f"{kwargs['color']}={{color_label}}", ',
+                "            color=color,",
+                "            fmt=MARKERS[0],",
+                "            capsize=3,",
+                "            markersize=4",
+                "        )",
+            ])
+        case (True, False):  # only marker
+            code.extend([
+                "    for marker_label, marker in zip(marker_labels, itertools.cycle(MARKERS)):",
+                f"        mask = [v == marker_label for v in values[{kwargs['marker']!r}]]",
+                "        sub_values = {k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()}",
+                "        x_data, y_data = sub_values[xlab], sub_values[ylab]",
+                f'        axe.errorbar(',
+                "            x_data, y_data,",
+                f'            label=f"{kwargs['marker']}={{marker_label}}", ',
+                "            color=COLORS[0],",
+                "            fmt=marker,",
+                "            capsize=3,",
+                "            markersize=4",
+                "        )",
+            ])
+        case (False, False):  # both color and marker
+            code.extend([
+                "",
+                "    # create legend",
+                "    for color_label, color in zip(color_labels, itertools.cycle(COLORS)):",
+                f"        axe.errorbar([], [], color=color, label=f'{kwargs['color']}={{color_label}}')",
+                "    for marker_label, marker in zip(marker_labels, itertools.cycle(MARKERS)):",
+                f"        axe.errorbar([], [], color='black', fmt=marker, label=f'{kwargs['marker']}={{marker_label}}')",
+
+                "",
+                "    # plot data",
+                "    for (color_label, color), (marker_label, marker) in itertools.product(",
+                "        zip(color_labels, itertools.cycle(COLORS)),",
+                "        zip(marker_labels, itertools.cycle(MARKERS)),",
+                "    ):",
+                "        mask = [",
+                "            vc == color_label and vm == marker_label",
+                f"            for vc, vm in zip(values[{kwargs['color']!r}], values[{kwargs['marker']!r}])",
+                "        ]",
+                "        sub_values = {k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()}",
+                "        x_data, y_data = sub_values[xlab], sub_values[ylab]",
+                f'        axe.errorbar(',
+                "            x_data, y_data,",
+                # f'            label=f"{kwargs['color']}={{color_label}} {kwargs['marker']}={{marker_label}}", ',
+                "            color=color,",
+                "            fmt=marker,",
+                "            capsize=3,",
+                "            markersize=4",
+                "        )",
+            ])
+
+
     code.extend(["", ""])
     return code
 
@@ -91,8 +162,31 @@ def print_import() -> list[str]:
         "import pathlib",
         "import sqlite3",
         "",
+        "import matplotlib.colors as mcolors",
         "import matplotlib.pyplot as plt",
         "import mendevi.plot.extract as extract",
+        "",
+        "",
+    ]
+
+
+def print_selector(**kwargs) -> list[str]:
+    """Return the code for selecting a subset of the data."""
+    names = sorted({
+        n.id for n in ast.walk(ast.parse(kwargs["filter"], mode="eval")) if isinstance(n, ast.Name)
+    })
+    if len(names) == 1:
+        loop = f"    for {names[0]} in values[{names[0]!r}]:"
+    else:
+        loop = f"    for {', '.join(names)} in zip({', '.join(f'values[{n!r}]' for n in names)}):"
+    return [
+        "def select(values: dict[str]) -> dict[str]:",
+        '    """Keep only some of the data."""',
+        "    mask: list[bool] = []",
+        loop,
+        f"        mask.append(bool({kwargs['filter']}))",
+        "    values = {k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()}",
+        "    return values",
         "",
         "",
     ]
@@ -177,7 +271,7 @@ def print_subplot(**kwargs) -> list[str]:
     return header + middle + end
 
 
-def print_plot(**kwargs) -> list[str]:
+def print_main(**kwargs) -> list[str]:
     """Return the code of the function that plot the final graphic."""
     code = []
     # subplots
@@ -186,8 +280,8 @@ def print_plot(**kwargs) -> list[str]:
 
     # main function
     code.extend([
-        "def main_plot(values: dict[str]):",
-        '    """Create the charts with matplotlib."""',
+        "def main(values: dict[str]):",
+        '    """Create the plotss with matplotlib."""',
     ])
     for (i, ylabel), (j, xlabel) in itertools.product(
         enumerate(kwargs["y"]), enumerate(kwargs["x"])
@@ -197,7 +291,7 @@ def print_plot(**kwargs) -> list[str]:
             f"    plot_{ylabel}_{xlabel}(values)  # in position rows={i+1}, cols={j+1}",
         ])
     code.extend([
-        "    plt.savefig('mendevi_chart.pdf', format='pdf')",
+        "    plt.savefig(FIGNAME, format=FIGNAME.suffix[1:])",
         "    plt.show()",
         "",
         "",
@@ -210,10 +304,17 @@ def print_read_sql(**kwargs) -> list[str]:
     names = set(kwargs["x"]) | set(kwargs["y"])
     if kwargs["color"] is not None:
         names.add(kwargs["color"])
+    if kwargs["marker"] is not None:
+        names.add(kwargs["marker"])
     if kwargs["window_x"] is not None:
         names.add(kwargs["window_x"])
     if kwargs["window_y"] is not None:
         names.add(kwargs["window_y"])
+    if kwargs["filter"] is not None:
+        names |= {
+            n.id for n in ast.walk(ast.parse(kwargs["filter"], mode="eval"))
+            if isinstance(n, ast.Name)
+        }
     names = sorted(names)
 
     # get sql query
@@ -226,6 +327,9 @@ def print_read_sql(**kwargs) -> list[str]:
         table = table.pop()
     join = sorted({j for f in funcs.values() for j in f.join})
     query = SqlLinker(select, table, join).sql
+
+    # selector
+    selector = [] if kwargs["filter"] is None else ["    values = select(values)"]
 
     # include in template
     extract = (f'values[{n!r}].append(extract.{funcs[n].__name__}(raw))' for n in names)
@@ -242,6 +346,7 @@ def print_read_sql(**kwargs) -> list[str]:
         "        ):",
         "            raw = dict(raw)",
         f"            {'\n            '.join(extract)}",
+        *selector,
         "    return values",
         "",
         "",
