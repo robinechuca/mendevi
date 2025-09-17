@@ -22,6 +22,7 @@ def printer(**kwargs) -> str:
     x, y : tuple[str]
         The name of the var along each axis.
     """
+    # create code
     code: list[str] = []
     code.extend(print_header())
     code.extend(print_import())
@@ -32,7 +33,16 @@ def printer(**kwargs) -> str:
     code.extend(print_fill_axe(**kwargs))
     code.extend(print_main(**kwargs))
     code.extend(print_entry())
-    return "\n".join(code)
+    code = "\n".join(code)
+
+    # format code
+    try:
+        import black
+    except ImportError:
+        logging.warning("failed to import black, please install it (uv pip install black)")
+    else:
+        code = black.format_str(code, mode=FileMode(line_length=100))
+    return code
 
 
 def print_entry() -> list[str]:

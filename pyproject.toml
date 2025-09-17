@@ -10,6 +10,7 @@ maintainers = [
   {name = "Robin RICHARD (robinechuca)", email = "robin.richard@inria.fr"},
 ]
 dependencies = [  # https://packaging.python.org/en/latest/specifications/dependency-specifiers/#dependency-specifiers
+  "black",
   "click",
   "context_verbose",
   "cutcutcodec",
@@ -23,8 +24,7 @@ dependencies = [  # https://packaging.python.org/en/latest/specifications/depend
   "unidecode",
 ]
 readme = "README.rst"
-license = {file = "LICENSE"}  # GPL-3.0-or-later
-# license = "GPL-3.0-or-later"
+license = {file = "LICENSE"}
 keywords = [
   "av1",
   "consumption",

@@ -53,7 +53,7 @@ First install the `python dependencies <https://github.com/pyenv/pyenv/wiki#sugg
 
         curl https://pyenv.run | bash
         CONTENT=$'export PYENV_ROOT="$HOME/.pyenv"\ncommand -v pyenv > /dev/null || export PATH="$PYENV_ROOT/bin:$PATH"\neval "$(pyenv init -)"\neval "$(pyenv virtualenv-init -)"'
-        grep -q "$CONTENT" || echo "$CONTENT" >> ~/.bashrc
+        grep -q "$CONTENT" ~/.bashrc || echo "$CONTENT" >> ~/.bashrc
         source ~/.bashrc
 
 .. tab:: macOS
