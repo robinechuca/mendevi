@@ -41,15 +41,17 @@ def print_entry() -> list[str]:
         'if __name__ == "__main__":',
         "    values: dict[str] = read_sql(DATABASE)",
         "    main(values)",
+        "",
     ]
 
 
 def print_cst(**kwargs) -> list[str]:
     """Return the code of the definition of the constants."""
     return [
-        "COLORS = list(mcolors.TABLEAU_COLORS.values())  # list of colors to be plotted",
+        "# COLORS = list(mcolors.TABLEAU_COLORS.values())  # list of colors to be plotted",
+        "COLORS = ['#ef597b', '#29a2c6', '#ffcb18', '#73b66b', '#4e4f4b']",
         f"DATABASE = pathlib.Path({str(kwargs['database'])!r})",
-        f"FIGNAME = pathlib.Path('{'_'.join(kwargs['x'])}_as_a_function_of_{'_'.join(kwargs['y'])}.pdf')",
+        f"FIGNAME = pathlib.Path(__file__).with_suffix('.pdf')",
         "MARKERS = ['o', 'x', '+', '^', 'v']  # list of 'dot' shapes",
         "",
         "",
@@ -71,11 +73,10 @@ def print_fill_axe(**kwargs) -> list[str]:
             code.extend([
                 "    x_data, y_data = values[xlab], values[ylab]",
                 "    axe.errorbar(",
-                "       x_data, y_data,",
-                "       color=COLORS[0],",
-                "       marker=MARKERS[0],",
-                "       capsize=3,",
-                "       fmt='o',",
+                "        x_data, y_data,",
+                "        color=COLORS[0],",
+                "        fmt=MARKERS[0],",
+                "        capsize=3,",
                 "        markersize=4,",
                 "    )",
             ])
@@ -200,12 +201,13 @@ def print_subplot(**kwargs) -> list[str]:
     ]
     match (kwargs["window_y"] is None, kwargs["window_x"] is None):
         case (True, True):
-           middle = [
+            middle = [
                 "    # create a simple figure",
                 "    fig, axe = plt.subplots(sharex=True, figsize=(8, 8))",
                 f"    fill_axe(axe, values, ylab={kwargs['ylabel']!r}, xlab={kwargs['xlabel']!r})",
                 "    lines, labels = axe.get_legend_handles_labels()",
             ]
+            legend = "axe.legend()"
         case (False, True):
             middle = [
                 "    # create a 1d vertical subplot figure",
@@ -222,6 +224,7 @@ def print_subplot(**kwargs) -> list[str]:
                 f"        fill_axe(axes[i], sub_values, ylab={kwargs['ylabel']!r}, xlab={kwargs['xlabel']!r})",
                 "    lines, labels = axes[0].get_legend_handles_labels()",
             ]
+            legend = "fig.legend(lines, labels, loc='upper center', ncols=min(3, len(labels)))"
         case (True, False):
             middle = [
                 "    # create a 1d horizontal subplot figure",
@@ -238,6 +241,7 @@ def print_subplot(**kwargs) -> list[str]:
                 f"        fill_axe(axes[j], sub_values, ylab={kwargs['ylabel']!r}, xlab={kwargs['xlabel']!r})",
                 "    lines, labels = axes[0].get_legend_handles_labels()",
             ]
+            legend = "fig.legend(lines, labels, loc='upper center', ncols=min(3, len(labels)))"
         case (False, False):  # 2d grid subplot
             middle = [
                 "    # create a 2d grid subplot figure",
@@ -260,9 +264,10 @@ def print_subplot(**kwargs) -> list[str]:
                 f"        fill_axe(axes[i, j], sub_values, ylab={kwargs['ylabel']!r}, xlab={kwargs['xlabel']!r})",
                 "    lines, labels = axes[0, 0].get_legend_handles_labels()",
             ]
+            legend = "fig.legend(lines, labels, loc='upper center', ncols=min(3, len(labels)))"
     end = [
         "    if labels:",
-        "        fig.legend(lines, labels, loc='upper center', ncols=min(4, len(labels)))",
+        f"        {legend}",
         f"    fig.supylabel({get_label_extractor(kwargs['ylabel'])[0]!r})",
         f"    fig.supxlabel({get_label_extractor(kwargs['xlabel'])[0]!r})",
         "",
@@ -281,7 +286,7 @@ def print_main(**kwargs) -> list[str]:
     # main function
     code.extend([
         "def main(values: dict[str]):",
-        '    """Create the plotss with matplotlib."""',
+        '    """Create the plots with matplotlib."""',
     ])
     for (i, ylabel), (j, xlabel) in itertools.product(
         enumerate(kwargs["y"]), enumerate(kwargs["x"])

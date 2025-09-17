@@ -72,6 +72,35 @@ class SqlLinker:
 
 
 @SqlLinker(
+    ["enc_env_id", "enc_cmd", "enc_vid.vid_name AS enc_src_vid_name"],
+    "t_enc_encode",
+    ["JOIN t_vid_video AS enc_vid ON t_enc_encode.enc_src_vid_id = enc_vid.vid_id"],
+)
+def extract_enc_scenario(raw: dict[str]) -> str:
+    """Return the unique string specific to the encoding scenario.
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+
+    Returns
+    -------
+    scenario : str
+        Unique string specific to the encoding scenario.
+    """
+    assert isinstance(raw, dict), raw.__class__.__name__
+    assert "enc_env_id" in raw, "Please correct the SQL query."
+    assert "enc_cmd" in raw, "Please correct the SQL query."
+    assert "enc_src_vid_name" in raw, "Please correct the SQL query."
+    env_id, cmd, vid_name = raw["enc_env_id"], raw["enc_cmd"], raw["enc_src_vid_name"]
+    assert isinstance(env_id, numbers.Integral), env_id.__class__.__name__
+    assert isinstance(cmd, str), cmd.__class__.__name__
+    assert isinstance(vid_name, str), vid_name.__class__.__name__
+    return f"env {env_id}: {cmd.replace('src.mp4', vid_name)}"
+
+
+@SqlLinker(
     ["enc_act.act_ps_dt AS enc_act_ps_dt", "enc_act.act_ps_core AS enc_act_ps_core"],
     "t_enc_encode",
     ["JOIN t_act_activity AS enc_act ON t_enc_encode.enc_act_id = enc_act.act_id"],
@@ -319,4 +348,5 @@ def extract_src_vid(raw: dict[str]) -> str:
     assert "enc_src_vid_name" in raw, "Please correct the SQL query."
     enc_src_vid_name = raw["enc_src_vid_name"]
     assert isinstance(enc_src_vid_name, str), enc_src_vid_name.__class__.__name__
-    return str(enc_src_vid_name)
+    vid_name = re.sub(r"^reference_(\w+)_(?:sd|hd|fhd|uhd4k)\.\w+$", r"\1", enc_src_vid_name)
+    return str(vid_name)

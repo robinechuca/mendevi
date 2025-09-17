@@ -186,7 +186,7 @@ def main(database: str, **kwargs):
     # get title name
     path = (
         pathlib.Path.cwd()
-        / f"plot_{'_'.join(kwargs['x'])}_as_a_function_of_{'_'.join(kwargs['y'])}.py"
+        / f"{'_'.join(kwargs['x'])}_as_a_function_of_{'_'.join(kwargs['y'])}.py"
     )
 
     # get code content

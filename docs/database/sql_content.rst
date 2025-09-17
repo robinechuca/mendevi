@@ -924,8 +924,8 @@ The ffmpeg command used for encoding:
 enc_effort
 ^^^^^^^^^^
 
-The effort that the encoder puts into optimising the bit rate distortion ratio.
-Possible values are ``fast``, ``medium`` and ``fast``.
+The effort that the encoder puts into optimizing the bit rate distortion ratio in exchange for increased computing time.
+Possible values are ``fast``, ``medium`` and ``slow``.
 
 .. _enc_encoder:
 

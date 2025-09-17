@@ -257,7 +257,7 @@ def main(cmd: str, **kwargs):
                 for res in enoslib.run_command(
                     f"cat {log_file}", roles=roles, on_error_continue=True
                 ):
-                    res = json.loads(res.payload["stdout"])
+                    res = json.loads(res.payload.get("stdout", ""))
                     if "rc" in res:
                         print(res["stdout"])
                         log_files.remove(log_file)

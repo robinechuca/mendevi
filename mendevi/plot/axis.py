@@ -13,6 +13,7 @@ NAMES = [
     "enc_effort", "effort", "preset",
     "enc_encoder", "encoder",
     "enc_quality", "quality",
+    "enc_scenario",
     "enc_threads", "threads",
     "enc_wattmeter_energy", "enc_energy",
     "enc_wattmeter_power", "enc_power",
@@ -63,6 +64,11 @@ def get_label_extractor(name: str):
             return (
                 "Quality level passed to the encoder",
                 extract.extract_enc_quality,
+            )
+        case "enc_scenario":
+            return (
+                "Unique string specific to the encoding scenario",
+                extract.extract_enc_scenario,
             )
         case "enc_threads" | "threads":
             return (
