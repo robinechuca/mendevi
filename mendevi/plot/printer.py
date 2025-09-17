@@ -41,7 +41,7 @@ def printer(**kwargs) -> str:
     except ImportError:
         logging.warning("failed to import black, please install it (uv pip install black)")
     else:
-        code = black.format_str(code, mode=FileMode(line_length=100))
+        code = black.format_str(code, mode=black.FileMode(line_length=100))
     return code
 
 
@@ -63,6 +63,7 @@ def print_cst(**kwargs) -> list[str]:
         f"DATABASE = pathlib.Path({str(kwargs['database'])!r})",
         f"FIGNAME = pathlib.Path(__file__).with_suffix('.pdf')",
         "MARKERS = ['o', 'x', '+', '^', 'v']  # list of 'dot' shapes",
+        "MARKERSIZE = 4",
         "",
         "",
     ]
@@ -87,7 +88,7 @@ def print_fill_axe(**kwargs) -> list[str]:
                 "        color=COLORS[0],",
                 "        fmt=MARKERS[0],",
                 "        capsize=3,",
-                "        markersize=4,",
+                "        markersize=MARKERSIZE,",
                 "    )",
             ])
         case (False, True):  # only color
@@ -96,13 +97,13 @@ def print_fill_axe(**kwargs) -> list[str]:
                 f"        mask = [v == color_label for v in values[{kwargs['color']!r}]]",
                 "        sub_values = {k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()}",
                 "        x_data, y_data = sub_values[xlab], sub_values[ylab]",
-                f'        axe.errorbar(',
+                f"        axe.errorbar(",
                 "            x_data, y_data,",
                 f'            label=f"{kwargs['color']}={{color_label}}", ',
                 "            color=color,",
                 "            fmt=MARKERS[0],",
                 "            capsize=3,",
-                "            markersize=4",
+                "            markersize=MARKERSIZE",
                 "        )",
             ])
         case (True, False):  # only marker
@@ -111,13 +112,13 @@ def print_fill_axe(**kwargs) -> list[str]:
                 f"        mask = [v == marker_label for v in values[{kwargs['marker']!r}]]",
                 "        sub_values = {k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()}",
                 "        x_data, y_data = sub_values[xlab], sub_values[ylab]",
-                f'        axe.errorbar(',
+                f"        axe.errorbar(",
                 "            x_data, y_data,",
                 f'            label=f"{kwargs['marker']}={{marker_label}}", ',
                 "            color=COLORS[0],",
                 "            fmt=marker,",
                 "            capsize=3,",
-                "            markersize=4",
+                "            markersize=MARKERSIZE",
                 "        )",
             ])
         case (False, False):  # both color and marker
@@ -128,7 +129,6 @@ def print_fill_axe(**kwargs) -> list[str]:
                 f"        axe.errorbar([], [], color=color, label=f'{kwargs['color']}={{color_label}}')",
                 "    for marker_label, marker in zip(marker_labels, itertools.cycle(MARKERS)):",
                 f"        axe.errorbar([], [], color='black', fmt=marker, label=f'{kwargs['marker']}={{marker_label}}')",
-
                 "",
                 "    # plot data",
                 "    for (color_label, color), (marker_label, marker) in itertools.product(",
@@ -141,16 +141,14 @@ def print_fill_axe(**kwargs) -> list[str]:
                 "        ]",
                 "        sub_values = {k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()}",
                 "        x_data, y_data = sub_values[xlab], sub_values[ylab]",
-                f'        axe.errorbar(',
+                f"        axe.errorbar(",
                 "            x_data, y_data,",
-                # f'            label=f"{kwargs['color']}={{color_label}} {kwargs['marker']}={{marker_label}}", ',
                 "            color=color,",
                 "            fmt=marker,",
                 "            capsize=3,",
-                "            markersize=4",
+                "            markersize=MARKERSIZE",
                 "        )",
             ])
-
 
     code.extend(["", ""])
     return code
@@ -183,9 +181,13 @@ def print_import() -> list[str]:
 
 def print_selector(**kwargs) -> list[str]:
     """Return the code for selecting a subset of the data."""
-    names = sorted({
-        n.id for n in ast.walk(ast.parse(kwargs["filter"], mode="eval")) if isinstance(n, ast.Name)
-    })
+    names = sorted(
+        {
+            n.id
+            for n in ast.walk(ast.parse(kwargs["filter"], mode="eval"))
+            if isinstance(n, ast.Name)
+        }
+    )
     if len(names) == 1:
         loop = f"    for {names[0]} in values[{names[0]!r}]:"
     else:
@@ -209,6 +211,11 @@ def print_subplot(**kwargs) -> list[str]:
         f"def plot_{kwargs['ylabel']}_{kwargs['xlabel']}(values: dict[str]):",
         f'    """Create the subchart for y={kwargs["ylabel"]} and x={kwargs["xlabel"]}."""',
     ]
+    legend = [
+        "        leg = fig.legend(lines, labels, loc='upper center', ncols=min(3, len(labels)))",
+        "        leg.set_in_layout(True)",
+        "        fig.tight_layout(rect=[0.02, 0.02, 1, 0.95])  # 2% for axis and 5% for legend",
+    ]
     match (kwargs["window_y"] is None, kwargs["window_x"] is None):
         case (True, True):
             middle = [
@@ -217,7 +224,7 @@ def print_subplot(**kwargs) -> list[str]:
                 f"    fill_axe(axe, values, ylab={kwargs['ylabel']!r}, xlab={kwargs['xlabel']!r})",
                 "    lines, labels = axe.get_legend_handles_labels()",
             ]
-            legend = "axe.legend()"
+            legend = ["        axe.legend()", "        fig.set_constrained_layout(True)"]
         case (False, True):
             middle = [
                 "    # create a 1d vertical subplot figure",
@@ -234,7 +241,6 @@ def print_subplot(**kwargs) -> list[str]:
                 f"        fill_axe(axes[i], sub_values, ylab={kwargs['ylabel']!r}, xlab={kwargs['xlabel']!r})",
                 "    lines, labels = axes[0].get_legend_handles_labels()",
             ]
-            legend = "fig.legend(lines, labels, loc='upper center', ncols=min(3, len(labels)))"
         case (True, False):
             middle = [
                 "    # create a 1d horizontal subplot figure",
@@ -251,7 +257,6 @@ def print_subplot(**kwargs) -> list[str]:
                 f"        fill_axe(axes[j], sub_values, ylab={kwargs['ylabel']!r}, xlab={kwargs['xlabel']!r})",
                 "    lines, labels = axes[0].get_legend_handles_labels()",
             ]
-            legend = "fig.legend(lines, labels, loc='upper center', ncols=min(3, len(labels)))"
         case (False, False):  # 2d grid subplot
             middle = [
                 "    # create a 2d grid subplot figure",
@@ -274,13 +279,14 @@ def print_subplot(**kwargs) -> list[str]:
                 f"        fill_axe(axes[i, j], sub_values, ylab={kwargs['ylabel']!r}, xlab={kwargs['xlabel']!r})",
                 "    lines, labels = axes[0, 0].get_legend_handles_labels()",
             ]
-            legend = "fig.legend(lines, labels, loc='upper center', ncols=min(3, len(labels)))"
     end = [
         "    if labels:",
-        f"        {legend}",
+        *legend,
+        "    else:",
+        "        fig.set_constrained_layout(True)",
         f"    fig.supylabel({get_label_extractor(kwargs['ylabel'])[0]!r})",
         f"    fig.supxlabel({get_label_extractor(kwargs['xlabel'])[0]!r})",
-        "",
+        "    fig.set_tight_layout(True)" "",
         "",
     ]
     return header + middle + end
@@ -327,7 +333,8 @@ def print_read_sql(**kwargs) -> list[str]:
         names.add(kwargs["window_y"])
     if kwargs["filter"] is not None:
         names |= {
-            n.id for n in ast.walk(ast.parse(kwargs["filter"], mode="eval"))
+            n.id
+            for n in ast.walk(ast.parse(kwargs["filter"], mode="eval"))
             if isinstance(n, ast.Name)
         }
     names = sorted(names)
@@ -347,7 +354,7 @@ def print_read_sql(**kwargs) -> list[str]:
     selector = [] if kwargs["filter"] is None else ["    values = select(values)"]
 
     # include in template
-    extract = (f'values[{n!r}].append(extract.{funcs[n].__name__}(raw))' for n in names)
+    extract = (f"values[{n!r}].append(extract.{funcs[n].__name__}(raw))" for n in names)
     return [
         "def read_sql(database: pathlib.Path) -> dict[str, list]:",
         '    """Extract the relevant values from the database."""',

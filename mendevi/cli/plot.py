@@ -76,7 +76,7 @@ def _parse_args(prt: Printer, kwargs: dict):
     if kwargs["marker"] is not None:
         assert isinstance(kwargs["marker"], str), kwargs["marker"].__class__.__name__
         assert kwargs["marker"] in NAMES, kwargs["marker"]
-        prt.print(f"marker     : {kwargs['marker']}")
+        prt.print(f"marker    : {kwargs['marker']}")
 
     # window
     kwargs["window"] = kwargs.get("window", None)

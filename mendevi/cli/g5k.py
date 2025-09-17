@@ -48,7 +48,7 @@ def _parse_args(prt: Printer, kwargs: dict):
     prt.print(f"env_name: {kwargs['env_name']}")
 
     # walltime
-    kwargs["walltime"] = kwargs.get("walltime", "24:00:00")
+    kwargs["walltime"] = kwargs.get("walltime", None) or "24:00:00"
     assert isinstance(kwargs["walltime"], str), kwargs["walltime"].__class__.__name__
     prt.print(f"walltime: {kwargs['walltime']}")
 
@@ -169,7 +169,6 @@ def guess_storage() -> list[str]:
         (path / "tmp_empty_mendevi").unlink()
         storages.append(str(path))
     return storages
-
 
 
 def is_g5k_frontend(fail: bool = True) -> bool:
