@@ -318,7 +318,7 @@ To install the lastest development version from `GitLab <https://gitlab.inria.fr
     git clone https://gitlab.inria.fr/rrichard/mendevi.git ~/mendevi_git
     cd ~/mendevi_git
     pyenv activate mendevi  # to be sure to be in a virtual env
-    uv pip -v install --editable .[doc,test]
+    uv pip install -e .[doc,test]
     mendevi test  # to test if the installation is ok
 .. pip uninstall typing_extensions to debug attribute '__default__' of 'typing.ParamSpec' objects is not writable
 
