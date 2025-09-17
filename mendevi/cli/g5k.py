@@ -14,6 +14,7 @@ import time
 
 from context_verbose import Printer
 import click
+import requests
 
 
 SLEEP_INIT = 10.0  # initial sleeping time
