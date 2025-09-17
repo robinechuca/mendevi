@@ -164,7 +164,7 @@ def guess_storage() -> list[str]:
         try:
             with open(path / "tmp_empty_mendevi", "wb"):
                 pass
-        except PermissionError:
+        except (FileNotFoundError, PermissionError):
             continue
         (path / "tmp_empty_mendevi").unlink()
         storages.append(str(path))
