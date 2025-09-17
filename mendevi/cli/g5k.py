@@ -256,7 +256,7 @@ def main(cmd: str, **kwargs):
         enoslib.G5kConf.from_settings(
             env_name=kwargs["env_name"],
             job_name=f"mendevi {hashlib.md5(cmd.encode('utf-8')).hexdigest()}",
-            job_type=["deploy"],
+            job_type=["deploy", "exotic"],
             walltime=kwargs["walltime"],
             monitor="wattmetre_power_watt",
             # queue="production",  # "default", "testing", "besteffort"
