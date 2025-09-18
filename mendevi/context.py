@@ -199,7 +199,7 @@ def get_platform() -> dict:
         "kernel_version": platform.platform(),
         "logical_cores": psutil.cpu_count(logical=True),
         "physical_cores": psutil.cpu_count(logical=False),
-        "processor": platform.processor(),
+        "processor": platform.processor() or platform.machine(),
         "python_compiler": platform.python_compiler(),
         "python_version": platform.python_version(),
         "ram": psutil.virtual_memory().total,

@@ -10,7 +10,7 @@ ENV_UNIQUE = [
     "env_ffmpeg_version",
     "env_hostname",
     "env_logical_cores",
-    "env_pip_freeze",
+    # "env_pip_freeze",
     "env_processor",
 ]
 

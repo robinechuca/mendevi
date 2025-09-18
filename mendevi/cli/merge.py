@@ -85,7 +85,7 @@ def main(databases: tuple[str]):
                 prt.print("table 't_met_metric'")
                 for row in cursor_src.execute("SELECT * FROM t_met_metric"):
                     row = dict(row)
-                    old = del row["met_id"]
+                    del row["met_id"]
                     _insert_update(
                         cursor_dst, row, "t_met_metric", ("met_ref_vid_id", "met_dis_vid_id")
                     )
@@ -113,6 +113,7 @@ def main(databases: tuple[str]):
                 prt.print("table 't_enc_encode'")
                 for row in cursor_src.execute("SELECT * FROM t_enc_encode"):
                     row = dict(row)
+                    del row["enc_id"]
                     row["enc_env_id"] = env_old_to_new[row["enc_env_id"]]
                     row["enc_act_id"] = act_old_to_new[row["enc_act_id"]]
                     _insert_update(cursor_dst, row, "t_enc_encode", ())
@@ -121,6 +122,7 @@ def main(databases: tuple[str]):
                 prt.print("table 't_dec_decode'")
                 for row in cursor_src.execute("SELECT * FROM t_dec_decode"):
                     row = dict(row)
+                    del row["dec_id"]
                     row["dec_env_id"] = env_old_to_new[row["dec_env_id"]]
                     row["dec_act_id"] = act_old_to_new[row["dec_act_id"]]
                     _insert_update(cursor_dst, row, "t_dec_decode", ())
