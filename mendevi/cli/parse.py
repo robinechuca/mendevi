@@ -58,7 +58,7 @@ def _guess_database(files: tuple[str]) -> str | None:
 
 
 def parse_videos_database(
-    prt: context_verbose.Printer, videos: tuple[str], database: str = None
+    prt: context_verbose.Printer, videos: tuple[str], database: str = None, _quiet: bool = False
 ) -> tuple[list[pathlib.Path], pathlib.Path]:
     """Find or create the database and extract all the videos.
 
@@ -85,9 +85,9 @@ def parse_videos_database(
 
     # videos
     videos = list(unfold_video_files(videos))
-    if len(videos) == 1:
+    if len(videos) == 1 and not _quiet:
         prt.print(f"video     : {videos[0]}")
-    elif len(videos) > 1:
+    elif len(videos) > 1 and not _quiet:
         prt.print(f"videos    : {len(videos)} files founded")
 
     # database
@@ -104,8 +104,9 @@ def parse_videos_database(
         database = database / "mendevi.db" if database.is_dir() else database
     if not database.exists():
         create_database(database)
-        prt.print(f"database  : {database} (just created)")
-    else:
+        if not _quiet:
+            prt.print(f"database  : {database} (just created)")
+    elif not _quiet:
         prt.print(f"database  : {database}")
 
     return videos, database
