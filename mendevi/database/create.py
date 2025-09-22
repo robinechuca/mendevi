@@ -231,7 +231,8 @@ def create_database(filename: str | bytes | pathlib.Path):
                     END;
             END;
         """)
-        cursor.close()
+
+    filename.chmod(0o777)
 
 
 def is_sqlite(file: str | bytes | pathlib.Path):

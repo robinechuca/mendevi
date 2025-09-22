@@ -226,4 +226,5 @@ def main(video: str, output: str | None = None, **kwargs) -> pathlib.Path:
                 }],
             )
         shutil.move(tmp, file)
+        file.chmod(0o777)
     return file

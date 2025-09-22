@@ -115,6 +115,7 @@ def encode(src: pathlib.Path, **kwargs) -> tuple[pathlib.Path, str, dict[str]]:
     if not final_dst.exists():
         shutil.copy(dst, src.parent / f"sample_{signature}_partial.mp4")
         shutil.move(src.parent / f"sample_{signature}_partial.mp4", final_dst)
+        final_dst.chmod(0o777)
     dst.unlink()
 
     return final_dst, prt_cmd, activity
