@@ -212,15 +212,14 @@ def print_subplot(**kwargs) -> list[str]:
         f'    """Create the subchart for y={kwargs["ylabel"]} and x={kwargs["xlabel"]}."""',
     ]
     legend = [
-        "        leg = fig.legend(lines, labels, loc='upper center', ncols=min(3, len(labels)))",
+        "        leg = fig.legend(lines, labels, loc='outside upper center', ncols=min(3, len(labels)))",
         "        leg.set_in_layout(True)",
-        "        fig.tight_layout(rect=[0.02, 0.02, 1, 0.95])  # 2% for axis and 5% for legend",
     ]
     match (kwargs["window_y"] is None, kwargs["window_x"] is None):
         case (True, True):
             middle = [
                 "    # create a simple figure",
-                "    fig, axe = plt.subplots(sharex=True, figsize=(8, 8))",
+                "    fig, axe = plt.subplots(sharex=True, figsize=(8, 8), constrained_layout=True)",
                 f"    fill_axe(axe, values, ylab={kwargs['ylabel']!r}, xlab={kwargs['xlabel']!r})",
                 "    lines, labels = axe.get_legend_handles_labels()",
             ]
@@ -230,7 +229,7 @@ def print_subplot(**kwargs) -> list[str]:
                 "    # create a 1d vertical subplot figure",
                 f"    all_{kwargs['window_y']}_values = sorted(set(values[{kwargs['window_y']!r}]))",
                 f"    nrows = len(all_{kwargs['window_y']}_values)",
-                "    fig, axes = plt.subplots(nrows=nrows, sharex=True, figsize=(8, 8))",
+                "    fig, axes = plt.subplots(nrows=nrows, sharex=True, figsize=(8, 8), constrained_layout=True)",
                 "",
                 "    # iterate over all subplots",
                 f"    for i, {kwargs['window_y']}_value in enumerate(all_{kwargs['window_y']}_values):",
@@ -246,7 +245,7 @@ def print_subplot(**kwargs) -> list[str]:
                 "    # create a 1d horizontal subplot figure",
                 f"    all_{kwargs['window_x']}_values = sorted(set(values[{kwargs['window_x']!r}]))",
                 f"    ncols = len(all_{kwargs['window_x']}_values)",
-                "    fig, axes = plt.subplots(ncols=ncols, sharey=True, figsize=(8, 8))",
+                "    fig, axes = plt.subplots(ncols=ncols, sharey=True, figsize=(8, 8), constrained_layout=True)",
                 "",
                 "    # iterate over all subplots",
                 f"    for j, {kwargs['window_x']}_value in enumerate(all_{kwargs['window_x']}_values):",
@@ -263,7 +262,7 @@ def print_subplot(**kwargs) -> list[str]:
                 f"    all_{kwargs['window_y']}_values = sorted(set(values[{kwargs['window_y']!r}]))",
                 f"    all_{kwargs['window_x']}_values = sorted(set(values[{kwargs['window_x']!r}]))",
                 f"    nrows, ncols = len(all_{kwargs['window_y']}_values), len(all_{kwargs['window_x']}_values)",
-                "    fig, axes = plt.subplots(nrows, ncols, sharex=True, sharey=True, figsize=(8, 8))",
+                "    fig, axes = plt.subplots(nrows, ncols, sharex=True, sharey=True, figsize=(8, 8), constrained_layout=True)",
                 "",
                 "    # iterate over all subplots",
                 f"    for (i, {kwargs['window_y']}_value), (j, {kwargs['window_x']}_value) in itertools.product(",
@@ -282,11 +281,8 @@ def print_subplot(**kwargs) -> list[str]:
     end = [
         "    if labels:",
         *legend,
-        "    else:",
-        "        fig.set_constrained_layout(True)",
         f"    fig.supylabel({get_label_extractor(kwargs['ylabel'])[0]!r})",
         f"    fig.supxlabel({get_label_extractor(kwargs['xlabel'])[0]!r})",
-        "    fig.set_tight_layout(True)" "",
         "",
     ]
     return header + middle + end
