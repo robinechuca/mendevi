@@ -213,6 +213,7 @@ def encode_and_store(
             "enc_quality": kwargs["quality"],
             "enc_src_vid_id": kwargs["src_vid_id"],
             "enc_threads": kwargs["threads"],
+            "enc_vbr": int(kwargs["vbr"]),
             "enc_width": kwargs["resolution"][1],
         }
         keys = list(values)
@@ -259,14 +260,15 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs) -> list[st
 
     # transcode
     cmd.append("-c:v")
+    bit = int(re.search(r"(?P<bit>\d+)le", kwargs["pix_fmt"] + "8le")["bit"])
     match kwargs["encoder"]:
         case "libx264":
             cmd.extend([  # https://ffmpeg.party/x264/
                 "libx264",
-                "-crf", str(round(kwargs["quality"]*51.0, 1)),
+                ("-crf" if kwargs["vbr"] else "-qp"), str(round(kwargs["quality"]*51.0, 1)),
                 "-preset", kwargs["effort"],
                 "-tune", "ssim",
-                "-threads", str(kwargs["threads"]),
+                "-threads", str(kwargs["threads"]), "-thread_type", "frame",
             ])
         case "libx265":
             cmd.extend([   # https://x265.readthedocs.io/en/master/cli.html
@@ -299,7 +301,6 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs) -> list[st
                 "-svtav1-params", f"film-grain=0:lp={libsvtav1_lp(kwargs['threads'])}:tune=2",
             ])
         case "vvc":
-            bit = int(re.search(r"(?P<bit>\d+)le", kwargs["pix_fmt"] + "8le")["bit"])
             cmd.extend([
                 "vvc",
                 "-qp", str(round(kwargs["quality"]*63.0)),

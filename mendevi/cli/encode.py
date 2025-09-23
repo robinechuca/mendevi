@@ -4,8 +4,8 @@
 
 import fractions
 import functools
+import hashlib
 import itertools
-import operator
 import pathlib
 import sqlite3
 
@@ -93,9 +93,35 @@ def _parse_args(prt: Printer, kwargs: dict):
     assert isinstance(kwargs["pix_fmt"], tuple), kwargs["pix_fmt"].__class__.__name__
     assert all(isinstance(p, str) for p in kwargs["pix_fmt"]), kwargs["pix_fmt"]
     if kwargs["pix_fmt"]:
-        prt.print(f"pix_fmt: {', '.join(kwargs['pix_fmt'])}")
+        prt.print(f"pix_fmt   : {', '.join(kwargs['pix_fmt'])}")
     else:
         kwargs["pix_fmt"] = (None,)
+
+    # vbr
+    assert "vbr" in kwargs, sorted(kwargs)
+    assert isinstance(kwargs["vbr"], tuple), kwargs["vbr"].__class__.__name__
+    assert all(
+        vbr in {"1", "0", "yes", "no", "true", "false", 1, 0, True, False} for vbr in kwargs["vbr"]
+    ), kwargs["vbr"]
+    kwargs["vbr"] = sorted({
+        {
+            "1": True,
+            "0": False,
+            "yes": True,
+            "no": False,
+            "true": True,
+            "false": False,
+            1: True,
+            0: False,
+            True: True,
+            False: False
+        }[vbr]
+        for vbr in kwargs["vbr"]
+    })
+    prt.print(
+        "bitrate   : "
+        f"{' and '.join({True: 'variable', False: 'constant'}[vbr] for vbr in kwargs['vbr'])}"
+    )
 
     # filter
     kwargs["filter"] = kwargs.get("filter", ())
@@ -104,7 +130,7 @@ def _parse_args(prt: Printer, kwargs: dict):
     if kwargs["filter"]:
         prt.print(f"filters   : {', '.join(map(str, kwargs['filter']))}")
     else:
-        kwargs["filter"] = ("",)
+        kwargs["filter"] = (None,)
 
 
 @click.command()
@@ -162,6 +188,13 @@ def _parse_args(prt: Printer, kwargs: dict):
     help="The optional pixel format conversion during encoding.",
 )
 @click.option(
+    "-v", "--vbr",
+    type=click.Choice(["1", "0", "yes", "no", "true", "false"]),
+    default=["1"],
+    multiple=True,
+    help="The optional variable bit rate rule.",
+)
+@click.option(
     "--filter",
     type=str,
     multiple=True,
@@ -205,6 +238,9 @@ def main(videos: tuple, database: str = None, **kwargs):
         If this argument is not provided, the resolution remains unchanged.
     pix_fmt : str, optional
         If provided, A pixel conversion is performed during encoding.
+    vbr : tuple[bool]
+        Boolean that is ``true`` if the bit rate is variable (crf mode),
+        or ``false`` if it is constant (qp mode).
     filter : str, optional
         A video ffmpeg filter (after -vf) which applies at the time of transcoding,
         more precisely between decoding and conversion. It is a kind of pre-conversion.
@@ -218,7 +254,9 @@ def main(videos: tuple, database: str = None, **kwargs):
     env_id = add_environement(database)
     kwargs["src_vid_id"]: dict[pathlib.Path, bytes] = compute_video_hash(videos)
 
-    keys = ["effort", "encoder", "filter", "fps", "pix_fmt", "quality", "resolution", "threads"]
+    keys = [
+        "effort", "encoder", "filter", "fps", "pix_fmt", "quality", "resolution", "threads", "vbr"
+    ]
 
     # retrieves the settings for videos that have already been transcoded
     with sqlite3.connect(database) as sql_database, Printer("Search already done...") as prt:
@@ -237,20 +275,20 @@ def main(videos: tuple, database: str = None, **kwargs):
                 "resolution": (values["enc_height"], values["enc_width"]),
                 "src_vid_id": values["enc_src_vid_id"],
                 "threads": values["enc_threads"],
+                "vbr": bool(values["enc_vbr"]),
             }
             values = tuple(values[k] for k in ["src_vid_id", *keys])
             done[values] = done.get(values, 0) + 1
         prt.print(f"{sum(done.values())} video already encoded under these conditions")
 
-    # iterate on all the parameters
-    loops = functools.reduce(
-        operator.mul, [kwargs["repeat"], len(videos), *(len(kwargs[k]) for k in keys)]
+    # iterate on all parameters
+    loops = sorted(
+        itertools.product(videos, *(kwargs[k] for k in keys)),
+        key=lambda t: hashlib.md5(str(t).encode("utf-8")).hexdigest(),  # repetable shuffle
     )
-    for i, values in enumerate(
-        itertools.product(range(kwargs["repeat"]), videos, *(kwargs[k] for k in keys))
-    ):
-        values = dict(zip(["repeat", "video", *keys], values), repeat=values[0])
-        values["filter"] = values["filter"] or None
+    for i, (repeat, values) in enumerate(itertools.product(range(kwargs["repeat"]), loops)):
+        values = dict(zip(["video", *keys], values, strict=True), repeat=values[0])
+        values["repeat"] = repeat
         values["fps"] = values["fps"] or get_rate_video(values["video"])
         values["pix_fmt"] = values["pix_fmt"] or get_pix_fmt(values["video"])
         values["resolution"] = values["resolution"] or get_resolution(values["video"])
@@ -258,7 +296,7 @@ def main(videos: tuple, database: str = None, **kwargs):
         key = (values["src_vid_id"],) + tuple(values[k] for k in keys)
         if done.get(key, 0) > values["repeat"]:
             continue
-        with Printer(f"Encode {i+1}/{loops}...", color="cyan") as prt:
+        with Printer(f"Encode {i+1}/{kwargs["repeat"]*len(loops)}...", color="cyan") as prt:
             encode_and_store(database, env_id, values.pop("video"), **values)
             done[key] = done.get(key, 0) + 1
             prt.print_time()

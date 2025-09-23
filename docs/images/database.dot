@@ -113,6 +113,7 @@ graph database {
         <TR><TD ALIGN="LEFT">enc_pix_fmt</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>
         <TR><TD ALIGN="LEFT">enc_quality</TD><TD ALIGN="LEFT">FLOAT</TD></TR>
         <TR><TD ALIGN="LEFT">enc_threads</TD><TD ALIGN="LEFT">SMALLINT</TD></TR>
+        <TR><TD ALIGN="LEFT">enc_vbr</TD><TD ALIGN="LEFT">BOOLEAN</TD></TR>
         <TR><TD ALIGN="LEFT">enc_width</TD><TD ALIGN="LEFT">SMALLINT</TD></TR>
       </TABLE>
     >

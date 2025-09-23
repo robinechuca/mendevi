@@ -30,7 +30,7 @@ PROFILES = {
         "resolution": (720, 1280),
         "transfer": "iec61966-2-1, iec61966_2_1",  # sRGB
     },
-    "fhd": {  # TODO: renomer en fhd
+    "fhd": {
         "fps": Fraction(30000, 1001),
         "pix_fmt": "yuv420p10le",
         "primaries": "bt709",

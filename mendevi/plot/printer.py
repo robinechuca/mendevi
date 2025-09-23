@@ -61,7 +61,7 @@ def print_cst(**kwargs) -> list[str]:
         "# COLORS = list(mcolors.TABLEAU_COLORS.values())  # list of colors to be plotted",
         "COLORS = ['#ef597b', '#29a2c6', '#ffcb18', '#73b66b', '#4e4f4b']",
         f"DATABASE = pathlib.Path({str(kwargs['database'])!r})",
-        f"FIGNAME = pathlib.Path(__file__).with_suffix('.pdf')",
+        f"FIGNAME = pathlib.Path(__file__).with_suffix('.svg')",
         "MARKERS = ['o', 'x', '+', '^', 'v']  # list of 'dot' shapes",
         "MARKERSIZE = 4",
         "",
