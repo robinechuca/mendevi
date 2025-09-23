@@ -295,8 +295,8 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs) -> list[st
                 "libsvtav1",
                 "-crf", str(round(kwargs["quality"]*63.0)),
                 "-preset", {"slow": "4", "medium": "6", "fast": "8"}[kwargs["effort"]],
-                # tune=2 broken in v3.0.2
-                "-svtav1-params", f"film-grain=0:lp={libsvtav1_lp(kwargs['threads'])}",
+                # "-tune", "ssim",  # not same result as -svtav1-params tune=2
+                "-svtav1-params", f"film-grain=0:lp={libsvtav1_lp(kwargs['threads'])}:tune=2",
             ])
         case "vvc":
             bit = int(re.search(r"(?P<bit>\d+)le", kwargs["pix_fmt"] + "8le")["bit"])
