@@ -27,4 +27,3 @@ build:
 sphinx:
   configuration: docs/conf.py
   fail_on_warning: false
-  output: docs/build/html
