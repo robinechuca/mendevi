@@ -5,7 +5,7 @@ SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 SPHINXPROJ    = laueimproc
 SOURCEDIR     = .
-BUILDDIR     ?= _build
+BUILDDIR     ?= build
 TEMPLATEDIR   = config
 
 clean:
