@@ -5,6 +5,7 @@
 
 # -- Path setup --------------------------------------------------------------
 import datetime
+import os
 import pathlib
 import shutil
 import sys
@@ -56,3 +57,6 @@ autosectionlabel_prefix_document = True
 autosummary_generate = True
 templates_path = ["_templates"]  # add any paths that contain templates here, relative to this directory
 autoclass_content = "both"  # include dunder methods (like __init__) documentation
+
+# -- Environment -------------------------------------------------------------
+on_rtd = os.environ.get("READTHEDOCS", "False") == "True"

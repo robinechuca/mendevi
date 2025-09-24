@@ -1,5 +1,4 @@
 # dot -Tsvg sql_database.dot > sql_database.svg
-# "COLORS = ['#ef597b', '#29a2c6', '#ffcb18', '#73b66b', '#4e4f4b']",
 graph database {
   node [shape=plaintext]
   t_act_activity [
