@@ -4,6 +4,10 @@ Mendevi |release|
 .. include:: ../README.rst
 
 
+.. image:: /_static/media/pipeline.svg
+    :alt: Pipeline diagram
+
+
 Getting started
 ===============
 

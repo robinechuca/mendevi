@@ -50,15 +50,8 @@ It manages the following parameters:
 Pipeline
 ========
 
-.. ifconfig:: on_rtd
-
-    .. image:: /_static/media/pipeline.svg
-        :alt: Pipeline diagram
-
-.. ifconfig:: not on_rtd
-
-    .. image:: https://mendevi.readthedocs.io/latest/_images/pipeline.svg
-        :alt: Pipeline diagram
+.. image:: https://mendevi.readthedocs.io/latest/_images/pipeline.svg
+    :alt: Pipeline diagram
 
 
 Alternatives
