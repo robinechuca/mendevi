@@ -22,7 +22,8 @@ build:
       # all option in https://github.com/pypa/pip/blob/main/src/pip/_internal/cli/cmdoptions.py
       - uv pip install -e .
     build:
-      - cd docs && make html
+      html:
+        - cd docs && make html
 
 sphinx:
   configuration: docs/conf.py
