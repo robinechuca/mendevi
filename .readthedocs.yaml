@@ -22,8 +22,9 @@ build:
       - uv pip install -e .
     build:  # to use a personal Makefile in docs/Makefile
       html:
-        - cd docs && make BUILDDIR=../_build html
+        - cd docs && make html
 
 sphinx:
   configuration: docs/conf.py
   fail_on_warning: false
+  output: docs/build/html
