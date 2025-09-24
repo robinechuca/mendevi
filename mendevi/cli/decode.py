@@ -9,7 +9,7 @@ import sqlite3
 from context_verbose import Printer
 import click
 
-from mendevi.database.complete import add_environement
+from mendevi.database.complete import add_environment
 from mendevi.decode import decode_and_store
 from mendevi.utils import compute_video_hash, get_resolution
 from .parse import ResolutionParamType, parse_videos_database
@@ -79,7 +79,7 @@ def main(videos: tuple[str], database: str = None, **kwargs):
         The path to the database where all measurements are stored.
         If a folder is provided, the database is created inside this folder.
     repeat : int, default=5
-        The number of times the experiment is repeated on this environement.
+        The number of times the experiment is repeated on this environment.
         This allows us to estimate the variance of measurements.
     resolution : tuple[int, int], optional
         If provided, the decoded video will be reshaped on fly.
@@ -93,7 +93,7 @@ def main(videos: tuple[str], database: str = None, **kwargs):
         _parse_args(prt, kwargs)
 
     # preparation of context
-    env_id = add_environement(database)
+    env_id = add_environment(database)
     kwargs["dec_vid_id"]: dict[pathlib.Path, bytes] = compute_video_hash(videos)
 
     # retrieves the settings for videos that have already been decoded

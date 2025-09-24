@@ -44,7 +44,7 @@ It manages the following parameters:
 #. Iterate over different ``effort``, ``encoder``, ``quality``, ``threads``, ``fps``, ``resolution`` and ``pix_fmt``.
 #. Energy measurements are catched with ``RAPL`` and an external wattmeter on ``grid'5000``.
 #. Get the ``cpu`` and ``ram`` activity.
-#. Get a full environement context, including harware and software version.
+#. Get a full environment context, including harware and software version.
 
 
 Pipeline

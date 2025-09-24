@@ -3,7 +3,7 @@
 SQL Database Content
 ====================
 
-.. image:: https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/docs/images/database.svg
+.. image:: /build/media/sql_database.svg
     :alt: SQL database diagram
 
 For a more detailed analysis of constraints and relationships, see the contents of the function
@@ -315,7 +315,7 @@ The total size in bytes of the video file as it appears on the disc.
 .. _vid_width:
 
 vid_width
-^^^^^^^^^^
+^^^^^^^^^
 
 The width of the video in pixels, after being decoded.
 
@@ -426,10 +426,10 @@ To deserialize into an exploitable numpy array, please use the function `binary_
     Refer the :ref:`install_vmaf` guide.
 
 
-.. _t_env_environement:
+.. _t_env_environment:
 
-Table t_env_environement
-------------------------
+Table t_env_environment
+-----------------------
 
 +-------------------------------+--------------+-------------------------------+
 | :ref:`env_id`                 | *INTEGER*    | Key                           |
@@ -781,7 +781,7 @@ This is the reference of the source video that has been decoded. It points to th
 dec_env_id
 ^^^^^^^^^^
 
-This is the reference of the context in which the decoding took place. It points to the table :ref:`t_env_environement`.
+This is the reference of the context in which the decoding took place. It points to the table :ref:`t_env_environment`.
 
 .. _dec_act_id:
 
@@ -901,7 +901,7 @@ This is the reference of the transcoded video that exits the encoder. It points 
 enc_env_id
 ^^^^^^^^^^
 
-This is the reference of the context in which the encoding took place. It points to the table :ref:`t_env_environement`.
+This is the reference of the context in which the encoding took place. It points to the table :ref:`t_env_environment`.
 
 .. _enc_act_id:
 

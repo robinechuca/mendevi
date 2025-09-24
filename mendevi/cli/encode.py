@@ -13,7 +13,7 @@ from context_verbose import Printer
 import click
 import numpy as np
 
-from mendevi.database.complete import add_environement
+from mendevi.database.complete import add_environment
 from mendevi.encode import encode_and_store
 from mendevi.utils import compute_video_hash, get_pix_fmt, get_rate_video, get_resolution
 from .parse import PixelParamType, ResolutionParamType, parse_videos_database
@@ -214,7 +214,7 @@ def main(videos: tuple, database: str = None, **kwargs):
         If a folder is provided, the database is created inside this folder.
         By default, it is created right next to the video.
     repeat : int, default=2
-        The number of times the experiment is repeated on this environement.
+        The number of times the experiment is repeated on this environment.
         This allows us to estimate the variance of measurements.
     effort : tuple[str], default=("medium",)
         The effort made to compress, `fast`, `medium` or `slow`.
@@ -251,7 +251,7 @@ def main(videos: tuple, database: str = None, **kwargs):
         _parse_args(prt, kwargs)
 
     # preparation of context
-    env_id = add_environement(database)
+    env_id = add_environment(database)
     kwargs["src_vid_id"]: dict[pathlib.Path, bytes] = compute_video_hash(videos)
 
     keys = [
@@ -279,7 +279,7 @@ def main(videos: tuple, database: str = None, **kwargs):
             }
             values = tuple(values[k] for k in ["src_vid_id", *keys])
             done[values] = done.get(values, 0) + 1
-        prt.print(f"{sum(done.values())} video already encoded under these conditions")
+        prt.print(f"{sum(done.values())} video already encoded under these environment")
 
     # iterate on all parameters
     loops = sorted(

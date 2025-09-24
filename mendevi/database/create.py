@@ -83,7 +83,7 @@ def create_database(filename: str | bytes | pathlib.Path):
 
             UNIQUE(met_ref_vid_id, met_dis_vid_id) ON CONFLICT FAIL
         )""")
-        cursor.execute(f"""CREATE TABLE IF NOT EXISTS t_env_environement (
+        cursor.execute(f"""CREATE TABLE IF NOT EXISTS t_env_environment (
             env_id INTEGER PRIMARY KEY AUTOINCREMENT,
 
             /* CONTEXT DETAILS */
@@ -114,7 +114,7 @@ def create_database(filename: str | bytes | pathlib.Path):
         cursor.execute("""CREATE TABLE IF NOT EXISTS t_dec_decode (
             dec_id INTEGER PRIMARY KEY AUTOINCREMENT,
             dec_vid_id BINARY(128) NOT NULL REFERENCES t_vid_video(vid_id) ON DELETE CASCADE,  -- link to video table
-            dec_env_id INTEGER NOT NULL REFERENCES t_env_environement(env_id) ON DELETE CASCADE,  -- link to environement table
+            dec_env_id INTEGER NOT NULL REFERENCES t_env_environment(env_id) ON DELETE CASCADE,  -- link to environment table
             dec_act_id INTEGER REFERENCES t_act_activity(act_id),  -- link to activity table
             dec_cmd TEXT,  -- exact ffmpeg command used
             dec_filter TEXT,  -- ffmpeg additional video filter
@@ -126,7 +126,7 @@ def create_database(filename: str | bytes | pathlib.Path):
             enc_id INTEGER PRIMARY KEY AUTOINCREMENT,
             enc_src_vid_id BINARY(128) REFERENCES t_vid_video(vid_id),  -- link to video table, src video
             enc_dst_vid_id BINARY(128) NOT NULL REFERENCES t_vid_video(vid_id) ON DELETE CASCADE,  -- link to video table, dst video
-            enc_env_id INTEGER NOT NULL REFERENCES t_env_environement(env_id) ON DELETE CASCADE,  -- link to environement table
+            enc_env_id INTEGER NOT NULL REFERENCES t_env_environment(env_id) ON DELETE CASCADE,  -- link to environment table
             enc_act_id INTEGER REFERENCES t_act_activity(act_id),  -- link to activity table
 
             /* TASK DESCRIPTION */
@@ -144,14 +144,14 @@ def create_database(filename: str | bytes | pathlib.Path):
         )""")
         cursor.execute("""
             CREATE TRIGGER IF NOT EXISTS trigger_insert_env_act_unicity
-            BEFORE INSERT ON t_env_environement
+            BEFORE INSERT ON t_env_environment
             BEGIN
                 SELECT
                     CASE
                         WHEN NEW.env_idle_act_id IN (
                             SELECT enc_act_id FROM t_enc_encode
                             UNION ALL SELECT dec_act_id FROM t_dec_decode
-                            UNION ALL SELECT env_idle_act_id FROM t_env_environement
+                            UNION ALL SELECT env_idle_act_id FROM t_env_environment
                         ) THEN
                             RAISE (ABORT, 'act_id has to be unique')
                     END;
@@ -159,14 +159,14 @@ def create_database(filename: str | bytes | pathlib.Path):
         """)
         cursor.execute("""
             CREATE TRIGGER IF NOT EXISTS trigger_update_env_act_unicity
-            BEFORE UPDATE OF env_idle_act_id ON t_env_environement
+            BEFORE UPDATE OF env_idle_act_id ON t_env_environment
             BEGIN
                 SELECT
                     CASE
                         WHEN NEW.env_idle_act_id IN (
                             SELECT enc_act_id FROM t_enc_encode
                             UNION ALL SELECT dec_act_id FROM t_dec_decode
-                            UNION ALL SELECT env_idle_act_id FROM t_env_environement
+                            UNION ALL SELECT env_idle_act_id FROM t_env_environment
                         ) THEN
                             RAISE (ABORT, 'act_id has to be unique')
                     END;
@@ -181,7 +181,7 @@ def create_database(filename: str | bytes | pathlib.Path):
                         WHEN NEW.enc_act_id IN (
                             SELECT enc_act_id FROM t_enc_encode
                             UNION ALL SELECT dec_act_id FROM t_dec_decode
-                            UNION ALL SELECT env_idle_act_id FROM t_env_environement
+                            UNION ALL SELECT env_idle_act_id FROM t_env_environment
                         ) THEN
                             RAISE (ABORT, 'act_id has to be unique')
                     END;
@@ -196,7 +196,7 @@ def create_database(filename: str | bytes | pathlib.Path):
                         WHEN NEW.enc_act_id IN (
                             SELECT enc_act_id FROM t_enc_encode
                             UNION ALL SELECT dec_act_id FROM t_dec_decode
-                            UNION ALL SELECT env_idle_act_id FROM t_env_environement
+                            UNION ALL SELECT env_idle_act_id FROM t_env_environment
                         ) THEN
                             RAISE (ABORT, 'act_id has to be unique')
                     END;
@@ -211,7 +211,7 @@ def create_database(filename: str | bytes | pathlib.Path):
                         WHEN NEW.dec_act_id IN (
                             SELECT enc_act_id FROM t_enc_encode
                             UNION ALL SELECT dec_act_id FROM t_dec_decode
-                            UNION ALL SELECT env_idle_act_id FROM t_env_environement
+                            UNION ALL SELECT env_idle_act_id FROM t_env_environment
                         ) THEN
                             RAISE (ABORT, 'act_id has to be unique')
                     END;
@@ -226,7 +226,7 @@ def create_database(filename: str | bytes | pathlib.Path):
                         WHEN NEW.dec_act_id IN (
                             SELECT enc_act_id FROM t_enc_encode
                             UNION ALL SELECT dec_act_id FROM t_dec_decode
-                            UNION ALL SELECT env_idle_act_id FROM t_env_environement
+                            UNION ALL SELECT env_idle_act_id FROM t_env_environment
                         ) THEN
                             RAISE (ABORT, 'act_id has to be unique')
                     END;

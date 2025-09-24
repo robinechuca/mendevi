@@ -139,12 +139,12 @@ def encode_and_store(
     Examples
     --------
     >>> import pathlib, tempfile
-    >>> from mendevi.database.complete import add_environement
+    >>> from mendevi.database.complete import add_environment
     >>> from mendevi.database.create import create_database
     >>> from mendevi.encode import encode_and_store
     >>> src = pathlib.Path("/data/dataset/video/despacito.mp4")
     >>> create_database(database := pathlib.Path(tempfile.mktemp(suffix=".sqlite")))
-    >>> env_id = add_environement(database)
+    >>> env_id = add_environment(database)
     >>> encode_and_store(
     ...     database, env_id, src,
     ...     encoder="libx264", profile="sd", effort="fast", quality=0.5, threads=8
@@ -261,6 +261,10 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs) -> list[st
     # transcode
     cmd.append("-c:v")
     bit = int(re.search(r"(?P<bit>\d+)le", kwargs["pix_fmt"] + "8le")["bit"])
+    bpp = (  # rate in bit per second for yuv420 raw stream
+        kwargs["fps"] * kwargs["resolution"][0] * kwargs["resolution"][1] * bit * 8 / 3
+    )
+    # print(round(bpp/1000))  # debit maxi a fournir affmpeg avec un k
     match kwargs["encoder"]:
         case "libx264":
             cmd.extend([  # https://ffmpeg.party/x264/
@@ -273,7 +277,7 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs) -> list[st
         case "libx265":
             cmd.extend([   # https://x265.readthedocs.io/en/master/cli.html
                 "libx265",
-                "-crf", str(round(kwargs["quality"]*51.0, 1)),
+                ("-crf" if kwargs["vbr"] else "-qp"), str(round(kwargs["quality"]*51.0, 1)),
                 "-preset", kwargs["effort"],
                 "-tune", "ssim",
                 "-x265-params",
@@ -284,13 +288,20 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs) -> list[st
                 ),
             ])
         case "libvpx-vp9":
-            cmd.extend([  # https://wiki.webmproject.org/ffmpeg/vp9-encoding-guide
+            # https://trac.ffmpeg.org/wiki/Encode/VP9
+            # https://wiki.webmproject.org/ffmpeg/vp9-encoding-guide
+            # https://developers.google.com/media/vp9/settings
+            if kwargs["vbr"]:
+                quality = ("-crf", str(round(kwargs["quality"]*63.0)), "-b:v", "0")
+            else:
+                quality = ("-minrate", "2000k", "-maxrate", "2000k", "-b:v", "2000k", "-lag-in-frames", "0")
+            cmd.extend([
                 "libvpx-vp9",
-                "-crf", str(round(kwargs["quality"]*63.0)),
+                *quality,
                 # in [-16, 16]
                 "-speed", {"slow": "-2", "medium": "1", "fast": "8"}[kwargs["effort"]],
                 "-tune", "ssim",
-                "-row-mt", "1", "-threads", str(kwargs["threads"]),
+                "-row-mt", "0", "-threads", str(kwargs["threads"]),
             ])
         case "libsvtav1":
             cmd.extend([
@@ -301,6 +312,7 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs) -> list[st
                 "-svtav1-params", f"film-grain=0:lp={libsvtav1_lp(kwargs['threads'])}:tune=2",
             ])
         case "vvc":
+            bit = int(re.search(r"(?P<bit>\d+)le", kwargs["pix_fmt"] + "8le")["bit"])
             cmd.extend([
                 "vvc",
                 "-qp", str(round(kwargs["quality"]*63.0)),

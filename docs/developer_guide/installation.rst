@@ -13,10 +13,10 @@ Full Installation
 .. _Windows Installation:
 
 
-.. _virtual_environement:
+.. _virtual_environment:
 
-Virtual Environement
---------------------
+Virtual environment
+-------------------
 
 It is preferable to install *mendevi* in a virtual environment. Please refer to the `pyenv main page <https://github.com/pyenv/pyenv>`_. It is possible to use ``python3-venv`` or ``conda`` as well.
 
@@ -77,7 +77,7 @@ If it fails, `this debug link <https://github.com/pyenv/pyenv/wiki/Common-build-
 Configure pyenv
 ^^^^^^^^^^^^^^^
 
-Create the virtual environement.
+Create the virtual environment.
 
 .. code:: shell
 
@@ -149,14 +149,14 @@ If you want the latest version, please build it :ref:`build_ffmpeg`.
 
     .. warning:: I refuse to believe that you have gone through the previous steps. As you are stubborn and stupid, I must remind you that the game is not yet won! It is still not too late to listen to the voice of wisdom, which is telling you to get rid of this massive piece of Windows shit for ever.
 
-    It is important to configure your environement variable to hook ffmpeg to *mendevi*. You can try to follow `this guide <https://www.geeksforgeeks.org/how-to-install-ffmpeg-on-windows>`_ for example.
+    It is important to configure your environment variable to hook ffmpeg to *mendevi*. You can try to follow `this guide <https://www.geeksforgeeks.org/how-to-install-ffmpeg-on-windows>`_ for example.
 
 .. _install_lshw:
 
 lshw
 ^^^^
 
-To get the full environement information, *mendevi* use tha system package ``lshw``.
+To get the full environment information, *mendevi* use tha system package ``lshw``.
 
 .. tab:: Linux
 
@@ -264,7 +264,7 @@ If you have a GPU, please install CUDA or ROC then follow the `PyTorch installat
 
     .. warning:: Windows is crap, so be prepared for a tedious and buggy installation! You should forget Microchiotte-Windaube and go straight to Linux before you pull out all your hair!
 
-    It is important to configure your environement variable to hook cuda to PyTorch.
+    It is important to configure your environment variable to hook cuda to PyTorch.
     Good luck with the `official guide <https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html>`_.
 
 .. _install_vmaf:

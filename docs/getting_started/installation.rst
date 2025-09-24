@@ -8,7 +8,7 @@ For a more detailed and complete installation, please refer to :ref:`full_instal
 Prerequisites
 -------------
 
-* It is preferable to install *mendevi* in a virtual environment. More details on :ref:`virtual_environement`.
+* It is preferable to install *mendevi* in a virtual environment. More details on :ref:`virtual_environment`.
 * Please install ``ffmpeg``, ``lshw``, and ``perf``. More details on :ref:`dependencies`.
 
 Basic Installation

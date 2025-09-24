@@ -99,14 +99,14 @@ def main(databases: tuple[str]):
                     new = _insert_update(cursor_dst, row, "t_act_activity", ())["act_id"]
                     act_old_to_new[old] = new
 
-                # t_env_environement
-                prt.print("table 't_env_environement'")
+                # t_env_environment
+                prt.print("table 't_env_environment'")
                 env_old_to_new: dict[int, int] = {}
-                for row in cursor_src.execute("SELECT * FROM t_env_environement"):
+                for row in cursor_src.execute("SELECT * FROM t_env_environment"):
                     row = dict(row)
                     row["env_idle_act_id"] = act_old_to_new[row["env_idle_act_id"]]
                     old = row.pop("env_id")
-                    new = _insert_update(cursor_dst, row, "t_env_environement", ())["env_id"]
+                    new = _insert_update(cursor_dst, row, "t_env_environment", ())["env_id"]
                     env_old_to_new[old] = new
 
                 # t_enc_encode

@@ -64,7 +64,7 @@ def get_idle(duration: float=60.0) -> dict:
     return activity
 
 
-def add_environement(database: sqlite3.Cursor | str | bytes | pathlib.Path) -> int:
+def add_environment(database: sqlite3.Cursor | str | bytes | pathlib.Path) -> int:
     """Complete the environment table with the current environment.
 
     Parameters
@@ -80,10 +80,10 @@ def add_environement(database: sqlite3.Cursor | str | bytes | pathlib.Path) -> i
     Examples
     --------
     >>> import os, tempfile
-    >>> from mendevi.database.complete import add_environement
+    >>> from mendevi.database.complete import add_environment
     >>> from mendevi.database.create import create_database
     >>> create_database(database := tempfile.mktemp(suffix=".sqlite"))
-    >>> add_environement(database)
+    >>> add_environment(database)
     1
     >>> os.remove(database)
     >>>
@@ -98,29 +98,29 @@ def add_environement(database: sqlite3.Cursor | str | bytes | pathlib.Path) -> i
         ):
             # sql_database.execute("PRAGMA journal_mode=WAL")
             cursor = sql_database.cursor()
-            key = add_environement(cursor)
+            key = add_environment(cursor)
             cursor.close()
             return key
 
     # try to set the context
-    environement = full_context()
-    environement = {f"env_{k}": v for k, v in environement.items()}
-    keys = list(environement)  # to keep order
+    environment = full_context()
+    environment = {f"env_{k}": v for k, v in environment.items()}
+    keys = list(environment)  # to keep order
     try:
         (env_id,) = database.execute(
             (
-                f"INSERT INTO t_env_environement ({', '.join(keys)}) "
+                f"INSERT INTO t_env_environment ({', '.join(keys)}) "
                 f"VALUES ({', '.join('?'*len(keys))}) RETURNING env_id"
             ),
-            [environement[k] for k in keys],
+            [environment[k] for k in keys],
         ).fetchone()
     except sqlite3.IntegrityError:
         (env_id,) = database.execute(
             (
-                "SELECT env_id FROM t_env_environement "
+                "SELECT env_id FROM t_env_environment "
                 f"WHERE {' AND '.join(f'{k}=?' for k in ENV_UNIQUE)}"
             ),
-            [environement[k] for k in ENV_UNIQUE],
+            [environment[k] for k in ENV_UNIQUE],
         ).fetchone()
         return env_id
 
@@ -147,9 +147,9 @@ def add_environement(database: sqlite3.Cursor | str | bytes | pathlib.Path) -> i
     ).fetchone()
     database.execute(
         (
-            f"UPDATE t_env_environement SET env_idle_act_id={act_id} "
+            f"UPDATE t_env_environment SET env_idle_act_id={act_id} "
             f"WHERE {' AND '.join(f'{k}=?' for k in ENV_UNIQUE)}"
         ),
-        [environement[k] for k in ENV_UNIQUE],
+        [environment[k] for k in ENV_UNIQUE],
     )
     return env_id

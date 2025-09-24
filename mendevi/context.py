@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Get the information of the environement."""
+"""Get the information of the environment."""
 
 import logging
 import os
