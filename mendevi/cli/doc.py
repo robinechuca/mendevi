@@ -18,7 +18,7 @@ def main(recompile: bool = False, no_open: bool = False):
     assert isinstance(recompile, bool), recompile.__class__.__name__
     assert isinstance(no_open, bool), no_open.__class__.__name__
     root = get_project_root().parent / "docs"
-    index = (root / "build" / "html" / "index.html").resolve()
+    index = (root / "_build" / "html" / "index.html").resolve()
     if not index.exists() or recompile:
         subprocess.run(
             ["make", "clean"],
