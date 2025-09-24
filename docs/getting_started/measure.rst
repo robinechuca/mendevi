@@ -17,10 +17,16 @@ This step specifically ensures the reference video:
 * is encoded in the **correct colour space** with consistent associated metadata
 * is encoded at standard **resolution** and **framerate**
 * is in 8-bit or 10-bit **YUV** pixel format
-* is perfectly resized without distortion or aliasing
+* is perfectly resized without **distortion** or **aliasing**
 
 .. image:: /_static/media/prepare.avif
-    :alt: mendevi prepare -p hd bbb.webm
+    :alt: mendevi prepare video.y4m
+
+To see all available options, type
+
+.. code:: shell
+
+    mendevi prepare --help
 
 Encode
 ------
@@ -30,6 +36,12 @@ This phase consists of transcoding the reference video in many different ways an
 .. image:: /_static/media/encode.avif
     :alt: mendevi encode reference*
 
+To see all available options, type
+
+.. code:: shell
+
+    mendevi encode --help
+
 Probe
 -----
 
@@ -38,6 +50,12 @@ This phase calculates the various metrics and properties of a transcoded video.
 .. image:: /_static/media/probe.avif
     :alt: mendevi probe sample*
 
+To see all available options, type
+
+.. code:: shell
+
+    mendevi probe --help
+
 Decode
 ------
 
@@ -45,3 +63,9 @@ This phase consists of measuring the machine's activity during video decoding.
 
 .. image:: /_static/media/decode.avif
     :alt: mendevi decode reference* sample*
+
+To see all available options, type
+
+.. code:: shell
+
+    mendevi decode --help
