@@ -8,8 +8,9 @@
 .python-version
 __pycache__/
 build/
-mendevi.egg-info/
 dist/
+docs/_static
 docs/build/
 html/
+mendevi.egg-info/
 venv

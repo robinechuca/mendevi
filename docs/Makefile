@@ -12,17 +12,18 @@ clean:
 	@echo "************* Remove Build *************"
 	@echo "****************************************"
 	@rm -rf "$(BUILDDIR)"
+	@rm -rf "$(SOURCEDIR)/_static"
 
 html:
 	@echo "****************************************"
 	@echo "************ Invoke Graphviz ***********"
 	@echo "****************************************"
 	@mkdir -p "$(SOURCEDIR)/_static/media"
-	@dot -Tsvg "$(SOURCEDIR)/media/sql_database.dot" > "$(SOURCEDIR)/_static/media/sql_database.svg"
-
-	# 	@mkdir -p "$(BUILDDIR)"/media
-	# 	@dot -Tsvg "$(SOURCEDIR)"/media/sql_database.dot > "$(BUILDDIR)"/media/sql_database.svg
-
+	@for dotfile in $(SOURCEDIR)/media/*.dot; do \
+	    basefile=$$(basename "$$dotfile" .dot); \
+	    echo "Generating SVG for $$basefile.dot..."; \
+	    dot -Tsvg "$$dotfile" > "$(SOURCEDIR)/_static/media/$$basefile.svg"; \
+	done
 	@echo "****************************************"
 	@echo "************* Invoke Sphinx ************"
 	@echo "****************************************"
