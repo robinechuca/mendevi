@@ -1,7 +1,7 @@
 Mendevi |release|
 =================
 
-.. include:: ../README.rst
+.. include:: /_static/README.rst
 
 
 Getting started

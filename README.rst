@@ -53,8 +53,6 @@ Pipeline
 .. image:: https://mendevi.readthedocs.io/latest/_images/pipeline.svg
     :alt: Pipeline diagram
 
-    The mendevi measure pipeline
-
 
 Alternatives
 ============

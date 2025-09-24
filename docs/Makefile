@@ -24,7 +24,13 @@ html:
 	    echo "Generating SVG for $$basefile.dot..."; \
 	    dot -Tsvg "$$dotfile" > "$(SOURCEDIR)/_static/media/$$basefile.svg"; \
 	done
+	@echo "Moving *.avif..."
 	@cp $(SOURCEDIR)/media/*.avif $(SOURCEDIR)/_static/media/
+	@echo "****************************************"
+	@echo "************* Change README ************"
+	@echo "****************************************"
+	@cp ../$(SOURCEDIR)/README.rst $(SOURCEDIR)/_static/README.rst
+	@sed -i 's|https://mendevi.readthedocs.io/latest/_images/|/_static/media/|g' $(SOURCEDIR)/_static/README.rst
 	@echo "****************************************"
 	@echo "************* Invoke Sphinx ************"
 	@echo "****************************************"
