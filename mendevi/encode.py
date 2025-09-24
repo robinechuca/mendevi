@@ -67,7 +67,7 @@ def encode(src: pathlib.Path, **kwargs) -> tuple[pathlib.Path, str, dict[str]]:
         load = tqdm.tqdm(
             dynamic_ncols=True,
             leave=False,
-            smoothing=1e-4,
+            smoothing=1e-6,
             total=round(float(cutcutcodec.get_duration_video(src)), 2),
             unit="s",
         )

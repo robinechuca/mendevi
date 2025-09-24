@@ -169,7 +169,7 @@ def compute_video_hash(
                 desc="compute videos checksum",
                 dynamic_ncols=True,
                 leave=False,
-                smoothing=1e-4,
+                smoothing=1e-6,
                 total=len(videos),
                 unit="video",
             ))

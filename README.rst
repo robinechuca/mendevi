@@ -50,8 +50,16 @@ It manages the following parameters:
 Pipeline
 ========
 
+This is the pipeline used for measurements:
+
 .. image:: https://mendevi.readthedocs.io/latest/_images/pipeline.svg
     :alt: Pipeline diagram
+
+
+Example of result
+=================
+
+
 
 
 Alternatives

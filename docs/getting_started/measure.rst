@@ -48,7 +48,7 @@ Probe
 This phase calculates the various metrics and properties of a transcoded video.
 
 .. image:: /_static/media/probe.avif
-    :alt: mendevi probe sample*
+    :alt: mendevi probe reference* sample*
 
 To see all available options, type
 

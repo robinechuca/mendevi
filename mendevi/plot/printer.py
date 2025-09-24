@@ -58,7 +58,7 @@ def print_entry() -> list[str]:
 def print_cst(**kwargs) -> list[str]:
     """Return the code of the definition of the constants."""
     return [
-        "# COLORS = list(mcolors.TABLEAU_COLORS.values())  # list of colors to be plotted",
+        "# COLORS = list(mcolors.TABLEAU_COLORS.values())",
         "COLORS = ['#ef597b', '#29a2c6', '#ffcb18', '#73b66b', '#4e4f4b']",
         f"DATABASE = pathlib.Path({str(kwargs['database'])!r})",
         f"FIGNAME = pathlib.Path(__file__).with_suffix('.svg')",
@@ -337,14 +337,10 @@ def print_read_sql(**kwargs) -> list[str]:
 
     # get sql query
     funcs = {n: get_label_extractor(n)[1] for n in names}
-    select = sorted({s for f in funcs.values() for s in f.select})
-    if len(table := {f.table for f in funcs.values()}) != 1:
-        logging.warning("invalid sql query because select from 2 differents tables")
-        table = ", ".join(sorted(table))
-    else:
-        table = table.pop()
-    join = sorted({j for f in funcs.values() for j in f.join})
-    query = SqlLinker(select, table, join).sql
+    select = {s for f in funcs.values() for s in f.select}
+    if len(queries := SqlLinker(*select).sql) == 0:
+        logging.warning("fail to create the SQL query, please provide it yourself")
+        queries = [""]
 
     # selector
     selector = [] if kwargs["filter"] is None else ["    values = select(values)"]
@@ -359,8 +355,9 @@ def print_read_sql(**kwargs) -> list[str]:
         "        conn.row_factory = sqlite3.Row",
         "        for raw in conn.execute(",
         '            """',
-        f"            {'\n            '.join(query.split('\n'))}",
+        f"            {'\n            '.join(queries[0].split('\n'))}",
         '            """',
+        *[f"            # {q}" for q in "\nor\n".join(queries[1:]).split("\n")],
         "        ):",
         "            raw = dict(raw)",
         f"            {'\n            '.join(extract)}",

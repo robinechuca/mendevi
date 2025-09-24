@@ -8,17 +8,17 @@ from . import extract
 
 
 NAMES = [
-    "enc_cores",
-    "enc_duration",
-    "enc_effort", "effort", "preset",
-    "enc_encoder", "encoder",
-    "enc_quality", "quality",
+    "cores",
+    "act_duration",
+    "effort", "preset",
+    "encoder",
+    "quality",
     "enc_scenario",
-    "enc_threads", "threads",
-    "enc_wattmeter_energy", "enc_energy",
-    "enc_wattmeter_power", "enc_power",
+    "threads",
+    "wattmeter_energy", "energy",
+    "wattmeter_power", "power",
     "profile",
-    "src_vid",
+    # "src_vid",
 ]
 
 
@@ -40,58 +40,58 @@ def get_label_extractor(name: str):
     """
     assert isinstance(name, str), name.__class__.__name__
     match name:
-        case "enc_cores":
+        case "cores":
             return (
-                "Average cumulative utilisation rate of logic cores during encoding",
-                extract.extract_enc_cores,
+                "Average cumulative utilisation rate of logical cores",
+                extract.extract_cores,
             )
-        case "enc_effort" | "effort" | "preset":
+        case "effort" | "preset":
             return (
                 "Effort provided as a parameter to the encoder",
-                extract.extract_enc_effort,
+                extract.extract_effort,
             )
-        case "enc_duration":
+        case "act_duration":
             return (
-                "Video encoding time in seconds",
-                extract.extract_enc_duration,
+                "Video processing activity duration in seconds",
+                extract.extract_act_duration,
             )
-        case "enc_encoder" | "encoder":
+        case "encoder":
             return (
                 "Name of the encoder",
-                extract.extract_enc_encoder,
+                extract.extract_encoder,
             )
-        case "enc_quality" | "quality":
+        case "quality":
             return (
                 "Quality level passed to the encoder",
-                extract.extract_enc_quality,
+                extract.extract_quality,
             )
         case "enc_scenario":
             return (
                 "Unique string specific to the encoding scenario",
                 extract.extract_enc_scenario,
             )
-        case "enc_threads" | "threads":
+        case "threads":
             return (
                 "Number of threads provided as a parameter to the encoder",
-                extract.extract_enc_threads,
+                extract.extract_threads,
             )
-        case "enc_wattmeter_energy" | "enc_energy":
+        case "wattmeter_energy" | "energy":
             return (
-                "Total encoding energy consumption in Joules",
-                extract.extract_enc_wattmeter_energy,
+                "Total energy consumption in Joules",
+                extract.extract_wattmeter_energy,
             )
-        case "enc_wattmeter_power" | "enc_power":
+        case "wattmeter_power" | "power":
             return (
-                "Average encoding power consumption in Watts",
-                extract.extract_enc_wattmeter_power,
+                "Average power consumption in Watts",
+                extract.extract_wattmeter_power,
             )
         case "profile":
             return (
-                "Profile of the encoded video",
+                "Profile of the video",
                 extract.extract_profile,
             )
-        case "src_vid":
-            return (
-                "Input video name",
-                extract.extract_src_vid,
-            )
+        # case "src_vid":
+        #     return (
+        #         "Input video name",
+        #         extract.extract_src_vid,
+        #     )

@@ -3,9 +3,9 @@ digraph pipeline {
     rankdir=LR
 
     # data
-    src [label="Input\nvideo file", shape=Mdiamond, style=filled, fillcolor=white]
-    ref [label="Reference\nvideo file", shape=Mdiamond, style=filled, fillcolor=white]
-    dst [label="Encoded\nvideo file", shape=Mdiamond, style=filled, fillcolor=white]
+    src [label="Input\nvideo file", shape=Mdiamond, style=filled, fillcolor="#73b66b"]
+    ref [label="Reference\nvideo file", shape=Mdiamond, style=filled, fillcolor="#73b66b"]
+    dst [label="Encoded\nvideo file", shape=Mdiamond, style=filled, fillcolor="#73b66b"]
 
     # parameters
     p_colorspace [label="Colorspace", shape=note, style=filled, fillcolor=white]
@@ -16,13 +16,14 @@ digraph pipeline {
     c_fps [label="fps", shape=note, style=filled, fillcolor=white]
     c_pxl [label="Pxl Format", shape=note, style=filled, fillcolor=white]
     c_resol [label="Resolution", shape=note, style=filled, fillcolor=white]
+    c_filter [label="Filter", shape=note, style=filled, fillcolor=white]
 
     effort [label="Effort", shape=note, style=filled, fillcolor=white]
     encoder [label="Encoder", shape=note, style=filled, fillcolor=white]
     quality [label="Quality", shape=note, style=filled, fillcolor=white]
     threads [label="Threads", shape=note, style=filled, fillcolor=white]
 
-    database [label="Database", shape=folder, style=filled, fillcolor=white]
+    database [label="Database", shape=folder, style=filled, fillcolor="#73b66b"]
 
     # process
     prepare [label="Transcode", style=filled, fillcolor=white]
@@ -38,17 +39,17 @@ digraph pipeline {
     subgraph clus_prepare {
         cluster=true
         label="step: Preparation"
-        bgcolor="#e0ffff"
+        bgcolor="#29a2c6"
         prepare
     }
     subgraph clus_energy {
         cluster=true
         label="Measure activity"
-        bgcolor="#ffffe0"
+        bgcolor="#ffcb18"
         subgraph clus_encode {
             cluster=true
             label="step: Encode"
-            bgcolor="#e0ffff"
+            bgcolor="#29a2c6"
             t_dec
             t_convert
             t_encode
@@ -56,7 +57,7 @@ digraph pipeline {
         subgraph clus_decode {
             cluster=true
             label="step: Decode"
-            bgcolor="#e0ffff"
+            bgcolor="#29a2c6"
             decode
             convert
         }
@@ -65,7 +66,7 @@ digraph pipeline {
     subgraph clus_probe {
         cluster=true
         label="step: Probe"
-        bgcolor="#e0ffff"
+        bgcolor="#29a2c6"
         probe
     }
 
@@ -73,7 +74,7 @@ digraph pipeline {
     subgraph clus_param_prepare {
         cluster=true
         label="Parameters"
-        bgcolor="#ffe0ff"
+        bgcolor="#ef597b"
         p_colorspace
         p_fps
         p_pxl
@@ -82,15 +83,16 @@ digraph pipeline {
     subgraph clus_param_convert {
         cluster=true
         label="Parameters"
-        bgcolor="#ffe0ff"
+        bgcolor="#ef597b"
         c_fps
         c_pxl
         c_resol
+        c_filter
     }
     subgraph clus_param_encode {
         cluster=true
         label="Parameters"
-        bgcolor="#ffe0ff"
+        bgcolor="#ef597b"
         effort
         encoder
         quality
@@ -104,7 +106,7 @@ digraph pipeline {
 
     # arguments
     {p_colorspace, p_fps, p_pxl, p_resol} -> prepare [arrowhead=none, style=dashed]
-    {c_fps, c_pxl, c_resol} -> t_convert [arrowhead=none, style=dashed]
+    {c_fps, c_pxl, c_resol, c_filter} -> t_convert [arrowhead=none, style=dashed]
     {effort, encoder, quality, threads} -> t_encode [arrowhead=none, style=dashed]
     {c_resol} -> convert [arrowhead=none, style=dashed]
 }
