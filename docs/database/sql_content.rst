@@ -3,7 +3,7 @@
 SQL Database Content
 ====================
 
-.. image:: /build/media/sql_database.svg
+.. image:: /_static/media/sql_database.svg
     :alt: SQL database diagram
 
 For a more detailed analysis of constraints and relationships, see the contents of the function

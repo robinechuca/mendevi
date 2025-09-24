@@ -11,6 +11,7 @@ Getting started
     :maxdepth: 2
 
     getting_started/installation.rst
+    getting_started/measure.rst
 
 
 Database Content
