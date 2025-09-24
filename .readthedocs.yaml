@@ -21,8 +21,8 @@ build:
     post_install:  # solve torch cuda .so link
       # all option in https://github.com/pypa/pip/blob/main/src/pip/_internal/cli/cmdoptions.py
       - uv pip install -e .
-  commands:
-    - cd docs && make html
+    build:
+      - cd docs && make html
 
 sphinx:
   configuration: docs/conf.py
