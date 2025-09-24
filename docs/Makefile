@@ -24,6 +24,7 @@ html:
 	    echo "Generating SVG for $$basefile.dot..."; \
 	    dot -Tsvg "$$dotfile" > "$(SOURCEDIR)/_static/media/$$basefile.svg"; \
 	done
+	@cp $(SOURCEDIR)/media/*.avif $(SOURCEDIR)/_static/media/
 	@echo "****************************************"
 	@echo "************* Invoke Sphinx ************"
 	@echo "****************************************"

@@ -3,25 +3,45 @@
 Perform Measures
 ================
 
-The measurement process consists of four steps:
+The measurement process consists of four steps.
 
-1) **Preparation**: This phase allows you to generate a "perfect" raw video file, in the sense that it contains all the metadata necessary for the next steps.
+Preparation
+-----------
 
-.. image:: https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/docs/media/prepare.avif
+This step allows you to prepare the ``Reference`` video from the ``Input`` video, to ensure that the rest of the process runs well.
+
+This step specifically ensures the reference video:
+
+* is encoded with the lossless **ffv1** codec
+* has **square pixels** (1:1 ratio)
+* is encoded in the **correct colour space** with consistent associated metadata
+* is encoded at standard **resolution** and **framerate**
+* is in 8-bit or 10-bit **YUV** pixel format
+* is perfectly resized without distortion or aliasing
+
+.. image:: /_static/media/prepare.avif
     :alt: mendevi prepare -p hd bbb.webm
 
-2) **Encode**: This phase consists of transcoding the reference video in many different ways and measuring the machine's activity during this encoding process.
+Encode
+------
 
-.. image:: https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/docs/media/encode.avif
+This phase consists of transcoding the reference video in many different ways and measuring the machine's activity during this encoding process.
+
+.. image:: /_static/media/encode.avif
     :alt: mendevi encode reference*
 
-3) **Probe**: This phase calculates the various metrics and properties of a transcoded video.
+Probe
+-----
 
-.. image:: https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/docs/media/probe.avif
+This phase calculates the various metrics and properties of a transcoded video.
+
+.. image:: /_static/media/probe.avif
     :alt: mendevi probe sample*
 
-4) **Decode**: This phase consists of measuring the machine's activity during video decoding.
+Decode
+------
 
-.. image:: https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/docs/media/decode.avif
+This phase consists of measuring the machine's activity during video decoding.
+
+.. image:: /_static/media/decode.avif
     :alt: mendevi decode reference* sample*
-    
