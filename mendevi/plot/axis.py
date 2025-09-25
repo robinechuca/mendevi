@@ -21,6 +21,9 @@ NAMES = [
     "rate", "bitrate",
     "src_vid",
     "psnr",
+    "ssim",
+    "vmaf",
+    "lpips", "lpips_alex", "lpips_vgg",
 ]
 
 
@@ -39,8 +42,8 @@ def get_label_extractor(name: str):
         This description can be used to label the axes of a graph.
     func : callable
         The function that performs the verification and deserialisation task.
-    log : boolean or None
-        True to display in log space, False otherwise.
+    is_log : boolean or None
+        True to display in log space, False for linear.
         The value None means the axis is not continuous.
     """
     assert isinstance(name, str), name.__class__.__name__
@@ -121,5 +124,35 @@ def get_label_extractor(name: str):
             return (
                 "Peak Signal to Noise Ratio (PSNR)",
                 extract.extract_psnr,
+                False,
+            )
+        case "ssim":
+            return (
+                "Structural Similarity (SSIM)",
+                extract.extract_ssim,
+                False,
+            )
+        case "vmaf":
+            return (
+                "Video Multi-Method Assessment Fusion (VMAF)",
+                extract.extract_vmaf,
+                False,
+            )
+        case "lpips_alex":
+            return (
+                "Learned Perceptual Image Patch Similarity (LPIPS) with alex",
+                extract.extract_lpips_alex,
+                False,
+            )
+        case "lpips_vgg":
+            return (
+                "Learned Perceptual Image Patch Similarity (LPIPS) with vgg",
+                extract.extract_lpips_vgg,
+                False,
+            )
+        case "lpips":
+            return (
+                "Learned Perceptual Image Patch Similarity (LPIPS)x",
+                extract.extract_lpips,
                 False,
             )

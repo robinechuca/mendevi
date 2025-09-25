@@ -43,7 +43,7 @@ JOIN: dict[str: dict[str, str]] = {  # join = JOIN[destination_table][source_tab
             "ON t_env_environment.env_idle_act_id = t_idle.act_id"
         ),
     },
-    "t_ref_video": {
+    "t_ref_video": {  # the reference video
         "t_enc_encode": (
             "JOIN t_vid_video AS t_ref_video "
             "ON t_enc_encode.enc_src_vid_id = t_ref_video.vid_id"
@@ -53,6 +53,16 @@ JOIN: dict[str: dict[str, str]] = {  # join = JOIN[destination_table][source_tab
             "ON t_dec_decode.dec_vid_id = t_enc_from_dec.enc_dst_vid_id "
             "JOIN t_vid_video AS t_ref_video "
             "ON t_enc_from_dec.enc_src_vid_id = t_ref_video.vid_id"
+        ),
+    },
+    "t_dst_video": {  # the transcoded video
+        "t_enc_encode": (
+            "JOIN t_vid_video AS t_dst_video "
+            "ON t_enc_encode.enc_dst_vid_id = t_dst_video.vid_id"
+        ),
+        "t_dec_decode": (
+            "JOIN t_vid_video AS t_dst_video "
+            "ON t_dec_decode.dec_vid_id = t_dst_video.vid_id"
         ),
     },
 }
@@ -311,7 +321,7 @@ def extract_profile(raw: dict[str]) -> str:
     return dist_to_profile[min(dist_to_profile)]
 
 
-@SqlLinker("t_vid_video.vid_duration", "t_vid_video.vid_size")
+@SqlLinker("t_dst_video.vid_duration", "t_dst_video.vid_size")
 def extract_bitrate(raw: dict[str]) -> float:
     """Return the video bitrate in bit per second.
 
@@ -363,3 +373,87 @@ def extract_psnr(raw: dict[str]) -> float:
     psnr = binary_to_list(raw["met_psnr"])
     psnr = psnr.mean()
     return float(psnr)
+
+
+@SqlLinker("t_met_metric.met_ssim")
+def extract_ssim(raw: dict[str]) -> float:
+    """Return the Structural Similarity (SSIM).
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+    """
+    assert isinstance(raw, dict), raw.__class__.__name__
+    assert "met_ssim" in raw, "Please correct the SQL query."
+    ssim = binary_to_list(raw["met_ssim"])
+    ssim = ssim.mean()
+    return float(ssim)
+
+
+@SqlLinker("t_met_metric.met_vmaf")
+def extract_vmaf(raw: dict[str]) -> float:
+    """Return the Video Multi-Method Assessment Fusion (VMAF).
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+    """
+    assert isinstance(raw, dict), raw.__class__.__name__
+    assert "met_vmaf" in raw, "Please correct the SQL query."
+    vmaf = binary_to_list(raw["met_vmaf"])
+    vmaf = vmaf.mean()
+    return float(vmaf)
+
+
+@SqlLinker("t_met_metric.met_lpips_alex", "t_met_metric.met_lpips_vgg")
+def extract_lpips(raw: dict[str]) -> float:
+    """Return the Learned Perceptual Image Patch Similarity (LPIPS) with alex.
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+    """
+    assert isinstance(raw, dict), raw.__class__.__name__
+    assert "met_lpips_alex" in raw, "Please correct the SQL query."
+    assert "met_lpips_vgg" in raw, "Please correct the SQL query."
+    lpips = binary_to_list(raw["met_lpips_vgg"] or raw["met_lpips_alex"])
+    lpips = lpips.mean()
+    return float(lpips)
+
+
+@SqlLinker("t_met_metric.met_lpips_alex")
+def extract_lpips_alex(raw: dict[str]) -> float:
+    """Return the Learned Perceptual Image Patch Similarity (LPIPS) with alex.
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+    """
+    assert isinstance(raw, dict), raw.__class__.__name__
+    assert "met_lpips_alex" in raw, "Please correct the SQL query."
+    lpips = binary_to_list(raw["met_lpips_alex"])
+    lpips = lpips.mean()
+    return float(lpips)
+
+
+@SqlLinker("t_met_metric.met_lpips_vgg")
+def extract_lpips_vgg(raw: dict[str]) -> float:
+    """Return the Learned Perceptual Image Patch Similarity (LPIPS) with vgg.
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+    """
+    assert isinstance(raw, dict), raw.__class__.__name__
+    assert "met_lpips_vgg" in raw, "Please correct the SQL query."
+    lpips = binary_to_list(raw["met_lpips_vgg"])
+    lpips = lpips.mean()
+    return float(lpips)
+
+
+

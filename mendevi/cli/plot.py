@@ -163,12 +163,12 @@ def _parse_args(prt: Printer, kwargs: dict):
     help="The criterion on which to separate into sub-windows."
 )
 @click.option(
-    "--window-x",
+    "-wx", "--window-x",
     type=click.Choice(NAMES),
     help="The criterion on which to separate into sub-windows along x axis."
 )
 @click.option(
-    "--window-y",
+    "-wy", "--window-y",
     type=click.Choice(NAMES),
     help="The criterion on which to separate into sub-windows along y axis."
 )
@@ -176,6 +176,11 @@ def _parse_args(prt: Printer, kwargs: dict):
     "--filter", "-f",
     type=str,
     help="Data selection python expression",
+)
+@click.option(
+    "-p", "--print",
+    is_flag=True,
+    help="Flag to print the source code."
 )
 def main(database: str, **kwargs):
     # parse args
@@ -191,9 +196,10 @@ def main(database: str, **kwargs):
 
     # get code content
     code = printer(database=database, **kwargs)
-    print("**********************************PYTHON CODE**********************************")
-    print(highlight(code, PythonLexer(), TerminalFormatter()))
-    print("*******************************************************************************")
+    if kwargs.get("print", False):
+        print("**********************************PYTHON CODE**********************************")
+        print(highlight(code, PythonLexer(), TerminalFormatter()))
+        print("*******************************************************************************")
     with open(path, "w", encoding="utf-8") as file:
         file.write(code)
 

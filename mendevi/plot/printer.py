@@ -58,10 +58,10 @@ def print_entry() -> list[str]:
 def print_cst(**kwargs) -> list[str]:
     """Return the code of the definition of the constants."""
     return [
-        "# COLORS = list(mcolors.TABLEAU_COLORS.values())",
         "COLORS = ['#ef597b', '#29a2c6', '#ffcb18', '#73b66b', '#4e4f4b']",
         f"DATABASE = pathlib.Path({str(kwargs['database'])!r})",
         f"FIGNAME = pathlib.Path(__file__).with_suffix('.svg')",
+        "FIGSIZE = (10, 8)  # (width, height)",
         "MARKERS = ['o', 'x', '+', '^', 'v']  # list of 'dot' shapes",
         "MARKERSIZE = 4",
         "",
@@ -206,10 +206,11 @@ def print_import() -> list[str]:
         "import pathlib",
         "import sqlite3",
         "",
-        "import matplotlib.colors as mcolors",
+        "import matplotlib.figure as figure",
         "import matplotlib.pyplot as plt",
         "import matplotlib.ticker as ticker",
         "import mendevi.plot.extract as extract",
+        "import numpy as np",
         "",
         "",
     ]
@@ -241,15 +242,11 @@ def print_selector(**kwargs) -> list[str]:
     ]
 
 
-def print_subplot(**kwargs) -> list[str]:
+def print_subfigure(**kwargs) -> list[str]:
     """Return the code for the subplot of a a given y and y axis."""
     header = [
-        f"def plot_{kwargs['ylabel']}_{kwargs['xlabel']}(values: dict[str]):",
+        f"def plot_{kwargs['ylabel']}_{kwargs['xlabel']}(values: dict[str], subfig: figure.SubFigure):",
         f'    """Create the subchart for y={kwargs["ylabel"]} and x={kwargs["xlabel"]}."""',
-    ]
-    legend = [
-        "        leg = fig.legend(lines, labels, loc='outside upper center', ncols=min(3, len(labels)))",
-        "        leg.set_in_layout(True)",
     ]
     log_x = get_label_extractor(kwargs["xlabel"])[2]
     log_y = get_label_extractor(kwargs["ylabel"])[2]
@@ -257,19 +254,17 @@ def print_subplot(**kwargs) -> list[str]:
         case (True, True):
             middle = [
                 "    # create a simple figure",
-                "    fig, axe = plt.subplots(sharex=True, figsize=(8, 8), constrained_layout=True)",
+                "    axe = subfig.subplots(sharex=True)",
                 f"    fill_axe(axe, values, ylab={kwargs['ylabel']!r}, xlab={kwargs['xlabel']!r})",
                 *(f"    {l}" for l in print_grid("axe", log_y, "y")),
                 *(f"    {l}" for l in print_grid("axe", log_x, "x")),
-                "    lines, labels = axe.get_legend_handles_labels()",
             ]
-            legend = ["        axe.legend()", "        fig.set_constrained_layout(True)"]
         case (False, True):
             middle = [
                 "    # create a 1d vertical subplot figure",
                 f"    all_{kwargs['window_y']}_values = sorted(set(values[{kwargs['window_y']!r}]))",
                 f"    nrows = len(all_{kwargs['window_y']}_values)",
-                "    fig, axes = plt.subplots(nrows=nrows, sharex=True, figsize=(8, 8), constrained_layout=True)",
+                "    axes = subfig.subplots(nrows=nrows, sharex=True)",
                 "",
                 "    # iterate over all subplots",
                 f"    for i, {kwargs['window_y']}_value in enumerate(all_{kwargs['window_y']}_values):",
@@ -280,14 +275,13 @@ def print_subplot(**kwargs) -> list[str]:
                 f"        fill_axe(axes[i], sub_values, ylab={kwargs['ylabel']!r}, xlab={kwargs['xlabel']!r})",
                 *(f"        {l}" for l in print_grid("axes[i]", log_y, "y")),
                 *(f"        {l}" for l in print_grid("axes[i]", log_x, "x")),
-                "    lines, labels = axes[0].get_legend_handles_labels()",
             ]
         case (True, False):
             middle = [
                 "    # create a 1d horizontal subplot figure",
                 f"    all_{kwargs['window_x']}_values = sorted(set(values[{kwargs['window_x']!r}]))",
                 f"    ncols = len(all_{kwargs['window_x']}_values)",
-                "    fig, axes = plt.subplots(ncols=ncols, sharey=True, figsize=(8, 8), constrained_layout=True)",
+                "    axes = subfig.subplots(ncols=ncols, sharey=True)",
                 "",
                 "    # iterate over all subplots",
                 f"    for j, {kwargs['window_x']}_value in enumerate(all_{kwargs['window_x']}_values):",
@@ -298,7 +292,6 @@ def print_subplot(**kwargs) -> list[str]:
                 f"        fill_axe(axes[j], sub_values, ylab={kwargs['ylabel']!r}, xlab={kwargs['xlabel']!r})",
                 *(f"        {l}" for l in print_grid("axes[j]", log_y, "y")),
                 *(f"        {l}" for l in print_grid("axes[j]", log_x, "x")),
-                "    lines, labels = axes[0].get_legend_handles_labels()",
             ]
         case (False, False):  # 2d grid subplot
             middle = [
@@ -306,7 +299,7 @@ def print_subplot(**kwargs) -> list[str]:
                 f"    all_{kwargs['window_y']}_values = sorted(set(values[{kwargs['window_y']!r}]))",
                 f"    all_{kwargs['window_x']}_values = sorted(set(values[{kwargs['window_x']!r}]))",
                 f"    nrows, ncols = len(all_{kwargs['window_y']}_values), len(all_{kwargs['window_x']}_values)",
-                "    fig, axes = plt.subplots(nrows, ncols, sharex=True, sharey=True, figsize=(8, 8), constrained_layout=True)",
+                "    axes = subfig.subplots(nrows, ncols, sharex=True, sharey=True)",
                 "",
                 "    # iterate over all subplots",
                 f"    for (i, {kwargs['window_y']}_value), (j, {kwargs['window_x']}_value) in itertools.product(",
@@ -322,13 +315,10 @@ def print_subplot(**kwargs) -> list[str]:
                 f"        fill_axe(axes[i, j], sub_values, ylab={kwargs['ylabel']!r}, xlab={kwargs['xlabel']!r})",
                 *(f"        {l}" for l in print_grid("axes[i, j]", log_y, "y")),
                 *(f"        {l}" for l in print_grid("axes[i, j]", log_x, "x")),
-                "    lines, labels = axes[0, 0].get_legend_handles_labels()",
             ]
     end = [
-        "    if labels:",
-        *legend,
-        f"    fig.supylabel({get_label_extractor(kwargs['ylabel'])[0]!r})",
-        f"    fig.supxlabel({get_label_extractor(kwargs['xlabel'])[0]!r})",
+        f"    subfig.supylabel({get_label_extractor(kwargs['ylabel'])[0]!r})",
+        f"    subfig.supxlabel({get_label_extractor(kwargs['xlabel'])[0]!r})",
         "",
     ]
     return header + middle + end
@@ -339,21 +329,47 @@ def print_main(**kwargs) -> list[str]:
     code = []
     # subplots
     for ylabel, xlabel in itertools.product(kwargs["y"], kwargs["x"]):
-        code.extend(print_subplot(**kwargs, ylabel=ylabel, xlabel=xlabel))
+        code.extend(print_subfigure(**kwargs, ylabel=ylabel, xlabel=xlabel))
 
     # main function
     code.extend([
         "def main(values: dict[str]):",
         '    """Create the plots with matplotlib."""',
+        "    # create and fill in the main figure",
+        '    fig = plt.figure(layout="constrained", figsize=FIGSIZE)',
+        f'    subfigs = fig.subfigures(nrows={len(kwargs["y"])}, ncols={len(kwargs["x"])}, squeeze=False)'
     ])
     for (i, ylabel), (j, xlabel) in itertools.product(
         enumerate(kwargs["y"]), enumerate(kwargs["x"])
     ):
         code.extend([
-            "    # TODO: display in a grid rather than creating multiple windows",
-            f"    plot_{ylabel}_{xlabel}(values)  # in position rows={i+1}, cols={j+1}",
+            f"    plot_{ylabel}_{xlabel}(values, subfigs[{i}, {j}])",
         ])
     code.extend([
+        "",
+        "    # legend managment",
+        "    axes = [a for f in np.ravel(subfigs) for a in np.ravel(f.axes)]",
+        "    labels = {frozenset(a.get_legend_handles_labels()[1]) for a in axes}",
+        "    if len(labels) == 1:  # case legends are the same in all axes of all subfigures",
+        "        lines, labels = axes[0].get_legend_handles_labels()",
+        "        if labels:",
+        '            fig.legend(lines, labels, loc="outside upper center", ncols=min(5, len(labels)))',
+        "    else:",
+        '        for subfig in np.ravel(subfigs):',
+        '            axes = np.ravel(subfig.axes)',
+        '            labels = {frozenset(a.get_legend_handles_labels()[1]) for a in axes}',
+        '            if len(labels) == 1:  # case legends are the same in all axes of that subfigure',
+        '                lines, labels = axes[0].get_legend_handles_labels()',
+        '                if labels:',
+        '                    subfig.legend(lines, labels, loc="outside upper center", ncols=min(3, len(labels)))',
+        '            else:  # case legends are different for each axe of that subfigure',
+        '                for axe in axes:',
+        '                    axe.legend()',
+        ""
+    ])
+    code.extend([
+        "",
+        "    # save the figure",
         "    plt.savefig(FIGNAME, format=FIGNAME.suffix[1:])",
         "    plt.show()",
         "",
