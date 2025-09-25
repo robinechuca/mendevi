@@ -59,7 +59,14 @@ This is the pipeline used for measurements:
 Example of result
 =================
 
+Example of rate distortion curve:
 
+.. code:: shell
+
+    mendevi plot mendevi.db -x bitrate -y psnr -y ssim -wx profile -c encoder
+
+.. image:: https://mendevi.readthedocs.io/latest/_images/rate_distortion.svg
+    :alt: Rate distortion example
 
 
 Alternatives
