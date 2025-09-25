@@ -25,7 +25,9 @@ from .utils import Activity
 
 
 ENCODERS = {"libx264", "libx265", "libvpx-vp9", "libsvtav1", "vvc"}
+PIXRATE = {  # mendevi plot mendevi.db -x bitrate -y psnr
 
+}
 
 def encode(src: pathlib.Path, **kwargs) -> tuple[pathlib.Path, str, dict[str]]:
     """Transcode an existing video.
@@ -243,6 +245,11 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs) -> list[st
             15: 5, 16: 5, 17: 5,
         }.get(threads, 6)
 
+    def quality_to_rate(quality: float) -> float:
+        """Convert a quality in [0, 1] to a bitrate in kbps."""
+        mini, maxi = 4.3, 8.7  # based on 'mendevi plot mendevi.db -x bitrate -y psnr'
+        return round(1e-3 * 10.0**(maxi-quality*(maxi-mini)))
+
     # header
     cmd: list[str] = ["ffmpeg", "-y", "-i", str(src)]
 
@@ -260,41 +267,64 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs) -> list[st
 
     # transcode
     cmd.append("-c:v")
-    bit = int(re.search(r"(?P<bit>\d+)le", kwargs["pix_fmt"] + "8le")["bit"])
-    bpp = (  # rate in bit per second for yuv420 raw stream
-        kwargs["fps"] * kwargs["resolution"][0] * kwargs["resolution"][1] * bit * 8 / 3
-    )
-    # print(round(bpp/1000))  # debit maxi a fournir affmpeg avec un k
     match kwargs["encoder"]:
         case "libx264":
+            if kwargs["vbr"]:
+                quality = ["-crf", str(round(kwargs["quality"]*51.0, 1))]
+            else:
+                rate = f"{quality_to_rate(kwargs['quality'])}k"
+                quality = [  # https://trac.ffmpeg.org/wiki/Encode/H.264#CBRConstantBitRate
+                    "-b:v", rate,
+                    "-minrate", rate,
+                    "-maxrate", rate,
+                    "-bufsize", rate,
+                    "-x264-params", "nal-hrd=cbr",
+                ]
             cmd.extend([  # https://ffmpeg.party/x264/
                 "libx264",
-                ("-crf" if kwargs["vbr"] else "-qp"), str(round(kwargs["quality"]*51.0, 1)),
+                *quality,
                 "-preset", kwargs["effort"],
                 "-tune", "ssim",
                 "-threads", str(kwargs["threads"]), "-thread_type", "frame",
             ])
         case "libx265":
-            cmd.extend([   # https://x265.readthedocs.io/en/master/cli.html
-                "libx265",
-                ("-crf" if kwargs["vbr"] else "-qp"), str(round(kwargs["quality"]*51.0, 1)),
-                "-preset", kwargs["effort"],
-                "-tune", "ssim",
-                "-x265-params",
-                (
-                    f"frame-threads={kwargs['threads']}:"
-                    f"pools={kwargs['threads']}:"
-                    f"wpp={1 if kwargs['threads'] != 1 else 0}"
-                ),
-            ])
+            if kwargs["vbr"]:
+                cmd.extend([   # https://x265.readthedocs.io/en/master/cli.html
+                    "libx265",
+                    "-crf", str(round(kwargs["quality"]*51.0, 1)),
+                    "-preset", kwargs["effort"],
+                    "-tune", "ssim",
+                    "-x265-params",
+                    (
+                        f"frame-threads={kwargs['threads']}:"
+                        f"pools={kwargs['threads']}:"
+                        f"wpp={1 if kwargs['threads'] != 1 else 0}"
+                    ),
+                ])
+            else:
+                rate = quality_to_rate(kwargs["quality"])
+                cmd.extend([   # https://x265.readthedocs.io/en/master/cli.html
+                    "libx265",
+                    "-b:v", f"{rate}k",
+                    "-preset", kwargs["effort"],
+                    "-tune", "ssim",
+                    "-x265-params",
+                    (
+                        f"vbv-maxrate={rate}:vbv-bufsize={rate}:"
+                        f"frame-threads={kwargs['threads']}:"
+                        f"pools={kwargs['threads']}:"
+                        f"wpp={1 if kwargs['threads'] != 1 else 0}"
+                    ),
+                ])
         case "libvpx-vp9":
             # https://trac.ffmpeg.org/wiki/Encode/VP9
             # https://wiki.webmproject.org/ffmpeg/vp9-encoding-guide
             # https://developers.google.com/media/vp9/settings
             if kwargs["vbr"]:
-                quality = ("-crf", str(round(kwargs["quality"]*63.0)), "-b:v", "0")
+                quality = ["-crf", str(round(kwargs["quality"]*63.0)), "-b:v", "0"]
             else:
-                quality = ("-minrate", "2000k", "-maxrate", "2000k", "-b:v", "2000k", "-lag-in-frames", "0")
+                rate = f"{quality_to_rate(kwargs['quality'])}k"
+                quality = ["-b:v", rate, "-minrate", rate, "-maxrate", rate, "-lag-in-frames", "0"]
             cmd.extend([
                 "libvpx-vp9",
                 *quality,
@@ -304,18 +334,33 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs) -> list[st
                 "-row-mt", "0", "-threads", str(kwargs["threads"]),
             ])
         case "libsvtav1":
-            cmd.extend([
-                "libsvtav1",
-                "-crf", str(round(kwargs["quality"]*63.0)),
-                "-preset", {"slow": "4", "medium": "6", "fast": "8"}[kwargs["effort"]],
-                # "-tune", "ssim",  # not same result as -svtav1-params tune=2
-                "-svtav1-params", f"film-grain=0:lp={libsvtav1_lp(kwargs['threads'])}:tune=2",
-            ])
-        case "vvc":
+            if kwargs["vbr"]:
+                cmd.extend([
+                    "libsvtav1",
+                    "-crf", str(round(kwargs["quality"]*63.0)),
+                    "-preset", {"slow": "4", "medium": "6", "fast": "8"}[kwargs["effort"]],
+                    # "-tune", "ssim",  # not same result as -svtav1-params tune=2
+                    "-svtav1-params", f"film-grain=0:lp={libsvtav1_lp(kwargs['threads'])}:tune=2",
+                ])
+            else:
+                rate = f"{quality_to_rate(kwargs['quality'])}k"
+                cmd.extend([
+                    "libsvtav1",
+                    "-b:v", rate, "-minrate", rate, "-bufsize", rate,
+                    "-preset", {"slow": "4", "medium": "6", "fast": "8"}[kwargs["effort"]],
+                    "-tune", "ssim",  # -svtav1-params tune=2 not supported in cbr
+                    "-svtav1-params", f"rc=1:film-grain=0:lp={libsvtav1_lp(kwargs['threads'])}",
+                ])
+        case "vvc":  # https://github.com/fraunhoferhhi/vvenc/wiki/FFmpeg-Integration
+            if kwargs["vbr"]:
+                quality = ["-qp", str(round(kwargs["quality"]*63.0))]
+            else:
+                rate = quality_to_rate(kwargs["quality"])
+                quality = ["-b:v", f"{rate}k", "-maxrate", f"{round(1.5*rate)+1}k"]
             bit = int(re.search(r"(?P<bit>\d+)le", kwargs["pix_fmt"] + "8le")["bit"])
             cmd.extend([
                 "vvc",
-                "-qp", str(round(kwargs["quality"]*63.0)),
+                *quality,
                 "-preset", kwargs["effort"],
                 "-qpa", "1",
                 "-vvenc-params", f"internalbitdepth={bit}",

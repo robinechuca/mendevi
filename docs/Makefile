@@ -26,6 +26,8 @@ html:
 	done
 	@echo "Moving *.avif..."
 	@cp $(SOURCEDIR)/media/*.avif $(SOURCEDIR)/_static/media/
+	@echo "Moving *.svg..."
+	@cp $(SOURCEDIR)/media/*.svg $(SOURCEDIR)/_static/media/
 	@echo "****************************************"
 	@echo "************* Change README ************"
 	@echo "****************************************"
