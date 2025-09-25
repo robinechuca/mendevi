@@ -14,6 +14,7 @@ NAMES = [
     "enc_scenario",
     "encoder",
     "lpips", "lpips_alex", "lpips_vgg",
+    "mode",
     "profile",
     "psnr",
     "quality",
@@ -56,7 +57,7 @@ def get_label_extractor(name: str):
             )
         case "bitrate" | "rate":
             return (
-                "Video bitrate in $b \times s^{-1}$",
+                r"Video bitrate in $bit.s^{-1}$",
                 extract.extract_bitrate,
                 True,
             )
@@ -107,6 +108,12 @@ def get_label_extractor(name: str):
                 "Average power consumption in Watts",
                 extract.extract_wattmeter_power,
                 False,
+            )
+        case "mode":
+            return (
+                "Bitrate mode, constant (cbr) or variable (vbr)",
+                extract.extract_mode,
+                None,
             )
         case "profile":
             return (

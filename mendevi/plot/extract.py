@@ -164,7 +164,7 @@ def extract_act_duration(raw: dict[str]) -> float:
 
 @SqlLinker("t_dst_video.vid_duration", "t_dst_video.vid_size")
 def extract_bitrate(raw: dict[str]) -> float:
-    r"""Return the video bitrate in $b \times s^{-1}$.
+    r"""Return the video bitrate in $bit.s^{-1}$.
 
     Parameters
     ----------
@@ -300,6 +300,20 @@ def extract_lpips_vgg(raw: dict[str]) -> float:
     lpips = binary_to_list(raw["met_lpips_vgg"])
     lpips = lpips.mean()
     return float(lpips)
+
+
+@SqlLinker("t_enc_encode.enc_vbr")
+def extract_mode(raw: dict[str]) -> str:
+    """Return the bitrate mode, constant (cbr) or variable (vbr).
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+    """
+    assert isinstance(raw, dict), raw.__class__.__name__
+    assert "enc_vbr" in raw, "Please correct the SQL query."
+    return "vbr" if bool(raw["enc_vbr"]) else "cbr"
 
 
 @SqlLinker("t_vid_video.vid_height", "t_vid_video.vid_width")
