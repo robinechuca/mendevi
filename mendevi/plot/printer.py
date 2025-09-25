@@ -69,6 +69,41 @@ def print_cst(**kwargs) -> list[str]:
     ]
 
 
+def print_grid(axe: str, log: bool | None, dim: str) -> list[str]:
+    """Define the ticks rule and log or linear scale.
+
+    Parameters
+    ----------
+    axe : str
+        The acessor to the matplotlib axe.
+    log : boolean or None
+        Defined by get_label_extractor.
+    dim : str
+        "x" or "y".
+    """
+    assert isinstance(axe, str), axe.__class__.__name__
+    assert log in {True, False, None}, log
+    assert dim in {"x", "y"}, dim
+
+    if log is None:
+        logging.warning("the axis %s should be display as bar plot", dim)
+        return []
+    if log:
+        return [
+            f'{axe}.set_{dim}scale("log", base=10)  # or .set_{dim}scale("linear")',
+            f'{axe}.grid(axis="{dim}", which="major")',
+            f'{axe}.grid(axis="{dim}", which="minor", color="0.9")',
+        ]
+    else:
+        return [
+            f'{axe}.set_{dim}scale("linear")  # or .set_{dim}scale("log", base=10)',
+            f'{axe}.grid(axis="{dim}", which="major")',
+            f'{axe}.grid(axis="{dim}", which="minor", color="0.9")',
+            f"ticks = {axe}.{dim}axis.get_majorticklocs()  # get main graduations",
+            f"{axe}.{dim}axis.set_minor_locator(ticker.MultipleLocator((ticks[1]-ticks[0])/10.0))",
+        ]
+
+
 def print_fill_axe(**kwargs) -> list[str]:
     """Return the code that fill a given axes."""
     code = [
@@ -173,6 +208,7 @@ def print_import() -> list[str]:
         "",
         "import matplotlib.colors as mcolors",
         "import matplotlib.pyplot as plt",
+        "import matplotlib.ticker as ticker",
         "import mendevi.plot.extract as extract",
         "",
         "",
@@ -215,12 +251,16 @@ def print_subplot(**kwargs) -> list[str]:
         "        leg = fig.legend(lines, labels, loc='outside upper center', ncols=min(3, len(labels)))",
         "        leg.set_in_layout(True)",
     ]
+    log_x = get_label_extractor(kwargs["xlabel"])[2]
+    log_y = get_label_extractor(kwargs["ylabel"])[2]
     match (kwargs["window_y"] is None, kwargs["window_x"] is None):
         case (True, True):
             middle = [
                 "    # create a simple figure",
                 "    fig, axe = plt.subplots(sharex=True, figsize=(8, 8), constrained_layout=True)",
                 f"    fill_axe(axe, values, ylab={kwargs['ylabel']!r}, xlab={kwargs['xlabel']!r})",
+                *(f"    {l}" for l in print_grid("axe", log_y, "y")),
+                *(f"    {l}" for l in print_grid("axe", log_x, "x")),
                 "    lines, labels = axe.get_legend_handles_labels()",
             ]
             legend = ["        axe.legend()", "        fig.set_constrained_layout(True)"]
@@ -238,6 +278,8 @@ def print_subplot(**kwargs) -> list[str]:
                 "        sub_values = {k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()}",
                 f"        axes[i].set_title({kwargs['window_y']}_value)",
                 f"        fill_axe(axes[i], sub_values, ylab={kwargs['ylabel']!r}, xlab={kwargs['xlabel']!r})",
+                *(f"        {l}" for l in print_grid("axes[i]", log_y, "y")),
+                *(f"        {l}" for l in print_grid("axes[i]", log_x, "x")),
                 "    lines, labels = axes[0].get_legend_handles_labels()",
             ]
         case (True, False):
@@ -254,6 +296,8 @@ def print_subplot(**kwargs) -> list[str]:
                 "        sub_values = {k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()}",
                 f"        axes[j].set_title({kwargs['window_x']}_value)",
                 f"        fill_axe(axes[j], sub_values, ylab={kwargs['ylabel']!r}, xlab={kwargs['xlabel']!r})",
+                *(f"        {l}" for l in print_grid("axes[j]", log_y, "y")),
+                *(f"        {l}" for l in print_grid("axes[j]", log_x, "x")),
                 "    lines, labels = axes[0].get_legend_handles_labels()",
             ]
         case (False, False):  # 2d grid subplot
@@ -276,6 +320,8 @@ def print_subplot(**kwargs) -> list[str]:
                 "        sub_values = {k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()}",
                 f"        axes[i, j].set_title(f'{{{kwargs['window_y']}_value}} {{{kwargs['window_x']}_value}}')",
                 f"        fill_axe(axes[i, j], sub_values, ylab={kwargs['ylabel']!r}, xlab={kwargs['xlabel']!r})",
+                *(f"        {l}" for l in print_grid("axes[i, j]", log_y, "y")),
+                *(f"        {l}" for l in print_grid("axes[i, j]", log_x, "x")),
                 "    lines, labels = axes[0, 0].get_legend_handles_labels()",
             ]
     end = [
@@ -357,7 +403,7 @@ def print_read_sql(**kwargs) -> list[str]:
         '            """',
         f"            {'\n            '.join(queries[0].split('\n'))}",
         '            """',
-        *[f"            # {q}" for q in "\nor\n".join(queries[1:]).split("\n")],
+        *[f"            # {q}" for q in "\n".join(f'"""\n{q}\n"""' for q in queries[1:]).split("\n")],
         "        ):",
         "            raw = dict(raw)",
         f"            {'\n            '.join(extract)}",

@@ -18,7 +18,9 @@ NAMES = [
     "wattmeter_energy", "energy",
     "wattmeter_power", "power",
     "profile",
-    # "src_vid",
+    "rate", "bitrate",
+    "src_vid",
+    "psnr",
 ]
 
 
@@ -37,6 +39,9 @@ def get_label_extractor(name: str):
         This description can be used to label the axes of a graph.
     func : callable
         The function that performs the verification and deserialisation task.
+    log : boolean or None
+        True to display in log space, False otherwise.
+        The value None means the axis is not continuous.
     """
     assert isinstance(name, str), name.__class__.__name__
     match name:
@@ -44,54 +49,77 @@ def get_label_extractor(name: str):
             return (
                 "Average cumulative utilisation rate of logical cores",
                 extract.extract_cores,
+                False,
             )
         case "effort" | "preset":
             return (
                 "Effort provided as a parameter to the encoder",
                 extract.extract_effort,
+                None,
             )
         case "act_duration":
             return (
                 "Video processing activity duration in seconds",
                 extract.extract_act_duration,
+                False,
             )
         case "encoder":
             return (
                 "Name of the encoder",
                 extract.extract_encoder,
+                None,
             )
         case "quality":
             return (
                 "Quality level passed to the encoder",
                 extract.extract_quality,
+                False,
             )
         case "enc_scenario":
             return (
                 "Unique string specific to the encoding scenario",
                 extract.extract_enc_scenario,
+                None,
             )
         case "threads":
             return (
                 "Number of threads provided as a parameter to the encoder",
                 extract.extract_threads,
+                False,
             )
         case "wattmeter_energy" | "energy":
             return (
                 "Total energy consumption in Joules",
                 extract.extract_wattmeter_energy,
+                True,
             )
         case "wattmeter_power" | "power":
             return (
                 "Average power consumption in Watts",
                 extract.extract_wattmeter_power,
+                False,
             )
         case "profile":
             return (
                 "Profile of the video",
                 extract.extract_profile,
+                None,
             )
-        # case "src_vid":
-        #     return (
-        #         "Input video name",
-        #         extract.extract_src_vid,
-        #     )
+        case "rate" | "bitrate":
+            return (
+                "Video bitrate in bit per seconds",
+                extract.extract_bitrate,
+                True,
+            )
+        case "src_vid":
+            return (
+                "Input video name",
+                extract.extract_src_vid,
+                None,
+            )
+        case "psnr":
+            return (
+                "Peak Signal to Noise Ratio (PSNR)",
+                extract.extract_psnr,
+                False,
+            )

@@ -40,7 +40,19 @@ JOIN: dict[str: dict[str, str]] = {  # join = JOIN[destination_table][source_tab
     "t_idle": {
         "t_env_environment": (
             "JOIN t_act_activity AS t_idle "
-            "ON t_env_environment.anv_idle_act_id = t_act_activity.act_id"
+            "ON t_env_environment.env_idle_act_id = t_idle.act_id"
+        ),
+    },
+    "t_ref_video": {
+        "t_enc_encode": (
+            "JOIN t_vid_video AS t_ref_video "
+            "ON t_enc_encode.enc_src_vid_id = t_ref_video.vid_id"
+        ),
+        "t_dec_decode": (
+            "JOIN t_enc_encode AS t_enc_from_dec "
+            "ON t_dec_decode.dec_vid_id = t_enc_from_dec.enc_dst_vid_id "
+            "JOIN t_vid_video AS t_ref_video "
+            "ON t_enc_from_dec.enc_src_vid_id = t_ref_video.vid_id"
         ),
     },
 }
@@ -299,29 +311,55 @@ def extract_profile(raw: dict[str]) -> str:
     return dist_to_profile[min(dist_to_profile)]
 
 
-# @SqlLinker(
-#     "t_enc_encode.enc_vid_name"
-#     ["enc_vid.vid_name AS enc_src_vid_name"],
-#     "t_enc_encode",
-#     ["JOIN t_vid_video AS enc_vid ON t_enc_encode.enc_src_vid_id = enc_vid.vid_id"],
-# )
-# def extract_src_vid(raw: dict[str]) -> str:
-#     """Return the input video name.
+@SqlLinker("t_vid_video.vid_duration", "t_vid_video.vid_size")
+def extract_bitrate(raw: dict[str]) -> float:
+    """Return the video bitrate in bit per second.
 
-#     Parameters
-#     ----------
-#     raw : dict[str]
-#         The result line of select request.
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+    """
+    assert isinstance(raw, dict), raw.__class__.__name__
+    assert "vid_duration" in raw, "Please correct the SQL query."
+    assert "vid_size" in raw, "Please correct the SQL query."
+    duration, size = raw["vid_duration"], raw["vid_size"]
+    assert isinstance(duration, float), duration.__class__.__name__
+    assert duration > 0, duration
+    assert isinstance(size, int), size.__class__.__name__
+    assert size >= 0, size
+    return 8.0 * float(size) / duration
 
-#     Returns
-#     -------
-#     vid_name : str
-#         Input video name.
-#     """
-#     from mendevi.cst.profiles import PROFILES
-#     assert isinstance(raw, dict), raw.__class__.__name__
-#     assert "enc_src_vid_name" in raw, "Please correct the SQL query."
-#     enc_src_vid_name = raw["enc_src_vid_name"]
-#     assert isinstance(enc_src_vid_name, str), enc_src_vid_name.__class__.__name__
-#     vid_name = re.sub(r"^reference_(\w+)_(?:sd|hd|fhd|uhd4k)\.\w+$", r"\1", enc_src_vid_name)
-#     return str(vid_name)
+
+@SqlLinker("t_ref_video.enc_vid_name AS ref_vid_name")
+def extract_src_vid(raw: dict[str]) -> str:
+    """Return the input video name.
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+    """
+    from mendevi.cst.profiles import PROFILES
+    assert isinstance(raw, dict), raw.__class__.__name__
+    assert "ref_vid_name" in raw, "Please correct the SQL query."
+    vid_name = raw["ref_vid_name"]
+    assert isinstance(vid_name, str), vid_name.__class__.__name__
+    vid_name = re.sub(r"^reference_(\w+)_(?:sd|hd|fhd|uhd4k)\.\w+$", r"\1", vid_name)
+    return vid_name
+
+
+@SqlLinker("t_met_metric.met_psnr")
+def extract_psnr(raw: dict[str]) -> float:
+    """Return the Peak Signal to Noise Ratio (PSNR).
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+    """
+    assert isinstance(raw, dict), raw.__class__.__name__
+    assert "met_psnr" in raw, "Please correct the SQL query."
+    psnr = binary_to_list(raw["met_psnr"])
+    psnr = psnr.mean()
+    return float(psnr)
