@@ -9,6 +9,7 @@ from . import extract
 
 NAMES = [
     "act_duration",
+    "codec",
     "cores",
     "effort", "preset",
     "enc_scenario",
@@ -60,6 +61,12 @@ def get_label_extractor(name: str):
                 r"Video bitrate in $bit.s^{-1}$",
                 extract.extract_bitrate,
                 True,
+            )
+        case "codec":
+            return (
+                "Codec name",
+                extract.extract_codec,
+                None,
             )
         case "cores":
             return (

@@ -185,6 +185,23 @@ def extract_bitrate(raw: dict[str]) -> float:
     return 8.0 * float(size) / duration
 
 
+@SqlLinker("t_dst_video.vid_codec")
+def extract_codec(raw: dict[str]) -> str:
+    """Return the codec name.
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+    """
+    assert isinstance(raw, dict), raw.__class__.__name__
+    assert "vid_codec" in raw, "Please correct the SQL query."
+    if (codec := raw["vid_codec"]) is None:
+        return None
+    assert isinstance(codec, str), codec.__class__.__name__
+    return str(codec)
+
+
 @SqlLinker("t_act_activity.act_ps_dt", "t_act_activity.act_ps_core")
 def extract_cores(raw: dict[str]) -> float:
     """Return the average cumulative utilisation rate of logical cores.
@@ -257,10 +274,10 @@ def extract_encoder(raw: dict[str]) -> str:
     """
     assert isinstance(raw, dict), raw.__class__.__name__
     assert "enc_encoder" in raw, "Please correct the SQL query."
-    if (enc_encoder := raw["enc_encoder"]) is None:
+    if (encoder := raw["enc_encoder"]) is None:
         return None
-    assert isinstance(enc_encoder, str), enc_encoder.__class__.__name__
-    return str(enc_encoder)
+    assert isinstance(encoder, str), encoder.__class__.__name__
+    return str(encoder)
 
 
 @SqlLinker(
