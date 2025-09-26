@@ -65,7 +65,7 @@ The duration of the measurement in seconds.
 act_rapl_dt
 ^^^^^^^^^^^
 
-The list of time intervals in seconds between two consecutive rapl measures.
+The list of each rapl measures duration in seconds.
 To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
 
 .. _act_rapl_power:
@@ -987,7 +987,7 @@ The number of threads that the encoder uses simultaneously. This is related to t
 enc_vbr
 ^^^^^^^
 
-Boolean that is ``true`` if the bit rate is variable (crf mode), or ``false`` if it is constant (qp mode).
+Boolean that is ``true`` if the bit rate is variable (crf mode), or ``false`` if it is constant (cbr mode).
 
 .. _enc_width:
 

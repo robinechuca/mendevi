@@ -97,7 +97,8 @@ def encode(src: pathlib.Path, **kwargs) -> tuple[pathlib.Path, str, dict[str]]:
                     load.total = max(load.total, elapsed)
                     load.update(elapsed-load.n)
             load.close()
-            if process.returncode:
+            if process.returncode or not dst.stat().st_size:
+                dst.unlink(missing_ok=True)
                 raise RuntimeError(f"failed to execute {cmd}")
 
         # print

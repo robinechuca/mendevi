@@ -70,6 +70,17 @@ Example of rate distortion curve:
     :alt: Pipeline diagram
 
 
+Example of energy per encoder:
+
+.. code:: shell
+
+    mendevi plot mendevi.db -x quality -y energy -wx profile -c encoder
+
+
+.. image:: https://mendevi.readthedocs.io/latest/_images/energy.svg
+    :alt: Pipeline diagram
+
+
 Alternatives
 ============
 

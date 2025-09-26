@@ -240,7 +240,7 @@ def main(videos: tuple, database: str = None, **kwargs):
         If provided, A pixel conversion is performed during encoding.
     vbr : tuple[bool]
         Boolean that is ``true`` if the bit rate is variable (crf mode),
-        or ``false`` if it is constant (qp mode).
+        or ``false`` if it is constant (cbr mode).
     filter : str, optional
         A video ffmpeg filter (after -vf) which applies at the time of transcoding,
         more precisely between decoding and conversion. It is a kind of pre-conversion.

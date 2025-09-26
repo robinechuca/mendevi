@@ -2,6 +2,7 @@
 
 """Perform decoding measures."""
 
+import hashlib
 import itertools
 import pathlib
 import sqlite3
@@ -111,18 +112,20 @@ def main(videos: tuple[str], database: str = None, **kwargs):
             done[values] = done.get(values, 0) + 1
 
     # iterate on all the parameters
-    loops = kwargs["repeat"] * len(videos) * len(kwargs["filter"]) * len(kwargs["resolution"])
-    for i, values in enumerate(
-        itertools.product(range(kwargs["repeat"]), videos, kwargs["filter"], kwargs["resolution"])
-    ):
-        values = dict(zip(("repeat", "video", "filter", "resolution"), values))
+    loops = sorted(
+        itertools.product(videos, kwargs["filter"], kwargs["resolution"]),
+        key=lambda t: hashlib.md5(str(t).encode("utf-8")).hexdigest(),  # repetable shuffle
+    )
+    for i, (repeat, values) in enumerate(itertools.product(range(kwargs["repeat"]), loops)):
+        values = dict(zip(("video", "filter", "resolution"), values, strict=True))
+        values["repeat"] = repeat
         values["dec_vid_id"] = kwargs["dec_vid_id"][values["video"]]
         values["filter"] = values["filter"] or ""
         values["resolution"] = values["resolution"] or get_resolution(values["video"])
         key = (values["dec_vid_id"], values["resolution"])
         if done.get(key, 0) > values["repeat"]:
             continue
-        with Printer(f"Decode {i+1}/{loops}...", color="cyan") as prt:
+        with Printer(f"Decode {i+1}/{kwargs["repeat"]*len(loops)}...", color="cyan") as prt:
             decode_and_store(database, env_id, values.pop("video"), **values)
             done[key] = done.get(key, 0) + 1
             prt.print_time()

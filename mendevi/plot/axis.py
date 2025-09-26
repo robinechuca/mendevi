@@ -13,8 +13,10 @@ NAMES = [
     "effort", "preset",
     "enc_scenario",
     "encoder",
+    "energy",
     "lpips", "lpips_alex", "lpips_vgg",
     "mode",
+    "power",
     "profile",
     "psnr",
     "quality",
@@ -23,8 +25,6 @@ NAMES = [
     "threads",
     "video_name", "name",
     "vmaf",
-    "wattmeter_energy", "energy",
-    "wattmeter_power", "power",
 ]
 
 
@@ -85,6 +85,12 @@ def get_label_extractor(name: str):
                 extract.extract_encoder,
                 None,
             )
+        case "energy":
+            return (
+                "Total energy consumption in Joules",
+                extract.extract_energy,
+                True,
+            )
         case "lpips":
             return (
                 "Learned Perceptual Image Patch Similarity (LPIPS)",
@@ -103,10 +109,10 @@ def get_label_extractor(name: str):
                 extract.extract_lpips_vgg,
                 False,
             )
-        case "power" | "wattmeter_power":
+        case "power":
             return (
                 "Average power consumption in Watts",
-                extract.extract_wattmeter_power,
+                extract.extract_power,
                 False,
             )
         case "mode":
@@ -156,11 +162,5 @@ def get_label_extractor(name: str):
                 "Input video name",
                 extract.extract_video_name,
                 None,
-            )
-        case "wattmeter_energy" | "energy":
-            return (
-                "Total energy consumption in Joules",
-                extract.extract_wattmeter_energy,
-                True,
             )
     raise KeyError(f"{name} is not recognised")
