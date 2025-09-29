@@ -25,9 +25,7 @@ from .utils import Activity
 
 
 ENCODERS = {"libx264", "libx265", "libvpx-vp9", "libsvtav1", "vvc"}
-PIXRATE = {  # mendevi plot mendevi.db -x bitrate -y psnr
 
-}
 
 def encode(src: pathlib.Path, **kwargs) -> tuple[pathlib.Path, str, dict[str]]:
     """Transcode an existing video.

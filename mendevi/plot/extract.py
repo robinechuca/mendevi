@@ -506,6 +506,23 @@ def extract_threads(raw: dict[str]) -> int:
     return int(threads)
 
 
+@SqlLinker("t_vid_video.vid_duration")
+def extract_video_duration(raw: dict[str]) -> float:
+    """Return the video duration in seconds.
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+    """
+    assert isinstance(raw, dict), raw.__class__.__name__
+    assert "vid_duration" in raw, "Please correct the SQL query."
+    if (duration := raw["vid_duration"]) is None:
+        return None
+    assert isinstance(duration, numbers.Real), duration.__class__.__name__
+    return float(duration)
+
+
 @SqlLinker("t_ref_video.enc_vid_name AS ref_vid_name")
 def extract_video_name(raw: dict[str]) -> str:
     """Return the input video name.
@@ -521,7 +538,7 @@ def extract_video_name(raw: dict[str]) -> str:
     if (vid_name := raw["ref_vid_name"]) is None:
         return None
     assert isinstance(vid_name, str), vid_name.__class__.__name__
-    vid_name = re.sub(r"^reference_(\w+)_(?:sd|hd|fhd|uhd4k)\.\w+$", r"\1", vid_name)
+    vid_name = re.sub(fr"^reference_(\w+)_(?:{'|'.join(PROFILES)})\.\w+$", r"\1", vid_name)
     return vid_name
 
 

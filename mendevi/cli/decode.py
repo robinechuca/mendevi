@@ -106,10 +106,11 @@ def main(videos: tuple[str], database: str = None, **kwargs):
         ):
             values = (
                 values["dec_vid_id"],
-                values["dec_filter"],
+                values["dec_filter"] or "",
                 (values["dec_height"], values["dec_width"]),
             )
             done[values] = done.get(values, 0) + 1
+        prt.print(f"{sum(done.values())} video already decoded under these environment")
 
     # iterate on all the parameters
     loops = sorted(
@@ -122,7 +123,7 @@ def main(videos: tuple[str], database: str = None, **kwargs):
         values["dec_vid_id"] = kwargs["dec_vid_id"][values["video"]]
         values["filter"] = values["filter"] or ""
         values["resolution"] = values["resolution"] or get_resolution(values["video"])
-        key = (values["dec_vid_id"], values["resolution"])
+        key = (values["dec_vid_id"], values["filter"], values["resolution"])
         if done.get(key, 0) > values["repeat"]:
             continue
         with Printer(f"Decode {i+1}/{kwargs["repeat"]*len(loops)}...", color="cyan") as prt:

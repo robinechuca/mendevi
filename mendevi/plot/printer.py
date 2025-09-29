@@ -111,9 +111,9 @@ def print_fill_axe(**kwargs) -> list[str]:
         '    """Fill in the axis with the data provided as input."""',
     ]
     if kwargs["color"] is not None:
-        code.append(f"    color_labels = sorted(set(values[{kwargs['color']!r}]))")
+        code.append(f"    color_labels = sorted(set(values[{kwargs['color']!r}]), key=smartsort)")
     if kwargs["marker"] is not None:
-        code.append(f"    marker_labels = sorted(set(values[{kwargs['marker']!r}]))")
+        code.append(f"    marker_labels = sorted(set(values[{kwargs['marker']!r}]), key=smartsort)")
     match (kwargs["color"] is None, kwargs["marker"] is None):
         case (True, True):  # no color, no marker
             code.extend([
@@ -206,10 +206,12 @@ def print_import() -> list[str]:
         "import pathlib",
         "import sqlite3",
         "",
+        "from mendevi.plot.tools import smartsort",
         "import matplotlib.figure as figure",
         "import matplotlib.pyplot as plt",
         "import matplotlib.ticker as ticker",
         "import mendevi.plot.extract as extract",
+        ""
         "import numpy as np",
         "",
         "",
@@ -262,7 +264,7 @@ def print_subfigure(**kwargs) -> list[str]:
         case (False, True):
             middle = [
                 "    # create a 1d vertical subplot figure",
-                f"    all_{kwargs['window_y']}_values = sorted(set(values[{kwargs['window_y']!r}]))",
+                f"    all_{kwargs['window_y']}_values = sorted(set(values[{kwargs['window_y']!r}]), key=smartsort)",
                 f"    nrows = len(all_{kwargs['window_y']}_values)",
                 "    axes = subfig.subplots(nrows=nrows, squeeze=False, sharex=True)",
                 "",
@@ -279,7 +281,7 @@ def print_subfigure(**kwargs) -> list[str]:
         case (True, False):
             middle = [
                 "    # create a 1d horizontal subplot figure",
-                f"    all_{kwargs['window_x']}_values = sorted(set(values[{kwargs['window_x']!r}]))",
+                f"    all_{kwargs['window_x']}_values = sorted(set(values[{kwargs['window_x']!r}]), key=smartsort)",
                 f"    ncols = len(all_{kwargs['window_x']}_values)",
                 "    axes = subfig.subplots(ncols=ncols, squeeze=False, sharey=True)",
                 "",
@@ -296,8 +298,8 @@ def print_subfigure(**kwargs) -> list[str]:
         case (False, False):  # 2d grid subplot
             middle = [
                 "    # create a 2d grid subplot figure",
-                f"    all_{kwargs['window_y']}_values = sorted(set(values[{kwargs['window_y']!r}]))",
-                f"    all_{kwargs['window_x']}_values = sorted(set(values[{kwargs['window_x']!r}]))",
+                f"    all_{kwargs['window_y']}_values = sorted(set(values[{kwargs['window_y']!r}]), key=smartsort)",
+                f"    all_{kwargs['window_x']}_values = sorted(set(values[{kwargs['window_x']!r}]), key=smartsort)",
                 f"    nrows, ncols = len(all_{kwargs['window_y']}_values), len(all_{kwargs['window_x']}_values)",
                 "    axes = subfig.subplots(nrows, ncols, squeeze=False, sharex=True, sharey=True)",
                 "",

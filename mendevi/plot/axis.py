@@ -24,7 +24,8 @@ NAMES = [
     "rate", "bitrate",
     "ssim",
     "threads",
-    "video_name", "name",
+    "video_duration", "vid_duration",
+    "video_name", "vid_name", "name",
     "vmaf",
 ]
 
@@ -164,7 +165,13 @@ def get_label_extractor(name: str):
                 extract.extract_vmaf,
                 False,
             )
-        case "video_name" | "name":
+        case "video_duration" | "vid_duration":
+            return (
+                "Video duration in seconds",
+                extract.extract_video_duration,
+                False,
+            )
+        case "video_name" | "vid_name" | "name":
             return (
                 "Input video name",
                 extract.extract_video_name,
