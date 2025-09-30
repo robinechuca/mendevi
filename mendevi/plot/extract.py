@@ -14,7 +14,7 @@ from mendevi.database.serialize import binary_to_list, binary_to_tensor
 JOIN: dict[str: dict[str, str]] = {  # join = JOIN[destination_table][source_table]
     "t_vid_video": {
         "t_dec_decode": "JOIN t_vid_video ON t_dec_decode.dec_vid_id = t_vid_video.vid_id",
-        "t_enc_encode": "JOIN t_vid_video ON t_enc_encode.enc_src_vid_id = t_vid_video.vid_id",
+        "t_enc_encode": "JOIN t_vid_video ON t_enc_encode.enc_dst_vid_id = t_vid_video.vid_id",
         "t_met_metric": "JOIN t_vid_video ON t_met_metric.met_dis_vid_id = t_vid_video.vid_id",
     },
     "t_enc_encode": {
@@ -420,22 +420,14 @@ def extract_profile(raw: dict[str]) -> str:
     raw : dict[str]
         The result line of select request.
     """
-    from mendevi.cst.profiles import PROFILES
+    from mendevi.utils import best_profile
     assert isinstance(raw, dict), raw.__class__.__name__
     assert "vid_height" in raw, "Please correct the SQL query."
     assert "vid_width" in raw, "Please correct the SQL query."
     height, width = raw["vid_height"], raw["vid_width"]
     if height is None or width is None:
         return None
-    assert isinstance(height, numbers.Integral), height.__class__.__name__
-    assert isinstance(width, numbers.Integral), width.__class__.__name__
-    assert (height, width) > (0, 0), (height, width)
-    size = math.sqrt(float(height * width))
-    dist_to_profile = {
-        abs(math.sqrt(float(v["resolution"][0]*v["resolution"][1])) - size): p
-        for p, v in PROFILES.items()
-    }
-    return dist_to_profile[min(dist_to_profile)]
+    return best_profile(height, width)
 
 
 @SqlLinker("t_met_metric.met_psnr")

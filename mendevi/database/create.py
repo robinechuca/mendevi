@@ -80,6 +80,13 @@ def create_database(filename: str | bytes | pathlib.Path):
             met_psnr LONGBLOB,  -- list of the psnr (6, 1, 1) metric for each frame
             met_ssim LONGBLOB,  -- list of the ssim (6, 1, 1) metric for each frame, gauss win 11x11
             met_vmaf LONGBLOB,  -- list of the vmaf metric for each frame
+            -- met_ciede2000 LONGBLOB,  -- list of the color difference for each frame
+            -- met_apsnr LONGBLOB,  -- list of the aligned psnr metric for each frame
+            -- met_ms_ssim LONGBLOB,  -- list of the multi scaled ssim metric for each frame
+            -- met_vif LONGBLOB,  -- list of the vif metric for each frame (Visual Information Fidelity)
+            -- met_ifc LONGBLOB,  -- list of the ifc metric for each frame (Information Fidelity Criterion)
+            -- met_uqi LONGBLOB,  -- list of the uqi metric for each frame (Universal Image Quality Index)
+            -- met_gmsd LONGBLOB,  -- list of the gmsd metric for each frame (Gradient Magnitude Similarity Deviation)
 
             UNIQUE(met_ref_vid_id, met_dis_vid_id) ON CONFLICT FAIL
         )""")

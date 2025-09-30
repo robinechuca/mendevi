@@ -6,6 +6,7 @@ import base64
 import functools
 import hashlib
 import logging
+import math
 import multiprocessing.pool
 import numbers
 import pathlib
@@ -20,9 +21,11 @@ from cutcutcodec.core.io import VIDEO_SUFFIXES
 import cutcutcodec
 import tqdm
 
+from mendevi.cst.profiles import PROFILES
 from mendevi.g5kpower import g5kpower
 from mendevi.psutil import Usage
 from mendevi.rapl import RAPL
+
 
 PATHLIKE = str | bytes | pathlib.Path
 
@@ -126,6 +129,18 @@ class Activity(threading.Thread):
                 "wattmeter_power": wattmeter["power"],
                 "wattmeter_powers": wattmeter["powers"],
             }
+
+
+def best_profile(height: numbers.Integral, width: numbers.Integral) -> str:
+    """Return the closest profile name."""
+    assert isinstance(height, numbers.Integral), height.__class__.__name__
+    assert isinstance(width, numbers.Integral), width.__class__.__name__
+    size = math.sqrt(float(height * width))
+    dist_to_profile = {
+        abs(math.sqrt(float(v["resolution"][0]*v["resolution"][1])) - size): p
+        for p, v in PROFILES.items()
+    }
+    return dist_to_profile[min(dist_to_profile)]
 
 
 def compute_video_hash(

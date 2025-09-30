@@ -4,6 +4,7 @@
 
 import datetime
 import hashlib
+import math
 import pathlib
 import re
 import shlex
@@ -20,7 +21,7 @@ import tqdm
 
 from mendevi.convert import get_convert_cmd
 from mendevi.database.serialize import list_to_binary, tensor_to_binary
-from mendevi.utils import compute_video_hash, hash_to_signature
+from mendevi.utils import best_profile, compute_video_hash, hash_to_signature
 from .utils import Activity
 
 
@@ -244,11 +245,6 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs) -> list[st
             15: 5, 16: 5, 17: 5,
         }.get(threads, 6)
 
-    def quality_to_rate(quality: float) -> float:
-        """Convert a quality in [0, 1] to a bitrate in kbps."""
-        mini, maxi = 4.3, 8.7  # based on 'mendevi plot mendevi.db -x bitrate -y psnr'
-        return round(1e-3 * 10.0**(maxi-quality*(maxi-mini)))
-
     # header
     cmd: list[str] = ["ffmpeg", "-y", "-i", str(src)]
 
@@ -271,7 +267,7 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs) -> list[st
             if kwargs["vbr"]:
                 quality = ["-crf", str(round(kwargs["quality"]*51.0, 1))]
             else:
-                rate = f"{quality_to_rate(kwargs['quality'])}k"
+                rate = f"{quality_to_rate(kwargs)}k"
                 quality = [  # https://trac.ffmpeg.org/wiki/Encode/H.264#CBRConstantBitRate
                     "-b:v", rate,
                     "-minrate", rate,
@@ -301,7 +297,7 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs) -> list[st
                     ),
                 ])
             else:
-                rate = quality_to_rate(kwargs["quality"])
+                rate = quality_to_rate(kwargs)
                 cmd.extend([   # https://x265.readthedocs.io/en/master/cli.html
                     "libx265",
                     "-b:v", f"{rate}k",
@@ -322,7 +318,7 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs) -> list[st
             if kwargs["vbr"]:
                 quality = ["-crf", str(round(kwargs["quality"]*63.0)), "-b:v", "0"]
             else:
-                rate = f"{quality_to_rate(kwargs['quality'])}k"
+                rate = f"{quality_to_rate(kwargs)}k"
                 quality = ["-b:v", rate, "-minrate", rate, "-maxrate", rate, "-lag-in-frames", "0"]
             cmd.extend([
                 "libvpx-vp9",
@@ -342,7 +338,7 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs) -> list[st
                     "-svtav1-params", f"film-grain=0:lp={libsvtav1_lp(kwargs['threads'])}:tune=2",
                 ])
             else:
-                rate = f"{quality_to_rate(kwargs['quality'])}k"
+                rate = f"{min(100_000, quality_to_rate(kwargs))}k"
                 cmd.extend([
                     "libsvtav1",
                     "-b:v", rate, "-minrate", rate, "-bufsize", rate,
@@ -354,7 +350,7 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs) -> list[st
             if kwargs["vbr"]:
                 quality = ["-qp", str(round(kwargs["quality"]*63.0))]
             else:
-                rate = quality_to_rate(kwargs["quality"])
+                rate = quality_to_rate(kwargs)
                 quality = ["-b:v", f"{rate}k", "-maxrate", f"{round(1.5*rate)+1}k"]
             bit = int(re.search(r"(?P<bit>\d+)le", kwargs["pix_fmt"] + "8le")["bit"])
             cmd.extend([
@@ -369,3 +365,29 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs) -> list[st
     # final
     cmd.append(str(dst))
     return cmd
+
+
+def quality_to_rate(kwargs: dict[str]) -> int:
+    """Return the absolute target bitrate in kbit/s.
+
+    Based on https://twitch-overlay.fr/quelle-connexion-internet-choisir-pour-streamer-sur-twitch/
+    and https://bitmovin.com/blog/video-bitrate-streaming-hls-dash/
+
+    You can plot the bitrate with: mendevi plot mendevi.db -x bitrate -y psnr -f 'mode = "vbr"'
+    """
+    quality = kwargs["quality"]
+    assert isinstance(quality, float), quality.__class__.__name__
+    assert 0.0 <= quality <= 1.0, quality
+    match (profile := best_profile(*kwargs["resolution"])):
+        case "sd":
+            mini, maxi = 400, 2100
+        case "hd":
+            mini, maxi = 1500, 6000
+        case "fhd":
+            mini, maxi = 3000, 9000
+        case "uhd4k":
+            mini, maxi = 10000, 51000
+        case _:
+            raise NotImplementedError(f"please define a bitrate rule for the profile {profile}")
+    mini, maxi = math.log10(float(mini)), math.log10(float(maxi))
+    return round(10.0**(maxi-quality*(maxi-mini)))

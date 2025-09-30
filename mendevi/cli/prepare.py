@@ -12,7 +12,7 @@ import click
 import cutcutcodec
 
 from mendevi.cst import PROFILES
-from mendevi.utils import get_resolution
+from mendevi.utils import best_profile, get_resolution
 from .parse import PixelParamType, ResolutionParamType
 
 
@@ -25,13 +25,7 @@ def _parse_args(prt: Printer, video: pathlib.Path, kwargs: dict):
         kwargs["profile"] = kwargs["profile"].lower()
         assert kwargs["profile"] in PROFILES, (kwargs["profile"], PROFILES)
     else:  # autodetect profile based on the number of pixels
-        kwargs["profile"] = get_resolution(video)  # height, width
-        kwargs["profile"] = math.sqrt(kwargs["profile"][0] * kwargs["profile"][1])  # size
-        kwargs["profile"] = {  # distance
-            abs(math.sqrt(v["resolution"][0] * v["resolution"][1]) - kwargs["profile"]): p
-            for p, v in PROFILES.items()
-        }
-        kwargs["profile"] = kwargs["profile"][min(kwargs["profile"])]  # get the
+        kwargs["profile"] = best_profile(*get_resolution(video))
     prt.print(f"profile   : {kwargs['profile']}")
 
     # fps
@@ -223,6 +217,7 @@ def main(video: str, output: str | None = None, **kwargs) -> pathlib.Path:
                     "rate": kwargs["fps"],
                     "shape": kwargs["resolution"],
                     "pix_fmt": kwargs["pix_fmt"],
+                    "range": kwargs["range"],
                 }],
             )
         shutil.move(tmp, file)
