@@ -479,6 +479,21 @@ def extract_ssim(raw: dict[str]) -> float:
         return None
     return float(binary_to_list(ssim).mean())
 
+@SqlLinker("t_met_metric.met_ssim")
+def extract_ssim_rev(raw: dict[str]) -> float:
+    """Return the reverse of Structural Similarity (1-SSIM).
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+    """
+    assert isinstance(raw, dict), raw.__class__.__name__
+    assert "met_ssim" in raw, "Please correct the SQL query."
+    if (ssim := raw["met_ssim"]) is None:
+        return None
+    return 1.0 - float(binary_to_list(ssim).mean())
+
 
 @SqlLinker("t_enc_encode.enc_threads")
 def extract_threads(raw: dict[str]) -> int:

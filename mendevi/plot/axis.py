@@ -23,6 +23,7 @@ NAMES = [
     "quality",
     "rate", "bitrate",
     "ssim",
+    "ssim_rev", "rev_ssim",
     "threads",
     "video_duration", "vid_duration",
     "video_name", "vid_name", "name",
@@ -152,6 +153,12 @@ def get_label_extractor(name: str):
                 "Structural Similarity (SSIM)",
                 extract.extract_ssim,
                 False,
+            )
+        case "ssim_rev" | "rev_ssim":
+            return (
+                "Reverse of Structural Similarity (1-SSIM)",
+                extract.extract_ssim_rev,
+                True,
             )
         case "threads":
             return (
