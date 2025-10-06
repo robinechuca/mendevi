@@ -20,7 +20,7 @@ class RAPL:
     Examples
     --------
     >>> import time
-    >>> from mendevi.rapl import RAPL
+    >>> from mendevi.measures.rapl import RAPL
     >>> with RAPL() as energy:
     ...     time.sleep(1)
     ...

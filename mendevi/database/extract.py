@@ -7,6 +7,7 @@ import json
 import math
 import numbers
 import re
+import typing
 
 from mendevi.database.serialize import binary_to_list, binary_to_tensor
 
@@ -145,6 +146,19 @@ class SqlLinker:
         return func
 
 
+def verif(func: typing.Callable) -> typing.Callable:
+    """Perform few verifications."""
+    @functools.wraps(func)
+    def decorated(raw: dict[str]) -> float:
+        assert isinstance(raw, dict), raw.__class__.__name__
+        for select in func.select:
+            name = select.split(" ")[-1].split(".")[-1]
+            assert name in raw, f"correct the SQL query because {select} is missing"
+        return func(raw)
+    return decorated
+
+
+@verif
 @SqlLinker("t_act_activity.act_duration")
 def extract_act_duration(raw: dict[str]) -> float:
     """Return the video processing activity duration in seconds.
@@ -154,8 +168,6 @@ def extract_act_duration(raw: dict[str]) -> float:
     raw : dict[str]
         The result line of select request.
     """
-    assert isinstance(raw, dict), raw.__class__.__name__
-    assert "act_duration" in raw, "Please correct the SQL query."
     if (act_duration := raw["act_duration"]) is None:
         return None
     assert isinstance(act_duration, numbers.Real), act_duration.__class__.__name__
@@ -163,6 +175,7 @@ def extract_act_duration(raw: dict[str]) -> float:
     return float(act_duration)
 
 
+@verif
 @SqlLinker("t_dst_video.vid_duration", "t_dst_video.vid_size")
 def extract_bitrate(raw: dict[str]) -> float:
     r"""Return the video bitrate in $bit.s^{-1}$.
@@ -172,9 +185,6 @@ def extract_bitrate(raw: dict[str]) -> float:
     raw : dict[str]
         The result line of select request.
     """
-    assert isinstance(raw, dict), raw.__class__.__name__
-    assert "vid_duration" in raw, "Please correct the SQL query."
-    assert "vid_size" in raw, "Please correct the SQL query."
     duration, size = raw["vid_duration"], raw["vid_size"]
     if duration is None or size is None:
         return None
@@ -185,6 +195,7 @@ def extract_bitrate(raw: dict[str]) -> float:
     return 8.0 * float(size) / duration
 
 
+@verif
 @SqlLinker("t_dst_video.vid_codec")
 def extract_codec(raw: dict[str]) -> str:
     """Return the codec name.
@@ -194,14 +205,13 @@ def extract_codec(raw: dict[str]) -> str:
     raw : dict[str]
         The result line of select request.
     """
-    assert isinstance(raw, dict), raw.__class__.__name__
-    assert "vid_codec" in raw, "Please correct the SQL query."
     if (codec := raw["vid_codec"]) is None:
         return None
     assert isinstance(codec, str), codec.__class__.__name__
     return str(codec)
 
 
+@verif
 @SqlLinker("t_act_activity.act_ps_dt", "t_act_activity.act_ps_core")
 def extract_cores(raw: dict[str]) -> float:
     """Return the average cumulative utilisation rate of logical cores.
@@ -211,9 +221,6 @@ def extract_cores(raw: dict[str]) -> float:
     raw : dict[str]
         The result line of select request.
     """
-    assert isinstance(raw, dict), raw.__class__.__name__
-    assert "act_ps_dt" in raw, "Please correct the SQL query."
-    assert "act_ps_core" in raw, "Please correct the SQL query."
     act_ps_dt, act_ps_core = raw["act_ps_dt"], raw["act_ps_core"]
     if act_ps_dt is None or act_ps_core is None:
         return None
@@ -224,6 +231,7 @@ def extract_cores(raw: dict[str]) -> float:
     return float(average) / 100.0  # normalisation
 
 
+@verif
 @SqlLinker("t_enc_encode.enc_effort")
 def extract_effort(raw: dict[str]) -> str:
     """Return the effort provided as a parameter to the encoder.
@@ -233,14 +241,13 @@ def extract_effort(raw: dict[str]) -> str:
     raw : dict[str]
         The result line of select request.
     """
-    assert isinstance(raw, dict), raw.__class__.__name__
-    assert "enc_effort" in raw, "Please correct the SQL query."
     if (enc_effort := raw["enc_effort"]) is None:
         return None
     assert isinstance(enc_effort, str), enc_effort.__class__.__name__
     return str(enc_effort)
 
 
+@verif
 @SqlLinker("t_enc_encode.enc_vid_id", "t_enc_encode.enc_cmd", "t_vid_video.vid_name")
 def extract_enc_scenario(raw: dict[str]) -> str:
     """Return the unique string specific to the encoding scenario.
@@ -250,10 +257,6 @@ def extract_enc_scenario(raw: dict[str]) -> str:
     raw : dict[str]
         The result line of select request.
     """
-    assert isinstance(raw, dict), raw.__class__.__name__
-    assert "enc_env_id" in raw, "Please correct the SQL query."
-    assert "enc_cmd" in raw, "Please correct the SQL query."
-    assert "vid_name" in raw, "Please correct the SQL query."
     env_id, cmd, vid_name = raw["enc_env_id"], raw["enc_cmd"], raw["vid_name"]
     if env_id is None or cmd is None or vid_name is None:
         return None
@@ -263,6 +266,7 @@ def extract_enc_scenario(raw: dict[str]) -> str:
     return f"env {env_id}: {cmd.replace('src.mp4', vid_name)}"
 
 
+@verif
 @SqlLinker("t_enc_encode.enc_encoder")
 def extract_encoder(raw: dict[str]) -> str:
     """Return the name of the encoder.
@@ -272,14 +276,13 @@ def extract_encoder(raw: dict[str]) -> str:
     raw : dict[str]
         The result line of select request.
     """
-    assert isinstance(raw, dict), raw.__class__.__name__
-    assert "enc_encoder" in raw, "Please correct the SQL query."
     if (encoder := raw["enc_encoder"]) is None:
         return None
     assert isinstance(encoder, str), encoder.__class__.__name__
     return str(encoder)
 
 
+# @verif
 @SqlLinker(
     "t_act_activity.act_rapl_dt",
     "t_act_activity.act_rapl_power",
@@ -312,6 +315,7 @@ def extract_energy(raw: dict[str]) -> float:
     return float(integral)
 
 
+@verif
 @SqlLinker("t_met_metric.met_lpips_alex", "t_met_metric.met_lpips_vgg")
 def extract_lpips(raw: dict[str]) -> float:
     """Return the Learned Perceptual Image Patch Similarity (LPIPS) with alex.
@@ -321,14 +325,12 @@ def extract_lpips(raw: dict[str]) -> float:
     raw : dict[str]
         The result line of select request.
     """
-    assert isinstance(raw, dict), raw.__class__.__name__
-    assert "met_lpips_alex" in raw, "Please correct the SQL query."
-    assert "met_lpips_vgg" in raw, "Please correct the SQL query."
     if (lpips := raw["met_lpips_vgg"] or raw["met_lpips_alex"]) is None:
         return None
     return float(binary_to_list(lpips).mean())
 
 
+@verif
 @SqlLinker("t_met_metric.met_lpips_alex")
 def extract_lpips_alex(raw: dict[str]) -> float:
     """Return the Learned Perceptual Image Patch Similarity (LPIPS) with alex.
@@ -338,13 +340,12 @@ def extract_lpips_alex(raw: dict[str]) -> float:
     raw : dict[str]
         The result line of select request.
     """
-    assert isinstance(raw, dict), raw.__class__.__name__
-    assert "met_lpips_alex" in raw, "Please correct the SQL query."
     if (lpips := raw["met_lpips_alex"]) is None:
         return None
     return float(binary_to_list(lpips).mean())
 
 
+@verif
 @SqlLinker("t_met_metric.met_lpips_vgg")
 def extract_lpips_vgg(raw: dict[str]) -> float:
     """Return the Learned Perceptual Image Patch Similarity (LPIPS) with vgg.
@@ -354,13 +355,12 @@ def extract_lpips_vgg(raw: dict[str]) -> float:
     raw : dict[str]
         The result line of select request.
     """
-    assert isinstance(raw, dict), raw.__class__.__name__
-    assert "met_lpips_vgg" in raw, "Please correct the SQL query."
     if (lpips := raw["met_lpips_vgg"]) is None:
         return None
     return float(binary_to_list(lpips).mean())
 
 
+@verif
 @SqlLinker("t_enc_encode.enc_vbr")
 def extract_mode(raw: dict[str]) -> str:
     """Return the bitrate mode, constant (cbr) or variable (vbr).
@@ -370,13 +370,12 @@ def extract_mode(raw: dict[str]) -> str:
     raw : dict[str]
         The result line of select request.
     """
-    assert isinstance(raw, dict), raw.__class__.__name__
-    assert "enc_vbr" in raw, "Please correct the SQL query."
     if (mode := raw["enc_vbr"]) is None:
         return None
     return "vbr" if bool(mode) else "cbr"
 
 
+# @verif
 @SqlLinker(
     "t_act_activity.act_rapl_dt",
     "t_act_activity.act_rapl_power",
@@ -409,6 +408,7 @@ def extract_power(raw: dict[str]) -> float:
     return float(integral / act_dt.sum())
 
 
+@verif
 @SqlLinker("t_vid_video.vid_height", "t_vid_video.vid_width")
 def extract_profile(raw: dict[str]) -> str:
     """Return the profile of the video.
@@ -421,15 +421,13 @@ def extract_profile(raw: dict[str]) -> str:
         The result line of select request.
     """
     from mendevi.utils import best_profile
-    assert isinstance(raw, dict), raw.__class__.__name__
-    assert "vid_height" in raw, "Please correct the SQL query."
-    assert "vid_width" in raw, "Please correct the SQL query."
     height, width = raw["vid_height"], raw["vid_width"]
     if height is None or width is None:
         return None
     return best_profile(height, width)
 
 
+@verif
 @SqlLinker("t_met_metric.met_psnr")
 def extract_psnr(raw: dict[str]) -> float:
     """Return the Peak Signal to Noise Ratio (PSNR).
@@ -439,13 +437,12 @@ def extract_psnr(raw: dict[str]) -> float:
     raw : dict[str]
         The result line of select request.
     """
-    assert isinstance(raw, dict), raw.__class__.__name__
-    assert "met_psnr" in raw, "Please correct the SQL query."
     if (psnr := raw["met_psnr"]) is None:
         return None
     return float(binary_to_list(psnr).mean())
 
 
+@verif
 @SqlLinker("t_enc_encode.enc_quality")
 def extract_quality(raw: dict[str]) -> float:
     """Return the quality level passed to the encoder.
@@ -455,8 +452,6 @@ def extract_quality(raw: dict[str]) -> float:
     raw : dict[str]
         The result line of select request.
     """
-    assert isinstance(raw, dict), raw.__class__.__name__
-    assert "enc_quality" in raw, "Please correct the SQL query."
     if (enc_quality := raw["enc_quality"]) is None:
         return None
     assert isinstance(enc_quality, numbers.Real), enc_quality.__class__.__name__
@@ -464,6 +459,7 @@ def extract_quality(raw: dict[str]) -> float:
     return float(enc_quality)
 
 
+@verif
 @SqlLinker("t_met_metric.met_ssim")
 def extract_ssim(raw: dict[str]) -> float:
     """Return the Structural Similarity (SSIM).
@@ -473,12 +469,11 @@ def extract_ssim(raw: dict[str]) -> float:
     raw : dict[str]
         The result line of select request.
     """
-    assert isinstance(raw, dict), raw.__class__.__name__
-    assert "met_ssim" in raw, "Please correct the SQL query."
     if (ssim := raw["met_ssim"]) is None:
         return None
     return float(binary_to_list(ssim).mean())
 
+@verif
 @SqlLinker("t_met_metric.met_ssim")
 def extract_ssim_rev(raw: dict[str]) -> float:
     """Return the reverse of Structural Similarity (1-SSIM).
@@ -488,13 +483,12 @@ def extract_ssim_rev(raw: dict[str]) -> float:
     raw : dict[str]
         The result line of select request.
     """
-    assert isinstance(raw, dict), raw.__class__.__name__
-    assert "met_ssim" in raw, "Please correct the SQL query."
     if (ssim := raw["met_ssim"]) is None:
         return None
     return 1.0 - float(binary_to_list(ssim).mean())
 
 
+@verif
 @SqlLinker("t_enc_encode.enc_threads")
 def extract_threads(raw: dict[str]) -> int:
     """Return the number of threads provided as a parameter to the encoder.
@@ -504,8 +498,6 @@ def extract_threads(raw: dict[str]) -> int:
     raw : dict[str]
         The result line of select request.
     """
-    assert isinstance(raw, dict), raw.__class__.__name__
-    assert "enc_threads" in raw, "Please correct the SQL query."
     if (threads := raw["enc_threads"]) is None:
         return None
     assert isinstance(threads, numbers.Integral), threads.__class__.__name__
@@ -513,6 +505,7 @@ def extract_threads(raw: dict[str]) -> int:
     return int(threads)
 
 
+@verif
 @SqlLinker("t_vid_video.vid_duration")
 def extract_video_duration(raw: dict[str]) -> float:
     """Return the video duration in seconds.
@@ -522,14 +515,13 @@ def extract_video_duration(raw: dict[str]) -> float:
     raw : dict[str]
         The result line of select request.
     """
-    assert isinstance(raw, dict), raw.__class__.__name__
-    assert "vid_duration" in raw, "Please correct the SQL query."
     if (duration := raw["vid_duration"]) is None:
         return None
     assert isinstance(duration, numbers.Real), duration.__class__.__name__
     return float(duration)
 
 
+@verif
 @SqlLinker("t_ref_video.vid_name AS ref_vid_name")
 def extract_video_name(raw: dict[str]) -> str:
     """Return the input video name.
@@ -540,8 +532,6 @@ def extract_video_name(raw: dict[str]) -> str:
         The result line of select request.
     """
     from mendevi.cst.profiles import PROFILES
-    assert isinstance(raw, dict), raw.__class__.__name__
-    assert "ref_vid_name" in raw, "Please correct the SQL query."
     if (vid_name := raw["ref_vid_name"]) is None:
         return None
     assert isinstance(vid_name, str), vid_name.__class__.__name__
@@ -549,6 +539,7 @@ def extract_video_name(raw: dict[str]) -> str:
     return vid_name
 
 
+@verif
 @SqlLinker("t_met_metric.met_vmaf")
 def extract_vmaf(raw: dict[str]) -> float:
     """Return the Video Multi-Method Assessment Fusion (VMAF).
@@ -558,8 +549,6 @@ def extract_vmaf(raw: dict[str]) -> float:
     raw : dict[str]
         The result line of select request.
     """
-    assert isinstance(raw, dict), raw.__class__.__name__
-    assert "met_vmaf" in raw, "Please correct the SQL query."
     if (vmaf := raw["met_vmaf"]) is None:
         return None
     return float(binary_to_list(vmaf).mean())

@@ -4,31 +4,7 @@
 
 import numbers
 
-from . import extract
-
-
-NAMES = [
-    "act_duration",
-    "codec",
-    "cores",
-    "effort", "preset",
-    "enc_scenario",
-    "encoder",
-    "energy",
-    "lpips", "lpips_alex", "lpips_vgg",
-    "mode",
-    "power",
-    "profile",
-    "psnr",
-    "quality",
-    "rate", "bitrate",
-    "ssim",
-    "ssim_rev", "rev_ssim",
-    "threads",
-    "video_duration", "vid_duration",
-    "video_name", "vid_name", "name",
-    "vmaf",
-]
+from mendevi.database import extract
 
 
 def get_label_extractor(name: str):
@@ -37,7 +13,7 @@ def get_label_extractor(name: str):
     Parameters
     ----------
     name : str
-        The value code, one of :py:cst`mendevi.plot.axis.NAMES`.
+        The label name.
 
     Returns
     -------
@@ -51,7 +27,7 @@ def get_label_extractor(name: str):
         The value None means the axis is not continuous.
     """
     assert isinstance(name, str), name.__class__.__name__
-    match name:
+    match name:  # catched by mendevi.cst.labels.extract_labels
         case "act_duration":
             return (
                 "Video processing activity duration in seconds",

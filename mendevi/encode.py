@@ -21,8 +21,8 @@ import tqdm
 
 from mendevi.convert import get_convert_cmd
 from mendevi.database.serialize import list_to_binary, tensor_to_binary
+from mendevi.measures import Activity
 from mendevi.utils import best_profile, compute_video_hash, hash_to_signature
-from .utils import Activity
 
 
 ENCODERS = {"libx264", "libx265", "libvpx-vp9", "libsvtav1", "vvc"}

@@ -11,8 +11,8 @@ from flufl.lock import Lock
 import context_verbose as cv
 import numpy as np
 
-from mendevi.context import full_context
-from mendevi.utils import Activity
+from mendevi.measures import Activity
+from mendevi.measures.context import full_context
 from .create import ENV_UNIQUE, is_sqlite
 from .serialize import list_to_binary, tensor_to_binary
 

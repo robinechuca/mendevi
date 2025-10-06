@@ -9,8 +9,8 @@ import logging
 import pathlib
 
 from mendevi import __version__
+from mendevi.database.extract import SqlLinker
 from .axis import get_label_extractor
-from .extract import SqlLinker
 
 
 def printer(**kwargs) -> str:
@@ -211,7 +211,7 @@ def print_import() -> list[str]:
         "import matplotlib.figure as figure",
         "import matplotlib.pyplot as plt",
         "import matplotlib.ticker as ticker",
-        "import mendevi.plot.extract as extract",
+        "import mendevi.database.extract as extract",
         ""
         "import numpy as np",
         "",

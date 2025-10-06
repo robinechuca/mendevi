@@ -17,7 +17,7 @@ def get_ffmpeg_version() -> str:
     Examples
     --------
     >>> import pprint
-    >>> from mendevi.context import get_ffmpeg_version
+    >>> from mendevi.measures.context import get_ffmpeg_version
     >>> pprint.pprint(get_ffmpeg_version())
     ('ffmpeg version N-120220-g934e1c23b0 Copyright (c) 2000-2025 the FFmpeg '
      'developers\n'
@@ -53,7 +53,7 @@ def get_libx265_version() -> str:
 
     Examples
     --------
-    >>> from mendevi.context import get_libx265_version
+    >>> from mendevi.measures.context import get_libx265_version
     >>> print(get_libx265_version())
     4.1+188-cd4f0d6e9
     [Linux][GCC 14.2.0][64 bit] 8bit+10bit+12bit
@@ -97,7 +97,7 @@ def get_libvpx_vp9_version() -> str:
 
     Examples
     --------
-    >>> from mendevi.context import get_libvpx_vp9_version
+    >>> from mendevi.measures.context import get_libvpx_vp9_version
     >>> print(get_libvpx_vp9_version())
     v1.14.1
     >>>
@@ -121,7 +121,7 @@ def get_libsvtav1_version() -> str:
 
     Examples
     --------
-    >>> from mendevi.context import get_libsvtav1_version
+    >>> from mendevi.measures.context import get_libsvtav1_version
     >>> print(get_libsvtav1_version())
     v3.0.2-103-gc10214fa
     GCC 14.2.0 64 bit
@@ -158,7 +158,7 @@ def get_vvc_version() -> str:
 
     Examples
     --------
-    >>> from mendevi.context import get_vvc_version
+    >>> from mendevi.measures.context import get_vvc_version
     >>> print(get_vvc_version())
     1.13.1
     >>>
@@ -183,7 +183,7 @@ def get_platform() -> dict:
     Examples
     --------
     >>> import pprint
-    >>> from mendevi.context import get_platform
+    >>> from mendevi.measures.context import get_platform
     >>> pprint.pprint(get_platform())
     {'hostname': 'PTB-5CG4414JJD',
      'kernel_version': 'Linux-6.11.0-29-generic-x86_64-with-glibc2.40',
@@ -213,7 +213,7 @@ def get_pip_freeze() -> str:
 
     Examples
     --------
-    >>> from mendevi.context import get_pip_freeze
+    >>> from mendevi.measures.context import get_pip_freeze
     >>> print(get_pip_freeze())
     """
     out = subprocess.run(
@@ -227,7 +227,7 @@ def get_lshw() -> str:
 
     Examples
     --------
-    >>> from mendevi.context import get_lshw
+    >>> from mendevi.measures.context import get_lshw
     >>> full_info = get_lshw()
     >>>
     """

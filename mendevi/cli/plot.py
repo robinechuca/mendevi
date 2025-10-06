@@ -12,12 +12,13 @@ from pygments.formatters import TerminalFormatter
 from pygments.lexers import PythonLexer
 import click
 
-from mendevi.plot.axis import NAMES, get_label_extractor
+from mendevi.cst.labels import LABELS
+from mendevi.plot.axis import get_label_extractor
 from mendevi.plot.printer import printer
 from .parse import parse_videos_database
 
 NAMES_DOC = "        ".join(
-    f"* {n}: {get_label_extractor(n)[0]}.\n" for n in NAMES
+    f"* {n}: {get_label_extractor(n)[0]}.\n" for n in LABELS
 )
 DOCSTRING = f"""Draw a chart from a database.
 
@@ -54,28 +55,28 @@ def _parse_args(prt: Printer, kwargs: dict):
     assert "x" in kwargs, sorted(kwargs)
     assert isinstance(kwargs["x"], tuple), kwargs["x"].__class__.__name__
     assert kwargs["x"], "you must provide the -x option"
-    assert all(isinstance(x, str) and x in NAMES for x in kwargs["x"]), kwargs["x"]
+    assert all(isinstance(x, str) and x in LABELS for x in kwargs["x"]), kwargs["x"]
     prt.print(f"x         : {', '.join(kwargs['x'])}")
 
     # y
     assert "y" in kwargs, sorted(kwargs)
     assert isinstance(kwargs["y"], tuple), kwargs["y"].__class__.__name__
     assert kwargs["y"], "you must provide the -y option"
-    assert all(isinstance(y, str) and y in NAMES for y in kwargs["y"]), kwargs["y"]
+    assert all(isinstance(y, str) and y in LABELS for y in kwargs["y"]), kwargs["y"]
     prt.print(f"y         : {', '.join(kwargs['y'])}")
 
     # color
     kwargs["color"] = kwargs.get("color", None)
     if kwargs["color"] is not None:
         assert isinstance(kwargs["color"], str), kwargs["color"].__class__.__name__
-        assert kwargs["color"] in NAMES, kwargs["color"]
+        assert kwargs["color"] in LABELS, kwargs["color"]
         prt.print(f"color     : {kwargs['color']}")
 
     # marker
     kwargs["marker"] = kwargs.get("marker", None)
     if kwargs["marker"] is not None:
         assert isinstance(kwargs["marker"], str), kwargs["marker"].__class__.__name__
-        assert kwargs["marker"] in NAMES, kwargs["marker"]
+        assert kwargs["marker"] in LABELS, kwargs["marker"]
         prt.print(f"marker    : {kwargs['marker']}")
 
     # window
@@ -106,14 +107,14 @@ def _parse_args(prt: Printer, kwargs: dict):
     kwargs["window_x"] = kwargs.get("window_x", None)
     if kwargs["window_x"] is not None:
         assert isinstance(kwargs["window_x"], str), kwargs["window_x"].__class__.__name__
-        assert kwargs["window_x"] in NAMES, kwargs["window_x"]
+        assert kwargs["window_x"] in LABELS, kwargs["window_x"]
         prt.print(f"window x  : {kwargs['window_x']}")
 
     # window_y
     kwargs["window_y"] = kwargs.get("window_y", None)
     if kwargs["window_y"] is not None:
         assert isinstance(kwargs["window_y"], str), kwargs["window_y"].__class__.__name__
-        assert kwargs["window_y"] in NAMES, kwargs["window_y"]
+        assert kwargs["window_y"] in LABELS, kwargs["window_y"]
         prt.print(f"window y  : {kwargs['window_y']}")
 
     # filter
@@ -128,8 +129,8 @@ def _parse_args(prt: Printer, kwargs: dict):
             ) from err
         names = {n.id for n in ast.walk(expr) if isinstance(n, ast.Name)}
         assert names, f"the filter {kwargs['filter']!r} has no effect"
-        assert names.issubset(set(NAMES)), \
-            f"{names-set(NAMES)} are invalid names, it has to be one of {NAMES}"
+        assert names.issubset(set(LABELS)), \
+            f"{names-set(LABELS)} are invalid names, it has to be one of {LABELS}"
         prt.print(f"filter    : {kwargs['filter']}")
 
 
@@ -137,39 +138,39 @@ def _parse_args(prt: Printer, kwargs: dict):
 @click.argument("database", type=click.Path())
 @click.option(
     "-x",
-    type=click.Choice(NAMES),
+    type=click.Choice(LABELS),
     multiple=True,
     help="The code for the value to be displayed on the x-axis.",
 )
 @click.option(
     "-y",
-    type=click.Choice(NAMES),
+    type=click.Choice(LABELS),
     multiple=True,
     help="The code for the value to be displayed on the y-axis.",
 )
 @click.option(
     "-c", "--color",
-    type=click.Choice(NAMES),
+    type=click.Choice(LABELS),
     help="The discriminating criterion for colour.",
 )
 @click.option(
     "-m", "--marker",
-    type=click.Choice(NAMES),
+    type=click.Choice(LABELS),
     help="The discriminating criterion for marker.",
 )
 @click.option(
     "-w", "--window",
-    type=click.Choice(NAMES),
+    type=click.Choice(LABELS),
     help="The criterion on which to separate into sub-windows."
 )
 @click.option(
     "-wx", "--window-x",
-    type=click.Choice(NAMES),
+    type=click.Choice(LABELS),
     help="The criterion on which to separate into sub-windows along x axis."
 )
 @click.option(
     "-wy", "--window-y",
-    type=click.Choice(NAMES),
+    type=click.Choice(LABELS),
     help="The criterion on which to separate into sub-windows along y axis."
 )
 @click.option(

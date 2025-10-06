@@ -16,7 +16,7 @@ class Usage(threading.Thread):
     Examples
     --------
     >>> import time
-    >>> from mendevi.psutil import Usage
+    >>> from mendevi.measures.psutil import Usage
     >>> with Usage() as usage:
     ...     time.sleep(1)
     ...

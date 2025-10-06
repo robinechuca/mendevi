@@ -486,7 +486,7 @@ env_ffmpeg_version
 ^^^^^^^^^^^^^^^^^^
 
 The ffmpeg banner containing compilation options and library versions.
-This is human-readable text, returned by the function `get_ffmpeg_version <https://mendevi.readthedocs.io/latest/build/api/mendevi.context.get_ffmpeg_version.html>`_.
+This is human-readable text, returned by the function `get_ffmpeg_version <https://mendevi.readthedocs.io/latest/build/api/mendevi.measures.context.get_ffmpeg_version.html>`_.
 
 Please follow the :ref`install_ffmpeg`` section.
 
@@ -508,7 +508,7 @@ Please follow the :ref`install_ffmpeg`` section.
 env_hostname
 ^^^^^^^^^^^^
 
-The username, given by ``platform.node()``, from the function `get_platform <https://mendevi.readthedocs.io/latest/build/api/mendevi.context.get_platform.html>`_.
+The username, given by ``platform.node()``, from the function `get_platform <https://mendevi.readthedocs.io/latest/build/api/mendevi.measures.context.get_platform.html>`_.
 
 .. code:: text
 
@@ -519,7 +519,7 @@ The username, given by ``platform.node()``, from the function `get_platform <htt
 env_kernel_version
 ^^^^^^^^^^^^^^^^^^
 
-The version of the Linux kernel, given by ``platform.platform()``, from the function `get_platform <https://mendevi.readthedocs.io/latest/build/api/mendevi.context.get_platform.html>`_.
+The version of the Linux kernel, given by ``platform.platform()``, from the function `get_platform <https://mendevi.readthedocs.io/latest/build/api/mendevi.measures.context.get_platform.html>`_.
 
 .. code:: text
 
@@ -530,7 +530,7 @@ The version of the Linux kernel, given by ``platform.platform()``, from the func
 env_libsvtav1_version
 ^^^^^^^^^^^^^^^^^^^^^
 
-The version of the libsvtav1 encoder and the version of the compiler for this library. It comes from the function `get_libsvtav1_version <https://mendevi.readthedocs.io/latest/build/api/mendevi.context.get_libsvtav1_version.html>`_.
+The version of the libsvtav1 encoder and the version of the compiler for this library. It comes from the function `get_libsvtav1_version <https://mendevi.readthedocs.io/latest/build/api/mendevi.measures.context.get_libsvtav1_version.html>`_.
 
 .. code:: text
 
@@ -542,7 +542,7 @@ The version of the libsvtav1 encoder and the version of the compiler for this li
 env_libvpx_vp9_version
 ^^^^^^^^^^^^^^^^^^^^^^
 
-The version of the libvpx-vp9 encoder. It comes from the function `get_libvpx_vp9_version <https://mendevi.readthedocs.io/latest/build/api/mendevi.context.get_libvpx_vp9_version.html>`_.
+The version of the libvpx-vp9 encoder. It comes from the function `get_libvpx_vp9_version <https://mendevi.readthedocs.io/latest/build/api/mendevi.measures.context.get_libvpx_vp9_version.html>`_.
 
 .. code:: text
 
@@ -553,7 +553,7 @@ The version of the libvpx-vp9 encoder. It comes from the function `get_libvpx_vp
 env_libx265_version
 ^^^^^^^^^^^^^^^^^^^
 
-The version of the libx265 encoder and the version of the compiler for this library. It comes from the function `get_libx265_version <https://mendevi.readthedocs.io/latest/build/api/mendevi.context.get_libx265_version.html>`_.
+The version of the libx265 encoder and the version of the compiler for this library. It comes from the function `get_libx265_version <https://mendevi.readthedocs.io/latest/build/api/mendevi.measures.context.get_libx265_version.html>`_.
 
 .. code:: text
 
@@ -566,7 +566,7 @@ The version of the libx265 encoder and the version of the compiler for this libr
 env_logical_cores
 ^^^^^^^^^^^^^^^^^
 
-The number of logical (threaded) cores, in general more than the number of physical cores. It is given by ``psutil.cpu_count(logical=True)``, from the function `get_platform <https://mendevi.readthedocs.io/latest/build/api/mendevi.context.get_platform.html>`_.
+The number of logical (threaded) cores, in general more than the number of physical cores. It is given by ``psutil.cpu_count(logical=True)``, from the function `get_platform <https://mendevi.readthedocs.io/latest/build/api/mendevi.measures.context.get_platform.html>`_.
 
 .. _env_lshw:
 
@@ -627,14 +627,14 @@ A wealth of information on machine components, processor architecture, etc.
 env_physical_cores
 ^^^^^^^^^^^^^^^^^^
 
-The number of physical cores, in general less than the number of logical physical cores. It is given by ``psutil.cpu_count(logical=False)``, from the function `get_platform <https://mendevi.readthedocs.io/latest/build/api/mendevi.context.get_platform.html>`_.
+The number of physical cores, in general less than the number of logical physical cores. It is given by ``psutil.cpu_count(logical=False)``, from the function `get_platform <https://mendevi.readthedocs.io/latest/build/api/mendevi.measures.context.get_platform.html>`_.
 
 .. _env_pip_freeze:
 
 env_pip_freeze
 ^^^^^^^^^^^^^^
 
-The list of the version of the python packages. The function `get_pip_freeze <https://mendevi.readthedocs.io/latest/build/api/mendevi.context.get_pip_freeze.html>`_ parse the command ``uv pip freeze``.
+The list of the version of the python packages. The function `get_pip_freeze <https://mendevi.readthedocs.io/latest/build/api/mendevi.measures.context.get_pip_freeze.html>`_ parse the command ``uv pip freeze``.
 
 
 .. code:: text
@@ -663,7 +663,7 @@ The list of the version of the python packages. The function `get_pip_freeze <ht
 env_processor
 ^^^^^^^^^^^^^
 
-The proccessor familly, given by ``platform.processor()``, from the function `get_platform <https://mendevi.readthedocs.io/latest/build/api/mendevi.context.get_platform.html>`_.
+The proccessor familly, given by ``platform.processor()``, from the function `get_platform <https://mendevi.readthedocs.io/latest/build/api/mendevi.measures.context.get_platform.html>`_.
 
 .. code:: text
 
@@ -674,7 +674,7 @@ The proccessor familly, given by ``platform.processor()``, from the function `ge
 env_python_compiler
 ^^^^^^^^^^^^^^^^^^^
 
-The cython compiler and version, given by ``platform.python_compiler()``, from the function `get_platform <https://mendevi.readthedocs.io/latest/build/api/mendevi.context.get_platform.html>`_.
+The cython compiler and version, given by ``platform.python_compiler()``, from the function `get_platform <https://mendevi.readthedocs.io/latest/build/api/mendevi.measures.context.get_platform.html>`_.
 
 .. code:: text
 
@@ -685,7 +685,7 @@ The cython compiler and version, given by ``platform.python_compiler()``, from t
 env_python_version
 ^^^^^^^^^^^^^^^^^^
 
-The version of python, given by ``platform.python_version()``, from the function `get_platform <https://mendevi.readthedocs.io/latest/build/api/mendevi.context.get_platform.html>`_.
+The version of python, given by ``platform.python_version()``, from the function `get_platform <https://mendevi.readthedocs.io/latest/build/api/mendevi.measures.context.get_platform.html>`_.
 
 .. code:: text
 
@@ -696,21 +696,21 @@ The version of python, given by ``platform.python_version()``, from the function
 env_ram
 ^^^^^^^
 
-The total physical memory (exclusive swap) in bytes, given by ``psutil.virtual_memory().total``, from the function `get_platform <https://mendevi.readthedocs.io/latest/build/api/mendevi.context.get_platform.html>`_.
+The total physical memory (exclusive swap) in bytes, given by ``psutil.virtual_memory().total``, from the function `get_platform <https://mendevi.readthedocs.io/latest/build/api/mendevi.measures.context.get_platform.html>`_.
 
 .. _env_swap:
 
 env_swap
 ^^^^^^^^
 
-The total swap memory in bytes, given by ``psutil.swap_memory().total``, from the function `get_platform <https://mendevi.readthedocs.io/latest/build/api/mendevi.context.get_platform.html>`_.
+The total swap memory in bytes, given by ``psutil.swap_memory().total``, from the function `get_platform <https://mendevi.readthedocs.io/latest/build/api/mendevi.measures.context.get_platform.html>`_.
 
 .. _env_system_version:
 
 env_system_version
 ^^^^^^^^^^^^^^^^^^
 
-The name and the version of linux, given by ``platform.version()``,from the function `get_platform <https://mendevi.readthedocs.io/latest/build/api/mendevi.context.get_platform.html>`_.
+The name and the version of linux, given by ``platform.version()``,from the function `get_platform <https://mendevi.readthedocs.io/latest/build/api/mendevi.measures.context.get_platform.html>`_.
 
 .. code:: text
 
@@ -721,7 +721,7 @@ The name and the version of linux, given by ``platform.version()``,from the func
 env_vvc_version
 ^^^^^^^^^^^^^^^
 
-The version of the vvenc encoder. It comes from the function `get_vvc_version <https://mendevi.readthedocs.io/latest/build/api/mendevi.context.get_vvc_version.html>`_.
+The version of the vvenc encoder. It comes from the function `get_vvc_version <https://mendevi.readthedocs.io/latest/build/api/mendevi.measures.context.get_vvc_version.html>`_.
 
 .. code:: text
 

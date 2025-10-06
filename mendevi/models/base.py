@@ -76,6 +76,7 @@ class Model(abc.ABC):
         """
         if self.parameters is None:  # TODO: use a metaclass to avoid fit method creation
             raise RuntimeError("This model is not trainable.")
+        # TODO: raise exception if already fitted on that database.
         # TODO: read database and check
         self._fit(...)
         # TODO: chec the state of self.parameters

@@ -14,7 +14,8 @@ from flufl.lock import Lock
 import numpy as np
 
 from mendevi.database.serialize import list_to_binary, tensor_to_binary
-from mendevi.utils import Activity, get_resolution
+from mendevi.measures import Activity
+from mendevi.utils import get_resolution
 
 
 

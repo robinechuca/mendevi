@@ -2,7 +2,7 @@
 
 """Mesures d'Encodage et Décodage Vidéo."""
 
-from .utils import Activity
+from .measures import Activity
 
 
 __all__ = ["Activity"]
