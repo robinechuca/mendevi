@@ -27,8 +27,8 @@ class Activity(threading.Thread):
     >>>
     """
 
-    def __init__(self, sleep: numbers.Real=50e-3):
-        """Initalize the perf context.
+    def __init__(self, sleep: numbers.Real = 50e-3):
+        """Init the perf context.
 
         Parameters
         ----------

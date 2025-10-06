@@ -43,7 +43,7 @@ def get_ffmpeg_version() -> str:
         ["ffmpeg", "-version"], check=False, capture_output=True
     ).stdout.decode()
     lines = out.split("\n")
-    lines = [l for l in lines if l not in {"", "Exiting with exit code 0"}]
+    lines = [lin for lin in lines if lin not in {"", "Exiting with exit code 0"}]
     out = "\n".join(lines)
     return out
 
@@ -223,7 +223,7 @@ def get_pip_freeze() -> str:
 
 
 def get_lshw() -> str:
-    """The very accurate exaustive info as big json.
+    """Extract the very accurate exaustive info as big json.
 
     Examples
     --------

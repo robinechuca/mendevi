@@ -47,6 +47,7 @@ main.add_lazy_command("mendevi.cli.merge.main", "merge")
 main.add_lazy_command("mendevi.cli.plot.main", "plot")
 main.add_lazy_command("mendevi.cli.prepare.main", "prepare")
 main.add_lazy_command("mendevi.cli.probe.main", "probe")
+main.add_lazy_command("mendevi.cli.test.main", "test")
 
 
 if __name__ == "__main__":

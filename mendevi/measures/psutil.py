@@ -23,7 +23,7 @@ class Usage(threading.Thread):
     >>>
     """
 
-    def __init__(self, sleep: numbers.Real=50e-3):
+    def __init__(self, sleep: numbers.Real = 50e-3):
         """Initialize the usage context.
 
         Parameters

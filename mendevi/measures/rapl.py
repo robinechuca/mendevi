@@ -27,8 +27,8 @@ class RAPL:
     >>>
     """
 
-    def __init__(self, sleep: numbers.Real=50e-3, no_fail: bool=False):
-        """Initalize the perf context.
+    def __init__(self, sleep: numbers.Real = 50e-3, no_fail: bool = False):
+        """Init the perf context.
 
         Parameters
         ----------
@@ -94,7 +94,7 @@ class RAPL:
             return
 
         # decode output
-        values = [PATTERN.search(l) for l in self.lines]
+        values = [PATTERN.search(line) for line in self.lines]
         times_end, energy = zip(
             *(
                 (float(p["time"]), float(p["energy"].replace(b",", b".")))

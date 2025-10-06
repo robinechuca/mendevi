@@ -22,7 +22,7 @@ class G5kPower(threading.Thread):
         self.power = None
 
     def run(self):
-        """Performs the request."""
+        """Perform the request."""
         try:
             self.power = g5kpower(*self.args, **self.kwargs)
         except ValueError as err:
@@ -53,7 +53,7 @@ def g5kpower(
         The starting timestamp, it can be get by `time.time()`.
     duration : float
         The job duration in seconds.
-    login, psw : str
+    login, password : str
         Username an password for grid5000 api.
 
     Returns
@@ -87,8 +87,10 @@ def g5kpower(
     assert isinstance(hostname, str), hostname.__class__.__name__
     assert isinstance(start, numbers.Real), start.__class__.__name__
     assert isinstance(duration, numbers.Real), duration.__class__.__name__
-    if (hostname_fields := re.search(
-        r"^(?P<node>[a-z0-9_-]+)\.(?P<site>[a-z0-9_-]+)", hostname, re.IGNORECASE)
+    if (
+        hostname_fields := re.search(
+            r"^(?P<node>[a-z0-9_-]+)\.(?P<site>[a-z0-9_-]+)", hostname, re.IGNORECASE
+        )
     ) is None:
         raise ValueError(f"the hostname {hostname} is not grid5000 formated")
 
