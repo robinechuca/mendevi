@@ -22,14 +22,15 @@ class Model(abc.ABC):
         The latex bibtext model citation.
     parameters : torch.Tensor | None
         The trainable parameters of the model (read and write).
+    TODO: ajouter labels input output
     """
 
     def __init__(
         self,
         title: typing.Optional[str] = None,
-        authors: typing.Iterable[str] = None,
-        input: typing.Iterable[str] = None,
-        output: typing.Iterable[str] = None,
+        sources: str = "",
+        input_labels: typing.Iterable[str] = None,
+        output_labels: typing.Iterable[str] = None,
         parameters: typing.Optional[torch.Tensor] = None,
     ):
         """Initialise the model.
@@ -38,8 +39,8 @@ class Model(abc.ABC):
         ----------
         title : str, optional
             The model title.
-        authors : list[str]
-            The list of the authors the have created that model.
+        sources : str
+            All sources for the model, the conference paper, the authors, etc.
         input : list[str]
             The name of all input parameters.
             The possibles values are :py:cst:`mendevi.plot.axis.Name`.
@@ -77,10 +78,7 @@ class Model(abc.ABC):
         self._title = title
 
         # check authors
-        authors = authors or []
-        assert hasattr(authors, "__iter__"), authors.__class__.__name__
-        authors = list(authors)
-        assert all(isinstance(a, str) for a in authors), authors
+        assert isinstance(sources, str), sources.__class__.__name__
         self._authors = authors
 
     def _fit(self, input: dict[str]):
@@ -160,7 +158,7 @@ class Model(abc.ABC):
                 raise ValueError(f"argument {name} given twice")
             if name not in self._input:
                 raise ValueError(f"only {self._input} arguments excpected, not {name}")
-            value[name] = arg
+            input[name] = arg
 
         # cast args
         for name, arg in input.copy().items():

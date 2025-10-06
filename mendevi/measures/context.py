@@ -43,7 +43,7 @@ def get_ffmpeg_version() -> str:
         ["ffmpeg", "-version"], check=False, capture_output=True
     ).stdout.decode()
     lines = out.split("\n")
-    lines = [lin for lin in lines if lin not in {"", "Exiting with exit code 0"}]
+    lines = [line for line in lines if line not in {"", "Exiting with exit code 0"}]
     out = "\n".join(lines)
     return out
 
