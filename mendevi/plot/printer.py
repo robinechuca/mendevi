@@ -6,7 +6,6 @@ import ast
 import datetime
 import itertools
 import logging
-import pathlib
 
 from mendevi import __version__
 from mendevi.database.extract import SqlLinker
@@ -59,11 +58,11 @@ def print_entry() -> list[str]:
 def print_cst(**kwargs) -> list[str]:
     """Return the code of the definition of the constants."""
     return [
-        "COLORS = ['#ef597b', '#29a2c6', '#ffcb18', '#73b66b', '#4e4f4b']",
+        'COLORS = ["#ef597b", "#29a2c6", "#ffcb18", "#73b66b", "#4e4f4b"]',
         f"DATABASE = pathlib.Path({str(kwargs['database'])!r})",
-        f"FIGNAME = pathlib.Path(__file__).with_suffix('.svg')",
+        'FIGNAME = pathlib.Path(__file__).with_suffix(".svg")',
         "FIGSIZE = (10, 8)  # (width, height)",
-        "MARKERS = ['o', 'x', '+', '^', 'd', 's', 'v', '*', 'D']  # list of 'dot' shapes",
+        'MARKERS = ["o", "x", "+", "^", "d", "s", "v", "*", "D"]  # list of dot shapes',
         "MARKERSIZE = 4",
         "",
         "",
@@ -131,11 +130,13 @@ def print_fill_axe(**kwargs) -> list[str]:
             code.extend([
                 "    for color_label, color in zip(color_labels, itertools.cycle(COLORS)):",
                 f"        mask = [v == color_label for v in values[{kwargs['color']!r}]]",
-                "        sub_values = {k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()}",
+                "        sub_values = {",
+                "            k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()",
+                "        }",
                 "        x_data, y_data = sub_values[xlab], sub_values[ylab]",
                 f"        axe.errorbar(",
                 "            x_data, y_data,",
-                f'            label=f"{kwargs['color']}={{color_label}}", ',
+                f'            label=f"{kwargs["color"]}={{color_label}}", ',
                 "            color=color,",
                 "            fmt=MARKERS[0],",
                 "            capsize=3,",
@@ -146,11 +147,13 @@ def print_fill_axe(**kwargs) -> list[str]:
             code.extend([
                 "    for marker_label, marker in zip(marker_labels, itertools.cycle(MARKERS)):",
                 f"        mask = [v == marker_label for v in values[{kwargs['marker']!r}]]",
-                "        sub_values = {k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()}",
+                "        sub_values = {",
+                "            k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()",
+                "        }",
                 "        x_data, y_data = sub_values[xlab], sub_values[ylab]",
                 f"        axe.errorbar(",
                 "            x_data, y_data,",
-                f'            label=f"{kwargs['marker']}={{marker_label}}", ',
+                f'            label=f"{kwargs["marker"]}={{marker_label}}", ',
                 "            color=COLORS[0],",
                 "            fmt=marker,",
                 "            capsize=3,",
@@ -162,9 +165,18 @@ def print_fill_axe(**kwargs) -> list[str]:
                 "",
                 "    # create legend",
                 "    for color_label, color in zip(color_labels, itertools.cycle(COLORS)):",
-                f"        axe.errorbar([], [], color=color, label=f'{kwargs['color']}={{color_label}}')",
+                (
+                    "        axe.errorbar("
+                    f'[], [], color=color, label=f"{kwargs["color"]}={{color_label}}"'
+                    ")"
+                ),
                 "    for marker_label, marker in zip(marker_labels, itertools.cycle(MARKERS)):",
-                f"        axe.errorbar([], [], color='black', fmt=marker, label=f'{kwargs['marker']}={{marker_label}}')",
+                (
+                    "        axe.errorbar("
+                    '[], [], color="black", fmt=marker, '
+                    f'label=f"{kwargs["marker"]}={{marker_label}}"'
+                    ")"
+                ),
                 "",
                 "    # plot data",
                 "    for (color_label, color), (marker_label, marker) in itertools.product(",
@@ -173,9 +185,15 @@ def print_fill_axe(**kwargs) -> list[str]:
                 "    ):",
                 "        mask = [",
                 "            vc == color_label and vm == marker_label",
-                f"            for vc, vm in zip(values[{kwargs['color']!r}], values[{kwargs['marker']!r}])",
+                (
+                    "            for vc, vm in zip("
+                    f"values[{kwargs['color']!r}], values[{kwargs['marker']!r}]"
+                    ")"
+                ),
                 "        ]",
-                "        sub_values = {k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()}",
+                "        sub_values = {",
+                "            k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()",
+                "        }",
                 "        x_data, y_data = sub_values[xlab], sub_values[ylab]",
                 f"        axe.errorbar(",
                 "            x_data, y_data,",
@@ -248,7 +266,11 @@ def print_selector(**kwargs) -> list[str]:
 def print_subfigure(**kwargs) -> list[str]:
     """Return the code for the subplot of a a given y and y axis."""
     header = [
-        f"def plot_{kwargs['ylabel']}_{kwargs['xlabel']}(values: dict[str], subfig: figure.SubFigure):",
+        (
+            f"def plot_{kwargs['ylabel']}_{kwargs['xlabel']}("
+            "values: dict[str], subfig: figure.SubFigure"
+            "):"
+        ),
         f'    """Create the subchart for y={kwargs["ylabel"]} and x={kwargs["xlabel"]}."""',
     ]
     log_x = get_label_extractor(kwargs["xlabel"])[2]
@@ -265,7 +287,10 @@ def print_subfigure(**kwargs) -> list[str]:
         case (False, True):
             middle = [
                 "    # create a 1d vertical subplot figure",
-                f"    all_{kwargs['window_y']}_values = sorted(set(values[{kwargs['window_y']!r}]), key=smartsort)",
+                f"    all_{kwargs['window_y']}_values = sorted(",
+                "        set(values[{kwargs['window_y']!r}]), ",
+                "        key=smartsort,",
+                "    )",
                 f"    nrows = len(all_{kwargs['window_y']}_values)",
                 '    axes = subfig.subplots(nrows=nrows, squeeze=False, sharex="col")  # or "all"',
                 "",

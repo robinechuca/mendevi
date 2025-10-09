@@ -41,25 +41,25 @@ class Model(abc.ABC):
             The model title.
         sources : str
             All sources for the model, the conference paper, the authors, etc.
-        input : list[str]
+        input_labels : list[str]
             The name of all input parameters.
             The possibles values are :py:cst:`mendevi.plot.axis.Name`.
-        output : list[str]
+        output_labels : list[str]
             The name of all output parameters.
             The possibles values are :py:cst:`mendevi.plot.axis.Name`.
         parameters : torch.Tensor, optional
             The learnable parameters for regressive models.
         """
         # check input output
-        assert hasattr(input, "__iter__"), input.__class__.__name__
-        assert hasattr(output, "__iter__"), output.__class__.__name__
-        input, output = list(input), list(output)
-        assert input, "input must be not empty"
-        assert output, "output must be not empty"
-        assert all(isinstance(lab, str) and lab in LABELS for lab in input), input
-        assert all(isinstance(lab, str) and lab in LABELS for lab in output), output
-        self._input = input
-        self._output = output
+        assert hasattr(input_labels, "__iter__"), input_labels.__class__.__name__
+        assert hasattr(output_labels, "__iter__"), output_labels.__class__.__name__
+        input_labels, output_labels = list(input_labels), list(output_labels)
+        assert input_labels, "input must be not empty"
+        assert output_labels, "output must be not empty"
+        assert all(isinstance(lab, str) and lab in LABELS for lab in input_labels), input_labels
+        assert all(isinstance(lab, str) and lab in LABELS for lab in output_labels), output_labels
+        self._input_labels = input_labels
+        self._output_labels = output_labels
 
         # check parameters
         if parameters is not None:
@@ -79,14 +79,14 @@ class Model(abc.ABC):
 
         # check authors
         assert isinstance(sources, str), sources.__class__.__name__
-        self._authors = authors
+        self._sources = sources
 
-    def _fit(self, input: dict[str]):
+    def _fit(self, input_labels: dict[str]):
         """Perform regression on parameters ``self.parameters``."""
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _predict(self, input: dict[str]) -> dict[str]:
+    def _predict(self, input_labels: dict[str]) -> dict[str]:
         """Implement the heart of the model."""
         raise NotImplementedError
 

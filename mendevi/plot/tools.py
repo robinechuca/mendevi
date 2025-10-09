@@ -18,7 +18,7 @@ def sorted_profiles() -> dict[str, int]:
 
 
 def smartsort(item: object) -> object:
-    """Makes the order relationship more relevant."""
+    """Make the order relationship more relevant."""
     if isinstance(item, str):
         profiles = sorted_profiles()
         efforts = {"fast": 0, "medium": 1, "slow": 2}  # optional for now because already ordered
