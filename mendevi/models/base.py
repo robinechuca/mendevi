@@ -81,12 +81,12 @@ class Model(abc.ABC):
         assert isinstance(sources, str), sources.__class__.__name__
         self._sources = sources
 
-    def _fit(self, input_labels: dict[str]):
+    def _fit(self, values: dict[str]):
         """Perform regression on parameters ``self.parameters``."""
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _predict(self, input_labels: dict[str]) -> dict[str]:
+    def _predict(self, values: dict[str]) -> dict[str]:
         """Implement the heart of the model."""
         raise NotImplementedError
 
@@ -135,9 +135,9 @@ class Model(abc.ABC):
     def predict(self, *input_args, **input_kwargs) -> dict[str]:
         """Perform the prediction(s) of this model.
 
-        Paremeters
+        Parameters
         ----------
-        input : dict[str]
+        *input_args, **input_kwargs
             The parameters values, with the keys defined during initialisation.
 
         Returns
@@ -146,33 +146,34 @@ class Model(abc.ABC):
             Associate each ouput variable with the prediction.
         """
         # check args
-        input: dict[str] = {}
+        values: dict[str] = {}
         for i, arg in enumerate(input_args):
-            if i == len(self._input):
+            if i == len(self._input_labels):
                 raise ValueError(
-                    f"only {len(self._input)} arguments expeted {self._input}, {input_args} given"
+                    f"only {len(self._input)} arguments expeted {self._input_labels}, "
+                    f"{input_args} given"
                 )
-            input[self._input[i]] = arg
+            values[self._input_labels[i]] = arg
         for name, arg in input_kwargs.items():
-            if name in input:
+            if name in values:
                 raise ValueError(f"argument {name} given twice")
             if name not in self._input:
-                raise ValueError(f"only {self._input} arguments excpected, not {name}")
-            input[name] = arg
+                raise ValueError(f"only {self._input_labels} arguments excpected, not {name}")
+            values[name] = arg
 
         # cast args
-        for name, arg in input.copy().items():
+        for name, arg in values.copy().items():
             match arg:
                 case float():
-                    input[name] = torch.asarray(arg, dtype=torch.float32)
+                    values[name] = torch.asarray(arg, dtype=torch.float32)
                 case np.ndarray():
-                    input[name] = torch.from_numpy(arg)
+                    values[name] = torch.from_numpy(arg)
                 case list():
                     if all(isinstance(item, float) for item in arg):
-                        input[name] = torch.asarray(arg, dtype=torch.float32)
+                        values[name] = torch.asarray(arg, dtype=torch.float32)
 
         # predict
-        prediction = self._predict(input)
+        prediction = self._predict(values)
 
         # chack output
         assert isinstance(prediction, dict), prediction.__class__.__name__

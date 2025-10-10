@@ -324,7 +324,7 @@ The width of the video in pixels, after being decoded.
 vid_uvq
 ^^^^^^^
 
-The serialised list of the non comparative `Google Universale Video Quality Model <https://github.com/google/uvq>`_ metric. Catched by ``cutcutcodec.compare(None, video, uvq=True)["uvq"]``.
+The serialised list of the non comparative `Google Universale Video Quality Model <https://github.com/google/uvq>`_ metric. Catched by ``cutcutcodec.video_metrics(video, uvq=True)["uvq"]``.
 To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
 
 
@@ -380,7 +380,7 @@ met_lpips_alex
 ^^^^^^^^^^^^^^
 
 The serialised list of the LPIPS comparative metric using the ALEX neural network.
-Catched by ``cutcutcodec.compare(ref, dis, lpips_alex=True)["lpips_alex"]``.
+Catched by ``cutcutcodec.video_metrics(dis, ref, lpips_alex=True)["lpips_alex"]``.
 To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
 
 .. _met_lpips_vgg:
@@ -389,7 +389,7 @@ met_lpips_vgg
 ^^^^^^^^^^^^^^
 
 The serialised list of the LPIPS comparative metric using the VGG neural network.
-Catched by ``cutcutcodec.compare(ref, dis, lpips_vgg=True)["lpips_vgg"]``.
+Catched by ``cutcutcodec.video_metrics(dis, ref, lpips_vgg=True)["lpips_vgg"]``.
 To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
 
 .. _met_psnr:
@@ -397,8 +397,8 @@ To deserialize into an exploitable numpy array, please use the function `binary_
 met_psnr
 ^^^^^^^^
 
-The serialised list of the yuv peak signal to noise ratio comparative metric.
-Catched by ``cutcutcodec.compare(ref, dis, psnr=True)["psnr"]``.
+The serialised list of the yuv (6, 1, 1) peak signal to noise ratio comparative metric.
+Catched by ``cutcutcodec.video_metrics(dis, ref, psnr=True)["psnr"]``.
 To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
 
 .. _met_ssim:
@@ -406,8 +406,8 @@ To deserialize into an exploitable numpy array, please use the function `binary_
 met_ssim
 ^^^^^^^^
 
-The serialised list of the yuv structural similarity index measure comparative metric.
-Catched by ``cutcutcodec.compare(ref, dis, ssim=True)["ssim"]``.
+The serialised list of the yuv (6, 1, 1) (gauss win 11x11) structural similarity index measure comparative metric.
+Catched by ``cutcutcodec.video_metrics(dis, ref, ssim=True)["ssim"]``.
 To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
 
 .. _met_vmaf:
@@ -416,7 +416,7 @@ met_vmaf
 ^^^^^^^^
 
 The serialised list of the comparative metric `Netflix Video Multi-Method Assessment Fusion <https://github.com/Netflix/vmaf>`_ metric.
-Catched by ``cutcutcodec.compare(ref, dis, vmaf=True)["vmaf"]``.
+Catched by ``cutcutcodec.video_metrics(dis, ref, vmaf=True)["vmaf"]``.
 To deserialize into an exploitable numpy array, please use the function `binary_to_list <https://mendevi.readthedocs.io/latest/build/api/mendevi.database.serialize.binary_to_list.html>`_.
 
 

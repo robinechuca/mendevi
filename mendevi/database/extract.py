@@ -3,8 +3,6 @@
 """Define the functions that enable values to be extracted from a select query."""
 
 import functools
-import json
-import math
 import numbers
 import re
 import typing
@@ -19,10 +17,14 @@ JOIN: dict[str: dict[str, str]] = {  # join = JOIN[destination_table][source_tab
         "t_met_metric": "JOIN t_vid_video ON t_met_metric.met_dis_vid_id = t_vid_video.vid_id",
     },
     "t_enc_encode": {
-        "t_dec_decode": "JOIN t_enc_encode ON t_dec_decode.dec_vid_id = t_enc_encode.enc_dst_vid_id",
+        "t_dec_decode": (
+            "JOIN t_enc_encode ON t_dec_decode.dec_vid_id = t_enc_encode.enc_dst_vid_id"
+        ),
     },
     "t_dec_decode": {
-        "t_enc_encode": "JOIN t_dec_decode ON t_enc_encode.enc_dst_vid_id = t_dec_decode.dec_vid_id",
+        "t_enc_encode": (
+            "JOIN t_dec_decode ON t_enc_encode.enc_dst_vid_id = t_dec_decode.dec_vid_id"
+        ),
     },
     "t_met_metric": {
         "t_vid_video": "JOIN t_met_metric ON t_vid_video.vid_id = t_met_metric.met_dis_vid_id",
@@ -30,11 +32,17 @@ JOIN: dict[str: dict[str, str]] = {  # join = JOIN[destination_table][source_tab
             "JOIN t_met_metric ON t_enc_encode.enc_dst_vid_id = t_met_metric.met_dis_vid_id "
             "AND t_enc_encode.enc_src_vid_id = t_met_metric.met_ref_vid_id"
         ),
-        "t_dec_decode": "JOIN t_met_metric ON t_dec_decode.dec_vid_id = t_met_metric.met_dis_vid_id",
+        "t_dec_decode": (
+            "JOIN t_met_metric ON t_dec_decode.dec_vid_id = t_met_metric.met_dis_vid_id"
+        ),
     },
     "t_env_environment": {
-        "t_dec_decode": "JOIN t_env_environment ON t_dec_decode.dec_env_id = t_env_environment.env_id",
-        "t_enc_encode": "JOIN t_env_environment ON t_enc_encode.enc_env_id = t_env_environment.env_id",
+        "t_dec_decode": (
+            "JOIN t_env_environment ON t_dec_decode.dec_env_id = t_env_environment.env_id"
+        ),
+        "t_enc_encode": (
+            "JOIN t_env_environment ON t_enc_encode.enc_env_id = t_env_environment.env_id"
+        ),
     },
     "t_act_activity": {
         "t_dec_decode": "JOIN t_act_activity ON t_dec_decode.dec_act_id = t_act_activity.act_id",
@@ -472,6 +480,7 @@ def extract_ssim(raw: dict[str]) -> float:
     if (ssim := raw["met_ssim"]) is None:
         return None
     return float(binary_to_list(ssim).mean())
+
 
 @verif
 @SqlLinker("t_met_metric.met_ssim")

@@ -12,12 +12,13 @@ from mendevi.database.create import create_database, is_sqlite
 from mendevi.utils import unfold_video_files
 
 
-
 class PixelParamType(click.ParamType):
     """Parse the pixel format."""
+
     name = "pixel"
 
     def convert(self, value, param, ctx):
+        """Normalize pixel format."""
         value = value.lower()
         if not re.fullmatch(r"yuv4[24][024]p(?:10le|12le)?", value):
             self.fail(f"{value!r} is not a valid pixel format", param, ctx)
@@ -26,9 +27,11 @@ class PixelParamType(click.ParamType):
 
 class ResolutionParamType(click.ParamType):
     """Parse the resolution."""
+
     name = "resolution"
 
     def convert(self, value, param, ctx):
+        """Convert a video resolution into tuple."""
         if (match := re.search(
             r"(?P<t1>he)?\D*(?P<d1>\d+)\D+?(?P<t2>w)?\D*(?P<d2>\d+)", value.lower()
         )) is None:

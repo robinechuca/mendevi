@@ -17,7 +17,7 @@ from .create import ENV_UNIQUE, is_sqlite
 from .serialize import list_to_binary, tensor_to_binary
 
 
-def get_idle(duration: float=60.0) -> dict:
+def get_idle(duration: float = 60.0) -> dict:
     """Measure the idle consumption.
 
     Parameters

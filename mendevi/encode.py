@@ -135,6 +135,10 @@ def encode_and_store(
     ----------
     database : pathlike
         The path of the existing database to be updated.
+    env_id : int
+        The primary integer key of the environment.
+    src : pathlib.Path
+        The path of the video to be decoded.
     **kwargs
         Transmitted to :py:func:`encode`.
 

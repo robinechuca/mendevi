@@ -18,7 +18,6 @@ from mendevi.measures import Activity
 from mendevi.utils import get_resolution
 
 
-
 def decode(src: pathlib.Path, **kwargs) -> tuple[str, dict[str]]:
     """Decode an existing video.
 
@@ -66,6 +65,10 @@ def decode_and_store(
     ----------
     database : pathlike
         The path of the existing database to be updated.
+    env_id : int
+        The primary integer key of the environment.
+    src : pathlib.Path
+        The path of the video to be encoded.
     **kwargs
         Transmitted to :py:func:`decode`.
     """

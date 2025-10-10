@@ -20,9 +20,7 @@ import tqdm
 from mendevi.cst.profiles import PROFILES
 
 
-
 PATHLIKE = str | bytes | pathlib.Path
-
 
 
 def best_profile(height: numbers.Integral, width: numbers.Integral) -> str:

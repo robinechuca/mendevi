@@ -3,7 +3,6 @@
 """Perform encoding measures."""
 
 import fractions
-import functools
 import hashlib
 import itertools
 import pathlib
@@ -19,9 +18,7 @@ from mendevi.utils import compute_video_hash, get_pix_fmt, get_rate_video, get_r
 from .parse import PixelParamType, ResolutionParamType, parse_videos_database
 
 
-
 ENCODERS = {"libx264", "libx265", "libvpx-vp9", "libsvtav1", "vvc"}
-
 
 
 def _parse_args(prt: Printer, kwargs: dict):

@@ -126,4 +126,3 @@ def main(databases: tuple[str]):
                     row["dec_env_id"] = env_old_to_new[row["dec_env_id"]]
                     row["dec_act_id"] = act_old_to_new[row["dec_act_id"]]
                     _insert_update(cursor_dst, row, "t_dec_decode", ())
-

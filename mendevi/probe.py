@@ -65,7 +65,7 @@ def _fill_vid_table(database: pathlib.Path, vid_id: bytes, video: pathlib.Path, 
                 case "vid_frames":
                     header, info = cutcutcodec.core.analysis.ffprobe.get_slices_metadata(video)
                     header, info = header[0], info[0]
-                    frames = [dict(zip(header, l)) for l in info.tolist()]
+                    frames = [dict(zip(header, line)) for line in info.tolist()]
                     prop["vid_frames"] = json.dumps(frames)
                     prt.print(f"{'frames':<{pad}}: {len(frames)} frames")
                 case "vid_height":
@@ -78,7 +78,7 @@ def _fill_vid_table(database: pathlib.Path, vid_id: bytes, video: pathlib.Path, 
                     prop["vid_pix_fmt"] = cutcutcodec.get_pix_fmt(video)
                     prt.print(f"{'pix fmt':<{pad}}: {prop['vid_pix_fmt']}")
                 case "vid_uvq":
-                    uvq = cutcutcodec.compare(None, video, uvq=True)["uvq"]
+                    uvq = cutcutcodec.video_metrics(video, uvq=True)["uvq"]
                     prop["vid_uvq"] = list_to_binary(uvq)
                     prt.print(f"{'uvq':<{pad}}: {np.mean(uvq):.2f} +/- {np.std(uvq):.2f}")
                 case "vid_size":
@@ -208,10 +208,12 @@ def probe_and_store(database: pathlib.Path, video: pathlib.Path, **kwargs):
     references: dict[pathlib.Path, bytes] = kwargs["ref"].copy()
     with sqlite3.connect(database) as sql_database:
         cursor = sql_database.cursor()
-        for ref_name, ref_id in cursor.execute("""
+        for ref_name, ref_id in cursor.execute(
+            """
             SELECT vid_name, enc_src_vid_id FROM t_enc_encode
             JOIN t_vid_video ON enc_src_vid_id=vid_id
-            WHERE enc_dst_vid_id=?""",
+            WHERE enc_dst_vid_id=?
+            """,
             (vid_id,),
         ):
             # try to find video full path

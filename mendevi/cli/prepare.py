@@ -3,7 +3,6 @@
 """Preprocess step."""
 
 import fractions
-import math
 import pathlib
 import shutil
 

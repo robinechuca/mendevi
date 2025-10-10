@@ -16,7 +16,7 @@ def get_convert_cmd(
     pix_fmt: str | None,
     resolution: tuple[int, int] | None,
 ) -> str:
-    """Generates the ffmpeg filter command that performs this conversion.
+    """Generate the ffmpeg filter command that performs this conversion.
 
     Parameters
     ----------

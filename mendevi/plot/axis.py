@@ -2,8 +2,6 @@
 
 """Extract the values associated with an axis."""
 
-import numbers
-
 from mendevi.database import extract
 
 

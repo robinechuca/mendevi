@@ -16,7 +16,6 @@ from mendevi.utils import compute_video_hash, get_resolution
 from .parse import ResolutionParamType, parse_videos_database
 
 
-
 def _parse_args(prt: Printer, kwargs: dict):
     """Verification of the arguments."""
     # repeat

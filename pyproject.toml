@@ -14,7 +14,6 @@ dependencies = [  # https://packaging.python.org/en/latest/specifications/depend
   "click",
   "context_verbose",
   "cutcutcodec",
-  "enoslib",
   "flufl.lock",
   "matplotlib",
   "numpy",
@@ -69,6 +68,7 @@ doc = [
   "sphinxext-opengraph",
 ]
 test = [
+  "enoslib",
   "pydocstyle<=6.1.1",  # 6.1.2 bug on pylama 8.4.1
   "pylama[all,toml]",
   "pytest",
@@ -100,7 +100,8 @@ linters = "mccabe,pycodestyle,pydocstyle,pyflakes,mypy,pylint"
 # D211 and D203 are mutualy exclusive, PEP 257 is in favor of D211
 # D107 is in contradiction with the numpy doc convention
 # D413 disable in the google, numpy, and pep257 convention
-ignore = "E226,D213,D203,D107,D413"
+# D301 use r""" if any backslashes in a docstring
+ignore = "E226,D213,D203,D107,D413,D301"
 max_line_length = 100
 
 [tool.mypy]

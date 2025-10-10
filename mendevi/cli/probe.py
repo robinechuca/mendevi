@@ -13,7 +13,6 @@ from mendevi.utils import compute_video_hash
 from .parse import parse_videos_database
 
 
-
 def _parse_args(prt: Printer, kwargs: dict):
     """Verification of the arguments."""
     kwargs["ref"] = kwargs.get("ref", ())

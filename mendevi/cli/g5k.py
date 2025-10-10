@@ -192,7 +192,6 @@ def set_ansible_cfg():
         with open(path, "w", encoding="utf-8") as file:
             file.write("[defaults]")
             file.write("interpreter_python = /root/.pyenv/shims/python")
-            # file.write("interpreter_python = /root/.pyenv/versions/3.13.7/envs/mendevi/bin/python")
 
 
 @click.command()

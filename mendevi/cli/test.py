@@ -2,8 +2,6 @@
 
 """Management of all unit tests."""
 
-import sys
-
 import click
 
 from mendevi.testing.run import run_tests

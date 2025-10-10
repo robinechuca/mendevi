@@ -40,53 +40,46 @@ def create_database(filename: str | bytes | pathlib.Path):
             act_id INTEGER PRIMARY KEY AUTOINCREMENT,
 
             /* MEASURES */
-            act_start TIMESTAMP NOT NULL,  -- absolute start timestamp
-            act_duration FLOAT NOT NULL CHECK(act_duration > 0.0),  -- full encoding time in seconds
-            act_rapl_dt LONGBLOB,  -- list of the duration of each interval in seconds
-            act_rapl_power LONGBLOB,  -- list of the average power in watt in each interval
-            act_wattmeter_dt LONGBLOB,  -- list of the duration of each interval in seconds
-            act_wattmeter_power LONGBLOB,  -- list of the sampled power in watt in each point
-            act_ps_dt LONGBLOB,  -- list of the duration of each interval in seconds
-            act_ps_core LONGBLOB,  -- tensor of detailed usage of each logical core in %
-            act_ps_ram LONGBLOB  -- list of the sampled ram usage in bytes in each point
+            act_start TIMESTAMP NOT NULL,
+            act_duration FLOAT NOT NULL CHECK(act_duration > 0.0),
+            act_rapl_dt LONGBLOB,
+            act_rapl_power LONGBLOB,
+            act_wattmeter_dt LONGBLOB,
+            act_wattmeter_power LONGBLOB,
+            act_ps_dt LONGBLOB,
+            act_ps_core LONGBLOB,
+            act_ps_ram LONGBLOB
         )""")
         cursor.execute("""CREATE TABLE IF NOT EXISTS t_vid_video (
-            vid_id BINARY(128) PRIMARY KEY,  -- md5 hash of the video
-            vid_name TEXT,  -- the path video name
+            vid_id BINARY(128) PRIMARY KEY,
+            vid_name TEXT,
 
             /* VIDEO CONTENT */
-            vid_codec TINYTEXT,  -- the codec name
-            vid_duration FLOAT CHECK(vid_duration > 0.0),  -- video duration in second
-            vid_eotf TINYTEXT,  -- name of the electro optical transfer function
-            vid_fps FLOAT CHECK(vid_fps > 0.0),  -- theorical framerate of the video
-            vid_frames LONGTEXT,  -- json serialized version of the metadata of all frames
-            vid_gamut TINYTEXT,  -- name of the color space
-            vid_height SMALLINT CHECK(vid_height > 0),  -- display height
-            vid_pix_fmt TINYTEXT,  -- the name of the pixel format
-            vid_size BIGINT CHECK(vid_width >= 0),  -- file size in bytes
-            vid_width SMALLINT CHECK(vid_width > 0),  -- display width
+            vid_codec TINYTEXT,
+            vid_duration FLOAT CHECK(vid_duration > 0.0),
+            vid_eotf TINYTEXT,
+            vid_fps FLOAT CHECK(vid_fps > 0.0),
+            vid_frames LONGTEXT,
+            vid_gamut TINYTEXT,
+            vid_height SMALLINT CHECK(vid_height > 0),
+            vid_pix_fmt TINYTEXT,
+            vid_size BIGINT CHECK(vid_width >= 0),
+            vid_width SMALLINT CHECK(vid_width > 0),
 
             /* NON COMPARATIVE METRICS */
-            vid_uvq LONGBLOB  -- list of the google uvq metric for each second of video
+            vid_uvq LONGBLOB
         )""")
         cursor.execute("""CREATE TABLE IF NOT EXISTS t_met_metric (
             met_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            met_ref_vid_id BINARY(128) NOT NULL,  -- link to the reference video
-            met_dis_vid_id BINARY(128) NOT NULL,  -- link to the distorded video
+            met_ref_vid_id BINARY(128) NOT NULL,
+            met_dis_vid_id BINARY(128) NOT NULL,
 
             /*  COMPARATIVE METRICS */
-            met_lpips_alex LONGBLOB,  -- list lpips with alex for each frame
-            met_lpips_vgg LONGBLOB,  -- list lpips with vgg for each frame
-            met_psnr LONGBLOB,  -- list of the psnr (6, 1, 1) metric for each frame
-            met_ssim LONGBLOB,  -- list of the ssim (6, 1, 1) metric for each frame, gauss win 11x11
-            met_vmaf LONGBLOB,  -- list of the vmaf metric for each frame
-            -- met_ciede2000 LONGBLOB,  -- list of the color difference for each frame
-            -- met_apsnr LONGBLOB,  -- list of the aligned psnr metric for each frame
-            -- met_ms_ssim LONGBLOB,  -- list of the multi scaled ssim metric for each frame
-            -- met_vif LONGBLOB,  -- list of the vif metric for each frame (Visual Information Fidelity)
-            -- met_ifc LONGBLOB,  -- list of the ifc metric for each frame (Information Fidelity Criterion)
-            -- met_uqi LONGBLOB,  -- list of the uqi metric for each frame (Universal Image Quality Index)
-            -- met_gmsd LONGBLOB,  -- list of the gmsd metric for each frame (Gradient Magnitude Similarity Deviation)
+            met_lpips_alex LONGBLOB,
+            met_lpips_vgg LONGBLOB,
+            met_psnr LONGBLOB,
+            met_ssim LONGBLOB,
+            met_vmaf LONGBLOB,
 
             UNIQUE(met_ref_vid_id, met_dis_vid_id) ON CONFLICT FAIL
         )""")
@@ -120,34 +113,36 @@ def create_database(filename: str | bytes | pathlib.Path):
         )""")
         cursor.execute("""CREATE TABLE IF NOT EXISTS t_dec_decode (
             dec_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            dec_vid_id BINARY(128) NOT NULL REFERENCES t_vid_video(vid_id) ON DELETE CASCADE,  -- link to video table
-            dec_env_id INTEGER NOT NULL REFERENCES t_env_environment(env_id) ON DELETE CASCADE,  -- link to environment table
-            dec_act_id INTEGER REFERENCES t_act_activity(act_id),  -- link to activity table
-            dec_cmd TEXT,  -- exact ffmpeg command used
-            dec_filter TEXT,  -- ffmpeg additional video filter
-            dec_height SMALLINT CHECK(dec_height > 0),  -- display resolution
-            dec_pix_fmt TINYTEXT,  -- display pixel format
-            dec_width SMALLINT CHECK(dec_width > 0)  -- display resolution
+            dec_vid_id BINARY(128) NOT NULL REFERENCES t_vid_video(vid_id) ON DELETE CASCADE,
+            dec_env_id INTEGER NOT NULL REFERENCES t_env_environment(env_id) ON DELETE CASCADE,
+            dec_act_id INTEGER REFERENCES t_act_activity(act_id),
+            dec_cmd TEXT,
+            dec_filter TEXT,
+            dec_height SMALLINT CHECK(dec_height > 0),
+            dec_pix_fmt TINYTEXT,
+            dec_width SMALLINT CHECK(dec_width > 0)
         )""")
         cursor.execute("""CREATE TABLE IF NOT EXISTS t_enc_encode (
             enc_id INTEGER PRIMARY KEY AUTOINCREMENT,
-            enc_src_vid_id BINARY(128) REFERENCES t_vid_video(vid_id),  -- link to video table, src video
-            enc_dst_vid_id BINARY(128) NOT NULL REFERENCES t_vid_video(vid_id) ON DELETE CASCADE,  -- link to video table, dst video
-            enc_env_id INTEGER NOT NULL REFERENCES t_env_environment(env_id) ON DELETE CASCADE,  -- link to environment table
-            enc_act_id INTEGER REFERENCES t_act_activity(act_id),  -- link to activity table
+            enc_src_vid_id BINARY(128) REFERENCES t_vid_video(vid_id),
+            enc_dst_vid_id BINARY(128) NOT NULL REFERENCES t_vid_video(vid_id) ON DELETE CASCADE,
+            enc_env_id INTEGER NOT NULL REFERENCES t_env_environment(env_id) ON DELETE CASCADE,
+            enc_act_id INTEGER REFERENCES t_act_activity(act_id),
 
             /* TASK DESCRIPTION */
             enc_cmd TEXT,  -- exact ffmpeg command used
-            enc_effort TINYTEXT CHECK(enc_effort IN ('fast', 'medium', 'slow')),  -- equivalent preset used for encoding
-            enc_encoder TINYTEXT CHECK(enc_encoder IN ('libx264', 'libx265', 'libvpx-vp9', 'libsvtav1', 'vvc')),  -- the encoder name
-            enc_filter TEXT,  -- ffmpeg additional video filter
-            enc_fps FLOAT CHECK(enc_fps > 0.0),  -- target conversion fps
-            enc_height SMALLINT CHECK(enc_height > 0),  -- target conversion resolution
-            enc_pix_fmt TINYTEXT,  -- target conversion pixel format
-            enc_quality FLOAT CHECK(enc_quality >= 0.0 AND enc_quality <= 1.0),  -- normlize crf in [0, 1]
-            enc_threads SMALLINT CHECK(enc_threads >= 0),  -- number of threads used
-            enc_vbr BOOLEAN CHECK(enc_vbr IN (0, 1)),  -- the bit rate mode
-            enc_width SMALLINT CHECK(enc_width > 0)  -- target conversion resolution
+            enc_effort TINYTEXT CHECK(enc_effort IN ('fast', 'medium', 'slow')),
+            enc_encoder TINYTEXT CHECK(
+                enc_encoder IN ('libx264', 'libx265', 'libvpx-vp9', 'libsvtav1', 'vvc')
+            ),
+            enc_filter TEXT,
+            enc_fps FLOAT CHECK(enc_fps > 0.0),
+            enc_height SMALLINT CHECK(enc_height > 0),
+            enc_pix_fmt TINYTEXT,
+            enc_quality FLOAT CHECK(enc_quality >= 0.0 AND enc_quality <= 1.0),
+            enc_threads SMALLINT CHECK(enc_threads >= 0),
+            enc_vbr BOOLEAN CHECK(enc_vbr IN (0, 1)),
+            enc_width SMALLINT CHECK(enc_width > 0)
         )""")
         cursor.execute("""
             CREATE TRIGGER IF NOT EXISTS trigger_insert_env_act_unicity

@@ -301,14 +301,15 @@ def print_subfigure(**kwargs) -> list[str]:
                 ),
                 "        # select the correct data subset",
                 "        mask = [",
-                f"            y == {kwargs['window_y']}_value for y in values[{kwargs['window_y']!r}]",
+                f"            y == {kwargs['window_y']}_value ",
+                f"            for y in values[{kwargs['window_y']!r}]",
                 "        ]",
                 "        sub_values = {",
                 "            k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()",
                 "        }",
                 f"        axes[i, 0].set_title({kwargs['window_y']}_value)",
                 "        fill_axe(",
-                f"            axes[i, 0], ",
+                "            axes[i, 0], ",
                 "            sub_values, ",
                 f"            ylab={kwargs['ylabel']!r}, ",
                 f"            xlab={kwargs['xlabel']!r},",
@@ -333,7 +334,8 @@ def print_subfigure(**kwargs) -> list[str]:
                 ),
                 "        # select the correct data subset",
                 "        mask = [",
-                f"            x == {kwargs['window_x']}_value for x in values[{kwargs['window_x']!r}]",
+                f"            x == {kwargs['window_x']}_value ",
+                f"            for x in values[{kwargs['window_x']!r}]",
                 "        ]",
                 "        sub_values = {",
                 "            k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()",
@@ -450,7 +452,10 @@ def print_main(**kwargs) -> list[str]:
         '                lines, labels = axes[0].get_legend_handles_labels()',
         "                if labels:",
         '                    subfig.legend(',
-        '                        lines, labels, loc="outside upper center", ncols=min(3, len(labels))',
+        (
+            "                        "
+            'lines, labels, loc="outside upper center", ncols=min(3, len(labels))'
+        ),
         "                    )",
         '            else:  # legends are different for each axe of that subfigure',
         '                for axe in axes:',
@@ -509,7 +514,10 @@ def print_read_sql(**kwargs) -> list[str]:
         '            """',
         f"            {'\n            '.join(queries[0].split('\n'))}",
         '            """',
-        *[f"            # {q}" for q in "\n".join(f'"""\n{q}\n"""' for q in queries[1:]).split("\n")],
+        *[
+            f"            # {q}"
+            for q in "\n".join(f'"""\n{q}\n"""' for q in queries[1:]).split("\n")
+        ],
         "        ):",
         "            raw = dict(raw)",
         f"            {'\n            '.join(extract)}",

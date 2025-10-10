@@ -19,6 +19,7 @@ class LazyGroup(click.Group):
         self._lazy_commands[name] = import_path
 
     def get_command(self, ctx, cmd_name):
+        """Import the function of the module."""
         if cmd_name in self._lazy_commands:
             module_path, func_name = self._lazy_commands[cmd_name].rsplit(".", 1)
             mod = importlib.import_module(module_path)
@@ -36,7 +37,8 @@ class LazyGroup(click.Group):
 
 @click.group(cls=LazyGroup)
 def main():
-    """Performs video transcoding measurements."""
+    """Perform video transcoding measurements."""
+
 
 # same as main.add_command but with lazy import
 main.add_lazy_command("mendevi.cli.decode.main", "decode")

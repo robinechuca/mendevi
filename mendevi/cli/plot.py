@@ -33,7 +33,7 @@ x, y : tuple[str]
         {NAMES_DOC}
 \b
 color, marker : str, optional
-    All points with the same value for this variable will be displayed in the same colour and marker.
+    All points with the same value for this variable will be displayed in the same color and marker.
     Conversely, this allows points that do not share this criterion to be visually separated.
     The possible values are the same as for the x and y parameters.
 window : str, optional
@@ -184,6 +184,7 @@ def _parse_args(prt: Printer, kwargs: dict):
     help="Flag to print the source code."
 )
 def main(database: str, **kwargs):
+    """See docstring at DOCSTRING."""
     # parse args
     with Printer("Parse configuration...") as prt:
         _, database = parse_videos_database(prt, (), database)
@@ -209,6 +210,7 @@ def main(database: str, **kwargs):
     modulevar = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(modulevar)
     modulevar.main(modulevar.read_sql(database))
+
 
 # fill the documentation
 main.__doc__ = DOCSTRING

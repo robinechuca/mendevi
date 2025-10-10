@@ -12,7 +12,7 @@ VECT_DTYPE = np.float32
 
 
 def skip_none(func: callable) -> callable:
-    """Decorator to skip the process of None input."""
+    """Allow skipping the process of None input."""
     @functools.wraps(func)
     def decorated_func(arg: object | None) -> object | None:
         return None if arg is None else func(arg)
