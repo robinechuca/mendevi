@@ -13,12 +13,12 @@ from pygments.lexers import PythonLexer
 import click
 
 from mendevi.cst.labels import LABELS
-from mendevi.plot.axis import get_label_extractor
+from mendevi.database.meta import get_extractor
 from mendevi.plot.printer import printer
 from .parse import parse_videos_database
 
 NAMES_DOC = "        ".join(
-    f"* {n}: {get_label_extractor(n)[0]}.\n" for n in LABELS
+    f"* {n}: {get_extractor(n).label}.\n" for n in LABELS
 )
 DOCSTRING = f"""Draw a chart from a database.
 

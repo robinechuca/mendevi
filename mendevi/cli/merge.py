@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
-"""Marge databases."""
+"""Merge databases."""
 
-import click
 import pathlib
 import sqlite3
 
 from context_verbose import Printer
+import click
 
 from mendevi.database.create import create_database
 from .parse import parse_videos_database
