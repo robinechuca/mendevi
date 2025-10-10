@@ -9,7 +9,7 @@ import logging
 
 from mendevi import __version__
 from mendevi.database.extract import SqlLinker
-from .axis import get_label_extractor
+from mendevi.database.meta import get_extractor
 
 
 def printer(**kwargs) -> str:
@@ -77,7 +77,7 @@ def print_grid(axe: str, log: bool | None, dim: str) -> list[str]:
     axe : str
         The acessor to the matplotlib axe.
     log : boolean or None
-        Defined by get_label_extractor.
+        Defined by get_extractor.
     dim : str
         "x" or "y".
     """
@@ -94,14 +94,13 @@ def print_grid(axe: str, log: bool | None, dim: str) -> list[str]:
             f'{axe}.grid(axis="{dim}", which="major")',
             f'{axe}.grid(axis="{dim}", which="minor", color="0.9")',
         ]
-    else:
-        return [
-            f'{axe}.set_{dim}scale("linear")  # or .set_{dim}scale("log", base=10)',
-            f'{axe}.grid(axis="{dim}", which="major")',
-            f'{axe}.grid(axis="{dim}", which="minor", color="0.9")',
-            f"ticks = {axe}.{dim}axis.get_majorticklocs()  # get main graduations",
-            f"{axe}.{dim}axis.set_minor_locator(ticker.MultipleLocator((ticks[1]-ticks[0])/10.0))",
-        ]
+    return [
+        f'{axe}.set_{dim}scale("linear")  # or .set_{dim}scale("log", base=10)',
+        f'{axe}.grid(axis="{dim}", which="major")',
+        f'{axe}.grid(axis="{dim}", which="minor", color="0.9")',
+        f"ticks = {axe}.{dim}axis.get_majorticklocs()  # get main graduations",
+        f"{axe}.{dim}axis.set_minor_locator(ticker.MultipleLocator((ticks[1]-ticks[0])/10.0))",
+    ]
 
 
 def print_fill_axe(**kwargs) -> list[str]:
@@ -273,8 +272,8 @@ def print_subfigure(**kwargs) -> list[str]:
         ),
         f'    """Create the subchart for y={kwargs["ylabel"]} and x={kwargs["xlabel"]}."""',
     ]
-    log_x = get_label_extractor(kwargs["xlabel"])[2]
-    log_y = get_label_extractor(kwargs["ylabel"])[2]
+    log_x = get_extractor(kwargs["xlabel"]).is_log
+    log_y = get_extractor(kwargs["ylabel"]).is_log
     match (kwargs["window_y"] is None, kwargs["window_x"] is None):
         case (True, True):
             middle = [
@@ -401,8 +400,8 @@ def print_subfigure(**kwargs) -> list[str]:
                 *(f"        {line}" for line in print_grid("axes[i, j]", log_x, "x")),
             ]
     end = [
-        f"    subfig.supylabel({get_label_extractor(kwargs['ylabel'])[0]!r})",
-        f"    subfig.supxlabel({get_label_extractor(kwargs['xlabel'])[0]!r})",
+        f"    subfig.supylabel({get_extractor(kwargs['ylabel']).label!r})",
+        f"    subfig.supxlabel({get_extractor(kwargs['xlabel']).label!r})",
         "",
     ]
     return header + middle + end
@@ -493,7 +492,7 @@ def print_read_sql(**kwargs) -> list[str]:
     names = sorted(names)
 
     # get sql query
-    funcs = {n: get_label_extractor(n)[1] for n in names}
+    funcs = {n: get_extractor(n).func for n in names}
     select = {s for f in funcs.values() for s in f.select}
     if len(queries := SqlLinker(*select).sql) == 0:
         logging.warning("fail to create the SQL query, please provide it yourself")

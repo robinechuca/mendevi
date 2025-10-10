@@ -290,7 +290,6 @@ def extract_encoder(raw: dict[str]) -> str:
     return str(encoder)
 
 
-# @verif
 @SqlLinker(
     "t_act_activity.act_rapl_dt",
     "t_act_activity.act_rapl_power",
@@ -383,7 +382,6 @@ def extract_mode(raw: dict[str]) -> str:
     return "vbr" if bool(mode) else "cbr"
 
 
-# @verif
 @SqlLinker(
     "t_act_activity.act_rapl_dt",
     "t_act_activity.act_rapl_power",

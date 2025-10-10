@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 
-"""Extract the values associated with an axis."""
+"""Help to get the good extractor."""
+
+import collections
 
 from mendevi.database import extract
 
 
-def get_label_extractor(name: str):
+ExtractContext = collections.namedtuple("ExtractContext", ["label", "func", "is_log"])
+
+
+def get_extractor(name: str):
     """Get the way to deserialize a raw value.
 
     Parameters
@@ -27,133 +32,133 @@ def get_label_extractor(name: str):
     assert isinstance(name, str), name.__class__.__name__
     match name:  # catched by mendevi.cst.labels.extract_labels
         case "act_duration":
-            return (
+            return ExtractContext(
                 "Video processing activity duration in seconds",
                 extract.extract_act_duration,
                 False,
             )
         case "bitrate" | "rate":
-            return (
+            return ExtractContext(
                 r"Video bitrate in $bit.s^{-1}$",
                 extract.extract_bitrate,
                 True,
             )
         case "codec":
-            return (
+            return ExtractContext(
                 "Codec name",
                 extract.extract_codec,
                 None,
             )
         case "cores":
-            return (
+            return ExtractContext(
                 "Average cumulative utilisation rate of logical cores",
                 extract.extract_cores,
                 False,
             )
         case "effort" | "preset":
-            return (
+            return ExtractContext(
                 "Effort provided as a parameter to the encoder",
                 extract.extract_effort,
                 None,
             )
         case "enc_scenario":
-            return (
+            return ExtractContext(
                 "Unique string specific to the encoding scenario",
                 extract.extract_enc_scenario,
                 None,
             )
         case "encoder":
-            return (
+            return ExtractContext(
                 "Name of the encoder",
                 extract.extract_encoder,
                 None,
             )
         case "energy":
-            return (
+            return ExtractContext(
                 "Total energy consumption in Joules",
                 extract.extract_energy,
                 True,
             )
         case "lpips":
-            return (
+            return ExtractContext(
                 "Learned Perceptual Image Patch Similarity (LPIPS)",
                 extract.extract_lpips,
                 False,
             )
         case "lpips_alex":
-            return (
+            return ExtractContext(
                 "Learned Perceptual Image Patch Similarity (LPIPS) with alex",
                 extract.extract_lpips_alex,
                 False,
             )
         case "lpips_vgg":
-            return (
+            return ExtractContext(
                 "Learned Perceptual Image Patch Similarity (LPIPS) with vgg",
                 extract.extract_lpips_vgg,
                 False,
             )
         case "power":
-            return (
+            return ExtractContext(
                 "Average power consumption in Watts",
                 extract.extract_power,
                 False,
             )
         case "mode":
-            return (
+            return ExtractContext(
                 "Bitrate mode, constant (cbr) or variable (vbr)",
                 extract.extract_mode,
                 None,
             )
         case "profile":
-            return (
+            return ExtractContext(
                 "Profile of the video",
                 extract.extract_profile,
                 None,
             )
         case "psnr":
-            return (
+            return ExtractContext(
                 "Peak Signal to Noise Ratio (PSNR)",
                 extract.extract_psnr,
                 False,
             )
         case "quality":
-            return (
+            return ExtractContext(
                 "Quality level passed to the encoder",
                 extract.extract_quality,
                 False,
             )
         case "ssim":
-            return (
+            return ExtractContext(
                 "Structural Similarity (SSIM)",
                 extract.extract_ssim,
                 False,
             )
         case "ssim_rev" | "rev_ssim":
-            return (
+            return ExtractContext(
                 "Reverse of Structural Similarity (1-SSIM)",
                 extract.extract_ssim_rev,
                 True,
             )
         case "threads":
-            return (
+            return ExtractContext(
                 "Number of threads provided as a parameter to the encoder",
                 extract.extract_threads,
                 False,
             )
         case "vmaf":
-            return (
+            return ExtractContext(
                 "Video Multi-Method Assessment Fusion (VMAF)",
                 extract.extract_vmaf,
                 False,
             )
         case "video_duration" | "vid_duration":
-            return (
+            return ExtractContext(
                 "Video duration in seconds",
                 extract.extract_video_duration,
                 False,
             )
         case "video_name" | "vid_name" | "name":
-            return (
+            return ExtractContext(
                 "Input video name",
                 extract.extract_video_name,
                 None,

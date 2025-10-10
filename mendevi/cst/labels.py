@@ -5,12 +5,12 @@
 import ast
 import inspect
 
-from mendevi.plot.axis import get_label_extractor
+from mendevi.database.meta import get_extractor
 
 
 def extract_labels() -> list[str]:
     """Retrieve label's name by analysing the source code of the get_label_extractor function."""
-    tree = ast.parse(inspect.getsource(get_label_extractor))
+    tree = ast.parse(inspect.getsource(get_extractor))
     nodes = [n for n in ast.walk(tree) if isinstance(n, ast.Match) and n.subject.id == "name"]
     assert len(nodes) == 1, "the function get_label_extractor must contains one ``match name:``"
     node = nodes.pop()

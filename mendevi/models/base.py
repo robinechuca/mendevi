@@ -2,8 +2,10 @@
 
 """Unify all the models with a common sctucture."""
 
-import abc.ABC
+import abc
+import logging
 import pathlib
+import sqlite3
 import typing
 
 import numpy as np
@@ -11,6 +13,8 @@ import torch
 
 from mendevi.cst.labels import LABELS
 from mendevi.database.create import is_sqlite
+from mendevi.database.extract import SqlLinker
+from mendevi.database.meta import get_extractor
 
 
 class Model(abc.ABC):
@@ -22,17 +26,13 @@ class Model(abc.ABC):
         The latex bibtext model citation.
     parameters : torch.Tensor | None
         The trainable parameters of the model (read and write).
-    TODO: ajouter labels input output
+    input_labels : list[str]
+        The name of all input parameters (readonly).
+    output_labels : list[str]
+        The name of all output parameters (readonly).
     """
 
-    def __init__(
-        self,
-        title: typing.Optional[str] = None,
-        sources: str = "",
-        input_labels: typing.Iterable[str] = None,
-        output_labels: typing.Iterable[str] = None,
-        parameters: typing.Optional[torch.Tensor] = None,
-    ):
+    def __init__(self, title: typing.Optional[str] = None, **kwargs):
         """Initialise the model.
 
         Parameters
@@ -50,19 +50,24 @@ class Model(abc.ABC):
         parameters : torch.Tensor, optional
             The learnable parameters for regressive models.
         """
-        # check input output
+        # check input_labels
+        input_labels = kwargs.get("input_labels", [])
         assert hasattr(input_labels, "__iter__"), input_labels.__class__.__name__
-        assert hasattr(output_labels, "__iter__"), output_labels.__class__.__name__
-        input_labels, output_labels = list(input_labels), list(output_labels)
+        input_labels = list(input_labels)
         assert input_labels, "input must be not empty"
-        assert output_labels, "output must be not empty"
         assert all(isinstance(lab, str) and lab in LABELS for lab in input_labels), input_labels
-        assert all(isinstance(lab, str) and lab in LABELS for lab in output_labels), output_labels
         self._input_labels = input_labels
+
+        # check output_labels
+        output_labels = kwargs.get("output_labels", [])
+        assert hasattr(output_labels, "__iter__"), output_labels.__class__.__name__
+        output_labels = list(output_labels)
+        assert output_labels, "output must be not empty"
+        assert all(isinstance(lab, str) and lab in LABELS for lab in output_labels), output_labels
         self._output_labels = output_labels
 
         # check parameters
-        if parameters is not None:
+        if (parameters := kwargs.get("parameters", None)) is not None:
             parameters = torch.asarray(parameters)
         self._parameters = None
 
@@ -78,6 +83,7 @@ class Model(abc.ABC):
         self._title = title
 
         # check authors
+        sources = kwargs.get("sources", "")
         assert isinstance(sources, str), sources.__class__.__name__
         self._sources = sources
 
@@ -95,29 +101,62 @@ class Model(abc.ABC):
         """Return the bibtex citation."""
         raise NotImplementedError
 
-    def fit(self, database: pathlib.Path | str) -> typing.Self:
+    def fit(self, database: pathlib.Path | str, query: typing.Optional[str] = None) -> typing.Self:
         """Fit the trainable hyper parameters of the models.
 
         Parameters
         ----------
         database : pathlike
             The training database.
+        query : str, optional
+            If provided, use this sql query to perform the request,
+            otherwise (default) attemps to guess the query.
 
         Return
         ------
         self
             A reference to the inplace fitted model.
         """
+        # verification
         if self._parameters is None:
             raise RuntimeError("This model is not trainable.")
         database = pathlib.Path(database).expanduser()
         assert is_sqlite(database), f"{database} is not a valid SQL database"
 
-        raise NotImplementedError
-        # TODO: read database and check
-        self._fit(...)
-        # TODO: chec the state of self.parameters
+        # get sql query
+        funcs = {n: get_extractor(n).func for n in self._input_labels}
+        if query is None:
+            select = {s for f in funcs.values() for s in f.select}
+            if len(queries := SqlLinker(*select).sql) == 0:
+                raise RuntimeError("fail to create the SQL query, please provide it yourself")
+            if len(queries) > 1:
+                logging.warning("several request founded %s, please provide it yourself", queries)
+            query = queries.pop(0)
+        else:
+            assert isinstance(query, str), query.__class__.__name__
+
+        # perform sql request
+        values = {label: [] for label in funcs}
+        with sqlite3.connect(database) as conn:
+            conn.row_factory = sqlite3.Row
+            for raw in conn.execute(query):
+                raw = dict(raw)
+                for label, func in funcs.items():
+                    values[label].eppend(func(raw))
+
+        # fit the model
+        self._fit(values)
         return self
+
+    @property
+    def input_labels(self) -> list[str]:
+        """Return the name of all input parameters."""
+        return self._input_labels.copy()
+
+    @property
+    def output_labels(self) -> list[str]:
+        """Return the name of all output parameters."""
+        return self._output_labels.copy()
 
     @property
     def parameters(self) -> torch.Tensor or None:
