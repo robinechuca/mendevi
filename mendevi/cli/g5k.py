@@ -2,6 +2,7 @@
 
 """Help to excecute a script on a node of grid'5000."""
 
+import getpass
 import hashlib
 import json
 import logging
@@ -83,7 +84,7 @@ def guess_envname() -> list[str]:
             envnames.append(
                 "https://api.grid5000.fr/stable"
                 f"/sites/{platform.node()[1:]}"  # "frennes", "fgrenoble", "ftoulouse" ...
-                f"/public/{os.getlogin()}"
+                f"/public/{getpass.getuser()}"  # os.getlogin failed sometimes
                 f"/{path.relative_to(root)}"
             )
     return envnames

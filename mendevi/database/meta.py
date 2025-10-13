@@ -109,6 +109,12 @@ def get_extractor(name: str):
                 extract.extract_mode,
                 None,
             )
+        case "nb_frames" | "nbr_frames":
+            return ExtractContext(
+                "The real number of frames of the video file",
+                extract.extract_nb_frames,
+                True,
+            )
         case "profile":
             return ExtractContext(
                 "Profile of the video",

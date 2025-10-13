@@ -3,6 +3,7 @@
 """Define the functions that enable values to be extracted from a select query."""
 
 import functools
+import json
 import numbers
 import re
 import typing
@@ -380,6 +381,22 @@ def extract_mode(raw: dict[str]) -> str:
     if (mode := raw["enc_vbr"]) is None:
         return None
     return "vbr" if bool(mode) else "cbr"
+
+
+@verif
+@SqlLinker("t_vid_video.vid_frames")
+def extract_nb_frames(raw: dict[str]) -> int:
+    """Return the real number of frames of the video file.
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+    """
+    if (frames := raw["frames"]) is None:
+        return None
+    frames = json.loads(frames)
+    return len(frames)
 
 
 @SqlLinker(
