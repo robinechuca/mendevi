@@ -185,26 +185,6 @@ def extract_act_duration(raw: dict[str]) -> float:
 
 
 @verif
-@SqlLinker("t_dst_video.vid_duration", "t_dst_video.vid_size")
-def extract_bitrate(raw: dict[str]) -> float:
-    r"""Return the video bitrate in $bit.s^{-1}$.
-
-    Parameters
-    ----------
-    raw : dict[str]
-        The result line of select request.
-    """
-    duration, size = raw["vid_duration"], raw["vid_size"]
-    if duration is None or size is None:
-        return None
-    assert isinstance(duration, float), duration.__class__.__name__
-    assert duration > 0, duration
-    assert isinstance(size, int), size.__class__.__name__
-    assert size >= 0, size
-    return 8.0 * float(size) / duration
-
-
-@verif
 @SqlLinker("t_dst_video.vid_codec")
 def extract_codec(raw: dict[str]) -> str:
     """Return the codec name.
@@ -393,7 +373,7 @@ def extract_nb_frames(raw: dict[str]) -> int:
     raw : dict[str]
         The result line of select request.
     """
-    if (frames := raw["frames"]) is None:
+    if (frames := raw["vid_frames"]) is None:
         return None
     frames = json.loads(frames)
     return len(frames)
@@ -499,8 +479,8 @@ def extract_ssim(raw: dict[str]) -> float:
 
 @verif
 @SqlLinker("t_met_metric.met_ssim")
-def extract_ssim_rev(raw: dict[str]) -> float:
-    """Return the reverse of Structural Similarity (1-SSIM).
+def extract_ssim_comp(raw: dict[str]) -> float:
+    """Return the complementary of Structural Similarity (1-SSIM).
 
     Parameters
     ----------
@@ -530,7 +510,7 @@ def extract_threads(raw: dict[str]) -> int:
 
 
 @verif
-@SqlLinker("t_vid_video.vid_duration")
+@SqlLinker("t_dst_video.vid_duration")
 def extract_video_duration(raw: dict[str]) -> float:
     """Return the video duration in seconds.
 
@@ -561,6 +541,22 @@ def extract_video_name(raw: dict[str]) -> str:
     assert isinstance(vid_name, str), vid_name.__class__.__name__
     vid_name = re.sub(fr"^reference_(\w+)_(?:{'|'.join(PROFILES)})\.\w+$", r"\1", vid_name)
     return vid_name
+
+
+@verif
+@SqlLinker("t_dst_video.vid_size")
+def extract_video_size(raw: dict[str]) -> int:
+    """Return the total video file size in bytes.
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+    """
+    if (size := raw["vid_size"]) is None:
+        return None
+    assert isinstance(size, numbers.Integral), size.__class__.__name__
+    return int(size)
 
 
 @verif

@@ -9,7 +9,7 @@ import logging
 
 from mendevi import __version__
 from mendevi.database.extract import SqlLinker
-from mendevi.database.meta import get_extractor
+from mendevi.database.meta import extract_names, get_extractor, merge_extractors
 
 
 def printer(**kwargs) -> str:
@@ -224,6 +224,7 @@ def print_import() -> list[str]:
         "import pathlib",
         "import sqlite3",
         "",
+        "from mendevi.exceptions import RejectError",
         "from mendevi.plot.tools import smartsort",
         "import matplotlib.figure as figure",
         "import matplotlib.pyplot as plt",
@@ -474,39 +475,31 @@ def print_main(**kwargs) -> list[str]:
 
 def print_read_sql(**kwargs) -> list[str]:
     """Return the code of the function that perform the sql request."""
-    names = set(kwargs["x"]) | set(kwargs["y"])
+    names: set[str] = {lbl for ls in kwargs["x"] + kwargs["y"] for lbl in extract_names(ls)}
     if kwargs["color"] is not None:
-        names.add(kwargs["color"])
+        names |= extract_names(kwargs["color"])
     if kwargs["marker"] is not None:
-        names.add(kwargs["marker"])
+        names |= extract_names(kwargs["marker"])
     if kwargs["window_x"] is not None:
-        names.add(kwargs["window_x"])
+        names |= extract_names(kwargs["window_x"])
     if kwargs["window_y"] is not None:
-        names.add(kwargs["window_y"])
-    if kwargs["filter"] is not None:
-        names |= {
-            n.id
-            for n in ast.walk(ast.parse(kwargs["filter"], mode="eval"))
-            if isinstance(n, ast.Name)
-        }
-    names = sorted(names)
+        names |= extract_names(kwargs["window_y"])
 
     # get sql query
-    funcs = {n: get_extractor(n).func for n in names}
-    select = {s for f in funcs.values() for s in f.select}
+    atom_names, line_extractor = merge_extractors(names, select=kwargs["filter"])
+    select = {s for lbl in atom_names for s in get_extractor(lbl).func.select}
     if len(queries := SqlLinker(*select).sql) == 0:
         logging.warning("fail to create the SQL query, please provide it yourself")
         queries = [""]
 
-    # selector
-    selector = [] if kwargs["filter"] is None else ["    values = select(values)"]
-
     # include in template
-    extract = (f"values[{n!r}].append(extract.{funcs[n].__name__}(raw))" for n in names)
     return [
+        *line_extractor,
+        "",
+        "",
         "def read_sql(database: pathlib.Path) -> dict[str, list]:",
         '    """Extract the relevant values from the database."""',
-        f"    values: dict[str, list] = {{{', '.join(f'{n!r}: []' for n in names)}}}",
+        f"    values: dict[str, list] = {{{', '.join(f'{n!r}: []' for n in sorted(names))}}}",
         "    with sqlite3.connect(database) as conn:",
         "        conn.row_factory = sqlite3.Row",
         "        for raw in conn.execute(",
@@ -519,8 +512,12 @@ def print_read_sql(**kwargs) -> list[str]:
         ],
         "        ):",
         "            raw = dict(raw)",
-        f"            {'\n            '.join(extract)}",
-        *selector,
+        "            try:",
+        "                line = line_extractor(raw)",
+        "            except RejectError:",
+        "                continue",
+        "            for label, value in line.items():",
+        "                values[label].append(value)",
         "    return values",
         "",
         "",

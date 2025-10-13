@@ -13,9 +13,10 @@ from pygments.lexers import PythonLexer
 import click
 
 from mendevi.cst.labels import LABELS
-from mendevi.database.meta import get_extractor
+from mendevi.database.meta import extract_names, get_extractor
 from mendevi.plot.printer import printer
 from .parse import parse_videos_database
+
 
 NAMES_DOC = "        ".join(
     f"* {n}: {get_extractor(n).label}.\n" for n in LABELS
@@ -122,13 +123,11 @@ def _parse_args(prt: Printer, kwargs: dict):
     if kwargs["filter"] is not None:
         assert isinstance(kwargs["filter"], str), kwargs["filter"].__class__.__name__
         try:
-            expr = ast.parse(kwargs["filter"], mode="eval")
+            names = extract_names(kwargs["filter"])
         except SyntaxError as err:
             raise SyntaxError(
                 f"the option --filter {kwargs['filter']!r} is not python valid"
             ) from err
-        names = {n.id for n in ast.walk(expr) if isinstance(n, ast.Name)}
-        assert names, f"the filter {kwargs['filter']!r} has no effect"
         assert names.issubset(set(LABELS)), \
             f"{names-set(LABELS)} are invalid names, it has to be one of {LABELS}"
         prt.print(f"filter    : {kwargs['filter']}")

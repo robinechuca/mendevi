@@ -2,6 +2,7 @@
 
 """Parse and verify some user input."""
 
+import ast
 import pathlib
 import re
 
