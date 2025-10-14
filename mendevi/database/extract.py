@@ -271,36 +271,35 @@ def extract_encoder(raw: dict[str]) -> str:
     return str(encoder)
 
 
-@SqlLinker(
-    "t_act_activity.act_rapl_dt",
-    "t_act_activity.act_rapl_power",
-    "t_act_activity.act_wattmeter_dt",
-    "t_act_activity.act_wattmeter_power",
-)
-def extract_energy(raw: dict[str]) -> float:
-    """Return the total energy consumption in Joules.
+@verif
+@SqlLinker("t_vid_video.vid_frames")
+def extract_frames(raw: dict[str]) -> list[dict]:
+    """Return the metadata of each frame.
 
     Parameters
     ----------
     raw : dict[str]
         The result line of select request.
     """
-    assert isinstance(raw, dict), raw.__class__.__name__
-    assert (
-        ("act_wattmeter_dt" in raw and "act_wattmeter_power" in raw)
-        or ("act_rapl_dt" in raw and "act_rapl_power" in raw)
-    ), "Please correct the SQL query."
-    act_dt, act_power = raw["act_wattmeter_dt"], raw["act_wattmeter_power"]
-    if act_dt is not None and act_power is not None:  # if it comes from wattmeter
-        act_dt, act_power = binary_to_list(act_dt), binary_to_list(act_power)
-        integral = 0.5 * ((act_power[:-1] + act_power[1:]) * act_dt).sum()  # trapez method
-    else:  # if it comes from rapl
-        act_dt, act_power = raw["act_rapl_dt"], raw["act_rapl_power"]
-        if act_dt is None or act_power is None:
-            return None
-        act_dt, act_power = binary_to_list(act_dt), binary_to_list(act_power)
-        integral = (act_power * act_dt).sum()  # already integrated
-    return float(integral)
+    if (frames := raw["vid_frames"]) is None:
+        return None
+    frames = json.loads(frames)
+    return frames
+
+
+@verif
+@SqlLinker("t_dst_video.vid_height")
+def extract_height(raw: dict[str]) -> int:
+    """Return the height of images in pixels.
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+    """
+    if (height := raw["vid_height"]) is None:
+        return None
+    return int(height)
 
 
 @verif
@@ -363,30 +362,14 @@ def extract_mode(raw: dict[str]) -> str:
     return "vbr" if bool(mode) else "cbr"
 
 
-@verif
-@SqlLinker("t_vid_video.vid_frames")
-def extract_nb_frames(raw: dict[str]) -> int:
-    """Return the real number of frames of the video file.
-
-    Parameters
-    ----------
-    raw : dict[str]
-        The result line of select request.
-    """
-    if (frames := raw["vid_frames"]) is None:
-        return None
-    frames = json.loads(frames)
-    return len(frames)
-
-
 @SqlLinker(
     "t_act_activity.act_rapl_dt",
     "t_act_activity.act_rapl_power",
     "t_act_activity.act_wattmeter_dt",
     "t_act_activity.act_wattmeter_power",
 )
-def extract_power(raw: dict[str]) -> float:
-    """Return the average power consumption in Watts.
+def extract_powers(raw: dict[str]) -> tuple:
+    """Return the interval duration and the average power in each intervals.
 
     Parameters
     ----------
@@ -401,33 +384,13 @@ def extract_power(raw: dict[str]) -> float:
     act_dt, act_power = raw["act_wattmeter_dt"], raw["act_wattmeter_power"]
     if act_dt is not None and act_power is not None:  # if it comes from wattmeter
         act_dt, act_power = binary_to_list(act_dt), binary_to_list(act_power)
-        integral = 0.5 * ((act_power[:-1] + act_power[1:]) * act_dt).sum()  # trapez method
+        act_power = 0.5 * (act_power[:-1] + act_power[1:])  # trapez method
     else:  # if it comes from rapl
         act_dt, act_power = raw["act_rapl_dt"], raw["act_rapl_power"]
         if act_dt is None or act_power is None:
             return None
         act_dt, act_power = binary_to_list(act_dt), binary_to_list(act_power)
-        integral = (act_power * act_dt).sum()  # already integrated
-    return float(integral / act_dt.sum())
-
-
-@verif
-@SqlLinker("t_vid_video.vid_height", "t_vid_video.vid_width")
-def extract_profile(raw: dict[str]) -> str:
-    """Return the profile of the video.
-
-    The profile is determined based on the area of the video.
-
-    Parameters
-    ----------
-    raw : dict[str]
-        The result line of select request.
-    """
-    from mendevi.utils import best_profile
-    height, width = raw["vid_height"], raw["vid_width"]
-    if height is None or width is None:
-        return None
-    return best_profile(height, width)
+    return act_dt, act_power
 
 
 @verif
@@ -572,3 +535,18 @@ def extract_vmaf(raw: dict[str]) -> float:
     if (vmaf := raw["met_vmaf"]) is None:
         return None
     return float(binary_to_list(vmaf).mean())
+
+
+@verif
+@SqlLinker("t_dst_video.vid_width")
+def extract_width(raw: dict[str]) -> int:
+    """Return the width of images in pixels.
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+    """
+    if (width := raw["vid_height"]) is None:
+        return None
+    return int(width)

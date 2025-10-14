@@ -2,7 +2,6 @@
 
 """CLI entry point to visualize database data."""
 
-import ast
 import importlib
 import pathlib
 
@@ -14,7 +13,7 @@ import click
 
 from mendevi.cst.labels import LABELS
 from mendevi.database.meta import extract_names, get_extractor
-from mendevi.plot.printer import printer
+from mendevi.plot.printer import printer, safe_lbl
 from .parse import parse_videos_database
 
 
@@ -56,28 +55,40 @@ def _parse_args(prt: Printer, kwargs: dict):
     assert "x" in kwargs, sorted(kwargs)
     assert isinstance(kwargs["x"], tuple), kwargs["x"].__class__.__name__
     assert kwargs["x"], "you must provide the -x option"
-    assert all(isinstance(x, str) and x in LABELS for x in kwargs["x"]), kwargs["x"]
+    assert all(isinstance(x, str) and extract_names(x).issubset(LABELS) for x in kwargs["x"]), (
+        f"{set(lbl for ls in kwargs['x'] for lbl in extract_names(ls))-set(LABELS)} "
+        "are invalid names, "
+        f"it has to be one of {LABELS}"
+    )
     prt.print(f"x         : {', '.join(kwargs['x'])}")
 
     # y
     assert "y" in kwargs, sorted(kwargs)
     assert isinstance(kwargs["y"], tuple), kwargs["y"].__class__.__name__
     assert kwargs["y"], "you must provide the -y option"
-    assert all(isinstance(y, str) and y in LABELS for y in kwargs["y"]), kwargs["y"]
+    assert all(isinstance(y, str) and extract_names(y).issubset(LABELS) for y in kwargs["y"]), (
+        f"{set(lbl for ls in kwargs['y'] for lbl in extract_names(ls))-set(LABELS)} "
+        "are invalid names, "
+        f"it has to be one of {LABELS}"
+    )
     prt.print(f"y         : {', '.join(kwargs['y'])}")
 
     # color
     kwargs["color"] = kwargs.get("color", None)
     if kwargs["color"] is not None:
         assert isinstance(kwargs["color"], str), kwargs["color"].__class__.__name__
-        assert kwargs["color"] in LABELS, kwargs["color"]
+        names = extract_names(kwargs["color"])
+        assert names.issubset(LABELS), \
+            f"{names-set(LABELS)} are invalid names, it has to be one of {LABELS}"
         prt.print(f"color     : {kwargs['color']}")
 
     # marker
     kwargs["marker"] = kwargs.get("marker", None)
     if kwargs["marker"] is not None:
         assert isinstance(kwargs["marker"], str), kwargs["marker"].__class__.__name__
-        assert kwargs["marker"] in LABELS, kwargs["marker"]
+        names = extract_names(kwargs["marker"])
+        assert names.issubset(LABELS), \
+            f"{names-set(LABELS)} are invalid names, it has to be one of {LABELS}"
         prt.print(f"marker    : {kwargs['marker']}")
 
     # window
@@ -108,27 +119,26 @@ def _parse_args(prt: Printer, kwargs: dict):
     kwargs["window_x"] = kwargs.get("window_x", None)
     if kwargs["window_x"] is not None:
         assert isinstance(kwargs["window_x"], str), kwargs["window_x"].__class__.__name__
-        assert kwargs["window_x"] in LABELS, kwargs["window_x"]
+        names = extract_names(kwargs["window_x"])
+        assert names.issubset(LABELS), \
+            f"{names-set(LABELS)} are invalid names, it has to be one of {LABELS}"
         prt.print(f"window x  : {kwargs['window_x']}")
 
     # window_y
     kwargs["window_y"] = kwargs.get("window_y", None)
     if kwargs["window_y"] is not None:
         assert isinstance(kwargs["window_y"], str), kwargs["window_y"].__class__.__name__
-        assert kwargs["window_y"] in LABELS, kwargs["window_y"]
+        names = extract_names(kwargs["window_y"])
+        assert names.issubset(LABELS), \
+            f"{names-set(LABELS)} are invalid names, it has to be one of {LABELS}"
         prt.print(f"window y  : {kwargs['window_y']}")
 
     # filter
     kwargs["filter"] = kwargs.get("filter", None)
     if kwargs["filter"] is not None:
         assert isinstance(kwargs["filter"], str), kwargs["filter"].__class__.__name__
-        try:
-            names = extract_names(kwargs["filter"])
-        except SyntaxError as err:
-            raise SyntaxError(
-                f"the option --filter {kwargs['filter']!r} is not python valid"
-            ) from err
-        assert names.issubset(set(LABELS)), \
+        names = extract_names(kwargs["filter"])
+        assert names.issubset(LABELS), \
             f"{names-set(LABELS)} are invalid names, it has to be one of {LABELS}"
         prt.print(f"filter    : {kwargs['filter']}")
 
@@ -137,39 +147,39 @@ def _parse_args(prt: Printer, kwargs: dict):
 @click.argument("database", type=click.Path())
 @click.option(
     "-x",
-    type=click.Choice(LABELS),
+    type=str,
     multiple=True,
     help="The code for the value to be displayed on the x-axis.",
 )
 @click.option(
     "-y",
-    type=click.Choice(LABELS),
+    type=str,
     multiple=True,
     help="The code for the value to be displayed on the y-axis.",
 )
 @click.option(
     "-c", "--color",
-    type=click.Choice(LABELS),
+    type=str,
     help="The discriminating criterion for colour.",
 )
 @click.option(
     "-m", "--marker",
-    type=click.Choice(LABELS),
+    type=str,
     help="The discriminating criterion for marker.",
 )
 @click.option(
     "-w", "--window",
-    type=click.Choice(LABELS),
+    type=str,
     help="The criterion on which to separate into sub-windows."
 )
 @click.option(
     "-wx", "--window-x",
-    type=click.Choice(LABELS),
+    type=str,
     help="The criterion on which to separate into sub-windows along x axis."
 )
 @click.option(
     "-wy", "--window-y",
-    type=click.Choice(LABELS),
+    type=str,
     help="The criterion on which to separate into sub-windows along y axis."
 )
 @click.option(
@@ -191,8 +201,12 @@ def main(database: str, **kwargs):
 
     # get title name
     path = (
-        pathlib.Path.cwd()
-        / f"{'_'.join(kwargs['x'])}_as_a_function_of_{'_'.join(kwargs['y'])}.py"
+        pathlib.Path.cwd() / (
+            f"{'_'.join(map(safe_lbl, kwargs['x']))}"
+            "_as_a_function_of_"
+            f"{'_'.join(map(safe_lbl, kwargs['y']))}"
+            ".py"
+        )
     )
 
     # get code content

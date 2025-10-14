@@ -23,6 +23,7 @@ from mendevi.cst.profiles import PROFILES
 PATHLIKE = str | bytes | pathlib.Path
 
 
+@functools.cache
 def best_profile(height: numbers.Integral, width: numbers.Integral) -> str:
     """Return the closest profile name."""
     assert isinstance(height, numbers.Integral), height.__class__.__name__

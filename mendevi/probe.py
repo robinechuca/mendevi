@@ -100,7 +100,7 @@ def _fill_vid_table(database: pathlib.Path, vid_id: bytes, video: pathlib.Path, 
     # update result
     with (
         sqlite3.connect(database) as sql_database,
-        Lock(str(database.with_name(".dblock")), lifetime=datetime.timedelta(seconds=60)),
+        Lock(str(database.with_name(".dblock")), lifetime=datetime.timedelta(seconds=600)),
     ):
         cursor = sql_database.cursor()
         cursor.execute(
@@ -169,7 +169,7 @@ def _fill_met_table(
     # update result
     with (
         sqlite3.connect(database) as sql_database,
-        Lock(str(database.with_name(".dblock")), lifetime=datetime.timedelta(seconds=60)),
+        Lock(str(database.with_name(".dblock")), lifetime=datetime.timedelta(seconds=600)),
     ):
         cursor = sql_database.cursor()
         cursor.execute(

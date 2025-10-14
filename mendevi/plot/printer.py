@@ -6,10 +6,11 @@ import ast
 import datetime
 import itertools
 import logging
+import re
 
 from mendevi import __version__
 from mendevi.database.extract import SqlLinker
-from mendevi.database.meta import extract_names, get_extractor, merge_extractors
+from mendevi.database.meta import get_extractor, merge_extractors
 
 
 def printer(**kwargs) -> str:
@@ -27,8 +28,6 @@ def printer(**kwargs) -> str:
     code.extend(print_header())
     code.extend(print_import())
     code.extend(print_cst(**kwargs))
-    if kwargs["filter"] is not None:
-        code.extend(print_selector(**kwargs))
     code.extend(print_read_sql(**kwargs))
     code.extend(print_fill_axe(**kwargs))
     code.extend(print_main(**kwargs))
@@ -226,6 +225,7 @@ def print_import() -> list[str]:
         "",
         "from mendevi.exceptions import RejectError",
         "from mendevi.plot.tools import smartsort",
+        "from mendevi.utils import best_profile",
         "import matplotlib.figure as figure",
         "import matplotlib.pyplot as plt",
         "import matplotlib.ticker as ticker",
@@ -237,44 +237,18 @@ def print_import() -> list[str]:
     ]
 
 
-def print_selector(**kwargs) -> list[str]:
-    """Return the code for selecting a subset of the data."""
-    names = sorted(
-        {
-            n.id
-            for n in ast.walk(ast.parse(kwargs["filter"], mode="eval"))
-            if isinstance(n, ast.Name)
-        }
-    )
-    if len(names) == 1:
-        loop = f"    for {names[0]} in values[{names[0]!r}]:"
-    else:
-        loop = f"    for {', '.join(names)} in zip({', '.join(f'values[{n!r}]' for n in names)}):"
-    return [
-        "def select(values: dict[str]) -> dict[str]:",
-        '    """Keep only some of the data."""',
-        "    mask: list[bool] = []",
-        loop,
-        f"        mask.append(bool({kwargs['filter']}))",
-        "    values = {k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()}",
-        "    return values",
-        "",
-        "",
-    ]
-
-
 def print_subfigure(**kwargs) -> list[str]:
     """Return the code for the subplot of a a given y and y axis."""
     header = [
         (
-            f"def plot_{kwargs['ylabel']}_{kwargs['xlabel']}("
+            f"def plot_{safe_lbl(kwargs['ylabel'])}_{safe_lbl(kwargs['xlabel'])}("
             "values: dict[str], subfig: figure.SubFigure"
             "):"
         ),
         f'    """Create the subchart for y={kwargs["ylabel"]} and x={kwargs["xlabel"]}."""',
     ]
-    log_x = get_extractor(kwargs["xlabel"]).is_log
-    log_y = get_extractor(kwargs["ylabel"]).is_log
+    log_x = get_extractor(kwargs["xlabel"], safe=True).is_log
+    log_y = get_extractor(kwargs["ylabel"], safe=True).is_log
     match (kwargs["window_y"] is None, kwargs["window_x"] is None):
         case (True, True):
             middle = [
@@ -401,8 +375,8 @@ def print_subfigure(**kwargs) -> list[str]:
                 *(f"        {line}" for line in print_grid("axes[i, j]", log_x, "x")),
             ]
     end = [
-        f"    subfig.supylabel({get_extractor(kwargs['ylabel']).label!r})",
-        f"    subfig.supxlabel({get_extractor(kwargs['xlabel']).label!r})",
+        f"    subfig.supylabel({get_extractor(kwargs['ylabel'], safe=True).label!r})",
+        f"    subfig.supxlabel({get_extractor(kwargs['xlabel'], safe=True).label!r})",
         "",
     ]
     return header + middle + end
@@ -431,7 +405,7 @@ def print_main(**kwargs) -> list[str]:
         enumerate(kwargs["y"]), enumerate(kwargs["x"])
     ):
         code.extend([
-            f"    plot_{ylabel}_{xlabel}(values, subfigs[{i}, {j}])",
+            f"    plot_{safe_lbl(ylabel)}_{safe_lbl(xlabel)}(values, subfigs[{i}, {j}])",
         ])
     code.extend([
         "",
@@ -475,15 +449,15 @@ def print_main(**kwargs) -> list[str]:
 
 def print_read_sql(**kwargs) -> list[str]:
     """Return the code of the function that perform the sql request."""
-    names: set[str] = {lbl for ls in kwargs["x"] + kwargs["y"] for lbl in extract_names(ls)}
+    names: set[str] = {lbl.strip() for lbl in kwargs["x"] + kwargs["y"]}
     if kwargs["color"] is not None:
-        names |= extract_names(kwargs["color"])
+        names.add(kwargs["color"].strip())
     if kwargs["marker"] is not None:
-        names |= extract_names(kwargs["marker"])
+        names.add(kwargs["marker"].strip())
     if kwargs["window_x"] is not None:
-        names |= extract_names(kwargs["window_x"])
+        names.add(kwargs["window_x"].strip())
     if kwargs["window_y"] is not None:
-        names |= extract_names(kwargs["window_y"])
+        names.add(kwargs["window_y"].strip())
 
     # get sql query
     atom_names, line_extractor = merge_extractors(names, select=kwargs["filter"])
@@ -522,3 +496,11 @@ def print_read_sql(**kwargs) -> list[str]:
         "",
         "",
     ]
+
+
+def safe_lbl(lbl: str) -> str:
+    """Convert the label into a valid lowercase variable."""
+    assert isinstance(lbl, str), lbl.__class__.__name__
+    for symb, rep in [("+", "plus"), ("-", "minus"), ("*", "times"), ("/", "per")]:
+        lbl = lbl.replace(symb, f"_{rep}_")
+    return re.sub(r"[^0-9a-zA-Z]+", "_", lbl.lower())

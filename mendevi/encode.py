@@ -163,7 +163,7 @@ def encode_and_store(
 
     with (
         sqlite3.connect(database) as sql_database,
-        Lock(str(database.with_name(".dblock")), lifetime=datetime.timedelta(seconds=60)),
+        Lock(str(database.with_name(".dblock")), lifetime=datetime.timedelta(seconds=600)),
     ):
         cursor = sql_database.cursor()
 

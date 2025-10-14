@@ -18,35 +18,45 @@ def extract_names(expr: str) -> set[str]:
     Examples
     --------
     >>> from mendevi.database.meta import extract_names
-    >>> extract_names('foo')
+    >>> extract_names("foo")
     {'foo'}
-    >>> extract_names('[i**2 for i in foo]')
+    >>> extract_names("[i**2 for i in foo]"")
     {'foo'}
-    >>> extract_names('foo.bar')
+    >>> extract_names("foo.bar")
     {'foo'}
-    >>> extract_names('bar(foo)')
+    >>> extract_names("bar(foo)")
     {'foo'}
+    >>> extract_names("foo.bar()")
+    {'foo'}
+    >>>
     """
-    nodes = [n for n in ast.walk(ast.parse(expr, mode="exec"))]
+    try:
+        nodes = list(ast.walk(ast.parse(expr, mode="exec")))
+    except SyntaxError as err:
+        raise SyntaxError(
+            f"the argument {expr!r} is not a valid python expression"
+        ) from err
     reject = {
         n.id for n in nodes if isinstance(n, ast.Name) and isinstance(n.ctx, ast.Store | ast.Del)
     } | {
         n_.id
-        for n in nodes if isinstance(n, ast.Call)
+        for n in nodes if isinstance(n, ast.Call) and not isinstance(n.func, ast.Attribute)
         for n_ in ast.walk(n.func) if isinstance(n_, ast.Name)
     }
-    keep = {n.id for n in nodes if isinstance(n, ast.Name)}
-    names = set(keep - reject)  # set usefull for empty case
+    candidates = {n.id for n in nodes if isinstance(n, ast.Name)}
+    names = set(candidates - reject)  # set usefull for empty case
     return names
 
 
-def get_extractor(name: str):
+def get_extractor(name: str, safe: bool = False) -> ExtractContext:
     """Get the way to deserialize a raw value.
 
     Parameters
     ----------
     name : str
         The label name.
+    safe : boolean, default=False
+        If True, retrun a stupid value instead of raising KeyError.
 
     Returns
     -------
@@ -61,6 +71,8 @@ def get_extractor(name: str):
         The value None means the axis is not continuous.
     """
     assert isinstance(name, str), name.__class__.__name__
+    assert isinstance(safe, bool), safe.__class__.__name__
+    extractor = None
     match name:  # catched by mendevi.cst.labels.extract_labels
         case "act_duration":
             return ExtractContext(
@@ -107,105 +119,139 @@ def get_extractor(name: str):
         case "energy":
             return ExtractContext(
                 "Total energy consumption in Joules",
-                extract.extract_energy,
+                "float((powers[0] * powers[1]).sum())",
                 True,
             )
+        case "frames":
+            extractor = ExtractContext(
+                "The metadata of each frame",
+                extract.extract_frames,
+                None,
+            )
+        case "height":
+            extractor = ExtractContext(
+                "The height of images in pixels",
+                extract.extract_height,
+                False,
+            )
         case "lpips":
-            return ExtractContext(
+            extractor = ExtractContext(
                 "Learned Perceptual Image Patch Similarity (LPIPS)",
                 extract.extract_lpips,
                 False,
             )
         case "lpips_alex":
-            return ExtractContext(
+            extractor = ExtractContext(
                 "Learned Perceptual Image Patch Similarity (LPIPS) with alex",
                 extract.extract_lpips_alex,
                 False,
             )
         case "lpips_vgg":
-            return ExtractContext(
+            extractor = ExtractContext(
                 "Learned Perceptual Image Patch Similarity (LPIPS) with vgg",
                 extract.extract_lpips_vgg,
                 False,
             )
         case "power":
-            return ExtractContext(
+            extractor = ExtractContext(
                 "Average power consumption in Watts",
-                extract.extract_power,
+                "energy / float(powers[0].sum())",
                 False,
             )
+        case "powers":
+            extractor = ExtractContext(
+                "The interval duration and the average power in each intervals",
+                extract.extract_powers,
+                None
+            )
         case "mode":
-            return ExtractContext(
+            extractor = ExtractContext(
                 "Bitrate mode, constant (cbr) or variable (vbr)",
                 extract.extract_mode,
                 None,
             )
         case "nb_frames" | "nbr_frames":
-            return ExtractContext(
+            extractor = ExtractContext(
                 "The real number of frames of the video file",
-                extract.extract_nb_frames,
+                "len(frames)",
                 True,
             )
         case "profile":
-            return ExtractContext(
+            extractor = ExtractContext(
                 "Profile of the video",
-                extract.extract_profile,
+                "best_profile(height, width)",
                 None,
             )
         case "psnr":
-            return ExtractContext(
+            extractor = ExtractContext(
                 "Peak Signal to Noise Ratio (PSNR)",
                 extract.extract_psnr,
                 False,
             )
         case "quality":
-            return ExtractContext(
+            extractor = ExtractContext(
                 "Quality level passed to the encoder",
                 extract.extract_quality,
                 False,
             )
+        case "shape":
+            extractor = ExtractContext(
+                "The image shapes height x width in pixels",
+                "(height, width)",
+                None,
+            )
         case "ssim":
-            return ExtractContext(
+            extractor = ExtractContext(
                 "Structural Similarity (SSIM)",
                 extract.extract_ssim,
                 False,
             )
         case "ssim_comp" | "comp_ssim" | "ssim_rev" | "rev_ssim":
-            return ExtractContext(
+            extractor = ExtractContext(
                 "Complementary of Structural Similarity (1-SSIM)",
                 extract.extract_ssim_comp,
                 True,
             )
         case "threads":
-            return ExtractContext(
+            extractor = ExtractContext(
                 "Number of threads provided as a parameter to the encoder",
                 extract.extract_threads,
                 False,
             )
         case "vmaf":
-            return ExtractContext(
+            extractor = ExtractContext(
                 "Video Multi-Method Assessment Fusion (VMAF)",
                 extract.extract_vmaf,
                 False,
             )
         case "video_duration" | "vid_duration":
-            return ExtractContext(
+            extractor = ExtractContext(
                 "Video duration in seconds",
                 extract.extract_video_duration,
                 False,
             )
         case "video_name" | "vid_name" | "name":
-            return ExtractContext(
+            extractor = ExtractContext(
                 "Input video name",
                 extract.extract_video_name,
                 None,
             )
         case "video_size" | "vid_size" | "size":
-            return ExtractContext(
+            extractor = ExtractContext(
                 "The total video file size in bytes",
                 extract.extract_video_size,
                 True,
             )
+        case "width":
+            extractor = ExtractContext(
+                "The width of images in pixels",
+                extract.extract_height,
+                False,
+            )
+    if extractor is not None:
+        return extractor
+    if safe:
+        return ExtractContext(name, name, False)
     raise KeyError(f"{name} is not recognised")
 
 
@@ -242,32 +288,35 @@ def merge_extractors(labels: set[str], select: typing.Optional[str] = None) -> a
         """Return the minimalist labels name and the way to associate them."""
         lbl_atom: set[str] = set()  # all atomic symbols
         tree: list[str] = []  # intermediate symbols, in the correct order
-        lbl_func = {l: get_extractor(l).func for ls in labels for l in extract_names(ls)}
+        lbl_func = {lbl: get_extractor(lbl).func for ls in labels for lbl in extract_names(ls)}
         while lbl_func:
-            lbl_atom |= {l for l, f in lbl_func.items() if callable(f)}
+            lbl_atom |= {lbl for lbl, f in lbl_func.items() if callable(f)}
             tree = sorted(lbl for lbl in lbl_func if lbl not in lbl_atom) + tree
             lbl_func = {
-                l: get_extractor(l).func
+                lbl: get_extractor(lbl).func
                 for ls in lbl_func.values() if isinstance(ls, str)
-                for l in extract_names(ls)
+                for lbl in extract_names(ls)
             }
         return lbl_atom, tree
 
     # selector
     if select is not None:
-        select_lbl_atom, tree = get_atom_tree(extract_names(select))
+        select_lbl_atom, select_tree = get_atom_tree(extract_names(select))
         check_lines = [
             "    # exit if data are undesirable",
             *(
                 f"    {lbl} = extract.{get_extractor(lbl).func.__name__}(raw)"
                 for lbl in sorted(select_lbl_atom)
             ),
-            *(f"    {lbl} = {get_extractor(lbl).func}" for lbl in tree),
+            *(f"    {lbl} = {get_extractor(lbl).func}" for lbl in select_tree),
             f"    if not ({select}):",
             '        raise RejectError("this line must be filtered")',
             "",
         ]
+        select_tree = set(select_tree)
     else:
+        select_lbl_atom = set()
+        select_tree = set()
         check_lines = []
 
     # final code, all together
@@ -281,11 +330,11 @@ def merge_extractors(labels: set[str], select: typing.Optional[str] = None) -> a
             f"    {lbl} = extract.{get_extractor(lbl).func.__name__}(raw)"
             for lbl in sorted(lbl_atom - select_lbl_atom)  # limit redundancy
         ),
-        *(f"    {lbl} = {get_extractor(lbl).func}" for lbl in tree),
+        *(f"    {lbl} = {get_extractor(lbl).func}" for lbl in tree if lbl not in select_tree),
         "",
         "    # packaging",
         "    return {",
         *(f"        {lbl!r}: {lbl}," for lbl in sorted(labels)),
         "    }"
     ]
-    return lbl_atom, code
+    return lbl_atom | select_lbl_atom, code

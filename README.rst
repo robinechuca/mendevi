@@ -1,8 +1,8 @@
 .. rst syntax: https://deusyss.developpez.com/tutoriels/Python/SphinxDoc/
 .. version conv: https://peps.python.org/pep-0440/
 
-**Me**\sures d'**En**\codage et **Dé**\codage **Vi**\déo.
-*********************************************************
+**Me**\asures of **En**\coding and **De**coding of **Vi**\deos.
+***************************************************************
 
 .. image:: https://img.shields.io/badge/License-GPL-green.svg
     :alt: [license GPL]
@@ -32,7 +32,7 @@ Useful links:
 Description
 ===========
 
-This module performs **measurements** on video encoding and decoding.
+This module performs **energy** and **metrics** measurements on video, for encoding and decoding.
 It also provides a detailed **dataset**.
 
 It manages the following parameters:
@@ -41,10 +41,11 @@ It manages the following parameters:
 #. Distortions are measured using the ``lpips``, ``psnr``, ``ssim`` and ``vmaf`` metrics.
 #. Encoding efforts are ``fast``, ``medium`` and ``slow``.
 #. It takes care about the colorspaces.
-#. Iterate over different ``effort``, ``encoder``, ``quality``, ``threads``, ``fps``, ``resolution`` and ``pix_fmt``.
+#. Iterate over different ``effort``, ``encoder``, ``mode``, ``quality``, ``threads``, ``fps``, ``resolution`` and ``pix_fmt``.
 #. Energy measurements are catched with ``RAPL`` and an external wattmeter on ``grid'5000``.
 #. Get the ``cpu`` and ``ram`` activity.
 #. Get a full environment context, including harware and software version.
+#. It support the mode (constant bitrate) ``cbr`` and (constant quality) ``vbr``.
 
 
 Pipeline

@@ -6,7 +6,6 @@ import getpass
 import hashlib
 import json
 import logging
-import os
 import pathlib
 import platform
 import re
@@ -107,7 +106,7 @@ def guess_roles() -> list[str]:
 
 
 def guess_servers() -> list[str]:
-    """Return the available nodes adress with a wattmeter."""
+    """Return the available nodes address with a wattmeter."""
     # see oarnodes -l
 
     # get full node list
@@ -125,6 +124,7 @@ def guess_servers() -> list[str]:
             and desc["deploy"]
         )
     }
+    return list(servers)
 
 
 def guess_storage() -> list[str]:
