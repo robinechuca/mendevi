@@ -378,6 +378,8 @@ def quality_to_rate(kwargs: dict[str]) -> int:
     and https://bitmovin.com/blog/video-bitrate-streaming-hls-dash/
 
     You can plot the bitrate with: mendevi plot mendevi.db -x bitrate -y psnr -f 'mode = "vbr"'
+
+    The flow margin is taken to be twice as small and twice as large as the recommendations.
     """
     quality = kwargs["quality"]
     assert isinstance(quality, float), quality.__class__.__name__
@@ -393,5 +395,6 @@ def quality_to_rate(kwargs: dict[str]) -> int:
             mini, maxi = 10000, 51000
         case _:
             raise NotImplementedError(f"please define a bitrate rule for the profile {profile}")
+    mini, maxi = mini // 2, maxi * 2  # apply margin
     mini, maxi = math.log10(float(mini)), math.log10(float(maxi))
     return round(10.0**(maxi-quality*(maxi-mini)))

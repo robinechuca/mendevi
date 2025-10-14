@@ -16,7 +16,7 @@ This step specifically ensures the reference video:
 * has **square pixels** (1:1 ratio)
 * is encoded in the **correct colour space** with consistent associated metadata
 * is encoded at standard **resolution** and **framerate**
-* is in 8-bit or 10-bit **YUV** pixel format
+* is in 8-bit or 10-bit **YUV420** pixel format
 * is perfectly resized without **distortion** or **aliasing**
 
 .. image:: /_static/media/prepare.avif

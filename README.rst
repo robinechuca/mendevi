@@ -68,7 +68,7 @@ Example of rate distortion curve:
 
 
 .. image:: https://mendevi.readthedocs.io/latest/_images/rate_distortion.svg
-    :alt: Pipeline diagram
+    :alt: Result plot of rate distortion
 
 
 Example of energy per encoder:
@@ -79,7 +79,7 @@ Example of energy per encoder:
 
 
 .. image:: https://mendevi.readthedocs.io/latest/_images/energy.svg
-    :alt: Pipeline diagram
+    :alt: Result plot of encoding energy
 
 
 Alternatives
@@ -87,4 +87,5 @@ Alternatives
 
 #. The `MVCD database <https://github.com/cd-athena/MVCD>`_ also includes video encoding and decoding energy measurements.
 #. The `COCONUT database <https://github.com/cd-athena/COCONUT>`_ also includes video decoding measurements.
+#. The `VEED-dataset <https://github.com/cd-athena/VEED-dataset/tree/main>`_ offers a comprehensive LCA and GPU measurements.
 #. The `CTC videos <https://dash-large-files.akamaized.net/WAVE/3GPP/5GVideo/ReferenceSequences/>`_ are used for the tests.
