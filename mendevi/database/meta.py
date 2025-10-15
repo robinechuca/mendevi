@@ -4,7 +4,11 @@
 
 import ast
 import collections
+import importlib
+import pathlib
+import tempfile
 import typing
+import uuid
 
 from mendevi.database import extract
 
@@ -230,6 +234,12 @@ def get_extractor(name: str, safe: bool = False) -> ExtractContext:
                 extract.extract_video_duration,
                 False,
             )
+        case "video_hash" | "vid_hash" | "video_md5" | "vid_md5":
+            extractor = ExtractContext(
+                "The hexadecimal md5 video file checksum",
+                extract.extract_video_hash,
+                None,
+            )
         case "video_name" | "vid_name" | "name":
             extractor = ExtractContext(
                 "Input video name",
@@ -255,7 +265,9 @@ def get_extractor(name: str, safe: bool = False) -> ExtractContext:
     raise KeyError(f"{name} is not recognised")
 
 
-def merge_extractors(labels: set[str], select: typing.Optional[str] = None) -> ast.Module:
+def merge_extractors(
+    labels: set[str], select: typing.Optional[str] = None, return_callable: bool = False
+) -> ast.Module:
     r'''Return the source code of the function that extracts all variables.
 
     Examples
@@ -337,4 +349,22 @@ def merge_extractors(labels: set[str], select: typing.Optional[str] = None) -> a
         *(f"        {lbl!r}: {lbl}," for lbl in sorted(labels)),
         "    }"
     ]
-    return lbl_atom | select_lbl_atom, code
+    lbl_atom |= select_lbl_atom
+    if not return_callable:
+        return lbl_atom, code
+
+    # import the source code as a function
+    code = [
+        "from mendevi.utils import best_profile",
+        "import mendevi.database.extract as extract",
+        "",
+        *code,
+    ]
+    path = pathlib.Path(tempfile.gettempdir()) / f"{uuid.uuid4().hex}.py"
+    with open(path, "w", encoding="utf-8") as file:
+        file.write("\n".join(code))
+    spec = importlib.util.spec_from_file_location(path.stem, path)
+    modulevar = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(modulevar)
+    path.unlink()
+    return lbl_atom, modulevar.line_extractor

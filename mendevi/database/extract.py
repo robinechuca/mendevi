@@ -489,6 +489,19 @@ def extract_video_duration(raw: dict[str]) -> float:
 
 
 @verif
+@SqlLinker("t_vid_video.vid_id")
+def extract_video_hash(raw: dict[str]) -> str:
+    """Return the hexadecimal md5 video file checksum.
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+    """
+    return raw["vid_id"].hex()
+
+
+@verif
 @SqlLinker("t_ref_video.vid_name AS ref_vid_name")
 def extract_video_name(raw: dict[str]) -> str:
     """Return the input video name.

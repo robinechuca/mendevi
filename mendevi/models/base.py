@@ -3,10 +3,13 @@
 """Unify all the models with a common sctucture."""
 
 import abc
+import importlib
 import logging
 import pathlib
 import sqlite3
+import tempfile
 import typing
+import uuid
 
 import numpy as np
 import torch
@@ -14,7 +17,7 @@ import torch
 from mendevi.cst.labels import LABELS
 from mendevi.database.create import is_sqlite
 from mendevi.database.extract import SqlLinker
-from mendevi.database.meta import get_extractor
+from mendevi.database.meta import get_extractor, merge_extractors
 
 
 class Model(abc.ABC):
@@ -50,6 +53,7 @@ class Model(abc.ABC):
         parameters : torch.Tensor, optional
             The learnable parameters for regressive models.
         """
+        assert set(kwargs).issubset({"sources", "input_labels", "output_labels", "parameters"})
         # check input_labels
         input_labels = kwargs.get("input_labels", [])
         assert hasattr(input_labels, "__iter__"), input_labels.__class__.__name__
@@ -101,13 +105,20 @@ class Model(abc.ABC):
         """Return the bibtex citation."""
         raise NotImplementedError
 
-    def fit(self, database: pathlib.Path | str, query: typing.Optional[str] = None) -> typing.Self:
+    def fit(
+        self,
+        database: pathlib.Path | str,
+        select: typing.Optional[str] = None,
+        query: typing.Optional[str] = None,
+    ) -> typing.Self:
         """Fit the trainable hyper parameters of the models.
 
         Parameters
         ----------
         database : pathlike
             The training database.
+        select : str, optional
+            The python expression to keep the line, like ``mendevi plot --filter``.
         query : str, optional
             If provided, use this sql query to perform the request,
             otherwise (default) attemps to guess the query.
@@ -118,15 +129,17 @@ class Model(abc.ABC):
             A reference to the inplace fitted model.
         """
         # verification
-        if self._parameters is None:
-            raise RuntimeError("This model is not trainable.")
+        # if self._parameters is None:
+        #     raise RuntimeError("This model is not trainable.")
         database = pathlib.Path(database).expanduser()
         assert is_sqlite(database), f"{database} is not a valid SQL database"
 
         # get sql query
-        funcs = {n: get_extractor(n).func for n in self._input_labels}
+        atom_names, line_extractor = merge_extractors(
+            set(self._input_labels), select=select, return_callable=True
+        )
         if query is None:
-            select = {s for f in funcs.values() for s in f.select}
+            select = {s for lbl in atom_names for s in get_extractor(lbl).func.select}
             if len(queries := SqlLinker(*select).sql) == 0:
                 raise RuntimeError("fail to create the SQL query, please provide it yourself")
             if len(queries) > 1:
@@ -136,13 +149,12 @@ class Model(abc.ABC):
             assert isinstance(query, str), query.__class__.__name__
 
         # perform sql request
-        values = {label: [] for label in funcs}
+        values = {label: [] for label in self._input_labels}
         with sqlite3.connect(database) as conn:
             conn.row_factory = sqlite3.Row
             for raw in conn.execute(query):
-                raw = dict(raw)
-                for label, func in funcs.items():
-                    values[label].eppend(func(raw))
+                for label, value in line_extractor(dict(raw)).items():
+                    values[label].append(value)
 
         # fit the model
         self._fit(values)

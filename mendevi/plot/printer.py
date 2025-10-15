@@ -230,7 +230,7 @@ def print_import() -> list[str]:
         "import matplotlib.pyplot as plt",
         "import matplotlib.ticker as ticker",
         "import mendevi.database.extract as extract",
-        ""
+        "",
         "import numpy as np",
         "",
         "",
