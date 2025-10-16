@@ -40,7 +40,10 @@ def printer(**kwargs) -> str:
     except ImportError:
         logging.warning("failed to import black, please install it (uv pip install black)")
     else:
-        code = black.format_str(code, mode=black.FileMode(line_length=100))
+        try:
+            code = black.format_str(code, mode=black.FileMode(line_length=100))
+        except black.parsing.InvalidInput as err:
+            logging.warning(err)
     return code
 
 
@@ -261,27 +264,27 @@ def print_subfigure(**kwargs) -> list[str]:
         case (False, True):
             middle = [
                 "    # create a 1d vertical subplot figure",
-                f"    all_{kwargs['window_y']}_values = sorted(",
+                f"    all_{safe_lbl(kwargs['window_y'])}_values = sorted(",
                 f"        set(values[{kwargs['window_y']!r}]), ",
                 "        key=smartsort,",
                 "    )",
-                f"    nrows = len(all_{kwargs['window_y']}_values)",
+                f"    nrows = len(all_{safe_lbl(kwargs['window_y'])}_values)",
                 '    axes = subfig.subplots(nrows=nrows, squeeze=False, sharex="col")  # or "all"',
                 "",
                 "    # iterate over all subplots",
                 (
-                    f"    for i, {kwargs['window_y']}_value "
-                    f"in enumerate(all_{kwargs['window_y']}_values):"
+                    f"    for i, {safe_lbl(kwargs['window_y'])}_value "
+                    f"in enumerate(all_{safe_lbl(kwargs['window_y'])}_values):"
                 ),
                 "        # select the correct data subset",
                 "        mask = [",
-                f"            y == {kwargs['window_y']}_value ",
+                f"            y == {safe_lbl(kwargs['window_y'])}_value ",
                 f"            for y in values[{kwargs['window_y']!r}]",
                 "        ]",
                 "        sub_values = {",
                 "            k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()",
                 "        }",
-                f"        axes[i, 0].set_title({kwargs['window_y']}_value)",
+                f"        axes[i, 0].set_title({safe_lbl(kwargs['window_y'])}_value)",
                 "        fill_axe(",
                 "            axes[i, 0], ",
                 "            sub_values, ",
@@ -294,27 +297,27 @@ def print_subfigure(**kwargs) -> list[str]:
         case (True, False):
             middle = [
                 "    # create a 1d horizontal subplot figure",
-                f"    all_{kwargs['window_x']}_values = sorted("
+                f"    all_{safe_lbl(kwargs['window_x'])}_values = sorted("
                 f"        set(values[{kwargs['window_x']!r}]), ",
                 "        key=smartsort,",
                 "    )",
-                f"    ncols = len(all_{kwargs['window_x']}_values)",
+                f"    ncols = len(all_{safe_lbl(kwargs['window_x'])}_values)",
                 '    axes = subfig.subplots(ncols=ncols, squeeze=False, sharey="row")  # or "all"',
                 "",
                 "    # iterate over all subplots",
                 (
-                    f"    for j, {kwargs['window_x']}_value "
+                    f"    for j, {safe_lbl(kwargs['window_x'])}_value "
                     f"in enumerate(all_{kwargs['window_x']}_values):"
                 ),
                 "        # select the correct data subset",
                 "        mask = [",
-                f"            x == {kwargs['window_x']}_value ",
+                f"            x == {safe_lbl(kwargs['window_x'])}_value ",
                 f"            for x in values[{kwargs['window_x']!r}]",
                 "        ]",
                 "        sub_values = {",
                 "            k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()",
                 "        }",
-                f"        axes[0, j].set_title({kwargs['window_x']}_value)",
+                f"        axes[0, j].set_title({safe_lbl(kwargs['window_x'])}_value)",
                 "        fill_axe(",
                 "            axes[0, j], ",
                 "            sub_values, ",
@@ -327,17 +330,18 @@ def print_subfigure(**kwargs) -> list[str]:
         case (False, False):  # 2d grid subplot
             middle = [
                 "    # create a 2d grid subplot figure",
-                f"    all_{kwargs['window_y']}_values = sorted(",
+                f"    all_{safe_lbl(kwargs['window_y'])}_values = sorted(",
                 f"        set(values[{kwargs['window_y']!r}]), ",
                 "        key=smartsort,",
                 "    )",
-                f"    all_{kwargs['window_x']}_values = sorted(",
+                f"    all_{safe_lbl(kwargs['window_x'])}_values = sorted(",
                 f"        set(values[{kwargs['window_x']!r}]), ",
                 "        key=smartsort,",
                 "    )",
                 (
                     "    nrows, ncols = "
-                    f"len(all_{kwargs['window_y']}_values), len(all_{kwargs['window_x']}_values)"
+                    f"len(all_{safe_lbl(kwargs['window_y'])}_values), "
+                    f"len(all_{safe_lbl(kwargs['window_x'])}_values)"
                 ),
                 "    axes = subfig.subplots(",
                 '        nrows, ncols, squeeze=False, sharex="col", sharey="row",',
@@ -345,17 +349,21 @@ def print_subfigure(**kwargs) -> list[str]:
                 "",
                 "    # iterate over all subplots",
                 (
-                    f"    for (i, {kwargs['window_y']}_value), (j, {kwargs['window_x']}_value) "
+                    f"    for (i, {safe_lbl(kwargs['window_y'])}_value), "
+                    f"(j, {safe_lbl(kwargs['window_x'])}_value) "
                     "in itertools.product("
                 ),
                 (
-                    f"        enumerate(all_{kwargs['window_y']}_values), "
-                    f"enumerate(all_{kwargs['window_x']}_values)"
+                    f"        enumerate(all_{safe_lbl(kwargs['window_y'])}_values), "
+                    f"enumerate(all_{safe_lbl(kwargs['window_x'])}_values)"
                 ),
                 "    ):",
                 "        # select the correct data subset",
                 "        mask = [",
-                f"            y == {kwargs['window_y']}_value and x == {kwargs['window_x']}_value",
+                (
+                    f"            y == {safe_lbl(kwargs['window_y'])}_value "
+                    f"and x == {safe_lbl(kwargs['window_x'])}_value"
+                ),
                 "            for y, x in zip(",
                 f"               values[{kwargs['window_y']!r}], values[{kwargs['window_x']!r}]",
                 "            )",
@@ -364,7 +372,10 @@ def print_subfigure(**kwargs) -> list[str]:
                 "            k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()",
                 "        }",
                 "        axes[i, j].set_title(",
-                f"            f'{{{kwargs['window_y']}_value}} {{{kwargs['window_x']}_value}}'",
+                (
+                    f"            f'{{{safe_lbl(kwargs['window_y'])}_value}} "
+                    f"{{{safe_lbl(kwargs['window_x'])}_value}}'"
+                ),
                 "        )",
                 (
                     "        fill_axe("
@@ -412,7 +423,7 @@ def print_main(**kwargs) -> list[str]:
         "    # legend managment",
         "    axes = [a for f in np.ravel(subfigs) for a in np.ravel(f.axes)]",
         "    labels = {frozenset(a.get_legend_handles_labels()[1]) for a in axes}",
-        "    if len(labels) == 1:  # legends are the same in all axes of all subfigures",
+        "    if len(axes) != 1 and len(labels) == 1:  # same legend everywhere",
         "        lines, labels = axes[0].get_legend_handles_labels()",
         "        if labels:",
         "            fig.legend(",
@@ -422,7 +433,7 @@ def print_main(**kwargs) -> list[str]:
         '        for subfig in np.ravel(subfigs):',
         '            axes = np.ravel(subfig.axes)',
         '            labels = {frozenset(a.get_legend_handles_labels()[1]) for a in axes}',
-        '            if len(labels) == 1:  # legends are the same in all axes of that subfigure',
+        '            if len(axes) != 1 and len(labels) == 1:  # same legend in all axes',
         '                lines, labels = axes[0].get_legend_handles_labels()',
         "                if labels:",
         '                    subfig.legend(',

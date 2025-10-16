@@ -39,7 +39,6 @@ extensions = [
     "sphinx.ext.ifconfig",
     "sphinx.ext.intersphinx",  # in pillow conf
     "sphinx.ext.mathjax",  # for latex math (apt install libjs-mathjax or Node-mathjax-full)
-    # "sphinx.ext.todo",
     "sphinx.ext.viewcode",  # in pillow conf
     "sphinx_copybutton",  # in pillow conf
     "sphinx_inline_tabs",  # in pillow conf

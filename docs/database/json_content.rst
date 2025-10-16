@@ -7,8 +7,8 @@ This is a summarized version of :ref:`sql_content`.
 
 .. code:: yaml
 
-    {
-        "00cf989a4313672743967debf8eb561f": {  # the video md5 checksum
+    [
+        {
             "bitrate": 507741.85814185813,  # video bitrate in bit / seconds
             "decode_cores": {  # average cumulative utilisation rate of logical cores during decoding
                 "kattappana": [  # hostname
@@ -36,7 +36,7 @@ This is a summarized version of :ref:`sql_content`.
             "effort": "medium",  # effort provided as a parameter to the encoder
             "encode_cores": {
                 "kattappana": [
-                    6.648703002929688,
+                    6.648703002929688,  # on point per encoding
                     7.453453451076996
                 ]
             },
@@ -54,6 +54,7 @@ This is a summarized version of :ref:`sql_content`.
             },
             "encoder": "libx264",  # name of the encoder
             "height": 1080,  # height of images in pixels
+            "lpips": 0.0421354321587,  # average Learned Perceptual Image Patch Similarity (LPIPS)
             "name": "netflix_crosswalk",  # input video basename
             "profile": "hd",  # profile of the video
             "psnr": 27.739999771118164,  # average Peak Signal to Noise Ratio (PSNR)
@@ -63,11 +64,8 @@ This is a summarized version of :ref:`sql_content`.
             "vmaf": 25.194791793823242,  # average Video Multi-Method Assessment Fusion (VMAF)
             "width": 1080  # width of images in pixels
         },
-        "00ef134f208da3309bf81c2b5ae19be1": {
-            ...,
-        },
         ...,
-    }
+    ]
 
 
 The JSON database is only an extract from the SQL database, which is much more comprehensive.

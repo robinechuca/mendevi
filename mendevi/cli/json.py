@@ -180,6 +180,7 @@ def main(database: str, **kwargs):
             prt.print_time()
 
     # write json
+    content = [content[k] for k in sorted(content)]
     with Printer("Write JSON database...", color="cyan") as prt:
         with open(output, "w", encoding="utf-8") as raw:
             json.dump(content, raw, indent=4, sort_keys=True)
