@@ -3,7 +3,7 @@
 JSON Database Content
 =====================
 
-This is a simplified version of :ref:`sql_content`.
+This is a summarized version of :ref:`sql_content`.
 
 .. code:: shell
 

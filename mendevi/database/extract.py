@@ -221,6 +221,22 @@ def extract_cores(raw: dict[str]) -> float:
 
 
 @verif
+@SqlLinker("t_dec_decode.dec_cmd", "t_vid_video.vid_name")
+def extract_decode_cmd(raw: dict[str]) -> str:
+    """Return the ffmpeg command used for decoding.
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+    """
+    if (cmd := raw["enc_cmd"]) is None:
+        return None
+    vid = raw["vid_name"] or "vid.mp4"
+    return cmd.replace("vid.mp4", vid)
+
+
+@verif
 @SqlLinker("t_enc_encode.enc_effort")
 def extract_effort(raw: dict[str]) -> str:
     """Return the effort provided as a parameter to the encoder.
@@ -237,22 +253,24 @@ def extract_effort(raw: dict[str]) -> str:
 
 
 @verif
-@SqlLinker("t_enc_encode.enc_vid_id", "t_enc_encode.enc_cmd", "t_vid_video.vid_name")
-def extract_enc_scenario(raw: dict[str]) -> str:
-    """Return the unique string specific to the encoding scenario.
+@SqlLinker(
+    "t_enc_encode.enc_cmd",
+    "t_ref_video.vid_name AS ref_vid_name",
+    "t_dst_video.vid_name AS dst_vid_name",
+)
+def extract_encode_cmd(raw: dict[str]) -> str:
+    """Return the ffmpeg command used for encoding.
 
     Parameters
     ----------
     raw : dict[str]
         The result line of select request.
     """
-    env_id, cmd, vid_name = raw["enc_env_id"], raw["enc_cmd"], raw["vid_name"]
-    if env_id is None or cmd is None or vid_name is None:
+    if (cmd := raw["enc_cmd"]) is None:
         return None
-    assert isinstance(env_id, numbers.Integral), env_id.__class__.__name__
-    assert isinstance(cmd, str), cmd.__class__.__name__
-    assert isinstance(vid_name, str), vid_name.__class__.__name__
-    return f"env {env_id}: {cmd.replace('src.mp4', vid_name)}"
+    ref = raw["ref_vid_name"] or "ref.mkv"
+    dst = raw["dst_vid_name"] or "dst.mp4"
+    return cmd.replace("ref.mkv", ref).replace("dst.mp4", dst)
 
 
 @verif
@@ -372,9 +390,9 @@ def extract_mode(raw: dict[str]) -> str:
     raw : dict[str]
         The result line of select request.
     """
-    if (mode := raw["enc_vbr"]) is None:
+    if (is_vbr := raw["enc_vbr"]) is None:
         return None
-    return "vbr" if bool(mode) else "cbr"
+    return "vbr" if bool(is_vbr) else "cbr"
 
 
 @SqlLinker(

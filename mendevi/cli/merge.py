@@ -16,7 +16,7 @@ def _insert_update(
     cursor: sqlite3.Cursor, row: sqlite3.Row | dict, tab: str, keys: tuple[str]
 ) -> dict[str]:
     """Set or update the tab of the cursor with the new line."""
-    line: dict[str] = {k: v for k, v in dict(row).items() if v}
+    line: dict[str] = {k: v for k, v in dict(row).items() if v is not None}
     ids = tuple(line.pop(k) for k in keys)
     line_keys = tuple(line)  # frozen the order
     line_values = tuple(line[k] for k in line_keys)

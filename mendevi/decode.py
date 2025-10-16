@@ -18,12 +18,12 @@ from mendevi.measures import Activity
 from mendevi.utils import get_resolution
 
 
-def decode(src: pathlib.Path, **kwargs) -> tuple[str, dict[str]]:
+def decode(vid: pathlib.Path, **kwargs) -> tuple[str, dict[str]]:
     """Decode an existing video.
 
     Parameters
     ----------
-    src : pathlib.Path
+    vid : pathlib.Path
         The source video file to be decoded.
     **kwargs : dict
         Transmitted to :py:func:`get_decode_cmd`.
@@ -35,10 +35,10 @@ def decode(src: pathlib.Path, **kwargs) -> tuple[str, dict[str]]:
     activity : dict[str]
         The computeur activity during the decoding process.
     """
-    cmd = get_decode_cmd(src, kwargs.get("filter", None), kwargs.get("resolution", None))
-    prt_cmd = " ".join(map(shlex.quote, [{str(src): "src.mp4"}.get(c, c) for c in cmd]))
+    cmd = get_decode_cmd(vid, kwargs.get("filter", None), kwargs.get("resolution", None))
+    prt_cmd = " ".join(map(shlex.quote, [{str(vid): "vid.mp4"}.get(c, c) for c in cmd]))
     with Printer(prt_cmd, color="green") as prt:
-        prt.print(f"video: {src.name}")
+        prt.print(f"video: {vid.name}")
         with Activity() as activity:
             subprocess.run(cmd, check=True, capture_output=True)
 
@@ -56,7 +56,7 @@ def decode(src: pathlib.Path, **kwargs) -> tuple[str, dict[str]]:
 def decode_and_store(
     database: pathlib.Path,
     env_id: int,
-    src: pathlib.Path,
+    vid: pathlib.Path,
     **kwargs,
 ):
     """Decode a video file and store the result in the database.
@@ -67,13 +67,13 @@ def decode_and_store(
         The path of the existing database to be updated.
     env_id : int
         The primary integer key of the environment.
-    src : pathlib.Path
+    vid : pathlib.Path
         The path of the video to be encoded.
     **kwargs
         Transmitted to :py:func:`decode`.
     """
     # decode the video
-    cmd, activity = decode(src, **kwargs)
+    cmd, activity = decode(vid, **kwargs)
 
     with (
         sqlite3.connect(database) as sql_database,
@@ -85,7 +85,7 @@ def decode_and_store(
         try:
             cursor.execute(
                 "INSERT INTO t_vid_video (vid_id, vid_name) VALUES (?, ?)",
-                (kwargs["dec_vid_id"], src.name)
+                (kwargs["dec_vid_id"], vid.name)
             )
         except sqlite3.IntegrityError:
             pass

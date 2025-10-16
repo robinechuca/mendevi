@@ -102,16 +102,34 @@ def get_extractor(name: str, safe: bool = False) -> ExtractContext:
                 extract.extract_cores,
                 False,
             )
+        case "decode_cmd" | "dec_cmd":
+            return ExtractContext(
+                "The ffmpeg command used for decoding",
+                extract.extract_decode_cmd,
+                None,
+            )
+        case "decode_scenario" | "dec_scenario":
+            return ExtractContext(
+                "Unique string specific to the decoding scenario",
+                'f"cmd: {decode_cmd}, hostname: {hostname}"',
+                None,
+            )
         case "effort" | "preset":
             return ExtractContext(
                 "Effort provided as a parameter to the encoder",
                 extract.extract_effort,
                 None,
             )
-        case "enc_scenario":
+        case "encode_cmd" | "enc_cmd":
+            return ExtractContext(
+                "The ffmpeg command used for encoding",
+                extract.extract_encode_cmd,
+                None,
+            )
+        case "encode_scenario" | "enc_scenario":
             return ExtractContext(
                 "Unique string specific to the encoding scenario",
-                extract.extract_enc_scenario,
+                'f"cmd: {encode_cmd}, hostname: {hostname}"',
                 None,
             )
         case "encoder":
