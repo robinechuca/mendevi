@@ -15,14 +15,14 @@ Getting started
     getting_started/measure.rst
 
 
-Database Content
-================
+Dataset Content
+===============
 
 .. toctree::
     :maxdepth: 2
+    :glob:
 
-    database/sql_content.rst
-    database/json_content.rst
+    dataset/*
 
 
 Developer guide
