@@ -28,13 +28,13 @@ JOIN: dict[str: dict[str, str]] = {  # join = JOIN[destination_table][source_tab
         ),
     },
     "t_met_metric": {
-        "t_vid_video": "JOIN t_met_metric ON t_vid_video.vid_id = t_met_metric.met_dis_vid_id",
+        "t_vid_video": "LEFT JOIN t_met_metric ON t_vid_video.vid_id = t_met_metric.met_dis_vid_id",
         "t_enc_encode": (
-            "JOIN t_met_metric ON t_enc_encode.enc_dst_vid_id = t_met_metric.met_dis_vid_id "
+            "LEFT JOIN t_met_metric ON t_enc_encode.enc_dst_vid_id = t_met_metric.met_dis_vid_id "
             "AND t_enc_encode.enc_src_vid_id = t_met_metric.met_ref_vid_id"
         ),
         "t_dec_decode": (
-            "JOIN t_met_metric ON t_dec_decode.dec_vid_id = t_met_metric.met_dis_vid_id"
+            "LEFT JOIN t_met_metric ON t_dec_decode.dec_vid_id = t_met_metric.met_dis_vid_id"
         ),
     },
     "t_env_environment": {
@@ -300,6 +300,21 @@ def extract_height(raw: dict[str]) -> int:
     if (height := raw["vid_height"]) is None:
         return None
     return int(height)
+
+
+@verif
+@SqlLinker("t_env_environment.env_hostname")
+def extract_hostname(raw: dict[str]) -> str:
+    """Return the machine name.
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+    """
+    if (hostname := raw["env_hostname"]) is None:
+        return None
+    return str(hostname)
 
 
 @verif

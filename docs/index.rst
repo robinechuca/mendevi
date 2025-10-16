@@ -21,6 +21,7 @@ Database Content
     :maxdepth: 2
 
     database/sql_content.rst
+    database/json_content.rst
 
 
 Developer guide

@@ -138,6 +138,12 @@ def get_extractor(name: str, safe: bool = False) -> ExtractContext:
                 extract.extract_height,
                 False,
             )
+        case "hostname":
+            extractor = ExtractContext(
+                "The machine name",
+                extract.extract_hostname,
+                None,
+            )
         case "lpips":
             extractor = ExtractContext(
                 "Learned Perceptual Image Patch Similarity (LPIPS)",

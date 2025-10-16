@@ -508,7 +508,7 @@ Please follow the :ref`install_ffmpeg`` section.
 env_hostname
 ^^^^^^^^^^^^
 
-The username, given by ``platform.node()``, from the function `get_platform <https://mendevi.readthedocs.io/latest/build/api/mendevi.measures.context.get_platform.html>`_.
+The machine name, given by ``platform.node()``, from the function `get_platform <https://mendevi.readthedocs.io/latest/build/api/mendevi.measures.context.get_platform.html>`_.
 
 .. code:: text
 

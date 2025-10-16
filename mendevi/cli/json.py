@@ -13,6 +13,13 @@ from mendevi.database.meta import merge_extractors
 from .parse import parse_videos_database
 
 
+def _add_key_key_val(dico: dict, key1: str, key2: str, value: object):
+    """Ensure dico[key1][key2] = [value, ...]."""
+    dico[key1] = dico.get(key1, {})
+    dico[key1][key2] = dico[key1].get(key2, [])
+    dico[key1][key2].append(value)
+
+
 @click.command()
 @click.argument("database", type=click.Path())
 @click.option("-o", "--output", type=click.Path(), help="The output json database path.")
@@ -40,7 +47,7 @@ def main(database: str, **kwargs):
         prt.print(f"json file : {output}")
 
     # read database
-    json_content = {}
+    content = {}
     context = [
         "bitrate",
         "effort",
@@ -56,7 +63,7 @@ def main(database: str, **kwargs):
         "vmaf",
         "width",
     ]
-    with Printer("Read SQL database...") as prt:
+    with Printer("Read SQL database...", color="cyan") as prt:
         prt.print("compile the line extractor")
         atom_names, line_extractor = merge_extractors(
             {
@@ -64,6 +71,7 @@ def main(database: str, **kwargs):
                 # context
                 *context,
                 # activity
+                "hostname",
                 "act_duration",
                 "cores",
                 "power",
@@ -95,6 +103,7 @@ def main(database: str, **kwargs):
                     t_enc_encode.enc_effort,
                     t_enc_encode.enc_encoder,
                     t_enc_encode.enc_quality,
+                    t_env_environment.env_hostname,
                     t_met_metric.met_lpips_alex,
                     t_met_metric.met_lpips_vgg,
                     t_met_metric.met_psnr,
@@ -106,30 +115,23 @@ def main(database: str, **kwargs):
                     ON t_enc_encode.enc_src_vid_id = t_ref_video.vid_id
                 JOIN t_vid_video AS t_dst_video
                     ON t_enc_encode.enc_dst_vid_id = t_dst_video.vid_id
-                JOIN t_met_metric
+                LEFT JOIN t_met_metric
                     ON t_enc_encode.enc_dst_vid_id = t_met_metric.met_dis_vid_id
                     AND t_enc_encode.enc_src_vid_id = t_met_metric.met_ref_vid_id
                 JOIN t_act_activity
                     ON t_enc_encode.enc_act_id = t_act_activity.act_id
+                JOIN t_env_environment
+                    ON t_enc_encode.enc_env_id = t_env_environment.env_id
                 """
             ):
                 raw = line_extractor(dict(raw))
-                video_hash = raw.pop("video_hash")
-                json_content[video_hash] = json_content.get(video_hash, {})
-                json_content[video_hash] |= {k: raw[k] for k in context if raw[k] is not None}
-                json_content[video_hash]["encode_duration"] = (
-                    json_content[video_hash].get("encode_duration", [])
-                )
-                json_content[video_hash]["encode_duration"].append(raw["act_duration"])
-                json_content[video_hash]["encode_cores"] = (
-                    json_content[video_hash].get("encode_cores", [])
-                )
-                json_content[video_hash]["encode_cores"].append(raw["cores"])
-                json_content[video_hash]["encode_power"] = (
-                    json_content[video_hash].get("encode_power", [])
-                )
-                json_content[video_hash]["encode_power"].append(raw["power"])
-            prt.print("read 'decode' extractor")
+                vid_id = raw.pop("video_hash")
+                content[vid_id] = content.get(vid_id, {})
+                content[vid_id] |= {k: raw[k] for k in context if raw[k] is not None}
+                _add_key_key_val(content[vid_id], "encode_duration", raw["hostname"], raw["act_duration"])
+                _add_key_key_val(content[vid_id], "encode_cores", raw["hostname"], raw["cores"])
+                _add_key_key_val(content[vid_id], "encode_power", raw["hostname"], raw["power"])
+            prt.print("read 'decode' and 'metric' extractor")
             for raw in conn.execute(
                 """
                 SELECT
@@ -148,6 +150,7 @@ def main(database: str, **kwargs):
                     t_enc_encode.enc_effort,
                     t_enc_encode.enc_encoder,
                     t_enc_encode.enc_quality,
+                    t_env_environment.env_hostname,
                     t_met_metric.met_lpips_alex,
                     t_met_metric.met_lpips_vgg,
                     t_met_metric.met_psnr,
@@ -158,33 +161,26 @@ def main(database: str, **kwargs):
                     ON t_dec_decode.dec_vid_id = t_enc_encode.enc_dst_vid_id
                 JOIN t_act_activity
                     ON t_dec_decode.dec_act_id = t_act_activity.act_id
-                JOIN t_met_metric
+                LEFT JOIN t_met_metric
                     ON t_dec_decode.dec_vid_id = t_met_metric.met_dis_vid_id
                 JOIN t_vid_video AS t_dst_video
                     ON t_dec_decode.dec_vid_id = t_dst_video.vid_id
+                JOIN t_env_environment
+                    ON t_dec_decode.dec_env_id = t_env_environment.env_id
                 """
             ):
                 raw = line_extractor(dict(raw))
                 del raw["name"]
-                video_hash = raw.pop("video_hash")
-                json_content[video_hash] = json_content.get(video_hash, {})
-                json_content[video_hash] |= {k: raw[k] for k in context if raw[k] is not None}
-                json_content[video_hash]["decode_duration"] = (
-                    json_content[video_hash].get("decode_duration", [])
-                )
-                json_content[video_hash]["decode_duration"].append(raw["act_duration"])
-                json_content[video_hash]["decode_cores"] = (
-                    json_content[video_hash].get("decode_cores", [])
-                )
-                json_content[video_hash]["decode_cores"].append(raw["cores"])
-                json_content[video_hash]["decode_power"] = (
-                    json_content[video_hash].get("decode_power", [])
-                )
-                json_content[video_hash]["decode_power"].append(raw["power"])
+                vid_id = raw.pop("video_hash")
+                content[vid_id] = content.get(vid_id, {})
+                content[vid_id] |= {k: raw[k] for k in context if raw[k] is not None}
+                _add_key_key_val(content[vid_id], "decode_duration", raw["hostname"], raw["act_duration"])
+                _add_key_key_val(content[vid_id], "decode_cores", raw["hostname"], raw["cores"])
+                _add_key_key_val(content[vid_id], "decode_power", raw["hostname"], raw["power"])
             prt.print_time()
 
     # write json
-    with Printer("Write JSON database...") as prt:
+    with Printer("Write JSON database...", color="cyan") as prt:
         with open(output, "w", encoding="utf-8") as raw:
-            json.dump(json_content, raw, indent=4, sort_keys=True)
+            json.dump(content, raw, indent=4, sort_keys=True)
         prt.print_time()
