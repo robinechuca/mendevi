@@ -537,7 +537,7 @@ def extract_video_hash(raw: dict[str]) -> str:
 @verif
 @SqlLinker("t_ref_video.vid_name AS ref_vid_name")
 def extract_video_name(raw: dict[str]) -> str:
-    """Return the input video name.
+    """Return the input video basename.
 
     Parameters
     ----------

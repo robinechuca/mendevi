@@ -170,7 +170,7 @@ def main(database: str, **kwargs):
                 """
             ):
                 raw = line_extractor(dict(raw))
-                del raw["name"]
+                raw["name"] = None
                 vid_id = raw.pop("video_hash")
                 content[vid_id] = content.get(vid_id, {})
                 content[vid_id] |= {k: raw[k] for k in context if raw[k] is not None}

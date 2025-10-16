@@ -87,7 +87,7 @@ def get_extractor(name: str, safe: bool = False) -> ExtractContext:
         case "bitrate" | "rate":
             return ExtractContext(
                 r"Video bitrate in $bit.s^{-1}$",
-                "8.0 * size / video_duration",
+                "None if size is None or video_duration is None else 8.0 * size / video_duration",
                 True,
             )
         case "codec":
@@ -152,7 +152,7 @@ def get_extractor(name: str, safe: bool = False) -> ExtractContext:
             )
         case "height":
             extractor = ExtractContext(
-                "The height of images in pixels",
+                "Height of images in pixels",
                 extract.extract_height,
                 False,
             )
@@ -207,7 +207,10 @@ def get_extractor(name: str, safe: bool = False) -> ExtractContext:
         case "profile":
             extractor = ExtractContext(
                 "Profile of the video",
-                "best_profile(height, width)",
+                (
+                    "None if height is None and width is None else "
+                    "best_profile(height or width, width or height)"
+                ),
                 None,
             )
         case "psnr":
@@ -266,7 +269,7 @@ def get_extractor(name: str, safe: bool = False) -> ExtractContext:
             )
         case "video_name" | "vid_name" | "name":
             extractor = ExtractContext(
-                "Input video name",
+                "Input video basename",
                 extract.extract_video_name,
                 None,
             )
@@ -278,7 +281,7 @@ def get_extractor(name: str, safe: bool = False) -> ExtractContext:
             )
         case "width":
             extractor = ExtractContext(
-                "The width of images in pixels",
+                "Width of images in pixels",
                 extract.extract_height,
                 False,
             )
