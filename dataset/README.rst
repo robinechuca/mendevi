@@ -26,4 +26,14 @@ After generating a database by following `these steps <https://mendevi.readthedo
 
 3) Rename files with a meaningful name, for example ``mv mendevi.json.xz coucougnoux.json.xz && `mv mendevi.db.xz coucougnoux.db.xz``
 
-4) Create a toorent file with
+4) Create a torent file, start to install ``sudo apt install transmission-cli``.
+Then, you can create it with:
+
+.. code:: shell
+
+    transmission-create -o coucougnoux.db.xz.torrent \
+        -c 'SQL mendevi dataset to scrape the bottom of your pockets' \
+        -t udp://tracker.openbittorrent.com:80/announce \
+        -t udp://tracker.opentrackr.org:1337/announce \
+        -t udp://tracker.leechers-paradise.org:6969/announce \
+        coucougnoux.db.xz
