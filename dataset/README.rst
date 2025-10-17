@@ -27,13 +27,34 @@ After generating a database by following `these steps <https://mendevi.readthedo
 3) Rename files with a meaningful name, for example ``mv mendevi.json.xz coucougnoux.json.xz && `mv mendevi.db.xz coucougnoux.db.xz``
 
 4) Create a torent file, start to install ``sudo apt install transmission-cli``.
-Then, you can create it with:
+Then, you can create it with (change the filename and the description):
 
 .. code:: shell
 
     transmission-create -o coucougnoux.db.xz.torrent \
         -c 'SQL mendevi dataset to scrape the bottom of your pockets' \
+        -t udp://exodus.desync.com:6969/announce \
+        -t udp://explodie.org:6969/announce \
+        -t udp://open.stealth.si:80/announce \
+        -t udp://tracker.cyberia.is:80/announce \
+        -t udp://tracker.internetwarriors.net:1337/announce \
+        -t udp://tracker.leechers-paradise.org:6969/announce \
         -t udp://tracker.openbittorrent.com:80/announce \
         -t udp://tracker.opentrackr.org:1337/announce \
-        -t udp://tracker.leechers-paradise.org:6969/announce \
+        -t udp://tracker.sktorrent.net:6969/announce \
+        -t udp://tracker.torrent.eu.org:451/announce \
+        -t udp://tracker.tryhackx.org:6969/announce \
         coucougnoux.db.xz
+
+5) Now, you can seed the torrent. Start to install ``sudo apt install transmission-daemon``.
+Then, you can seed the torrent (change the download-dir and the torrent name):
+
+.. code:: shell
+
+    transmission-remote \
+        --add ~/mendevi_git/dataset/coucougnoux.db.xz.torrent \
+        --download-dir /parent/dir/of/coucougnoux_db_xz/ \
+
+Check the status with ``transmission-remote -l`` or ``http://localhost:9091/transmission/web/``.
+
+6) Create a pull-request!
