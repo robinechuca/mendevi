@@ -1,5 +1,5 @@
-PUBLIC MENDEVI DATASETS
-=======================
+Public Datasets
+===============
 
 The structure of the datasets is described in detail in `the online documentation <https://mendevi.readthedocs.io/latest/dataset/structure.html>`_ or in the `documentation source file <https://gitlab.inria.fr/rrichard/mendevi/-/tree/main/docs/dataset/structure>`_.
 
