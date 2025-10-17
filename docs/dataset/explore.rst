@@ -1,5 +1,7 @@
-Datasets
-========
+.. _dataset_explore:
+
+All Datasets
+============
 
 .. toctree::
     :maxdepth: 2

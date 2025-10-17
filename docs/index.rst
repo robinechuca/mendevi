@@ -11,18 +11,17 @@ Getting started
     :maxdepth: 2
 
     getting_started/installation.rst
-    getting_started/explore.rst
     getting_started/measure.rst
 
 
-Dataset Content
-===============
+Dataset
+=======
 
 .. toctree::
     :maxdepth: 2
-    :glob:
 
-    dataset/*
+    dataset/structure.rst
+    dataset/explore.rst
 
 
 Developer guide
