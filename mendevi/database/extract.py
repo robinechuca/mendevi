@@ -593,6 +593,6 @@ def extract_width(raw: dict[str]) -> int:
     raw : dict[str]
         The result line of select request.
     """
-    if (width := raw["vid_height"]) is None:
+    if (width := raw["vid_width"]) is None:
         return None
     return int(width)

@@ -60,6 +60,7 @@ This is a summarized version of :ref:`sql_content`.
             "psnr": 27.739999771118164,  # average Peak Signal to Noise Ratio (PSNR)
             "quality": 0.919921875,  # quality level passed to the encoder
             "ssim": 0.8184635639190674,  # average Structural Similarity (SSIM)
+            "threads": 8,  # number of threads provided as a parameter to the encoder
             "video_duration": 5.005,  # video duration in seconds
             "vmaf": 25.194791793823242,  # average Video Multi-Method Assessment Fusion (VMAF)
             "width": 1080  # width of images in pixels
