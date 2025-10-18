@@ -26,7 +26,32 @@ After generating a database by following `these steps <https://mendevi.readthedo
 
 3) Rename files with a meaningful name, for example ``mv mendevi.json.xz coucougnoux.json.xz && `mv mendevi.db.xz coucougnoux.db.xz``
 
-4) Create a torent file, start to install ``sudo apt install transmission-cli``.
+4) Create a torent file, start to install:
+
+.. code:: shell
+
+    sudo apt install transmission-cli
+    sudo sed -i 's|Type=notify|Type=simple|g' /etc/systemd/system/multi-user.target.wants/transmission-daemon.service
+    sudo sed -i 's|"rpc-authentication-required": true|"rpc-authentication-required": false|g' /etc/transmission-daemon/settings.json
+    sudo systemctl daemon-reload
+    # sudo systemctl restart transmission-daemon.service
+
+Changer --log-level=error en --log-level=info
+Inserer NotifyAccess=all
+On peut tenter: sudo apparmor_parser -r -W -T /etc/apparmor.d/transmission
+Remplacer par Type=simple avec "systemctl edit --full transmission-daemon.service" fonctionne
+
+
+Sinon avec deluge:
+
+.. code:: shell
+
+    sudo apt install deluged deluge-console
+    deluge-console add ~/mendevi_git/dataset/coucougnoux.db.xz.torrent -p /parent/dir/of/coucougnoux_db_xz/
+    # voir psw dans cat ~/.config/deluge/auth
+
+
+
 Then, you can create it with (change the filename and the description):
 
 .. code:: shell
@@ -38,7 +63,6 @@ Then, you can create it with (change the filename and the description):
         -t udp://open.stealth.si:80/announce \
         -t udp://tracker.cyberia.is:80/announce \
         -t udp://tracker.internetwarriors.net:1337/announce \
-        -t udp://tracker.leechers-paradise.org:6969/announce \
         -t udp://tracker.openbittorrent.com:80/announce \
         -t udp://tracker.opentrackr.org:1337/announce \
         -t udp://tracker.sktorrent.net:6969/announce \
@@ -56,5 +80,7 @@ Then, you can seed the torrent (change the download-dir and the torrent name):
         --download-dir /parent/dir/of/coucougnoux_db_xz/ \
 
 Check the status with ``transmission-remote -l`` or ``http://localhost:9091/transmission/web/``.
+
+Sinon ``transmission-remote -t $(transmission-remote -l | grep "multithread.db.xz" | awk '{print $1}') -i``
 
 6) Create a pull-request!
