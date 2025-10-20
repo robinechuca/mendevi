@@ -43,7 +43,7 @@ def retrive_file(file: pathlib.Path | str) -> pathlib.Path:
 
     # handle .torrent
     if (prev_prev_file := prev_file.parent / f"{prev_file.name}.torrent").exists():
-        return retrive_file(add_torrent(prev_file))
+        return retrive_file(add_torrent(prev_prev_file))
 
     # general case
-    return retrive_file(get_torrent(file.name))
+    return retrive_file(get_torrent(prev_prev_file.name))
