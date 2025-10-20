@@ -144,6 +144,12 @@ def get_extractor(name: str, safe: bool = False) -> ExtractContext:
                 "float((powers[0] * powers[1]).sum())",
                 True,
             )
+        case "energy_per_frame":
+            return ExtractContext(
+                "Average energy consumption per frame in Joules",
+                "energy / nbr_frames",
+                True,
+            )
         case "frames":
             extractor = ExtractContext(
                 "The metadata of each frame",

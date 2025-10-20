@@ -43,6 +43,7 @@ def main():
 # same as main.add_command but with lazy import
 main.add_lazy_command("mendevi.cli.decode.main", "decode")
 main.add_lazy_command("mendevi.cli.doc.main", "doc")
+main.add_lazy_command("mendevi.cli.download.main", "download")
 main.add_lazy_command("mendevi.cli.encode.main", "encode")
 main.add_lazy_command("mendevi.cli.g5k.main", "g5k")
 main.add_lazy_command("mendevi.cli.json.main", "json")

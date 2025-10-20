@@ -117,9 +117,10 @@ def wait_until_finished(name: str):
                 load.set_description(state["errorString"])
             else:
                 load.set_description(f"downloads from {state['peersSendingToUs']} pairs")
-            load.total = state["sizeWhenDone"]//1000
-            load.update(load.total - state["leftUntilDone"]//1000 - load.n)
+            load.total = state["sizeWhenDone"]//1_000_000
+            load.update(load.total - state["leftUntilDone"]//1_000_000 - load.n)
             if state["leftUntilDone"] == 0:
                 load.close()
                 break
             time.sleep(1.0)
+        prt.print_time()

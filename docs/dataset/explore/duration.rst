@@ -19,7 +19,7 @@ Energy per frame as a function of the number of frames
 
 .. code:: shell
 
-    mendevi plot duration.db -x nbr_frames -y 'energy/nbr_frames' -c encoder -m effort -wx quality -wy profile
+    mendevi plot duration.db -x nbr_frames -y energy_per_frame -c encoder -m effort -wx quality -wy profile
 
 
 .. image:: /_static/media/duration_energy_frames.svg
