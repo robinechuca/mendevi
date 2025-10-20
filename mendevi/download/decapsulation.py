@@ -37,13 +37,12 @@ def retrive_file(file: pathlib.Path | str) -> pathlib.Path:
         return retrive_file(add_torrent(prev_file))
 
     # handle <...>
-    print(re.match(r"^<.+>$", file.name))
     if re.match(r"^<.+>$", file.name):
         name = re.sub(r"^<(.+?)(?:\.xz(?:\.torrent)?)?>$", r"\1", file.name) + ".xz.torrent"
         return retrive_file(file.parent / name)
 
     # download .xz.torrent
     if file.suffixes[-2:] == [".xz", ".torrent"]:
-        return retrive_file(get_torrent(name))
+        return retrive_file(get_torrent(file.name))
 
     return file
