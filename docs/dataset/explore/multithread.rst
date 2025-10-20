@@ -8,8 +8,8 @@ It allows to perform an "experimental analysis of the impact of multi-threading 
 Download
 --------
 
-* `multithread.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/multithread.json.xz>`_ (1.3 Mo).
-* `multithread.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/multithread.db.xz.torrent>`_ (5.8 Go).
+* `multithread.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/multithread.json.xz?inline=false>`_ (1.3 Mo).
+* `multithread.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/multithread.db.xz.torrent?inline=false>`_ (5.8 Go).
 
 Plots
 -----

@@ -8,8 +8,8 @@ Allows you to see the impact of video length on compression and energy consumpti
 Download
 --------
 
-* `duration.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/duration.json.xz>`_ (6.4 Mo).
-* `duration.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/duration.db.xz.torrent>`_ (0 Go).
+* `duration.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/duration.json.xz?inline=false>`_ (6.4 Mo).
+* `duration.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/duration.db.xz.torrent?inline=false>`_ (0 Go).
 
 Plots
 -----

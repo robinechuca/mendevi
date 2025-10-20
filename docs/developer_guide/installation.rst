@@ -207,6 +207,28 @@ To access the RAPL sensors.
 
             sudo pacman -S perf
 
+.. _install_transmission:
+
+transmission (optional)
+^^^^^^^^^^^^^^^^^^^^^^^
+
+To be able to automatically retrieve and share datasets and videos. For more informations, please have a look on the `transmission download page <https://transmissionbt.com/download>`_.
+
+.. tab:: Linux
+
+    .. tab:: Debian Ubuntu Mint
+
+        .. code:: shell
+
+            sudo apt install transmission-daemon
+
+    .. tab:: RHEL CentOS Fedora
+
+        .. code:: shell
+
+            dnf install transmission-daemon
+
+
 .. _install_pyav:
 
 pyav (optional)

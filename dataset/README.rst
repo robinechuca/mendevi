@@ -26,7 +26,7 @@ After generating a database by following `these steps <https://mendevi.readthedo
 
 3) Rename files with a meaningful name, for example ``mv mendevi.json.xz coucougnoux.json.xz && `mv mendevi.db.xz coucougnoux.db.xz``
 
-4) Create a torent file, start to install ``sudo apt install transmission-cli``.
+4) Create a torent file, start to `install transmission <https://mendevi.readthedocs.io/latest/developer_guide/installation.html#transmission>`_.
 Then, you can create it with (change the filename and the description):
 
 .. code:: shell
@@ -46,8 +46,7 @@ Then, you can create it with (change the filename and the description):
         -t udp://tracker.tryhackx.org:6969/announce \
         coucougnoux.db.xz
 
-5) Now, you can seed the torrent. Start to install ``sudo apt install transmission-daemon``.
-Then, you can seed the torrent (change the download-dir and the torrent name):
+5) Now, you can seed the torrent (change the download-dir and the torrent name):
 
 .. code:: shell
 
@@ -57,4 +56,5 @@ Then, you can seed the torrent (change the download-dir and the torrent name):
 
 Check the status with ``transmission-remote -l`` or ``http://localhost:9091/transmission/web/``.
 
-6) Create a pull-request!
+6) Create a pull-request by adding the ``coucougnoux.db.xz.torrent`` and ``coucougnoux.json.xz`` files to `the dataset gitlab folder <https://gitlab.inria.fr/rrichard/mendevi/-/tree/main/dataset>`_.
+You can also complete the documentation by creating the file ``coucougnoux.rst`` in the `documentation folder <https://gitlab.inria.fr/rrichard/mendevi/-/tree/main/docs/dataset/explore>`_.
