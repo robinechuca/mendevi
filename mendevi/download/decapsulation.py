@@ -23,26 +23,27 @@ def retrive_file(file: pathlib.Path | str) -> pathlib.Path:
     decapsulated_file : pathlib.Path
         The final unencapsulated file.
     """
-    # shortcut
     file = pathlib.Path(file).expanduser()
-    if file.exists():
-        return file
-
-    # handle .xz
-    if (prev_file := file.with_suffix(file.suffix + ".xz").exists()):
-        return decompress(prev_file)
-
-    # handle .torrent
-    if (prev_file := file.with_suffix(file.suffix + ".torrent").exists()):
-        return retrive_file(add_torrent(prev_file))
 
     # handle <...>
     if re.match(r"^<.+>$", file.name):
         name = re.sub(r"^<(.+?)(?:\.xz(?:\.torrent)?)?>$", r"\1", file.name) + ".xz.torrent"
         return retrive_file(file.parent / name)
 
-    # download .xz.torrent
-    if file.suffixes[-2:] == [".xz", ".torrent"]:
-        return retrive_file(get_torrent(file.name))
+    # remove .xz.torrent
+    file = file.parent / re.sub(r"\.xz(?:\.torrent)?$", "", file.name)
 
-    return file
+    # shortcut
+    if file.exists():
+        return file
+
+    # handle .xz
+    if (prev_file := file.parent / f"{file.name}.xz").exists():
+        return decompress(prev_file)
+
+    # handle .torrent
+    if (prev_prev_file := prev_file.parent / f"{prev_file.name}.torrent").exists():
+        return retrive_file(add_torrent(prev_file))
+
+    # general case
+    return retrive_file(get_torrent(file.name))

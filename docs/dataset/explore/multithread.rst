@@ -8,6 +8,11 @@ It allows to perform an "experimental analysis of the impact of multi-threading 
 Download
 --------
 
+.. code:: shell
+
+    mendevi download multithread.db.xz.torrent
+
+
 * `multithread.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/multithread.json.xz?inline=false>`_ (1.3 Mo).
 * `multithread.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/multithread.db.xz.torrent?inline=false>`_ (5.8 Go).
 
@@ -19,7 +24,7 @@ Power as a function of the logical core usage
 
 .. code:: shell
 
-    mendevi plot multithread.db -x cores -y power -c '(profile, hostname)' -m encoder
+    mendevi plot '<multithread.db>' -x cores -y power -c '(profile, hostname)' -m encoder
 
 
 .. image:: /_static/media/multithread_cores_power.svg
@@ -31,7 +36,7 @@ Logical core usage as a function of the provided number of threads
 
 .. code:: shell
 
-    mendevi plot multithread.db -x threads -y cores -wx encoder -wy profile -c effort -m quality -f '"aerial" in name'
+    mendevi plot '<multithread.db>' -x threads -y cores -wx encoder -wy profile -c effort -m quality -f '"aerial" in name'
 
 
 .. image:: /_static/media/multithread_cores_threads.svg
@@ -43,7 +48,7 @@ Final energy as a function of the provided number of threads
 
 .. code:: shell
 
-    mendevi plot multithread.db -x threads -y energy -wx encoder -wy profile -c effort -m quality -f '"aerial" in name'
+    mendevi plot '<multithread.db>' -x threads -y energy -wx encoder -wy profile -c effort -m quality -f '"aerial" in name'
 
 
 .. image:: /_static/media/multithread_energy_threads.svg
