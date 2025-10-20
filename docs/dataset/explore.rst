@@ -7,9 +7,9 @@ How can I retrieve them?
 ------------------------
 
 Since they are several GB in size, they are distributed via the torrent protocol.
-Simply open the torrent file with software such as `transmission <https://transmissionbt.com/>`_ to download the database.
+If you have installed transmission-daemon :ref:`install_transmission`, everything is automated and will be stored in the ``~/.cache/mendevi`` folder. That's it!
 
-Then decompress the file with ``xz -dv *.xz``. That's it!
+.. note:: Overwise open the torrent file with the software you want to download the database, then decompress the file with ``xz -dv *.xz``.
 
 
 All datasets list

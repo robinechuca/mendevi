@@ -54,7 +54,7 @@ Then, you can create it with (change the filename and the description):
         --add ~/mendevi_git/dataset/coucougnoux.db.xz.torrent \
         --download-dir /parent/dir/of/coucougnoux_db_xz/ \
 
-Check the status with ``transmission-remote -l`` or ``http://localhost:9091/transmission/web/`` or ``transmission-remote -t $(transmission-remote -l | grep "coucougnoux.db.xz" | awk '{print $1}') -i``.
+Check the status with ``transmission-remote -l`` or ``http://localhost:9091/transmission/web/``.
 
 6) Create a pull-request by adding the ``coucougnoux.db.xz.torrent`` and ``coucougnoux.json.xz`` files to `the dataset gitlab folder <https://gitlab.inria.fr/rrichard/mendevi/-/tree/main/dataset>`_.
 You can also complete the documentation by creating the file ``coucougnoux.rst`` in the `documentation folder <https://gitlab.inria.fr/rrichard/mendevi/-/tree/main/docs/dataset/explore>`_.

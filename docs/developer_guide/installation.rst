@@ -212,7 +212,7 @@ To access the RAPL sensors.
 transmission (optional)
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-To be able to automatically retrieve and share datasets and videos. For more informations, please have a look on the `transmission download page <https://transmissionbt.com/download>`_.
+To be able to automatically retrieve and share datasets and videos. For more informations, please have a look on the `transmission webpage <https://transmissionbt.com/>`_.
 
 .. tab:: Linux
 
@@ -222,11 +222,18 @@ To be able to automatically retrieve and share datasets and videos. For more inf
 
             sudo apt install transmission-daemon
 
+            # if `transmission-remote -l` fails, you can try:
+            # sudo systemctl stop transmission-daemon.service
+            # sudo sed -i 's|Type=notify|Type=simple|g' /etc/systemd/system/multi-user.target.wants/transmission-daemon.service
+            # sudo sed -i 's|"rpc-authentication-required": true|"rpc-authentication-required": false|g' /etc/transmission-daemon/settings.json
+            # sudo systemctl daemon-reload
+            # sudo systemctl start transmission-daemon.service
+
     .. tab:: RHEL CentOS Fedora
 
         .. code:: shell
 
-            dnf install transmission-daemon
+            sudo dnf install transmission-daemon
 
 
 .. _install_pyav:
