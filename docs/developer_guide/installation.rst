@@ -220,13 +220,6 @@ To be able to automatically retrieve and share datasets and videos. For more inf
 
         .. code:: shell
 
-            # give preventive permissions
-            sudo groupadd transshare
-            sudo usermod -aG transshare "$USER"
-            sudo usermod -aG transshare debian-transmission
-            mkdir -p ~/.cache/mendevi && sudo chgrp -R transshare ~/.cache/mendevi
-
-            # install transmission-daemon
             sudo apt install transmission-daemon
 
 
@@ -234,13 +227,6 @@ To be able to automatically retrieve and share datasets and videos. For more inf
 
         .. code:: shell
 
-            # give preventive permissions
-            sudo groupadd transshare
-            sudo usermod -aG transshare "$USER"
-            sudo usermod -aG transshare debian-transmission
-            mkdir -p ~/.cache/mendevi && sudo chgrp -R transshare ~/.cache/mendevi
-
-            # install transmission-daemon
             sudo dnf install transmission-daemon
 
 
@@ -252,22 +238,23 @@ To be able to automatically retrieve and share datasets and videos. For more inf
 
         brew install transmission transmission-cli
 
-Ensure that the transmission-daemon is installed correctly:
+Ensure that the transmission-daemon is installed correctly with the good permissions:
 
 .. code:: shell
 
     # set the good permissions
     if ! sudo -u debian-transmission ls ~/.cache/ &>/dev/null; then
-        echo 'create a transharegroup...'
+        echo 'create a transshare group...'
         sudo groupadd transshare
         sudo usermod -aG transshare "$USER"
         sudo usermod -aG transshare debian-transmission
-        echo 'give permission to transdhare...'
+        echo 'give permission to transshare...'
         sudo systemctl restart transmission-daemon  # apply the effect
     else:
         echo 'permissions are ok'
     fi
     mkdir -p ~/.cache/mendevi && sudo chgrp -R transshare ~/.cache/mendevi
+    # sudo reboot  # required to apply the permissions!
 
     # make daemon alive
     if [ -n "$(transmission-remote -l 2>/dev/null)" ]; then
