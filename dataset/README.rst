@@ -22,7 +22,7 @@ After generating a database by following `these steps <https://mendevi.readthedo
 
 1) To generate the json file (``mendevi.json``), simply type ``mendevi json mendevi.db``.
 
-2) You must then compress these raw files by typing ``xz -vve9T1 --lzma2=dict=1GiB mendevi.json`` and ``xz -vvke9T1 --lzma2=dict=1GiB mendevi.xz``.
+2) You must then compress these raw files by typing ``xz -vve9T1 --lzma2=dict=1GiB mendevi.json`` and ``xz -vvke9T1 --lzma2=dict=1GiB mendevi.db``.
 
 3) Rename files with a meaningful name, for example ``mv mendevi.json.xz coucougnoux.json.xz && `mv mendevi.db.xz coucougnoux.db.xz``
 

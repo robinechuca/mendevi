@@ -2,7 +2,6 @@
 
 """Generate a Python code that allows you to plot the graph."""
 
-import ast
 import datetime
 import itertools
 import logging

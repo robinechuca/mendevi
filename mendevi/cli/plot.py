@@ -13,6 +13,7 @@ import click
 
 from mendevi.cst.labels import LABELS
 from mendevi.database.meta import extract_names, get_extractor
+from mendevi.download.decapsulation import retrive_file
 from mendevi.plot.printer import printer, safe_lbl
 from .parse import parse_videos_database
 
@@ -196,6 +197,7 @@ def main(database: str, **kwargs):
     """See docstring at DOCSTRING."""
     # parse args
     with Printer("Parse configuration...") as prt:
+        database = retrive_file(database)
         _, database = parse_videos_database(prt, (), database)
         _parse_args(prt, kwargs)
 

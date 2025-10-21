@@ -5,7 +5,6 @@
 import logging
 import lzma
 import pathlib
-import shutil
 import re
 import subprocess
 

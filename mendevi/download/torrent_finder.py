@@ -11,7 +11,7 @@ from mendevi.utils import get_project_root
 
 
 def get_torrent(name: str) -> pathlib.Path:
-    """Retrieves a torrent from its full name.
+    """Retrieve a torrent from its full name.
 
     Parameters
     ----------

@@ -12,7 +12,8 @@ class Coucougnoux(Model):
         super().__init__("A test model", input_labels=["threads"], output_labels=["power"])
 
     def _fit(self, values: dict[str]):
-        """
+        """Fit the stupid model.
+
         Examples
         --------
         >>> from mendevi.models.coucougnoux import Coucougnoux
@@ -24,4 +25,3 @@ class Coucougnoux(Model):
 
     def _predict(self, values: dict[str]) -> dict[str]:
         pass
-

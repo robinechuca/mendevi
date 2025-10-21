@@ -130,7 +130,9 @@ def main(database: str, **kwargs):
                 vid_id = raw.pop("video_hash")
                 content[vid_id] = content.get(vid_id, {})
                 content[vid_id] |= {k: raw[k] for k in context if raw[k] is not None}
-                _add_key_key_val(content[vid_id], "encode_duration", raw["hostname"], raw["act_duration"])
+                _add_key_key_val(
+                    content[vid_id], "encode_duration", raw["hostname"], raw["act_duration"]
+                )
                 _add_key_key_val(content[vid_id], "encode_cores", raw["hostname"], raw["cores"])
                 _add_key_key_val(content[vid_id], "encode_power", raw["hostname"], raw["power"])
             prt.print("read 'decode' and 'metric' extractor")
@@ -177,7 +179,9 @@ def main(database: str, **kwargs):
                 vid_id = raw.pop("video_hash")
                 content[vid_id] = content.get(vid_id, {})
                 content[vid_id] |= {k: raw[k] for k in context if raw[k] is not None}
-                _add_key_key_val(content[vid_id], "decode_duration", raw["hostname"], raw["act_duration"])
+                _add_key_key_val(
+                    content[vid_id], "decode_duration", raw["hostname"], raw["act_duration"]
+                )
                 _add_key_key_val(content[vid_id], "decode_cores", raw["hostname"], raw["cores"])
                 _add_key_key_val(content[vid_id], "decode_power", raw["hostname"], raw["power"])
             prt.print_time()
