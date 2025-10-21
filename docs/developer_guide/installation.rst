@@ -261,11 +261,12 @@ Ensure that the transmission-daemon is installed correctly with the good permiss
         echo 'transmission appears to be properly installed'
     else
         echo 'attempted transmission repair...'
-        sudo systemctl stop transmission-daemon.service
+        sudo systemctl stop transmission-daemon
+        sudo systemctl disable transmission-daemon
         sudo sed -i 's|Type=notify|Type=simple|g' /usr/lib/systemd/system/transmission-daemon.service
         sudo sed -i 's|--log-level=error|--log-level=info|g' /usr/lib/systemd/system/transmission-daemon.service
         sudo sed -i 's|"rpc-authentication-required": true|"rpc-authentication-required": false|g' /etc/transmission-daemon/settings.json
-        sudo systemctl daemon-reload
+        sudo systemctl enable transmission-daemon
         sudo systemctl start transmission-daemon
         echo 'type "systemctl status transmission-daemon" to check the status'
     fi
