@@ -250,7 +250,7 @@ Ensure that the transmission-daemon is installed correctly with the good permiss
         sudo usermod -aG transshare debian-transmission
         echo 'give permission to transshare...'
         sudo systemctl restart transmission-daemon  # apply the effect
-    else:
+    else
         echo 'permissions are ok'
     fi
     mkdir -p ~/.cache/mendevi && sudo chgrp -R transshare ~/.cache/mendevi
