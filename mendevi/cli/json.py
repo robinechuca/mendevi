@@ -7,10 +7,18 @@ import pathlib
 import sqlite3
 
 from context_verbose import Printer
+from cutcutcodec.utils import mround
 import click
 
 from mendevi.database.meta import merge_extractors
 from .parse import parse_videos_database
+
+
+def _round(value: object) -> object:
+    """Alias to cutcutcodec mround for float only."""
+    if isinstance(value, float):
+        return mround(value)
+    return value
 
 
 def _add_key_key_val(dico: dict, key1: str, key2: str, value: object):
@@ -129,12 +137,16 @@ def main(database: str, **kwargs):
                 raw = line_extractor(dict(raw))
                 vid_id = raw.pop("video_hash")
                 content[vid_id] = content.get(vid_id, {})
-                content[vid_id] |= {k: raw[k] for k in context if raw[k] is not None}
+                content[vid_id] |= {k: _round(raw[k]) for k in context if raw[k] is not None}
                 _add_key_key_val(
-                    content[vid_id], "encode_duration", raw["hostname"], raw["act_duration"]
+                    content[vid_id], "encode_duration", raw["hostname"], _round(raw["act_duration"])
                 )
-                _add_key_key_val(content[vid_id], "encode_cores", raw["hostname"], raw["cores"])
-                _add_key_key_val(content[vid_id], "encode_power", raw["hostname"], raw["power"])
+                _add_key_key_val(
+                    content[vid_id], "encode_cores", raw["hostname"], _round(raw["cores"])
+                )
+                _add_key_key_val(
+                    content[vid_id], "encode_power", raw["hostname"], _round(raw["power"])
+                )
             prt.print("read 'decode' and 'metric' extractor")
             for raw in conn.execute(
                 """
@@ -178,12 +190,16 @@ def main(database: str, **kwargs):
                 raw["name"] = None
                 vid_id = raw.pop("video_hash")
                 content[vid_id] = content.get(vid_id, {})
-                content[vid_id] |= {k: raw[k] for k in context if raw[k] is not None}
+                content[vid_id] |= {k: _round(raw[k]) for k in context if raw[k] is not None}
                 _add_key_key_val(
-                    content[vid_id], "decode_duration", raw["hostname"], raw["act_duration"]
+                    content[vid_id], "decode_duration", raw["hostname"], _round(raw["act_duration"])
                 )
-                _add_key_key_val(content[vid_id], "decode_cores", raw["hostname"], raw["cores"])
-                _add_key_key_val(content[vid_id], "decode_power", raw["hostname"], raw["power"])
+                _add_key_key_val(
+                    content[vid_id], "decode_cores", raw["hostname"], _round(raw["cores"])
+                )
+                _add_key_key_val(
+                    content[vid_id], "decode_power", raw["hostname"], _round(raw["power"])
+                )
             prt.print_time()
 
     # write json

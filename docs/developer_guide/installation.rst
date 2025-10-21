@@ -83,8 +83,8 @@ Create the virtual environment.
 
     pyenv update
     env PYTHON_CONFIGURE_OPTS="--enable-shared --enable-optimizations --with-lto" PYTHON_CFLAGS='-march=native -mtune=native' \
-    pyenv install -v 3.13
-    pyenv virtualenv 3.13 mendevi
+    pyenv install -v 3.14
+    pyenv virtualenv 3.14 mendevi
     pyenv activate mendevi
     pip install uv
 
@@ -222,18 +222,37 @@ To be able to automatically retrieve and share datasets and videos. For more inf
 
             sudo apt install transmission-daemon
 
-            # if `transmission-remote -l` fails, you can try:
-            # sudo systemctl stop transmission-daemon.service
-            # sudo sed -i 's|Type=notify|Type=simple|g' /etc/systemd/system/multi-user.target.wants/transmission-daemon.service
-            # sudo sed -i 's|"rpc-authentication-required": true|"rpc-authentication-required": false|g' /etc/transmission-daemon/settings.json
-            # sudo systemctl daemon-reload
-            # sudo systemctl start transmission-daemon.service
-
     .. tab:: RHEL CentOS Fedora
 
         .. code:: shell
 
             sudo dnf install transmission-daemon
+
+.. tab:: macOS
+
+    You could install transmission by using `Homebrew <https://brew.sh>`_.
+
+    .. code:: shell
+
+        brew install transmission transmission-cli
+
+Ensure that the transmission-daemon is installed correctly:
+
+.. code:: shell
+
+    if [ -n "$(transmission-remote -l 2>/dev/null)" ]; then
+        echo 'transmission appears to be properly installed'
+    else
+        echo 'attempted transmission repair...'
+        sudo systemctl stop transmission-daemon.service
+        sudo sed -i 's|Type=notify|Type=simple|g' /usr/lib/systemd/system/transmission-daemon.service
+        sudo sed -i 's|--log-level=error|--log-level=info|g' /usr/lib/systemd/system/transmission-daemon.service
+        sudo sed -i 's|"rpc-authentication-required": true|"rpc-authentication-required": false|g' /etc/transmission-daemon/settings.json
+        sudo systemctl daemon-reload
+        sudo systemctl start transmission-daemon.service
+        echo 'type "systemctl status transmission-daemon" to check the status'
+    fi
+    xdg-open http://localhost:9091/transmission/web/
 
 
 .. _install_pyav:
