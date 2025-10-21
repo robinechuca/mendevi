@@ -37,7 +37,7 @@ def get_torrent(name: str) -> pathlib.Path:
 
     # look in cachedir
     cachedir = pathlib.Path.home() / ".cache" / "mendevi"
-    cachedir.mkdir(parents=True, exist_ok=True)
+    cachedir.mkdir(mode=0o777, parents=True, exist_ok=True)
     if (file := cachedir / name).exists():
         return file
 

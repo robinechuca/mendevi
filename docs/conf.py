@@ -51,6 +51,9 @@ todo_include_todos = True
 intersphinx_mapping = {"python": ("https://docs.python.org/3", None)}
 mathjax_path = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
 
+# -- Set light mode by default ----------------------------------------------
+rtd_dark_mode_theme = "light"
+
 # -- API Autogeneration ------------------------------------------------------
 autosectionlabel_prefix_document = True
 autosummary_generate = True

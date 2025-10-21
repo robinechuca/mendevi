@@ -220,13 +220,29 @@ To be able to automatically retrieve and share datasets and videos. For more inf
 
         .. code:: shell
 
+            # give preventive permissions
+            sudo groupadd transshare
+            sudo usermod -aG transshare "$USER"
+            sudo usermod -aG transshare debian-transmission
+            mkdir -p ~/.cache/mendevi && sudo chgrp -R transshare ~/.cache/mendevi
+
+            # install transmission-daemon
             sudo apt install transmission-daemon
+
 
     .. tab:: RHEL CentOS Fedora
 
         .. code:: shell
 
+            # give preventive permissions
+            sudo groupadd transshare
+            sudo usermod -aG transshare "$USER"
+            sudo usermod -aG transshare debian-transmission
+            mkdir -p ~/.cache/mendevi && sudo chgrp -R transshare ~/.cache/mendevi
+
+            # install transmission-daemon
             sudo dnf install transmission-daemon
+
 
 .. tab:: macOS
 
@@ -240,6 +256,20 @@ Ensure that the transmission-daemon is installed correctly:
 
 .. code:: shell
 
+    # set the good permissions
+    if ! sudo -u debian-transmission ls ~/.cache/ &>/dev/null; then
+        echo 'create a transharegroup...'
+        sudo groupadd transshare
+        sudo usermod -aG transshare "$USER"
+        sudo usermod -aG transshare debian-transmission
+        echo 'give permission to transdhare...'
+        sudo systemctl restart transmission-daemon  # apply the effect
+    else:
+        echo 'permissions are ok'
+    fi
+    mkdir -p ~/.cache/mendevi && sudo chgrp -R transshare ~/.cache/mendevi
+
+    # make daemon alive
     if [ -n "$(transmission-remote -l 2>/dev/null)" ]; then
         echo 'transmission appears to be properly installed'
     else
@@ -249,7 +279,7 @@ Ensure that the transmission-daemon is installed correctly:
         sudo sed -i 's|--log-level=error|--log-level=info|g' /usr/lib/systemd/system/transmission-daemon.service
         sudo sed -i 's|"rpc-authentication-required": true|"rpc-authentication-required": false|g' /etc/transmission-daemon/settings.json
         sudo systemctl daemon-reload
-        sudo systemctl start transmission-daemon.service
+        sudo systemctl start transmission-daemon
         echo 'type "systemctl status transmission-daemon" to check the status'
     fi
     xdg-open http://localhost:9091/transmission/web/

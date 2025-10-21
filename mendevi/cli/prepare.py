@@ -173,7 +173,7 @@ def main(video: str, output: str | None = None, **kwargs) -> pathlib.Path:
             output = video.parent
         else:
             output = pathlib.Path(output).expanduser()
-            output.mkdir(parents=True, exist_ok=True)
+            output.mkdir(mode=0o777, parents=True, exist_ok=True)
 
         # others
         _parse_args(prt, video, kwargs)

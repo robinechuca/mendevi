@@ -36,7 +36,7 @@ def add_torrent(
     assert torrent.is_file(), torrent
     if download_dir is None:
         download_dir = pathlib.Path.home() / ".cache" / "mendevi"
-        download_dir.mkdir(parents=True, exist_ok=True)
+        download_dir.mkdir(mode=0o777, parents=True, exist_ok=True)
     else:
         assert isinstance(download_dir, pathlib.Path), download_dir.__class__.__name__
         assert download_dir.is_dir(download_dir)
