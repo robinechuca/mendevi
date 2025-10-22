@@ -55,6 +55,7 @@ This is a summarized version of :ref:`sql_content`.
             "encoder": "libx264",  # name of the encoder
             "height": 1080,  # height of images in pixels
             "lpips": 0.0421354321587,  # average Learned Perceptual Image Patch Similarity (LPIPS)
+            "mode": "vbr",  # "vbr" or "cbr" for variable or constant bit rate
             "name": "netflix_crosswalk",  # input video basename
             "profile": "hd",  # profile of the video
             "psnr": 27.739999771118164,  # average Peak Signal to Noise Ratio (PSNR)

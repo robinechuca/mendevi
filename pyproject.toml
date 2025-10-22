@@ -62,9 +62,9 @@ doc = [
   "recommonmark",
   "sphinx-copybutton",
   "sphinx-inline-tabs",
-  "sphinx",  # 8.2.0 failed on readthedoc
+  "sphinx",
   "sphinxcontrib-video",
-  "sphinxext-opengraph",
+  "sphinxext-opengraph",  # for web page tags
 ]
 test = [
   "enoslib",
