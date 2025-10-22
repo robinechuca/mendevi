@@ -242,6 +242,8 @@ Ensure that the transmission-daemon is installed correctly with the good permiss
 
 .. code:: shell
 
+    echo '======== CHECK AND FIX "transmission-daemon" INSTALLATION ========'
+
     # create a common group with $USER and debian-transmission
     if getent group transshare > /dev/null; then
         echo 'ok - the group transshare already exists'

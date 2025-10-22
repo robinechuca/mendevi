@@ -90,14 +90,14 @@ def test_transmission_is_installed():
 
 def wait_until_finished(name: str):
     """Display the progress bar of the torrent download."""
-    load = tqdm.tqdm(
-        dynamic_ncols=True,
-        leave=False,
-        smoothing=1e-6,
-        total=None,
-        unit="Mo",
-    )
     with Printer(f"Download {name!r} (transmission-remote -l)...", color="green") as prt:
+        load = tqdm.tqdm(
+            dynamic_ncols=True,
+            leave=True,
+            smoothing=1e-6,
+            total=None,
+            unit="Mo",
+        )
         while True:
             out = subprocess.run(
                 ["transmission-remote", "--json", "--list"],
