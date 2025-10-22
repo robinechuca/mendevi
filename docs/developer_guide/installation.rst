@@ -242,40 +242,59 @@ Ensure that the transmission-daemon is installed correctly with the good permiss
 
 .. code:: shell
 
-    # set the good permissions
-    if ! sudo -u debian-transmission ls ~/.cache/ &>/dev/null; then
-        echo 'create a transshare group...'
+    # create a common group with $USER and debian-transmission
+    if getent group transshare > /dev/null; then
+        echo 'ok - the group transshare already exists'
+    else
+        echo "create a transshare group with $USER and debian-transmission..."
         sudo groupadd transshare
         sudo usermod -aG transshare "$USER"
         sudo usermod -aG transshare debian-transmission
-        echo 'give permission to transshare...'
         sudo systemctl restart transmission-daemon  # apply the effect
-    else
-        echo 'permissions are ok'
+        echo '    done'
     fi
+
+    # set the transshare group permissioin to ~/.cache/mendevi
     mkdir -p ~/.cache/mendevi
-    sudo chgrp -R transshare ~/.cache/mendevi
-    sudo chmod -R g+w ~/.cache/mendevi
-    sudo find ~/.cache/mendevi -type d -exec chmod 2775 {} \;
-    sudo find ~/.cache/mendevi -type f -exec chmod ug+rw {} \;
+    if ! sudo -u debian-transmission ls ~/.cache/mendevi/ &>/dev/null; then
+        echo 'give the permission in ~/.cache/mendevi for transshare...'
+        sudo chgrp -R transshare ~/.cache/mendevi/
+        sudo chmod -R g+w ~/.cache/mendevi/
+        sudo find ~/.cache/mendevi/ -type d -exec chmod 2775 {} \;
+        sudo find ~/.cache/mendevi/ -type f -exec chmod ug+rw {} \;
+        sudo chmod o+x ~/
+        sudo chmod o+x ~/.cache/
+        echo '    done (perhaps reboot required)'
+    else
+        echo 'ok - debian-transmission can access to ~/.cache/mendevi'
+    fi
 
-    # sudo reboot  # required to apply the permissions!
-
-    # make daemon alive
+    # make transmission-daemon working
     if [ -n "$(transmission-remote -l 2>/dev/null)" ]; then
-        echo 'transmission appears to be properly installed'
+        echo 'ok - transmission-daemon seems to be reachable'
     else
         echo 'attempted transmission repair...'
         sudo systemctl stop transmission-daemon
-        sudo systemctl disable transmission-daemon
-        sudo rm /etc/systemd/system/multi-user.target.wants/transmission-daemon.service
         sudo sed -i 's|Type=notify|Type=simple|g' /lib/systemd/system/transmission-daemon.service
         sudo sed -i 's|--log-level=error|--log-level=info|g' /lib/systemd/system/transmission-daemon.service
         sudo sed -i 's|"rpc-authentication-required": true|"rpc-authentication-required": false|g' /etc/transmission-daemon/settings.json
-        sudo systemctl enable transmission-daemon
+        # sudo sed -i "s|User=debian-transmission|User=$USER|g" /lib/systemd/system/transmission-daemon.service
+        sudo systemctl daemon-reload
         sudo systemctl start transmission-daemon
         echo 'type "systemctl status transmission-daemon" to check the status'
     fi
+
+    # enable transmission-daemon
+    if [ "$(systemctl is-enabled transmission-daemon 2>/dev/null)" = "disabled" ]; then
+        echo 'enable transmission-daemon service...'
+        sudo rm -f /etc/systemd/system/multi-user.target.wants/transmission-daemon.service
+        sudo systemctl enable transmission-daemon
+        echo '    done'
+    else
+        echo 'ok - transmission-daemon is enabled'
+    fi
+
+    # open graphical interface in a web browser
     xdg-open http://localhost:9091/transmission/web/
 
 
