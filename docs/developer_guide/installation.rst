@@ -41,7 +41,7 @@ First install the `python dependencies <https://github.com/pyenv/pyenv/wiki#sugg
         .. code:: shell
 
             sudo dnf install openssl11-devel --allowerasing
-            dnf install gcc make patch zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel
+            sudo dnf install gcc make patch zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel
 
     .. tab:: Arch Manjaro
 
