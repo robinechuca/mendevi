@@ -5,7 +5,7 @@
 try:
     import pytest
 except ImportError as err:
-    raise ImportError("pytest paquage required (pip install mendevi[test])") from err
+    raise ImportError("pytest paquage required (uv pip install mendevi[test])") from err
 
 from mendevi.utils import get_project_root
 

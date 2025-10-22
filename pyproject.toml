@@ -62,7 +62,7 @@ doc = [
   "recommonmark",
   "sphinx-copybutton",
   "sphinx-inline-tabs",
-  "sphinx==7.4.7",  # 8.2.0 failed on readthedoc
+  "sphinx",  # 8.2.0 failed on readthedoc
   "sphinxcontrib-video",
   "sphinxext-opengraph",
 ]

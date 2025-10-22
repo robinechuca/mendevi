@@ -5,7 +5,7 @@
 try:
     from pylama.main import shell
 except ImportError as err:
-    raise ImportError("pylama paquage is required (pip install mendevi[test])") from err
+    raise ImportError("pylama paquage is required (uv pip install mendevi[test])") from err
 
 from mendevi.utils import get_project_root
 
