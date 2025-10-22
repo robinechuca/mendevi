@@ -26,7 +26,7 @@ source_suffix = ".rst"
 master_doc = "index"
 language = "en"
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", ".venv"]
-html_theme = "sphinx_rtd_theme"
+html_theme = "furo"
 pygments_style = "sphinx"
 extensions = [
     # "numpydoc",  # to include the numpy functions
@@ -42,8 +42,6 @@ extensions = [
     "sphinx.ext.viewcode",  # in pillow conf
     "sphinx_copybutton",  # in pillow conf
     "sphinx_inline_tabs",  # in pillow conf
-    "sphinx_rtd_dark_mode",  # for dark mode
-    "sphinx_rtd_theme",
     # "sphinxcontrib.video",  # for video insertion in doc
     # "sphinxext.opengraph",  # in pillow conf
 ]
@@ -52,7 +50,7 @@ intersphinx_mapping = {"python": ("https://docs.python.org/3", None)}
 mathjax_path = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"
 
 # -- Set light mode by default ----------------------------------------------
-rtd_dark_mode_theme = "light"
+default_dark_mode = False
 
 # -- API Autogeneration ------------------------------------------------------
 autosectionlabel_prefix_document = True

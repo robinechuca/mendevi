@@ -238,7 +238,7 @@ To be able to automatically retrieve and share datasets and videos. For more inf
 
         brew install transmission transmission-cli
 
-Ensure that the transmission-daemon is installed correctly with the good permissions:
+Ensure that ``transmission-daemon`` is installed correctly with the good permissions:
 
 .. code:: shell
 

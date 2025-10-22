@@ -57,13 +57,12 @@ classifiers = [  # all classifiers https://pypi.org/classifiers/
 
 [project.optional-dependencies]
 doc = [
+  "furo",  # sphinx theme
   "mathjax",  # for sphinx latex math
   "recommonmark",
-  "sphinx==7.4.7",  # 8.2.0 failed on readthedoc
   "sphinx-copybutton",
   "sphinx-inline-tabs",
-  "sphinx-rtd-dark-mode",
-  "sphinx-rtd-theme",
+  "sphinx==7.4.7",  # 8.2.0 failed on readthedoc
   "sphinxcontrib-video",
   "sphinxext-opengraph",
 ]
