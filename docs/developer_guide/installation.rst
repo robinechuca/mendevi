@@ -253,7 +253,12 @@ Ensure that the transmission-daemon is installed correctly with the good permiss
     else
         echo 'permissions are ok'
     fi
-    mkdir -p ~/.cache/mendevi && sudo chgrp -R transshare ~/.cache/mendevi
+    mkdir -p ~/.cache/mendevi
+    sudo chgrp -R transshare ~/.cache/mendevi
+    sudo chmod -R g+w ~/.cache/mendevi
+    sudo find ~/.cache/mendevi -type d -exec chmod 2775 {} \;
+    sudo find ~/.cache/mendevi -type f -exec chmod ug+rw {} \;
+
     # sudo reboot  # required to apply the permissions!
 
     # make daemon alive
