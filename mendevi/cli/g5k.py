@@ -298,9 +298,8 @@ def main(cmd: str, **kwargs):
                 for res in enoslib.run_command(
                     f"cat {log_file}", roles=roles, on_error_continue=True
                 ):
-                    res = json.loads(res.payload)
-                    if "rc" in res:
-                        print(res["stdout"])
+                    if "rc" in res.payload:
+                        print(res.payload["stdout"])
                         log_files.remove(log_file)
-                    if (msg := res.get("stderr", "")):
+                    if (msg := res.payload.get("stderr", "")):
                         logging.warning(msg)
