@@ -64,6 +64,11 @@ def _parse_args(prt: Printer, kwargs: dict):
     assert isinstance(kwargs["cluster"], str), kwargs["cluster"].__class__.__name__
     prt.print(f"cluster : {kwargs['cluster']}")
 
+    # nodes
+    kwargs["nodes"] = kwargs.get("nodes", 1)
+    assert isinstance(kwargs["nodes"], int), kwargs["nodes"].__class__.__name__
+    prt.print(f"nodes   : {kwargs['nodes']}")
+
 
 def guess_envname() -> list[str]:
     """Try to find the envname.
@@ -218,6 +223,12 @@ def set_ansible_cfg():
     type=str,
     help="The generique cluster name to use."
 )
+@click.option(
+    "-n", "--nodes",
+    type=int,
+    default=1,
+    help="The number of nodes to be deployed."
+)
 def main(cmd: str, **kwargs):
     """Deploy a grid'5000 node and run a mendevi script inside it.
 
@@ -237,6 +248,8 @@ def main(cmd: str, **kwargs):
         The specific node names (ex: ("paradoxe-1.rennes.grid5000.fr",)).
     cluster : str
         The name of the cluster to used (ex: "paradoxe").
+    nodes : int, default=1
+        The number of nodes to deploy (incompatible with ``server``).
     """
     is_g5k_frontend()
     set_ansible_cfg()
@@ -264,7 +277,7 @@ def main(cmd: str, **kwargs):
         .add_machine(
             roles=guess_roles(),
             cluster=kwargs["cluster"],
-            nodes=1,
+            nodes=kwargs["nodes"],
             **({"servers": list(kwargs["server"])} if kwargs["server"] else {}),
         )
     )
