@@ -93,8 +93,8 @@ def add_environment(database: sqlite3.Cursor | str | bytes | pathlib.Path) -> in
         database = pathlib.Path(database).expanduser()
         assert is_sqlite(database), database
         with (
-            sqlite3.connect(database) as sql_database,
             Lock(str(database.with_name(".dblock")), lifetime=datetime.timedelta(seconds=1800)),
+            sqlite3.connect(database) as sql_database,
         ):
             # sql_database.execute("PRAGMA journal_mode=WAL")
             cursor = sql_database.cursor()

@@ -162,8 +162,8 @@ def encode_and_store(
     dst, cmd, activity = encode(src, **kwargs)
 
     with (
-        sqlite3.connect(database) as sql_database,
         Lock(str(database.with_name(".dblock")), lifetime=datetime.timedelta(seconds=600)),
+        sqlite3.connect(database) as sql_database,
     ):
         cursor = sql_database.cursor()
 

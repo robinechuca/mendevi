@@ -76,8 +76,8 @@ def decode_and_store(
     cmd, activity = decode(vid, **kwargs)
 
     with (
-        sqlite3.connect(database) as sql_database,
         Lock(str(database.with_name(".dblock")), lifetime=datetime.timedelta(seconds=600)),
+        sqlite3.connect(database) as sql_database,
     ):
         cursor = sql_database.cursor()
 
