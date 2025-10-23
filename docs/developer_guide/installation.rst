@@ -244,6 +244,9 @@ Ensure that ``transmission-daemon`` is installed correctly with the good permiss
 
     echo '======== CHECK AND FIX "transmission-daemon" INSTALLATION ========'
 
+    # find transmission-daemon user
+    trans_user=$(systemctl show -p User transmission-daemon.service | cut -d= -f2)
+
     # create a common group with $USER and debian-transmission
     if getent group transshare > /dev/null; then
         echo 'ok - the group transshare already exists'
@@ -251,14 +254,15 @@ Ensure that ``transmission-daemon`` is installed correctly with the good permiss
         echo "create a transshare group with $USER and debian-transmission..."
         sudo groupadd transshare
         sudo usermod -aG transshare "$USER"
-        sudo usermod -aG transshare debian-transmission
+        trans_user=$(systemctl show -p User transmission-daemon.service | cut -d= -f2)
+        sudo usermod -aG transshare "$trans_user"
         sudo systemctl restart transmission-daemon  # apply the effect
         echo '    done'
     fi
 
     # set the transshare group permissioin to ~/.cache/mendevi
     mkdir -p ~/.cache/mendevi
-    if ! sudo -u debian-transmission ls ~/.cache/mendevi/ &>/dev/null; then
+    if ! sudo -u $trans_user ls ~/.cache/mendevi/ &>/dev/null; then
         echo 'give the permission in ~/.cache/mendevi for transshare...'
         sudo chgrp -R transshare ~/.cache/mendevi/
         sudo chmod -R g+w ~/.cache/mendevi/
@@ -268,7 +272,7 @@ Ensure that ``transmission-daemon`` is installed correctly with the good permiss
         sudo chmod o+x ~/.cache/
         echo '    done (perhaps reboot required)'
     else
-        echo 'ok - debian-transmission can access to ~/.cache/mendevi'
+        echo "ok - $trans_user can access to ~/.cache/mendevi"
     fi
 
     # make transmission-daemon working
@@ -283,7 +287,7 @@ Ensure that ``transmission-daemon`` is installed correctly with the good permiss
         # sudo sed -i "s|User=debian-transmission|User=$USER|g" /lib/systemd/system/transmission-daemon.service
         sudo systemctl daemon-reload
         sudo systemctl start transmission-daemon
-        echo 'type "systemctl status transmission-daemon" to check the status'
+        echo "type 'systemctl status $trans_user' to check the status"
     fi
 
     # enable transmission-daemon
