@@ -196,8 +196,8 @@ def set_ansible_cfg():
     path = pathlib.Path.home() / ".ansible.cfg"
     if not path.exists():
         with open(path, "w", encoding="utf-8") as file:
-            file.write("[defaults]")
-            file.write("interpreter_python = /root/.pyenv/shims/python")
+            file.write("[defaults]\n")
+            file.write("interpreter_python = /root/.pyenv/shims/python\n")
 
 
 @click.command()
@@ -282,6 +282,7 @@ def main(cmd: str, **kwargs):
         )
     )
     sleep = SLEEP_INIT
+    warnings: set[str] = set()  # the displayed warnings
     with enoslib.G5k(conf) as (roles, _):  # get and release all grid5000 resources
         main_results = enoslib.run_command(cmd, roles=roles, background=True)
         log_files = log_files = {result.results_file for result in main_results}
@@ -295,11 +296,31 @@ def main(cmd: str, **kwargs):
             sleep *= 1.0 + (SLEEP_FINAL - SLEEP_INIT) / SLEEP_TRANSITION
             sleep = min(sleep, SLEEP_FINAL)
             for log_file in log_files.copy():
+
                 for res in enoslib.run_command(
-                    f"cat {log_file}", roles=roles, on_error_continue=True
+                    f'if [ -f "{log_file}" ]; then cat "{log_file}"; else echo "<no-log-yet>"; fi',
+                    roles=roles,
+                    on_error_continue=True,
                 ):
-                    if "rc" in res.payload:
-                        print(res.payload["stdout"])
+                    # display warnings
+                    for msg in res.payload.get("warnings", []):
+                        if msg not in warnings:
+                            logging.warning(msg)
+                            warnings.add(msg)
+
+                    # skip when file log is not yet created
+                    if res.payload["stdout"] == "<no-log-yet>":
+                        continue
+
+                    # get job result
+                    try:
+                        res = json.loads(res.payload["stdout"])
+                    except json.JSONDecodeError as err:
+                        logging.error(res.payload)
+                        raise err
+                    if res.get("changed", False) or "rc" in res:
+                        if msg := res.get("stdout", ""):
+                            print(msg)
+                        if msg := res.get("stderr", ""):
+                            logging.error(msg)
                         log_files.remove(log_file)
-                    if (msg := res.payload.get("stderr", "")):
-                        logging.warning(msg)
