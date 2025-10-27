@@ -348,6 +348,37 @@ If you have a GPU, please install CUDA or ROC then follow the `PyTorch installat
 .. tab:: Linux
 
     Follow the official `NVIDIA CUDA Installation Guide for Linux <https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html>`_.
+    Or the `non official guide <https://linuxcapable.com/how-to-install-cuda-on-debian-linux/>`_.
+
+    .. tab:: Debian Ubuntu Mint
+
+        .. code:: shell
+
+            # if cuda avalaible
+            if apt-cache show cuda-drivers >/dev/null 2>&1; then
+                # detect available versions
+                NVIDIA_DRIVER_VERSION=$(sudo apt show cuda-drivers 2>/dev/null | awk '/Version:/ {print $2}' | head -n1 | cut -d'-' -f1)
+                echo "NVIDIA detected dirver version: $NVIDIA_DRIVER_VERSION"
+                DRIVER_BRANCH=${NVIDIA_DRIVER_VERSION%%.*}
+
+                # install cuda
+                # sudo apt remove --purge 'nvidia-*' cuda* && sudo apt update
+                sudo apt install linux-headers-$(uname -r)
+                sudo apt install cuda-drivers-${DRIVER_BRANCH}
+                sudo dkms build -m nvidia -v ${NVIDIA_DRIVER_VERSION}
+                sudo dkms install -m nvidia -v ${NVIDIA_DRIVER_VERSION}
+
+                # verification
+                nvidia-smi
+
+                # install linker
+                if ! command -v nvcc &> /dev/null; then
+                    sudo apt install nvidia-cuda-toolkit
+            else
+                echo "cuda-driver package not found"
+                echo "please add the nvidia repository"
+                echo "https://linuxcapable.com/how-to-install-cuda-on-debian-linux/"
+            fi
 
 .. tab:: FreeBSD
 
