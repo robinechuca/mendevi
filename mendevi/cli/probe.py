@@ -34,6 +34,12 @@ def _parse_args(prt: Printer, kwargs: dict):
     assert "ssim" in kwargs, sorted(kwargs)
     assert isinstance(kwargs["ssim"], bool), kwargs["ssim"].__class__.__name__
     prt.print(f"ssim      : {'yes' if kwargs['ssim'] else 'no'}")
+    assert "rms_sobel" in kwargs, sorted(kwargs)
+    assert isinstance(kwargs["rms_sobel"], bool), kwargs["rms_sobel"].__class__.__name__
+    prt.print(f"rms sobel : {'yes' if kwargs['rms_sobel'] else 'no'}")
+    assert "rms_time_diff" in kwargs, sorted(kwargs)
+    assert isinstance(kwargs["rms_time_diff"], bool), kwargs["rms_time_diff"].__class__.__name__
+    prt.print(f"rms td    : {'yes' if kwargs['rms_time_diff'] else 'no'}")
     assert "uvq" in kwargs, sorted(kwargs)
     assert isinstance(kwargs["uvq"], bool), kwargs["uvq"].__class__.__name__
     prt.print(f"uvq       : {'yes' if kwargs['uvq'] else 'no'}")
@@ -55,7 +61,9 @@ def _parse_args(prt: Printer, kwargs: dict):
 @click.option("--lpips-vgg/--no-lpips-vgg", default=False, help="Compute the LPIPS-VGG or not.")
 @click.option("--psnr/--no-psnr", default=True, help="Compute the PSNR or not.")
 @click.option("--ssim/--no-ssim", default=True, help="Compute the SSIM or not.")
-@click.option("--uvq/--no-uvq", default=True, help="Compute the UVQ or not.")
+@click.option("--rms-sobel/--no-rms-sobel", default=True, help="Compute the C_sob or not.")
+@click.option("--rms-time-diff/--no-rms-time-diff", default=True, help="Compute the C_td or not.")
+@click.option("--uvq/--no-uvq", default=False, help="Compute the UVQ or not.")
 @click.option("--vmaf/--no-vmaf", default=True, help="Compute the VMAF or not.")
 def main(videos: tuple[str], database: str = None, **kwargs):
     """Measures the video properties.
@@ -75,7 +83,7 @@ def main(videos: tuple[str], database: str = None, **kwargs):
         Finaly comparatives metrics will be between ``o`` and ``x``, and also ``ref`` and ``x``.
     lpips_alex, lpips_vgg, psnr, ssim, vmaf : boolean
         If True, compute the comparative video metric, otherwise, skip it.
-    uvq : boolean, default=True
+    rms_sobel, rms_time_diff, uvq : boolean
         If True, compute the absolute uvq metric, overwise, skip it.
     """
     with Printer("Parse configuration...") as prt:

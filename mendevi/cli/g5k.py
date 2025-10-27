@@ -285,7 +285,7 @@ def main(cmd: str, **kwargs):
     warnings: set[str] = set()  # the displayed warnings
     with enoslib.G5k(conf) as (roles, _):  # get and release all grid5000 resources
         main_results = enoslib.run_command(cmd, roles=roles, background=True)
-        log_files = log_files = {result.results_file for result in main_results}
+        log_files = {result.results_file for result in main_results}
         while log_files:
             # waiting a moment
             # at the beginning, we wait SLEEP_INIT, and at the end, we wait SLEEP_FINAL
@@ -295,32 +295,34 @@ def main(cmd: str, **kwargs):
             time.sleep(sleep)
             sleep *= 1.0 + (SLEEP_FINAL - SLEEP_INIT) / SLEEP_TRANSITION
             sleep = min(sleep, SLEEP_FINAL)
-            for log_file in log_files.copy():
-
-                for res in enoslib.run_command(
-                    f'if [ -f "{log_file}" ]; then cat "{log_file}"; else echo "<no-log-yet>"; fi',
+            for log_file, res in [
+                (log_file_, res_)
+                for log_file_ in log_files.copy()
+                for res_ in enoslib.run_command(
+                    f'if [ -f "{log_file_}" ]; then cat "{log_file_}"; else echo "<no-log-yet>"; fi',
                     roles=roles,
                     on_error_continue=True,
-                ):
-                    # display warnings
-                    for msg in res.payload.get("warnings", []):
-                        if msg not in warnings:
-                            logging.warning(msg)
-                            warnings.add(msg)
+                )
+            ]:
+                # display warnings
+                for msg in res.payload.get("warnings", []):
+                    if msg not in warnings:
+                        logging.warning(msg)
+                        warnings.add(msg)
 
-                    # skip when file log is not yet created
-                    if res.payload["stdout"] == "<no-log-yet>":
-                        continue
+                # skip when file log is not yet created
+                if res.payload["stdout"] == "<no-log-yet>":
+                    continue
 
-                    # get job result
-                    try:
-                        res = json.loads(res.payload["stdout"])
-                    except json.JSONDecodeError as err:
-                        logging.error(res.payload)
-                        raise err
-                    if res.get("changed", False) or "rc" in res:
-                        if msg := res.get("stdout", ""):
-                            print(msg)
-                        if msg := res.get("stderr", ""):
-                            logging.error(msg)
-                        log_files.remove(log_file)
+                # get job result
+                try:
+                    res = json.loads(res.payload["stdout"])
+                except json.JSONDecodeError as err:
+                    logging.error(res.payload)
+                    raise err
+                if res.get("changed", False) or "rc" in res:
+                    if msg := res.get("stdout", ""):
+                        print(msg)
+                    if msg := res.get("stderr", ""):
+                        logging.error(msg)
+                    log_files.remove(log_file)

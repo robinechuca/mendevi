@@ -40,12 +40,12 @@ def _fill_vid_table(database: pathlib.Path, vid_id: bytes, video: pathlib.Path, 
         "vid_name",
         "vid_pix_fmt",
         "vid_size",
-        "vid_uvq",
         "vid_width",
+        *(("vid_rms_sobel",) if kwargs["rms_sobel"] else ()),
+        *(("vid_rms_time_diff",) if kwargs["rms_time_diff"] else ()),
+        *(("vid_uvq",) if kwargs["uvq"] else ()),
     }
     fields -= {k for k, v in prop.items() if v is not None}
-    if kwargs["uvq"] is False:
-        fields -= {"vid_uvq"}
     if not fields:
         return
     fields = sorted(fields)  # to frozen order in sql request and for printing repetability
@@ -53,6 +53,7 @@ def _fill_vid_table(database: pathlib.Path, vid_id: bytes, video: pathlib.Path, 
     # fill missing fields
     pad = max(map(len, fields)) - 4
     with Printer(f"Get properties of {video.name}...", color="green") as prt:
+        # basic fields
         for field in fields:
             match field:
                 case "vid_duration":
@@ -77,10 +78,6 @@ def _fill_vid_table(database: pathlib.Path, vid_id: bytes, video: pathlib.Path, 
                 case "vid_pix_fmt":
                     prop["vid_pix_fmt"] = cutcutcodec.get_pix_fmt(video)
                     prt.print(f"{'pix fmt':<{pad}}: {prop['vid_pix_fmt']}")
-                case "vid_uvq":
-                    uvq = cutcutcodec.video_metrics(video, uvq=True)["uvq"]
-                    prop["vid_uvq"] = list_to_binary(uvq)
-                    prt.print(f"{'uvq':<{pad}}: {np.mean(uvq):.2f} +/- {np.std(uvq):.2f}")
                 case "vid_size":
                     prop["vid_size"] = video.stat().st_size
                     prt.print(f"{'size':<{pad}}: {prop['vid_size']*1e-6:.2f} MB")
@@ -96,6 +93,18 @@ def _fill_vid_table(database: pathlib.Path, vid_id: bytes, video: pathlib.Path, 
                 case "vid_codec":
                     prop["vid_codec"] = cutcutcodec.get_codec_video(video)
                     prt.print(f"{'codec':<{pad}}: {prop['vid_codec']}")
+
+        # metric fields
+        new_metrics = cutcutcodec.video_metrics(
+            video,
+            rms_sobel=kwargs["rms_sobel"],
+            rms_time_diff=kwargs["rms_time_diff"],
+            uvq=kwargs["uvq"],
+        )
+        for metric in sorted(new_metrics):
+            values = new_metrics[metric]
+            prt.print(f"{metric:<{pad}}: {np.mean(values):.2f} +/- {np.std(values):.2f}")
+        prop |= {f"vid_{m}": list_to_binary(v) for m, v in new_metrics.items()}
 
     # update result
     with (
@@ -135,14 +144,13 @@ def _fill_met_table(
     metrics = {} if metrics is None else dict(metrics)
 
     # missing fields
-    fields = [
+    fields = set([
         *(("met_lpips_alex",) if kwargs["lpips_alex"] else ()),
         *(("met_lpips_vgg",) if kwargs["lpips_vgg"] else ()),
         *(("met_psnr",) if kwargs["psnr"] else ()),
         *(("met_ssim",) if kwargs["ssim"] else ()),
         *(("met_vmaf",) if kwargs["vmaf"] else ()),
-    ]
-    fields = set(fields)
+    ])
     fields -= {k for k, v in metrics.items() if v is not None}
     if not fields:
         return
@@ -225,6 +233,6 @@ def probe_and_store(database: pathlib.Path, video: pathlib.Path, **kwargs):
                 logging.info("failed to find the reference video %s", ref)
     references = {ref: ref_id for ref, ref_id in references.items() if ref_id != vid_id}
 
-    # perform the comparative comparisons
+    # perform the comparative metrics
     for ref, ref_id in references.items():
         _fill_met_table(database, ref_id, ref, vid_id, video, **kwargs)
