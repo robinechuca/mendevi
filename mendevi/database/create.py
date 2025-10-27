@@ -67,6 +67,8 @@ def create_database(filename: str | bytes | pathlib.Path):
             vid_width SMALLINT CHECK(vid_width > 0),
 
             /* NON COMPARATIVE METRICS */
+            vid_rms_sobel LONGBLOB,
+            vid_rms_time_diff LONGBLOB,
             vid_uvq LONGBLOB
         )""")
         cursor.execute("""CREATE TABLE IF NOT EXISTS t_met_metric (

@@ -141,33 +141,37 @@ To deserialize into an exploitable numpy array, please use the function :py:func
 Table t_vid_video
 -----------------
 
-+---------------------+----------------+--------------------------------+
-| :ref:`vid_id`       | *BINARY(128)*  | the video key                  |
-+---------------------+----------------+--------------------------------+
-| :ref:`vid_name`     | *TEXT*         | the basename of the video file |
-+---------------------+----------------+--------------------------------+
-| :ref:`vid_codec`    | *TINYTEXT*     | the small codec name           |
-+---------------------+----------------+--------------------------------+
-| :ref:`vid_duration` | *FLOAT*        | the video duration             |
-+---------------------+----------------+--------------------------------+
-| :ref:`vid_eotf`     | *TINYTEXT*     | the color transfer name        |
-+---------------------+----------------+--------------------------------+
-| :ref:`vid_fps`      | *FLOAT*        | the framerate                  |
-+---------------------+----------------+--------------------------------+
-| :ref:`vid_frames`   | *JSON*         | detailed content of all frames |
-+---------------------+----------------+--------------------------------+
-| :ref:`vid_gamut`    | *TINYTEXT*     | the color primaries name       |
-+---------------------+----------------+--------------------------------+
-| :ref:`vid_height`   | *SMALLINT*     | video height in pixels         |
-+---------------------+----------------+--------------------------------+
-| :ref:`vid_pix_fmt`  | *TINYTEXT*     | bit depth and subsampling name |
-+---------------------+----------------+--------------------------------+
-| :ref:`vid_size`     | *BIGINT*       | file size in bytes             |
-+---------------------+----------------+--------------------------------+
-| :ref:`vid_width`    | *SMALLINT*     | video width in pixels          |
-+---------------------+----------------+--------------------------------+
-| :ref:`vid_uvq`      | *LONGLONGBLOB* | UVQ metric values              |
-+---------------------+----------------+--------------------------------+
++--------------------------+----------------+--------------------------------+
+| :ref:`vid_id`            | *BINARY(128)*  | the video key                  |
++--------------------------+----------------+--------------------------------+
+| :ref:`vid_name`          | *TEXT*         | the basename of the video file |
++--------------------------+----------------+--------------------------------+
+| :ref:`vid_codec`         | *TINYTEXT*     | the small codec name           |
++--------------------------+----------------+--------------------------------+
+| :ref:`vid_duration`      | *FLOAT*        | the video duration             |
++--------------------------+----------------+--------------------------------+
+| :ref:`vid_eotf`          | *TINYTEXT*     | the color transfer name        |
++--------------------------+----------------+--------------------------------+
+| :ref:`vid_fps`           | *FLOAT*        | the framerate                  |
++--------------------------+----------------+--------------------------------+
+| :ref:`vid_frames`        | *JSON*         | detailed content of all frames |
++--------------------------+----------------+--------------------------------+
+| :ref:`vid_gamut`         | *TINYTEXT*     | the color primaries name       |
++--------------------------+----------------+--------------------------------+
+| :ref:`vid_height`        | *SMALLINT*     | video height in pixels         |
++--------------------------+----------------+--------------------------------+
+| :ref:`vid_pix_fmt`       | *TINYTEXT*     | bit depth and subsampling name |
++--------------------------+----------------+--------------------------------+
+| :ref:`vid_size`          | *BIGINT*       | file size in bytes             |
++--------------------------+----------------+--------------------------------+
+| :ref:`vid_width`         | *SMALLINT*     | video width in pixels          |
++--------------------------+----------------+--------------------------------+
+| :ref:`vid_rms_sobel`     | *LONGLONGBLOB* | UVQ metric values              |
++--------------------------+----------------+--------------------------------+
+| :ref:`vid_rms_time_diff` | *LONGLONGBLOB* | UVQ metric values              |
++--------------------------+----------------+--------------------------------+
+| :ref:`vid_uvq`           | *LONGLONGBLOB* | UVQ metric values              |
++--------------------------+----------------+--------------------------------+
 
 Contains the essential absolute characteristics of a video file.
 
@@ -318,6 +322,24 @@ vid_width
 ^^^^^^^^^
 
 The width of the video in pixels, after being decoded.
+
+.. _vid_rms_sobel:
+
+vid_rms_sobel
+^^^^^^^^^^^^^
+
+The serialised list of the spacial root means square sobel complexity.
+Catched by ``cutcutcodec.video_metrics(video, rms_sobel=True)["rms_sobel"]``.
+To deserialize into an exploitable numpy array, please use the function :py:func:`mendevi.database.serialize.binary_to_list`.
+
+.. _vid_rms_time_diff:
+
+vid_rms_time_diff
+^^^^^^^^^^^^^^^^^
+
+The serialised list of the temporal root means square time difference.
+Catched by ``cutcutcodec.video_metrics(video, rms_time_diff=True)["rms_time_diff"]``.
+To deserialize into an exploitable numpy array, please use the function :py:func:`mendevi.database.serialize.binary_to_list`.
 
 .. _vid_uvq:
 
