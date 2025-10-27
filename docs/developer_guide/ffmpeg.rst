@@ -92,8 +92,8 @@ vvc
     make -j$(nproc) install
 
 
-GPU *_nvenc *_nvdec
-^^^^^^^^^^^^^^^^^^^
+GPU \*_nvenc \*_nvdec
+^^^^^^^^^^^^^^^^^^^^^
 
 Requires a GPU and CUDA to be installed (se :ref:`install_cuda`).
 
@@ -106,6 +106,7 @@ Requires a GPU and CUDA to be installed (se :ref:`install_cuda`).
         git -C nv-codec-headers pull 2> /dev/null || git clone https://github.com/FFmpeg/nv-codec-headers.git
         cd nv-codec-headers
         sudo make install
+        export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH"
     else
         echo "nvidia-smi is not working, please install cuda first"
     fi
