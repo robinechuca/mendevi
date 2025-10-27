@@ -194,7 +194,7 @@ def main(video: str, output: str | None = None, **kwargs) -> pathlib.Path:
                 file[-1].append(f"t_{kwargs['transfer']}")
             if kwargs["range"] != values["range"]:
                 file[-1].append(f"r_{kwargs['range']}")
-            file[-1] = "_".join(file[-1]) + ".mkv"
+            file[-1] = "_".join(file[-1]) + ".mp4"
         file = {len(f): f for f in file}
         file = file[min(file)]  # select the shortest name
         file = output / file
@@ -211,7 +211,7 @@ def main(video: str, output: str | None = None, **kwargs) -> pathlib.Path:
                 colorspace=cutcutcodec.Colorspace(
                     "y'pbpr", kwargs["primaries"], kwargs["transfer"]
                 ),
-                streams_settings=[{  # extension .mkv
+                streams_settings=[{  # extension .mp4
                     "encodec": "ffv1",  # fast lossless compression
                     "rate": kwargs["fps"],
                     "shape": kwargs["resolution"],

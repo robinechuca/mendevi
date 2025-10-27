@@ -392,16 +392,8 @@ Installation
 Basic Installation
 ^^^^^^^^^^^^^^^^^^
 
-.. note::
-
-    The following instructions will install a minimal version of *mendevi*.
-    See :ref:`building_from_source` for a complete installation including the documentation and the tests.
-
-To install the lastest development version, use ``uv pip``:
-
-.. code:: shell
-
-    uv pip install git+https://gitlab.inria.fr/rrichard/mendevi.git
+To install a minimal version of *mendevi*, follow :ref:`simple_installation`.
+Overwise, you can follow :ref:`building_from_source` for a full installation.
 
 .. _building_from_source:
 

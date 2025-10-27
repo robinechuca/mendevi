@@ -268,9 +268,9 @@ def extract_encode_cmd(raw: dict[str]) -> str:
     """
     if (cmd := raw["enc_cmd"]) is None:
         return None
-    ref = raw["ref_vid_name"] or "ref.mkv"
+    ref = raw["ref_vid_name"] or "ref.mp4"
     dst = raw["dst_vid_name"] or "dst.mp4"
-    return cmd.replace("ref.mkv", ref).replace("dst.mp4", dst)
+    return cmd.replace("ref.mp4", ref).replace("dst.mp4", dst)
 
 
 @verif

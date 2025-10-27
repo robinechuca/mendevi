@@ -941,7 +941,7 @@ The ffmpeg command used for encoding:
 
 .. code:: shell
 
-    ffmpeg -y -i ref.mkv -c:v libsvtav1 -crf 15 -preset 6 -svtav1-params film-grain=0:lp=3 dst.mp4
+    ffmpeg -y -i ref.mp4 -c:v libsvtav1 -crf 15 -preset 6 -svtav1-params film-grain=0:lp=3 dst.mp4
 
 .. _enc_effort:
 
