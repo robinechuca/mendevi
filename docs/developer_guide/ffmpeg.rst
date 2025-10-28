@@ -95,7 +95,7 @@ vvc
 GPU \*_nvenc \*_nvdec
 ^^^^^^^^^^^^^^^^^^^^^
 
-Requires a GPU and CUDA to be installed (se :ref:`install_cuda`).
+Requires a GPU and CUDA to be installed (see :ref:`install_cuda`).
 
 .. code:: shell
 

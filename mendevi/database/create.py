@@ -140,10 +140,10 @@ def create_database(filename: str | bytes | pathlib.Path):
             enc_filter TEXT,
             enc_fps FLOAT CHECK(enc_fps > 0.0),
             enc_height SMALLINT CHECK(enc_height > 0),
+            enc_mode TINYTEXT CHECK(enc_mode IN ('cbr', 'vbr')),
             enc_pix_fmt TINYTEXT,
             enc_quality FLOAT CHECK(enc_quality >= 0.0 AND enc_quality <= 1.0),
             enc_threads SMALLINT CHECK(enc_threads >= 0),
-            enc_vbr BOOLEAN CHECK(enc_vbr IN (0, 1)),
             enc_width SMALLINT CHECK(enc_width > 0)
         )""")
         cursor.execute("""

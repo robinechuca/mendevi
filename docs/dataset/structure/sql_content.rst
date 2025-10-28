@@ -884,13 +884,13 @@ Table t_enc_encode
 +-----------------------+---------------+--------------------------------+
 | :ref:`enc_height`     | *SMALLINT*    | the input frames height        |
 +-----------------------+---------------+--------------------------------+
+| :ref:`env_mode`       | *TINYTEXT*    | constant or variable bitrate   |
++-----------------------+---------------+--------------------------------+
 | :ref:`enc_pix_fmt`    | *TINYTEXT*    | the input pixel format         |
 +-----------------------+---------------+--------------------------------+
 | :ref:`enc_quality`    | *FLOAT*       | the encoding crf or qp         |
 +-----------------------+---------------+--------------------------------+
 | :ref:`enc_threads`    | *SMALLINT*    | the number of threads used     |
-+-----------------------+---------------+--------------------------------+
-| :ref:`enc_vbr`        | *BOOLEAN*     | variable or constant bit rate  |
 +-----------------------+---------------+--------------------------------+
 | :ref:`enc_width`      | *SMALLINT*    | the input frames width         |
 +-----------------------+---------------+--------------------------------+
@@ -979,10 +979,17 @@ enc_height
 
 The number of pixel of the frames along the height dimension.
 
+.. _enc_mode:
+
+enc_mode
+^^^^^^^^
+
+Text that is ``cbr`` if the bit rate is constant (cbr mode), or ``vbr`` if it is variable (constant quality mode).
+
 .. _enc_pix_fmt:
 
-pix_fmt
-^^^^^^^
+enc_pix_fmt
+^^^^^^^^^^^
 
 The pixel format used for encoding.
 
@@ -1003,13 +1010,6 @@ enc_threads
 ^^^^^^^^^^^
 
 The number of threads that the encoder uses simultaneously. This is related to the CPU utilisation rate.
-
-.. _enc_vbr:
-
-enc_vbr
-^^^^^^^
-
-Boolean that is ``true`` if the bit rate is variable (crf mode), or ``false`` if it is constant (cbr mode).
 
 .. _enc_width:
 

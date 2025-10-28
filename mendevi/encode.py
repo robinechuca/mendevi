@@ -219,7 +219,7 @@ def encode_and_store(
             "enc_quality": kwargs["quality"],
             "enc_src_vid_id": kwargs["src_vid_id"],
             "enc_threads": kwargs["threads"],
-            "enc_vbr": int(kwargs["vbr"]),
+            "enc_mode": kwargs["mode"],
             "enc_width": kwargs["resolution"][1],
         }
         keys = list(values)
@@ -268,7 +268,7 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs) -> list[st
     cmd.append("-c:v")
     match kwargs["encoder"]:
         case "libx264":
-            if kwargs["vbr"]:
+            if kwargs["mode"] == "vbr":
                 quality = ["-crf", str(round(kwargs["quality"]*51.0, 1))]
             else:
                 rate = f"{quality_to_rate(kwargs)}k"
@@ -287,7 +287,7 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs) -> list[st
                 "-threads", str(kwargs["threads"]), "-thread_type", "frame",
             ])
         case "libx265":
-            if kwargs["vbr"]:
+            if kwargs["mode"] == "vbr":
                 cmd.extend([   # https://x265.readthedocs.io/en/master/cli.html
                     "libx265",
                     "-crf", str(round(kwargs["quality"]*51.0, 1)),
@@ -319,7 +319,7 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs) -> list[st
             # https://trac.ffmpeg.org/wiki/Encode/VP9
             # https://wiki.webmproject.org/ffmpeg/vp9-encoding-guide
             # https://developers.google.com/media/vp9/settings
-            if kwargs["vbr"]:
+            if kwargs["mode"] == "vbr":
                 quality = ["-crf", str(round(kwargs["quality"]*63.0)), "-b:v", "0"]
             else:
                 rate = f"{quality_to_rate(kwargs)}k"
@@ -333,7 +333,7 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs) -> list[st
                 "-row-mt", "0", "-threads", str(kwargs["threads"]),
             ])
         case "libsvtav1":
-            if kwargs["vbr"]:
+            if kwargs["mode"] == "vbr":
                 cmd.extend([
                     "libsvtav1",
                     "-crf", str(round(kwargs["quality"]*63.0)),
@@ -351,7 +351,7 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs) -> list[st
                     "-svtav1-params", f"rc=1:film-grain=0:lp={libsvtav1_lp(kwargs['threads'])}",
                 ])
         case "vvc":  # https://github.com/fraunhoferhhi/vvenc/wiki/FFmpeg-Integration
-            if kwargs["vbr"]:
+            if kwargs["mode"] == "vbr":
                 quality = ["-qp", str(round(kwargs["quality"]*63.0))]
             else:
                 rate = quality_to_rate(kwargs)
@@ -365,6 +365,29 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs) -> list[st
                 "-vvenc-params", f"internalbitdepth={bit}",
                 "-threads", str(kwargs['threads']),
             ])
+        case "h264_nvenc":
+            if kwargs["mode"] == "vbr":
+                cmd.extend([
+                    "h264_nvenc",
+                    "-pix_fmt", "yuv420p",  # doesn't support 10 bits
+                    "-preset", kwargs["quality"],
+                    "-rc", "vbr",
+                    "-cq", str(round(1.0 + kwargs["quality"]*50.0)),  # [1, 51]
+                ])
+            else:
+                cmd.extend([
+                    "h264_nvenc",
+                    "-pix_fmt", "yuv420p",  # doesn't support 10 bits
+                    "-b:v", rate,
+                    "-minrate", rate,
+                    "-maxrate", rate,
+                    "-bufsize", rate,
+                    "-preset", kwargs["quality"],
+                    "-rc", "cbr",
+                ])
+            raise NotImplementedError
+        case "av1_nvenc":
+            raise NotImplementedError
 
     # final
     cmd.append(str(dst))

@@ -94,30 +94,14 @@ def _parse_args(prt: Printer, kwargs: dict):
     else:
         kwargs["pix_fmt"] = (None,)
 
-    # vbr
-    assert "vbr" in kwargs, sorted(kwargs)
-    assert isinstance(kwargs["vbr"], tuple), kwargs["vbr"].__class__.__name__
-    assert all(
-        vbr in {"1", "0", "yes", "no", "true", "false", 1, 0, True, False} for vbr in kwargs["vbr"]
-    ), kwargs["vbr"]
-    kwargs["vbr"] = sorted({
-        {
-            "1": True,
-            "0": False,
-            "yes": True,
-            "no": False,
-            "true": True,
-            "false": False,
-            1: True,
-            0: False,
-            True: True,
-            False: False
-        }[vbr]
-        for vbr in kwargs["vbr"]
-    })
+    # mode
+    assert "mode" in kwargs, sorted(kwargs)
+    assert isinstance(kwargs["mode"], tuple), kwargs["mode"].__class__.__name__
+    assert all(isinstance(p, str) and p in {"cbr", "vbr"} for p in kwargs["mode"]), kwargs["mode"]
+    kwargs["mode"] = tuple(sorted(set(kwargs["mode"])))
     prt.print(
-        "bitrate   : "
-        f"{' and '.join({True: 'variable', False: 'constant'}[vbr] for vbr in kwargs['vbr'])}"
+        "br mode   : "
+        f"{' and '.join({'vbr': 'variable', 'cbr': 'constant'}[m] for m in kwargs['mode'])}"
     )
 
     # filter
@@ -185,11 +169,11 @@ def _parse_args(prt: Printer, kwargs: dict):
     help="The optional pixel format conversion during encoding.",
 )
 @click.option(
-    "-v", "--vbr",
-    type=click.Choice(["1", "0", "yes", "no", "true", "false"]),
-    default=["1"],
+    "-m", "--mode",
+    type=click.Choice(["cbr", "vbr"]),
+    default=["vbr"],
     multiple=True,
-    help="The optional variable bit rate rule.",
+    help="The optional bitrate mode (cbr or vbr).",
 )
 @click.option(
     "--filter",
@@ -235,9 +219,9 @@ def main(videos: tuple, database: str = None, **kwargs):
         If this argument is not provided, the resolution remains unchanged.
     pix_fmt : str, optional
         If provided, A pixel conversion is performed during encoding.
-    vbr : tuple[bool]
-        Boolean that is ``true`` if the bit rate is variable (crf mode),
-        or ``false`` if it is constant (cbr mode).
+    mode : tuple[str]
+        Text that is ``cbr`` if the bit rate is constant (cbr mode),
+        or ``vbr`` if it is variable (constant quality mode).
     filter : str, optional
         A video ffmpeg filter (after -vf) which applies at the time of transcoding,
         more precisely between decoding and conversion. It is a kind of pre-conversion.
@@ -252,7 +236,7 @@ def main(videos: tuple, database: str = None, **kwargs):
     kwargs["src_vid_id"]: dict[pathlib.Path, bytes] = compute_video_hash(videos)
 
     keys = [
-        "effort", "encoder", "filter", "fps", "pix_fmt", "quality", "resolution", "threads", "vbr"
+        "effort", "encoder", "filter", "fps", "mode", "pix_fmt", "quality", "resolution", "threads"
     ]
 
     # retrieves the settings for videos that have already been transcoded
@@ -267,12 +251,12 @@ def main(videos: tuple, database: str = None, **kwargs):
                 "encoder": values["enc_encoder"],
                 "filter": values["enc_filter"] or None,
                 "fps": fractions.Fraction(values["enc_fps"]).limit_denominator(1001),
+                "mode": values["enc_mode"],
                 "pix_fmt": values["enc_pix_fmt"],
                 "quality": float(values["enc_quality"]),
                 "resolution": (values["enc_height"], values["enc_width"]),
                 "src_vid_id": values["enc_src_vid_id"],
                 "threads": values["enc_threads"],
-                "vbr": bool(values["enc_vbr"]),
             }
             values = tuple(values[k] for k in ["src_vid_id", *keys])
             done[values] = done.get(values, 0) + 1

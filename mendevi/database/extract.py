@@ -381,7 +381,7 @@ def extract_lpips_vgg(raw: dict[str]) -> float:
 
 
 @verif
-@SqlLinker("t_enc_encode.enc_vbr")
+@SqlLinker("t_enc_encode.enc_mode")
 def extract_mode(raw: dict[str]) -> str:
     """Return the bitrate mode, constant (cbr) or variable (vbr).
 
@@ -390,9 +390,11 @@ def extract_mode(raw: dict[str]) -> str:
     raw : dict[str]
         The result line of select request.
     """
-    if (is_vbr := raw["enc_vbr"]) is None:
+    if (mode := raw["enc_vbr"]) is None:
         return None
-    return "vbr" if bool(is_vbr) else "cbr"
+    assert isinstance(mode, str), mode.__class__.__name__
+    assert mode in {"cbr", "vbr"}, mode
+    return mode
 
 
 @SqlLinker(
@@ -456,6 +458,23 @@ def extract_quality(raw: dict[str]) -> float:
     assert isinstance(enc_quality, numbers.Real), enc_quality.__class__.__name__
     assert 0.0 <= enc_quality <= 1.0, enc_quality
     return float(enc_quality)
+
+
+@verif
+@SqlLinker("t_vid_video.vid_range")
+def extract_range(raw: dict[str]) -> str:
+    """Return the vide encoding range, 'tv' or 'pc'.
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+    """
+    if (range_ := raw["vid_range"]) is None:
+        return None
+    assert isinstance(range_, str), range_.__class__.__name__
+    assert range_ in {"pc", "tv"}, range_
+    return range_
 
 
 @verif

@@ -112,10 +112,10 @@ graph database {
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">enc_filter</TD><TD ALIGN="LEFT">TEXT</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">enc_fps</TD><TD ALIGN="LEFT">FLOAT</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">enc_height</TD><TD ALIGN="LEFT">SMALLINT</TD></TR>
+        <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">enc_mode</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">enc_pix_fmt</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">enc_quality</TD><TD ALIGN="LEFT">FLOAT</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">enc_threads</TD><TD ALIGN="LEFT">SMALLINT</TD></TR>
-        <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">enc_vbr</TD><TD ALIGN="LEFT">BOOLEAN</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">enc_width</TD><TD ALIGN="LEFT">SMALLINT</TD></TR>
       </TABLE>
     >
