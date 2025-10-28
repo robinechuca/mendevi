@@ -39,6 +39,7 @@ def _fill_vid_table(database: pathlib.Path, vid_id: bytes, video: pathlib.Path, 
         "vid_height",
         "vid_name",
         "vid_pix_fmt",
+        "vid_range",
         "vid_size",
         "vid_width",
         *(("vid_rms_sobel",) if kwargs["rms_sobel"] else ()),
@@ -78,6 +79,9 @@ def _fill_vid_table(database: pathlib.Path, vid_id: bytes, video: pathlib.Path, 
                 case "vid_pix_fmt":
                     prop["vid_pix_fmt"] = cutcutcodec.get_pix_fmt(video)
                     prt.print(f"{'pix fmt':<{pad}}: {prop['vid_pix_fmt']}")
+                case "vid_range":
+                    prop["vid_range"] = cutcutcodec.get_range(video)
+                    prt.print(f"{'range':<{pad}}: {prop['vid_range']}")
                 case "vid_size":
                     prop["vid_size"] = video.stat().st_size
                     prt.print(f"{'size':<{pad}}: {prop['vid_size']*1e-6:.2f} MB")
