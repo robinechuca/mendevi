@@ -99,11 +99,12 @@ def _fill_vid_table(database: pathlib.Path, vid_id: bytes, video: pathlib.Path, 
                     prt.print(f"{'codec':<{pad}}: {prop['vid_codec']}")
 
         # metric fields
+        fields = set(fields)
         new_metrics = cutcutcodec.video_metrics(
             video,
-            rms_sobel=kwargs["rms_sobel"],
-            rms_time_diff=kwargs["rms_time_diff"],
-            uvq=kwargs["uvq"],
+            rms_sobel="vid_rms_sobel" in fields,
+            rms_time_diff="vid_time_diff" in fields,
+            uvq="vid_uvq" in fields,
         )
         for metric in sorted(new_metrics):
             values = new_metrics[metric]
