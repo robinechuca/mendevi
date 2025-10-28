@@ -10,8 +10,6 @@ import tempfile
 import typing
 import uuid
 
-from mendevi.database import extract
-
 
 ExtractContext = collections.namedtuple("ExtractContext", ["label", "func", "is_log"])
 
@@ -74,6 +72,7 @@ def get_extractor(name: str, safe: bool = False) -> ExtractContext:
         True to display in log space, False for linear.
         The value None means the axis is not continuous.
     """
+    from mendevi.database import extract  # failed at toplevel
     assert isinstance(name, str), name.__class__.__name__
     assert isinstance(safe, bool), safe.__class__.__name__
     extractor = None
