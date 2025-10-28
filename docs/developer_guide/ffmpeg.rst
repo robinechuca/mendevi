@@ -100,6 +100,9 @@ The code comes from the `ffmpeg guide <https://trac.ffmpeg.org/wiki/HWAccelIntro
 
 .. code:: shell
 
+    # get dependencies
+    sudo apt install libc6 libc6-dev unzip libnuma1 libnuma-dev nvidia-cuda-toolkit
+
     # chec cuda well installed
     if command -v nvidia-smi &> /dev/null; then
         # install nv-codec-headers (needed for NVENC/NVDEC support)
