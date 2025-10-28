@@ -96,6 +96,7 @@ GPU \*_nvenc \*_nvdec
 ^^^^^^^^^^^^^^^^^^^^^
 
 Requires a GPU and CUDA to be installed (see :ref:`install_cuda`).
+The code comes from the `ffmpeg guide <https://trac.ffmpeg.org/wiki/HWAccelIntro#NVENC>`_
 
 .. code:: shell
 
@@ -175,6 +176,9 @@ compile
 
     # compile
     PATH="$HOME/bin:$PATH" PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig" ./configure --prefix="$HOME/ffmpeg_build" --pkg-config-flags="--static" --extra-cflags="-I$HOME/ffmpeg_build/include" --extra-ldflags="-L$HOME/ffmpeg_build/lib" --extra-libs="-lpthread -lm" --ld="g++" --bindir="$HOME/bin" \
+    --enable-ffnvcodec \
+    --enable-cuda-nvcc \
+    --enable-libnpp \
     --enable-chromaprint \
     --enable-frei0r \
     --enable-gpl \

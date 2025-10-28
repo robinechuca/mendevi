@@ -218,6 +218,36 @@ def main(video: str, output: str | None = None, **kwargs) -> pathlib.Path:
                     "pix_fmt": kwargs["pix_fmt"],
                     "range": kwargs["range"],
                 }],
+
+                # # https://trac.ffmpeg.org/wiki/Encode/H.264
+                # streams_settings=[{  # extension .mp4
+                #     "encodec": "libx264",
+                #     "options": {"preset": "veryslow", "qp": "0"},
+                #     "rate": kwargs["fps"],
+                #     "shape": kwargs["resolution"],
+                #     "pix_fmt": kwargs["pix_fmt"],
+                #     "range": kwargs["range"],
+                # }],
+
+                # # https://trac.ffmpeg.org/wiki/Encode/AV1#Losslessencoding
+                # streams_settings=[{  # extension .mp4
+                #     "encodec": "libaom-av1",
+                #     "options": {"crf": "0"},
+                #     "rate": kwargs["fps"],
+                #     "shape": kwargs["resolution"],
+                #     "pix_fmt": kwargs["pix_fmt"],
+                #     "range": kwargs["range"],
+                # }],
+
+                # https://trac.ffmpeg.org/wiki/Encode/AV1#CRF
+                streams_settings=[{  # extension .mp4
+                    "encodec": "libsvtav1",
+                    "options": {"preset": "4", "svtav1-params": "lossless=1"},
+                    "rate": kwargs["fps"],
+                    "shape": kwargs["resolution"],
+                    "pix_fmt": kwargs["pix_fmt"],
+                    "range": kwargs["range"],
+                }],
             )
         shutil.move(tmp, file)
         file.chmod(0o777)
