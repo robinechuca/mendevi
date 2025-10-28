@@ -181,15 +181,14 @@ compile
     ./configure \
         --prefix="$HOME/ffmpeg_build" \
         --pkg-config-flags="--static" \
-        --extra-cflags="-I$HOME/ffmpeg_build/include -I/usr/local/cuda/include" \
-        --extra-ldflags="-L$HOME/ffmpeg_build/lib -L/usr/local/cuda/lib64" \
-        --extra-libs="-lpthread -lm -lcuda -lnppc -lnppial -lnppicc -lnppidei -lnppif -lnppig -lnppim -lnppist -lnppisu -lnppitc" \
+        --extra-cflags="-I$HOME/ffmpeg_build/include" \
+        --extra-ldflags="-L$HOME/ffmpeg_build/lib" \
+        --extra-libs="-lpthread -lm" \
         --ld="g++" \
         --bindir="$HOME/bin" \
         \
         --enable-ffnvcodec \
         --enable-cuda-nvcc \
-        --enable-libnpp \
         \
         --enable-chromaprint \
         --enable-frei0r \
