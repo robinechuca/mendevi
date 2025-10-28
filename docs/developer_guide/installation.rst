@@ -284,7 +284,7 @@ Ensure that ``transmission-daemon`` is installed correctly with the good permiss
         sudo sed -i 's|Type=notify|Type=simple|g' /lib/systemd/system/transmission-daemon.service
         sudo sed -i 's|--log-level=error|--log-level=info|g' /lib/systemd/system/transmission-daemon.service
         sudo sed -i 's|"rpc-authentication-required": true|"rpc-authentication-required": false|g' /etc/transmission-daemon/settings.json
-        # sudo sed -i "s|User=debian-transmission|User=$USER|g" /lib/systemd/system/transmission-daemon.service
+        # sudo sed -i "s|User=$trans_user|User=$USER|g" /lib/systemd/system/transmission-daemon.service
         sudo systemctl daemon-reload
         sudo systemctl start transmission-daemon
         echo "type 'systemctl status $trans_user' to check the status"
