@@ -176,59 +176,70 @@ compile
     echo -e "$(cat VERSION) [$(date +%Y-%m-%d)] [$(cat RELEASE)] " > VERSION
 
     # compile
-    PATH="$HOME/bin:$PATH" PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig" ./configure --prefix="$HOME/ffmpeg_build" --pkg-config-flags="--static" --extra-cflags="-I$HOME/ffmpeg_build/include" --extra-ldflags="-L$HOME/ffmpeg_build/lib" --extra-libs="-lpthread -lm" --ld="g++" --bindir="$HOME/bin" \
-    --enable-ffnvcodec \
-    --enable-cuda-nvcc \
-    --enable-libnpp \
-    --enable-chromaprint \
-    --enable-frei0r \
-    --enable-gpl \
-    --enable-ladspa \
-    --enable-libaom \
-    --enable-libass \
-    --enable-libbluray \
-    --enable-libbs2b \
-    --enable-libcaca \
-    --enable-libcdio \
-    --enable-libdav1d \
-    --enable-libfdk-aac \
-    --enable-libflite \
-    --enable-libfontconfig \
-    --enable-libfreetype \
-    --enable-libfribidi \
-    --enable-libgme  \
-    --enable-libmp3lame \
-    --enable-libopenmpt \
-    --enable-libopus \
-    --enable-libpulse \
-    --enable-librubberband \
-    --enable-libshine \
-    --enable-libsnappy \
-    --enable-libsoxr \
-    --enable-libspeex \
-    --enable-libsvtav1 \
-    --enable-libtheora \
-    --enable-libtwolame \
-    --enable-libvidstab \
-    --enable-libvo-amrwbenc \
-    --enable-libvorbis \
-    --enable-libvpx \
-    --enable-libx264 \
-    --enable-libx265 \
-    --enable-libxml2 \
-    --enable-libxvid \
-    --enable-nonfree \
-    --enable-opengl \
-    --enable-openssl \
-    --enable-version3 \
-    --enable-librubberband \
-    --enable-libharfbuzz \
-    --enable-libwebp \
-    --enable-libzimg \
-    --enable-libzvbi \
-    --enable-libgsm \
-    --enable-libvvenc \
-    --enable-vaapi
+    PATH="$HOME/bin:$PATH" \
+    PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig" \
+    ./configure \
+        --prefix="$HOME/ffmpeg_build" \
+        --pkg-config-flags="--static" \
+        --extra-cflags="-I$HOME/ffmpeg_build/include -I/usr/local/cuda/include" \
+        --extra-ldflags="-L$HOME/ffmpeg_build/lib -L/usr/local/cuda/lib64" \
+        --extra-libs="-lpthread -lm -lcuda -lnppc -lnppial -lnppicc -lnppidei -lnppif -lnppig -lnppim -lnppist -lnppisu -lnppitc" \
+        --ld="g++" \
+        --bindir="$HOME/bin" \
+        \
+        --enable-ffnvcodec \
+        --enable-cuda-nvcc \
+        --enable-libnpp \
+        \
+        --enable-chromaprint \
+        --enable-frei0r \
+        --enable-gpl \
+        --enable-ladspa \
+        --enable-libaom \
+        --enable-libass \
+        --enable-libbluray \
+        --enable-libbs2b \
+        --enable-libcaca \
+        --enable-libcdio \
+        --enable-libdav1d \
+        --enable-libfdk-aac \
+        --enable-libflite \
+        --enable-libfontconfig \
+        --enable-libfreetype \
+        --enable-libfribidi \
+        --enable-libgme  \
+        --enable-libmp3lame \
+        --enable-libopenmpt \
+        --enable-libopus \
+        --enable-libpulse \
+        --enable-librubberband \
+        --enable-libshine \
+        --enable-libsnappy \
+        --enable-libsoxr \
+        --enable-libspeex \
+        --enable-libsvtav1 \
+        --enable-libtheora \
+        --enable-libtwolame \
+        --enable-libvidstab \
+        --enable-libvo-amrwbenc \
+        --enable-libvorbis \
+        --enable-libvpx \
+        --enable-libx264 \
+        --enable-libx265 \
+        --enable-libxml2 \
+        --enable-libxvid \
+        --enable-nonfree \
+        --enable-opengl \
+        --enable-openssl \
+        --enable-version3 \
+        --enable-librubberband \
+        --enable-libharfbuzz \
+        --enable-libwebp \
+        --enable-libzimg \
+        --enable-libzvbi \
+        --enable-libgsm \
+        --enable-libvvenc \
+        --enable-vaapi
     PATH="$HOME/bin:$PATH" make -j$(nproc) && make -j$(nproc) install && hash -r
 
     # linkage
