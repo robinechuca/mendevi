@@ -231,6 +231,12 @@ def get_extractor(name: str, safe: bool = False) -> ExtractContext:
                 extract.extract_quality,
                 False,
             )
+        case "range":
+            extract = ExtractContext(
+                "Video encoding color range, 'tv' or 'pc'",
+                extract.extract_range,
+                None,
+            )
         case "shape":
             extractor = ExtractContext(
                 "The image shapes height x width in pixels",

@@ -91,7 +91,6 @@ vvc
     PATH="$HOME/bin:$PATH" make -j$(nproc)
     make -j$(nproc) install
 
-
 GPU \*_nvenc \*_nvdec
 ^^^^^^^^^^^^^^^^^^^^^
 
@@ -101,7 +100,7 @@ The code comes from the `ffmpeg guide <https://trac.ffmpeg.org/wiki/HWAccelIntro
 .. code:: shell
 
     # get dependencies
-    sudo apt install libc6 libc6-dev unzip libnuma1 libnuma-dev nvidia-cuda-toolkit
+    sudo apt install libc6 libc6-dev unzip libnuma1 libnuma-dev
 
     # chec cuda well installed
     if command -v nvidia-smi &> /dev/null; then
@@ -114,7 +113,6 @@ The code comes from the `ffmpeg guide <https://trac.ffmpeg.org/wiki/HWAccelIntro
     else
         echo "nvidia-smi is not working, please install cuda first"
     fi
-
 
 others
 ^^^^^^
