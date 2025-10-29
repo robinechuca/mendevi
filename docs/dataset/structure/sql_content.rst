@@ -141,37 +141,39 @@ To deserialize into an exploitable numpy array, please use the function :py:func
 Table t_vid_video
 -----------------
 
-+--------------------------+----------------+--------------------------------+
-| :ref:`vid_id`            | *BINARY(128)*  | the video key                  |
-+--------------------------+----------------+--------------------------------+
-| :ref:`vid_name`          | *TEXT*         | the basename of the video file |
-+--------------------------+----------------+--------------------------------+
-| :ref:`vid_codec`         | *TINYTEXT*     | the small codec name           |
-+--------------------------+----------------+--------------------------------+
-| :ref:`vid_duration`      | *FLOAT*        | the video duration             |
-+--------------------------+----------------+--------------------------------+
-| :ref:`vid_eotf`          | *TINYTEXT*     | the color transfer name        |
-+--------------------------+----------------+--------------------------------+
-| :ref:`vid_fps`           | *FLOAT*        | the framerate                  |
-+--------------------------+----------------+--------------------------------+
-| :ref:`vid_frames`        | *JSON*         | detailed content of all frames |
-+--------------------------+----------------+--------------------------------+
-| :ref:`vid_gamut`         | *TINYTEXT*     | the color primaries name       |
-+--------------------------+----------------+--------------------------------+
-| :ref:`vid_height`        | *SMALLINT*     | video height in pixels         |
-+--------------------------+----------------+--------------------------------+
-| :ref:`vid_pix_fmt`       | *TINYTEXT*     | bit depth and subsampling name |
-+--------------------------+----------------+--------------------------------+
-| :ref:`vid_size`          | *BIGINT*       | file size in bytes             |
-+--------------------------+----------------+--------------------------------+
-| :ref:`vid_width`         | *SMALLINT*     | video width in pixels          |
-+--------------------------+----------------+--------------------------------+
-| :ref:`vid_rms_sobel`     | *LONGLONGBLOB* | UVQ metric values              |
-+--------------------------+----------------+--------------------------------+
-| :ref:`vid_rms_time_diff` | *LONGLONGBLOB* | UVQ metric values              |
-+--------------------------+----------------+--------------------------------+
-| :ref:`vid_uvq`           | *LONGLONGBLOB* | UVQ metric values              |
-+--------------------------+----------------+--------------------------------+
++--------------------------+----------------+---------------------------------+
+| :ref:`vid_id`            | *BINARY(128)*  | the video key                   |
++--------------------------+----------------+---------------------------------+
+| :ref:`vid_name`          | *TEXT*         | the basename of the video file  |
++--------------------------+----------------+---------------------------------+
+| :ref:`vid_codec`         | *TINYTEXT*     | the small codec name            |
++--------------------------+----------------+---------------------------------+
+| :ref:`vid_duration`      | *FLOAT*        | the video duration              |
++--------------------------+----------------+---------------------------------+
+| :ref:`vid_eotf`          | *TINYTEXT*     | the color transfer name         |
++--------------------------+----------------+---------------------------------+
+| :ref:`vid_fps`           | *FLOAT*        | the framerate                   |
++--------------------------+----------------+---------------------------------+
+| :ref:`vid_frames`        | *JSON*         | detailed content of all frames  |
++--------------------------+----------------+---------------------------------+
+| :ref:`vid_gamut`         | *TINYTEXT*     | the color primaries name        |
++--------------------------+----------------+---------------------------------+
+| :ref:`vid_height`        | *SMALLINT*     | video height in pixels          |
++--------------------------+----------------+---------------------------------+
+| :ref:`vid_pix_fmt`       | *TINYTEXT*     | bit depth and subsampling name  |
++--------------------------+----------------+---------------------------------+
+| :ref:`vid_range`         | *TINYTEXT*     | full range (pc) or limited (tv) |
++--------------------------+----------------+---------------------------------+
+| :ref:`vid_size`          | *BIGINT*       | file size in bytes              |
++--------------------------+----------------+---------------------------------+
+| :ref:`vid_width`         | *SMALLINT*     | video width in pixels           |
++--------------------------+----------------+---------------------------------+
+| :ref:`vid_rms_sobel`     | *LONGLONGBLOB* | UVQ metric values               |
++--------------------------+----------------+---------------------------------+
+| :ref:`vid_rms_time_diff` | *LONGLONGBLOB* | UVQ metric values               |
++--------------------------+----------------+---------------------------------+
+| :ref:`vid_uvq`           | *LONGLONGBLOB* | UVQ metric values               |
++--------------------------+----------------+---------------------------------+
 
 Contains the essential absolute characteristics of a video file.
 
@@ -308,6 +310,13 @@ Catched by ``cutcutcodec.get_pix_fmt()``.
 .. code:: text
 
     yuv420p
+
+.. _vid_range:
+
+vid_range
+^^^^^^^^^
+
+The encoded range as a string, ``pc`` for the full range, or ``tv`` for the limited range.
 
 .. _vid_size:
 

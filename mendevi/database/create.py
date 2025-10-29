@@ -63,6 +63,7 @@ def create_database(filename: str | bytes | pathlib.Path):
             vid_gamut TINYTEXT,
             vid_height SMALLINT CHECK(vid_height > 0),
             vid_pix_fmt TINYTEXT,
+            vid_range TINYTEXT CHECK(vid_range IN ('pc', 'tv')),
             vid_size BIGINT CHECK(vid_width >= 0),
             vid_width SMALLINT CHECK(vid_width > 0),
 

@@ -463,7 +463,7 @@ def extract_quality(raw: dict[str]) -> float:
 @verif
 @SqlLinker("t_vid_video.vid_range")
 def extract_range(raw: dict[str]) -> str:
-    """Return the vide encoding range, 'tv' or 'pc'.
+    """Return the video encoding color range, 'tv' or 'pc'.
 
     Parameters
     ----------

@@ -369,20 +369,23 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs) -> list[st
             if kwargs["mode"] == "vbr":
                 cmd.extend([
                     "h264_nvenc",
+                    "-vsync", "0", "-hwaccel", "cuda", "-hwaccel_output_format", "cuda",
                     "-pix_fmt", "yuv420p",  # doesn't support 10 bits
                     "-preset", kwargs["quality"],
                     "-rc", "vbr",
                     "-cq", str(round(1.0 + kwargs["quality"]*50.0)),  # [1, 51]
                 ])
             else:
+                rate = f"{quality_to_rate(kwargs)}k"
                 cmd.extend([
                     "h264_nvenc",
+                    "-vsync", "0", "-hwaccel", "cuda", "-hwaccel_output_format", "cuda",
                     "-pix_fmt", "yuv420p",  # doesn't support 10 bits
+                    "-preset", kwargs["quality"],
                     "-b:v", rate,
                     "-minrate", rate,
                     "-maxrate", rate,
                     "-bufsize", rate,
-                    "-preset", kwargs["quality"],
                     "-rc", "cbr",
                 ])
             raise NotImplementedError

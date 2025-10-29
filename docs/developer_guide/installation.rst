@@ -284,7 +284,7 @@ Ensure that ``transmission-daemon`` is installed correctly with the good permiss
         sudo sed -i 's|Type=notify|Type=simple|g' /lib/systemd/system/transmission-daemon.service
         sudo sed -i 's|--log-level=error|--log-level=info|g' /lib/systemd/system/transmission-daemon.service
         sudo sed -i 's|"rpc-authentication-required": true|"rpc-authentication-required": false|g' /etc/transmission-daemon/settings.json
-        # sudo sed -i "s|User=debian-transmission|User=$USER|g" /lib/systemd/system/transmission-daemon.service
+        # sudo sed -i "s|User=$trans_user|User=$USER|g" /lib/systemd/system/transmission-daemon.service
         sudo systemctl daemon-reload
         sudo systemctl start transmission-daemon
         echo "type 'systemctl status $trans_user' to check the status"
@@ -371,9 +371,16 @@ If you have a GPU, please install CUDA or ROC then follow the `PyTorch installat
                 # verification
                 nvidia-smi
 
-                # install linker
+                # install nvcc
                 if ! command -v nvcc &> /dev/null; then
-                    sudo apt install nvidia-cuda-toolkit
+                    sudo apt install cuda-toolkit
+                    # add the toolkit into the path
+                    if ! grep -q "/usr/local/cuda/bin" ~/.bashrc; then
+                        echo 'export PATH=/usr/local/cuda/bin:$PATH' >> ~/.bashrc
+                        echo 'export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH' >> ~/.bashrc
+                    fi
+                    source ~/.bashrc
+                fi
             else
                 echo "cuda-driver package not found"
                 echo "please add the nvidia repository"

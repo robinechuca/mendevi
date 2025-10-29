@@ -115,6 +115,8 @@ def main(databases: tuple[str]):
                 for row in cursor_src.execute("SELECT * FROM t_enc_encode"):
                     row = dict(row)
                     del row["enc_id"]
+                    if "enc_vbr" in row:  # retrocompatibility with version <= 1.2.0
+                        row["enc_mode"] = "vbr" if row.pop("enc_vbr") else "cbr"
                     row["enc_env_id"] = env_old_to_new[row["enc_env_id"]]
                     row["enc_act_id"] = act_old_to_new[row["enc_act_id"]]
                     _insert_update(cursor_dst, row, "t_enc_encode", ())

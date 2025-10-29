@@ -175,4 +175,7 @@ def get_decode_cmd(
     filters.append("format=rgb24")  # to match monitor pixel conversion
     filters = ",".join(filters)
 
+    # test with "ffmpeg -hwaccels", and see all decoders with "ffmpeg -decoders | grep cuvid"
+    # ffmpeg -c:v h264_cuvid -i ...  # for gpu, see "ffmpeg -h decoder=h264_cuvid"
+    # time ffmpeg -vsync 0 -hwaccel cuda -hwaccel_output_format cuda -c:v h264_cuvid -i ref_sd_h264.mkv -f null /dev/null
     return ["ffmpeg", "-threads", "1", "-i", str(video), "-vf", filters, "-f", "null", os.devnull]
