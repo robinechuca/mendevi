@@ -311,7 +311,12 @@ def main(cmd: str, **kwargs):
                         warnings.add(msg)
 
                 # skip when file log is not yet created
-                if res.payload["stdout"] == "<no-log-yet>":
+                try:
+                    if res.payload["stdout"] == "<no-log-yet>":
+                        continue
+                except KeyError as err:
+                    logging.error("stop communication with %s", log_files)
+                    log_files.remove(log_file)
                     continue
 
                 # get job result
