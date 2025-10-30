@@ -247,11 +247,11 @@ Ensure that ``transmission-daemon`` is installed correctly with the good permiss
     # find transmission-daemon user
     trans_user=$(systemctl show -p User transmission-daemon.service | cut -d= -f2)
 
-    # create a common group with $USER and debian-transmission
+    # create a common group with $USER and $trans_user
     if getent group transshare > /dev/null; then
         echo 'ok - the group transshare already exists'
     else
-        echo "create a transshare group with $USER and debian-transmission..."
+        echo "create a transshare group with $USER and $trans_user..."
         sudo groupadd transshare
         sudo usermod -aG transshare "$USER"
         trans_user=$(systemctl show -p User transmission-daemon.service | cut -d= -f2)

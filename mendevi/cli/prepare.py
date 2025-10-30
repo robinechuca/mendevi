@@ -88,7 +88,7 @@ def _parse_args(prt: Printer, video: pathlib.Path, kwargs: dict):
     help="The framerate of the reference video.",
 )
 @click.option(
-    "--resolution",
+    "-r", "--resolution",
     type=ResolutionParamType(),
     help="The video resolution.",
 )
@@ -103,7 +103,7 @@ def _parse_args(prt: Printer, video: pathlib.Path, kwargs: dict):
     help="The colorspace.",
 )
 @click.option(
-    "--transfer",
+     "--transfer",
     type=click.Choice(list(cutcutcodec.core.colorspace.cst.TRC)),
     help="The electro-optical transfer function.",
 )
@@ -194,7 +194,7 @@ def main(video: str, output: str | None = None, **kwargs) -> pathlib.Path:
                 file[-1].append(f"t_{kwargs['transfer']}")
             if kwargs["range"] != values["range"]:
                 file[-1].append(f"r_{kwargs['range']}")
-            file.append(profile)
+            file[-1].append(profile)
             file[-1] = "_".join(file[-1]) + ".mp4"
         file = {len(f): f for f in file}
         file = file[min(file)]  # select the shortest name

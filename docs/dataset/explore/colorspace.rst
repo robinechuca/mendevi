@@ -47,5 +47,5 @@ Reproduce
     mendevi prepare park_joy.mp4 -p fhd --primaries bt2020 --transfer smpte2084 --range tv
     mendevi prepare park_joy.mp4 -p fhd --primaries bt2020 --transfer smpte2084 --range pc
 
-    mendevi encode -r 1 -c libx264 -c libsvtav1 --vbr 0 -n 2 reference*
+    mendevi encode -r 1 -c libx264 -c libsvtav1 --mode cbr -n 2 reference*
     mendevi probe --ref reference_park_joy_fhd.mp4 reference* sample*

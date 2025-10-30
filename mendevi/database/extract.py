@@ -414,7 +414,7 @@ def extract_mode(raw: dict[str]) -> str:
     raw : dict[str]
         The result line of select request.
     """
-    if (mode := raw["enc_vbr"]) is None:
+    if (mode := raw["enc_mode"]) is None:
         return None
     assert isinstance(mode, str), mode.__class__.__name__
     assert mode in {"cbr", "vbr"}, mode
