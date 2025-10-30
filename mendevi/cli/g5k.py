@@ -299,7 +299,11 @@ def main(cmd: str, **kwargs):
                 (log_file_, res_)
                 for log_file_ in log_files.copy()
                 for res_ in enoslib.run_command(
-                    f'if [ -f "{log_file_}" ]; then cat "{log_file_}"; else echo "<no-log-yet>"; fi',
+                    (
+                        f'if [ -f "{log_file_}" ]; '
+                        f'then cat "{log_file_}"; '
+                        'else echo "<no-log-yet>"; fi'
+                    ),
                     roles=roles,
                     on_error_continue=True,
                 )
@@ -314,7 +318,7 @@ def main(cmd: str, **kwargs):
                 try:
                     if res.payload["stdout"] == "<no-log-yet>":
                         continue
-                except KeyError as err:
+                except KeyError:
                     logging.error("stop communication with %s", log_files)
                     log_files.remove(log_file)
                     continue

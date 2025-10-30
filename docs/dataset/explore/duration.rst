@@ -37,3 +37,22 @@ Bitrate as a function of the number of frame at constant quality
 
 .. image:: /_static/media/duration_rate_frames.svg
     :alt: Energy per frame as a function of the number of frames
+
+Reproduce
+---------
+
+First, generate the video segments
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The first step is to extract random length segments from a video.
+
+The video used is ``bbb.mp4``, the length of the segments follows a base-10 exponential probability distribution.
+
+Next, perform the measurements
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code:: shell
+
+    mendevi encode reference* -r 10 -c libx264 -c libsvtav1 -e fast -e medium -m cbr -m vbr -n 2
+    mendevi probe reference* sample* --no-lpips-alex --no-lpips-vgg --no-uvq --no-vmaf
+    mendevi decode sample* -r 10

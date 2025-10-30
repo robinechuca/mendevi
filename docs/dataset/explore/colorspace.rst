@@ -12,7 +12,6 @@ Download
 
     mendevi download colorspace.db.xz.torrent
 
-
 * `colorspace.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/colorspace.json.xz?inline=false>`_ (0 Mo).
 * `colorspace.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/colorspace.db.xz.torrent?inline=false>`_ (0 Go).
 
@@ -29,3 +28,24 @@ Distortion as a function of bitrate
 .. image:: /_static/media/colorspace_bdr.svg
     :alt: Distortion as a function of bitrate
 
+Reproduce
+---------
+
+.. code:: shell
+
+    mendevi prepare park_joy.mp4 -p fhd
+    mendevi prepare park_joy.mp4 -p fhd --primaries bt709 --transfer gamma22 --range tv
+    mendevi prepare park_joy.mp4 -p fhd --primaries bt709 --transfer gamma22 --range pc
+    mendevi prepare park_joy.mp4 -p fhd --primaries bt709 --transfer bt709 --range tv
+    mendevi prepare park_joy.mp4 -p fhd --primaries bt709 --transfer bt709 --range pc
+    mendevi prepare park_joy.mp4 -p fhd --primaries bt709 --transfer smpte2084 --range tv
+    mendevi prepare park_joy.mp4 -p fhd --primaries bt709 --transfer smpte2084 --range pc
+    mendevi prepare park_joy.mp4 -p fhd --primaries bt2020 --transfer gamma22 --range tv
+    mendevi prepare park_joy.mp4 -p fhd --primaries bt2020 --transfer gamma22 --range pc
+    mendevi prepare park_joy.mp4 -p fhd --primaries bt2020 --transfer bt709 --range tv
+    mendevi prepare park_joy.mp4 -p fhd --primaries bt2020 --transfer bt709 --range pc
+    mendevi prepare park_joy.mp4 -p fhd --primaries bt2020 --transfer smpte2084 --range tv
+    mendevi prepare park_joy.mp4 -p fhd --primaries bt2020 --transfer smpte2084 --range pc
+
+    mendevi encode -r 1 -c libx264 -c libsvtav1 --vbr 0 -n 2 reference*
+    mendevi probe --ref reference_park_joy_fhd.mp4 reference* sample*

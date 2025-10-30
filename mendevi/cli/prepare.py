@@ -181,7 +181,7 @@ def main(video: str, output: str | None = None, **kwargs) -> pathlib.Path:
         # find filename
         file = []
         for profile, values in PROFILES.items():
-            file.append(["reference", video.stem, profile])
+            file.append(["reference", video.stem])
             if kwargs["fps"] != values["fps"]:
                 file[-1].append(f"{float(kwargs['fps']):.2f}fps")
             if kwargs["resolution"] != values["resolution"]:
@@ -194,6 +194,7 @@ def main(video: str, output: str | None = None, **kwargs) -> pathlib.Path:
                 file[-1].append(f"t_{kwargs['transfer']}")
             if kwargs["range"] != values["range"]:
                 file[-1].append(f"r_{kwargs['range']}")
+            file.append(profile)
             file[-1] = "_".join(file[-1]) + ".mp4"
         file = {len(f): f for f in file}
         file = file[min(file)]  # select the shortest name
