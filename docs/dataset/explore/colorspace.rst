@@ -29,6 +29,3 @@ Distortion as a function of bitrate
 .. image:: /_static/media/colorspace_bdr.svg
     :alt: Distortion as a function of bitrate
 
-
-
-mendevi plot mendevi.db -x rate -y psnr -c transfer -m '(primaries, range)' -f 'name=="park_joy" and codec != "ffv1"'

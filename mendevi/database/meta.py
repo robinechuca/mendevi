@@ -162,6 +162,12 @@ def get_extractor(name: str, safe: bool = False) -> ExtractContext:
                 extract.extract_height,
                 False,
             )
+        case "gamut" | "primaries" | "color_primaries":
+            extractor = ExtractContext(
+                "The tristimulus primaries colors name",
+                extract.extract_gamut,
+                None,
+            )
         case "hostname":
             extractor = ExtractContext(
                 "The machine name",
@@ -260,6 +266,12 @@ def get_extractor(name: str, safe: bool = False) -> ExtractContext:
                 "Number of threads provided as a parameter to the encoder",
                 extract.extract_threads,
                 False,
+            )
+        case "transfer" | "color_transfer" | "eotf":
+            extractor = ExtractContext(
+                "The non-linear transfer function name",
+                extract.extract_transfer,
+                None,
             )
         case "vmaf":
             extractor = ExtractContext(

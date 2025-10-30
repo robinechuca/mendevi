@@ -66,6 +66,10 @@ JOIN: dict[str: dict[str, str]] = {  # join = JOIN[destination_table][source_tab
             "JOIN t_vid_video AS t_ref_video "
             "ON t_enc_from_dec.enc_src_vid_id = t_ref_video.vid_id"
         ),
+        "t_met_metric": (
+            "JOIN t_vid_video AS t_ref_video "
+            "ON t_met_metric.met_ref_vid_id = t_ref_video.vid_id"
+        ),
     },
     "t_dst_video": {  # the transcoded video
         "t_enc_encode": (
@@ -75,6 +79,10 @@ JOIN: dict[str: dict[str, str]] = {  # join = JOIN[destination_table][source_tab
         "t_dec_decode": (
             "JOIN t_vid_video AS t_dst_video "
             "ON t_dec_decode.dec_vid_id = t_dst_video.vid_id"
+        ),
+        "t_met_metric": (
+            "JOIN t_vid_video AS t_dst_video "
+            "ON t_met_metric.met_dis_vid_id = t_dst_video.vid_id"
         ),
     },
 }
@@ -306,6 +314,22 @@ def extract_frames(raw: dict[str]) -> list[dict]:
 
 
 @verif
+@SqlLinker("t_dst_video.vid_gamut")
+def extract_gamut(raw: dict[str]) -> str:
+    """Return the tristimulus primaries colors name.
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+    """
+    if (gamut := raw["vid_gamut"]) is None:
+        return None
+    assert isinstance(gamut, str), gamut.__class__.__name__
+    return gamut
+
+
+@verif
 @SqlLinker("t_dst_video.vid_height")
 def extract_height(raw: dict[str]) -> int:
     """Return the height of images in pixels.
@@ -461,7 +485,7 @@ def extract_quality(raw: dict[str]) -> float:
 
 
 @verif
-@SqlLinker("t_vid_video.vid_range")
+@SqlLinker("t_dst_video.vid_range")
 def extract_range(raw: dict[str]) -> str:
     """Return the video encoding color range, 'tv' or 'pc'.
 
@@ -522,6 +546,22 @@ def extract_threads(raw: dict[str]) -> int:
     assert isinstance(threads, numbers.Integral), threads.__class__.__name__
     assert threads >= 1, threads.__class__.__name__
     return int(threads)
+
+
+@verif
+@SqlLinker("t_dst_video.vid_eotf")
+def extract_transfer(raw: dict[str]) -> str:
+    """Return the non-linear transfer function name.
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+    """
+    if (transfer := raw["vid_eotf"]) is None:
+        return None
+    assert isinstance(transfer, str), transfer.__class__.__name__
+    return transfer
 
 
 @verif
