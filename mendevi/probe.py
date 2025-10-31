@@ -103,7 +103,7 @@ def _fill_vid_table(database: pathlib.Path, vid_id: bytes, video: pathlib.Path, 
         new_metrics = cutcutcodec.video_metrics(
             video,
             rms_sobel="vid_rms_sobel" in fields,
-            rms_time_diff="vid_time_diff" in fields,
+            rms_time_diff="vid_rms_time_diff" in fields,
             uvq="vid_uvq" in fields,
         )
         for metric in sorted(new_metrics):
