@@ -37,6 +37,10 @@ color, marker : str, optional
     All points with the same value for this variable will be displayed in the same color and marker.
     Conversely, this allows points that do not share this criterion to be visually separated.
     The possible values are the same as for the x and y parameters.
+error : str, optional
+    Allows you to average several points within the same error bar.
+    The string provided is a Python expression or variable.
+    All points with the same image across this function are grouped together.
 window : str, optional
     Rather than putting everything in the same chart, this allows you to create sub-windows.
     There will be as many sub-windows as there are different values taken by this criterion.
@@ -91,6 +95,15 @@ def _parse_args(prt: Printer, kwargs: dict):
         assert names.issubset(LABELS), \
             f"{names-set(LABELS)} are invalid names, it has to be one of {LABELS}"
         prt.print(f"marker    : {kwargs['marker']}")
+
+    # error
+    kwargs["error"] = kwargs.get("error", None)
+    if kwargs["error"] is not None:
+        assert isinstance(kwargs["error"], str), kwargs["error"].__class__.__name__
+        names = extract_names(kwargs["error"])
+        assert names.issubset(LABELS), \
+            f"{names-set(LABELS)} are invalid names, it has to be one of {LABELS}"
+        prt.print(f"error     : {kwargs['error']}")
 
     # window
     kwargs["window"] = kwargs.get("window", None)
@@ -182,6 +195,11 @@ def _parse_args(prt: Printer, kwargs: dict):
     "-wy", "--window-y",
     type=str,
     help="The criterion on which to separate into sub-windows along y axis."
+)
+@click.option(
+    "-e", "--error",
+    type=str,
+    help="Merge criteria for the error bar."
 )
 @click.option(
     "--filter", "-f",

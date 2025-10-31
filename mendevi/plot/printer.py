@@ -27,6 +27,7 @@ def printer(**kwargs) -> str:
     code.extend(print_header())
     code.extend(print_import())
     code.extend(print_cst(**kwargs))
+    code.extend(print_mean_std())
     code.extend(print_read_sql(**kwargs))
     code.extend(print_fill_axe(**kwargs))
     code.extend(print_main(**kwargs))
@@ -53,6 +54,29 @@ def print_entry() -> list[str]:
         "    values: dict[str] = read_sql(DATABASE)",
         "    main(values)",
         "",
+    ]
+
+
+def print_error(**kwargs) -> list[str]:
+    """Helper for print_fill_axe."""
+    if kwargs["error"] is not None:
+        return [
+            "",
+            "# compute error bar",
+            f"errs = list(set(values[{kwargs['error']!r}]))  # list to frozen order",
+            "xerr, yerr = {e: [] for e in errs}, {e: [] for e in errs}",
+            f"for x, y, err in zip(x_data, y_data, values[{kwargs['error']!r}]):",
+            "    xerr[err].append(x)",
+            "    yerr[err].append(y)",
+            "xerr = [xerr[e] for e in errs if xerr[e]]",
+            "yerr = [yerr[e] for e in errs if yerr[e]]",
+            "x_data, xerr = zip(*map(mean_std, xerr))",
+            "y_data, yerr = zip(*map(mean_std, yerr))",
+            "",
+        ]
+    return [
+        "xerr = [math.nan for _ in x_data]",
+        "yerr = [math.nan for _ in y_data]",
     ]
 
 
@@ -118,8 +142,10 @@ def print_fill_axe(**kwargs) -> list[str]:
         case (True, True):  # no color, no marker
             code.extend([
                 "    x_data, y_data = values[xlab], values[ylab]",
+                *(f"    {line}" for line in print_error(**kwargs)),
                 "    axe.errorbar(",
                 "        x_data, y_data,",
+                "        xerr=xerr, yerr=yerr,",
                 "        color=COLORS[0],",
                 "        fmt=MARKERS[0],",
                 "        capsize=3,",
@@ -134,8 +160,10 @@ def print_fill_axe(**kwargs) -> list[str]:
                 "            k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()",
                 "        }",
                 "        x_data, y_data = sub_values[xlab], sub_values[ylab]",
+                *(f"        {line}" for line in print_error(**kwargs)),
                 "        axe.errorbar(",
                 "            x_data, y_data,",
+                "            xerr=xerr, yerr=yerr,",
                 f'            label=f"{kwargs["color"]}={{color_label}}", ',
                 "            color=color,",
                 "            fmt=MARKERS[0],",
@@ -151,8 +179,10 @@ def print_fill_axe(**kwargs) -> list[str]:
                 "            k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()",
                 "        }",
                 "        x_data, y_data = sub_values[xlab], sub_values[ylab]",
+                *(f"        {line}" for line in print_error(**kwargs)),
                 "        axe.errorbar(",
                 "            x_data, y_data,",
+                "            xerr=xerr, yerr=yerr,",
                 f'            label=f"{kwargs["marker"]}={{marker_label}}", ',
                 "            color=COLORS[0],",
                 "            fmt=marker,",
@@ -195,8 +225,10 @@ def print_fill_axe(**kwargs) -> list[str]:
                 "            k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()",
                 "        }",
                 "        x_data, y_data = sub_values[xlab], sub_values[ylab]",
+                *(f"        {line}" for line in print_error(**kwargs)),
                 "        axe.errorbar(",
                 "            x_data, y_data,",
+                "            xerr=xerr, yerr=yerr,",
                 "            color=color,",
                 "            fmt=marker,",
                 "            capsize=3,",
@@ -222,9 +254,11 @@ def print_import() -> list[str]:
     """Print the importations."""
     return [
         "import itertools",
+        "import math",
         "import pathlib",
         "import sqlite3",
         "",
+        "from context_verbose import Printer",
         "from mendevi.exceptions import RejectError",
         "from mendevi.plot.tools import smartsort",
         "from mendevi.utils import best_profile",
@@ -449,7 +483,7 @@ def print_main(**kwargs) -> list[str]:
     code.extend([
         "",
         "    # save the figure",
-        "    plt.savefig(FIGNAME, format=FIGNAME.suffix[1:])",
+        "    plt.savefig(FIGNAME, format=FIGNAME.suffix[1:], transparent=False)",
         "    plt.show()",
         "",
         "",
@@ -457,17 +491,32 @@ def print_main(**kwargs) -> list[str]:
     return code
 
 
+def print_mean_std() -> list[str]:
+    """Return the code to compute the mean and the std of a list."""
+    return [
+        "def mean_std(data: list[float]) -> tuple[float, float]:",
+        '    """Compute the mean and the unbiaised std of a list."""',
+        "    match nbr := float(len(data)):",
+        "        case 0.0:",
+        "            return math.nan, math.nan",
+        "        case 1.0:",
+        "           return data[0], math.nan",
+        "    mean = sum(data) / nbr",
+        "    if (var_sum := sum((x-mean)**2 for x in data)) == 0.0:",
+        "        return mean, math.nan",
+        "    std = math.sqrt(var_sum / (nbr - 1.0))",
+        "    return mean, std",
+        "",
+        "",
+    ]
+
+
 def print_read_sql(**kwargs) -> list[str]:
     """Return the code of the function that perform the sql request."""
     names: set[str] = {lbl.strip() for lbl in kwargs["x"] + kwargs["y"]}
-    if kwargs["color"] is not None:
-        names.add(kwargs["color"].strip())
-    if kwargs["marker"] is not None:
-        names.add(kwargs["marker"].strip())
-    if kwargs["window_x"] is not None:
-        names.add(kwargs["window_x"].strip())
-    if kwargs["window_y"] is not None:
-        names.add(kwargs["window_y"].strip())
+    for lbl in ["color", "marker", "window_x", "window_y", "error_x", "error_y"]:
+        if kwargs[lbl] is not None:
+            names.add(kwargs[lbl].strip())
 
     # get sql query
     atom_names, line_extractor = merge_extractors(names, select=kwargs["filter"])
@@ -484,7 +533,7 @@ def print_read_sql(**kwargs) -> list[str]:
         "def read_sql(database: pathlib.Path) -> dict[str, list]:",
         '    """Extract the relevant values from the database."""',
         f"    values: dict[str, list] = {{{', '.join(f'{n!r}: []' for n in sorted(names))}}}",
-        "    with sqlite3.connect(database) as conn:",
+        '    with sqlite3.connect(database) as conn, Printer("Read database...") as prt:',
         "        conn.row_factory = sqlite3.Row",
         "        for raw in conn.execute(",
         '            """',
@@ -502,6 +551,7 @@ def print_read_sql(**kwargs) -> list[str]:
         "                continue",
         "            for label, value in line.items():",
         "                values[label].append(value)",
+        "        prt.print_time()",
         "    return values",
         "",
         "",
