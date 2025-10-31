@@ -261,11 +261,7 @@ def extract_effort(raw: dict[str]) -> str:
 
 
 @verif
-@SqlLinker(
-    "t_enc_encode.enc_cmd",
-    "t_ref_video.vid_name AS ref_vid_name",
-    "t_dst_video.vid_name AS dst_vid_name",
-)
+@SqlLinker("t_enc_encode.enc_cmd",)
 def extract_encode_cmd(raw: dict[str]) -> str:
     """Return the ffmpeg command used for encoding.
 
@@ -276,9 +272,7 @@ def extract_encode_cmd(raw: dict[str]) -> str:
     """
     if (cmd := raw["enc_cmd"]) is None:
         return None
-    ref = raw["ref_vid_name"] or "ref.mp4"
-    dst = raw["dst_vid_name"] or "dst.mp4"
-    return cmd.replace("ref.mp4", ref).replace("dst.mp4", dst)
+    return cmd
 
 
 @verif

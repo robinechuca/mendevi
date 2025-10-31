@@ -63,13 +63,13 @@ def print_error(**kwargs) -> list[str]:
         return [
             "",
             "# compute error bar",
-            f"errs = list(set(values[{kwargs['error']!r}]))  # list to frozen order",
+            f"errs = list(set(sub_values[{kwargs['error']!r}]))  # list to frozen order",
             "xerr, yerr = {e: [] for e in errs}, {e: [] for e in errs}",
-            f"for x, y, err in zip(x_data, y_data, values[{kwargs['error']!r}]):",
+            f"for x, y, err in zip(x_data, y_data, sub_values[{kwargs['error']!r}]):",
             "    xerr[err].append(x)",
             "    yerr[err].append(y)",
-            "xerr = [xerr[e] for e in errs if xerr[e]]",
-            "yerr = [yerr[e] for e in errs if yerr[e]]",
+            "xerr = [xerr[e] for e in errs]",
+            "yerr = [yerr[e] for e in errs]",
             "x_data, xerr = zip(*map(mean_std, xerr))",
             "y_data, yerr = zip(*map(mean_std, yerr))",
             "",
@@ -514,7 +514,7 @@ def print_mean_std() -> list[str]:
 def print_read_sql(**kwargs) -> list[str]:
     """Return the code of the function that perform the sql request."""
     names: set[str] = {lbl.strip() for lbl in kwargs["x"] + kwargs["y"]}
-    for lbl in ["color", "marker", "window_x", "window_y", "error_x", "error_y"]:
+    for lbl in ["color", "marker", "window_x", "window_y", "error"]:
         if kwargs[lbl] is not None:
             names.add(kwargs[lbl].strip())
 

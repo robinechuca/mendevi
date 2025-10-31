@@ -129,7 +129,7 @@ def get_extractor(name: str, safe: bool = False) -> ExtractContext:
         case "encode_scenario" | "enc_scenario":
             return ExtractContext(
                 "Unique string specific to the encoding scenario",
-                'f"cmd: {encode_cmd}, hostname: {hostname}"',
+                'f"cmd: {encode_cmd}, video_name: {video_name}, hostname: {hostname}"',
                 None,
             )
         case "encoder":
