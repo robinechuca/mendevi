@@ -360,7 +360,12 @@ def merge_extractors(
                 for ls in lbl_func.values() if isinstance(ls, str)
                 for lbl in extract_names(ls)
             }
-        return lbl_atom, tree
+        # remove tree redundency
+        set_tree = []
+        for lbl in tree:
+            if lbl not in set_tree:
+                set_tree.append(lbl)
+        return lbl_atom, set_tree
 
     # selector
     if select is not None:

@@ -75,8 +75,8 @@ def print_error(**kwargs) -> list[str]:
             "",
         ]
     return [
-        "xerr = [math.nan for _ in x_data]",
-        "yerr = [math.nan for _ in y_data]",
+        "xerr = None",
+        "yerr = None",
     ]
 
 
