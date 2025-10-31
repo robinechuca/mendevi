@@ -34,18 +34,14 @@ Reproduce
 .. code:: shell
 
     mendevi prepare park_joy.mp4 -p fhd
-    mendevi prepare park_joy.mp4 -p fhd --primaries bt709 --transfer gamma22 --range tv
-    mendevi prepare park_joy.mp4 -p fhd --primaries bt709 --transfer gamma22 --range pc
-    mendevi prepare park_joy.mp4 -p fhd --primaries bt709 --transfer bt709 --range tv
-    mendevi prepare park_joy.mp4 -p fhd --primaries bt709 --transfer bt709 --range pc
-    mendevi prepare park_joy.mp4 -p fhd --primaries bt709 --transfer smpte2084 --range tv
-    mendevi prepare park_joy.mp4 -p fhd --primaries bt709 --transfer smpte2084 --range pc
-    mendevi prepare park_joy.mp4 -p fhd --primaries bt2020 --transfer gamma22 --range tv
-    mendevi prepare park_joy.mp4 -p fhd --primaries bt2020 --transfer gamma22 --range pc
-    mendevi prepare park_joy.mp4 -p fhd --primaries bt2020 --transfer bt709 --range tv
-    mendevi prepare park_joy.mp4 -p fhd --primaries bt2020 --transfer bt709 --range pc
-    mendevi prepare park_joy.mp4 -p fhd --primaries bt2020 --transfer smpte2084 --range tv
-    mendevi prepare park_joy.mp4 -p fhd --primaries bt2020 --transfer smpte2084 --range pc
+    for prim in bt601 bt709 bt2020
+    do
+        for trans in linear gamma22 gamma28 smpte170m smpte2084 log316
+        do
+            mendevi prepare park_joy.mp4 -p fhd --primaries $prim --transfer $trans --range tv
+            mendevi prepare park_joy.mp4 -p fhd --primaries $prim --transfer $trans --range pc
+        done
+    done
 
-    mendevi encode -r 1 -c libx264 -c libsvtav1 --mode cbr -n 2 reference*
+    mendevi encode -r 1 -c libx264 -c libsvtav1 --mode vbr reference*
     mendevi probe --ref reference_park_joy_fhd.mp4 reference* sample*
