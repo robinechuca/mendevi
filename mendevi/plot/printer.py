@@ -63,9 +63,9 @@ def print_error(**kwargs) -> list[str]:
         return [
             "",
             "# compute error bar",
-            f"errs = list(set(sub_values[{kwargs['error']!r}]))  # list to frozen order",
+            'errs = list(set(sub_values["error"]))  # list to frozen order',
             "xerr, yerr = {e: [] for e in errs}, {e: [] for e in errs}",
-            f"for x, y, err in zip(x_data, y_data, sub_values[{kwargs['error']!r}]):",
+            'for x, y, err in zip(x_data, y_data, sub_values["error"]):',
             "    xerr[err].append(x)",
             "    yerr[err].append(y)",
             "xerr = [xerr[e] for e in errs]",
@@ -135,9 +135,9 @@ def print_fill_axe(**kwargs) -> list[str]:
         '    """Fill in the axis with the data provided as input."""',
     ]
     if kwargs["color"] is not None:
-        code.append(f"    color_labels = sorted(set(values[{kwargs['color']!r}]), key=smartsort)")
+        code.append('    color_labels = sorted(set(values["color"]), key=smartsort)')
     if kwargs["marker"] is not None:
-        code.append(f"    marker_labels = sorted(set(values[{kwargs['marker']!r}]), key=smartsort)")
+        code.append('    marker_labels = sorted(set(values["marker"]), key=smartsort)')
     match (kwargs["color"] is None, kwargs["marker"] is None):
         case (True, True):  # no color, no marker
             code.extend([
@@ -155,7 +155,7 @@ def print_fill_axe(**kwargs) -> list[str]:
         case (False, True):  # only color
             code.extend([
                 "    for color_label, color in zip(color_labels, itertools.cycle(COLORS)):",
-                f"        mask = [v == color_label for v in values[{kwargs['color']!r}]]",
+                '        mask = [v == color_label for v in values["color"]]',
                 "        sub_values = {",
                 "            k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()",
                 "        }",
@@ -174,7 +174,7 @@ def print_fill_axe(**kwargs) -> list[str]:
         case (True, False):  # only marker
             code.extend([
                 "    for marker_label, marker in zip(marker_labels, itertools.cycle(MARKERS)):",
-                f"        mask = [v == marker_label for v in values[{kwargs['marker']!r}]]",
+                '        mask = [v == marker_label for v in values["marker"]]',
                 "        sub_values = {",
                 "            k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()",
                 "        }",
@@ -215,11 +215,7 @@ def print_fill_axe(**kwargs) -> list[str]:
                 "    ):",
                 "        mask = [",
                 "            vc == color_label and vm == marker_label",
-                (
-                    "            for vc, vm in zip("
-                    f"values[{kwargs['color']!r}], values[{kwargs['marker']!r}]"
-                    ")"
-                ),
+                '            for vc, vm in zip(values["color"], values["marker"])',
                 "        ]",
                 "        sub_values = {",
                 "            k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()",
@@ -283,6 +279,8 @@ def print_subfigure(**kwargs) -> list[str]:
         ),
         f'    """Create the subchart for y={kwargs["ylabel"]} and x={kwargs["xlabel"]}."""',
     ]
+    xlabel = f"x_{kwargs['x'].index(kwargs['xlabel'])}"
+    ylabel = f"y_{kwargs['y'].index(kwargs['ylabel'])}"
     log_x = get_extractor(kwargs["xlabel"], safe=True).is_log
     log_y = get_extractor(kwargs["ylabel"], safe=True).is_log
     match (kwargs["window_y"] is None, kwargs["window_x"] is None):
@@ -290,131 +288,74 @@ def print_subfigure(**kwargs) -> list[str]:
             middle = [
                 "    # create a simple figure",
                 '    axe = subfig.subplots(sharex="col")  # or "all"',
-                f"    fill_axe(axe, values, ylab={kwargs['ylabel']!r}, xlab={kwargs['xlabel']!r})",
+                f"    fill_axe(axe, values, ylab={ylabel!r}, xlab={xlabel!r})",
                 *(f"    {line}" for line in print_grid("axe", log_y, "y")),
                 *(f"    {line}" for line in print_grid("axe", log_x, "x")),
             ]
         case (False, True):
             middle = [
                 "    # create a 1d vertical subplot figure",
-                f"    all_{safe_lbl(kwargs['window_y'])}_values = sorted(",
-                f"        set(values[{kwargs['window_y']!r}]), ",
-                "        key=smartsort,",
-                "    )",
-                f"    nrows = len(all_{safe_lbl(kwargs['window_y'])}_values)",
+                '    all_window_y_values = sorted(set(values["window_y"]), key=smartsort)',
+                "    nrows = len(all_window_y_values)",
                 '    axes = subfig.subplots(nrows=nrows, squeeze=False, sharex="col")  # or "all"',
                 "",
                 "    # iterate over all subplots",
-                (
-                    f"    for i, {safe_lbl(kwargs['window_y'])}_value "
-                    f"in enumerate(all_{safe_lbl(kwargs['window_y'])}_values):"
-                ),
+                "    for i, window_y_value in enumerate(all_window_y_values):",
                 "        # select the correct data subset",
-                "        mask = [",
-                f"            y == {safe_lbl(kwargs['window_y'])}_value ",
-                f"            for y in values[{kwargs['window_y']!r}]",
-                "        ]",
+                '        mask = [y == window_y_value for y in values["window_y"]]',
                 "        sub_values = {",
                 "            k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()",
                 "        }",
-                f"        axes[i, 0].set_title({safe_lbl(kwargs['window_y'])}_value)",
-                "        fill_axe(",
-                "            axes[i, 0], ",
-                "            sub_values, ",
-                f"            ylab={kwargs['ylabel']!r}, ",
-                f"            xlab={kwargs['xlabel']!r},",
-                "        )",
+                f"        axes[i, 0].set_title(window_y_value)",
+                f"        fill_axe(axes[i, 0], sub_values, ylab={ylabel!r}, xlab={xlabel!r})",
                 *(f"        {line}" for line in print_grid("axes[i, 0]", log_y, "y")),
                 *(f"        {line}" for line in print_grid("axes[i, 0]", log_x, "x")),
             ]
         case (True, False):
             middle = [
                 "    # create a 1d horizontal subplot figure",
-                f"    all_{safe_lbl(kwargs['window_x'])}_values = sorted("
-                f"        set(values[{kwargs['window_x']!r}]), ",
-                "        key=smartsort,",
-                "    )",
-                f"    ncols = len(all_{safe_lbl(kwargs['window_x'])}_values)",
+                '    all_window_x_values = sorted(set(values["window_x"]), key=smartsort)',
+                f"    ncols = len(all_window_x_values)",
                 '    axes = subfig.subplots(ncols=ncols, squeeze=False, sharey="row")  # or "all"',
                 "",
                 "    # iterate over all subplots",
-                (
-                    f"    for j, {safe_lbl(kwargs['window_x'])}_value "
-                    f"in enumerate(all_{kwargs['window_x']}_values):"
-                ),
+                "    for j, window_x_value in enumerate(all_window_x_values):",
                 "        # select the correct data subset",
-                "        mask = [",
-                f"            x == {safe_lbl(kwargs['window_x'])}_value ",
-                f"            for x in values[{kwargs['window_x']!r}]",
-                "        ]",
+                '        mask = [x == window_x_value for x in values["window_x"]]',
                 "        sub_values = {",
                 "            k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()",
                 "        }",
-                f"        axes[0, j].set_title({safe_lbl(kwargs['window_x'])}_value)",
-                "        fill_axe(",
-                "            axes[0, j], ",
-                "            sub_values, ",
-                f"            ylab={kwargs['ylabel']!r}, ",
-                f"            xlab={kwargs['xlabel']!r},",
-                "        )",
+                f"        axes[0, j].set_title(window_x_value)",
+                f"        fill_axe(axes[0, j], sub_values, ylab={ylabel!r}, xlab={xlabel!r})",
                 *(f"        {line}" for line in print_grid("axes[0, j]", log_y, "y")),
                 *(f"        {line}" for line in print_grid("axes[0, j]", log_x, "x")),
             ]
         case (False, False):  # 2d grid subplot
             middle = [
                 "    # create a 2d grid subplot figure",
-                f"    all_{safe_lbl(kwargs['window_y'])}_values = sorted(",
-                f"        set(values[{kwargs['window_y']!r}]), ",
-                "        key=smartsort,",
-                "    )",
-                f"    all_{safe_lbl(kwargs['window_x'])}_values = sorted(",
-                f"        set(values[{kwargs['window_x']!r}]), ",
-                "        key=smartsort,",
-                "    )",
-                (
-                    "    nrows, ncols = "
-                    f"len(all_{safe_lbl(kwargs['window_y'])}_values), "
-                    f"len(all_{safe_lbl(kwargs['window_x'])}_values)"
-                ),
+                '    all_window_y_values = sorted(set(values["window_y"]), key=smartsort)',
+                '    all_window_x_values = sorted(set(values["window_x"]), key=smartsort)',
+                "    nrows, ncols = len(all_window_y_values), len(all_window_x_values)",
                 "    axes = subfig.subplots(",
                 '        nrows, ncols, squeeze=False, sharex="col", sharey="row",',
                 '    )  # or "all"',
                 "",
                 "    # iterate over all subplots",
-                (
-                    f"    for (i, {safe_lbl(kwargs['window_y'])}_value), "
-                    f"(j, {safe_lbl(kwargs['window_x'])}_value) "
-                    "in itertools.product("
-                ),
-                (
-                    f"        enumerate(all_{safe_lbl(kwargs['window_y'])}_values), "
-                    f"enumerate(all_{safe_lbl(kwargs['window_x'])}_values)"
-                ),
+                "    for (i, window_y_value), (j, window_x_value) in itertools.product(",
+                "        enumerate(all_window_y_values), enumerate(all_window_x_values)",
                 "    ):",
                 "        # select the correct data subset",
                 "        mask = [",
-                (
-                    f"            y == {safe_lbl(kwargs['window_y'])}_value "
-                    f"and x == {safe_lbl(kwargs['window_x'])}_value"
-                ),
-                "            for y, x in zip(",
-                f"               values[{kwargs['window_y']!r}], values[{kwargs['window_x']!r}]",
-                "            )",
+                "            y == window_y_value and x == window_x_value",
+                '            for y, x in zip(values["window_y"], values["window_x"])',
                 "        ]",
                 "        sub_values = {",
                 "            k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()",
                 "        }",
                 "        axes[i, j].set_title(",
-                (
-                    f"            f'{{{safe_lbl(kwargs['window_y'])}_value}} "
-                    f"{{{safe_lbl(kwargs['window_x'])}_value}}'"
-                ),
+                '            f"{window_y_value} {window_x_value}"',
                 "        )",
-                (
-                    "        fill_axe("
-                    f"axes[i, j], sub_values, ylab={kwargs['ylabel']!r}, xlab={kwargs['xlabel']!r}"
-                    ")"
-                ),
+                f"        fill_axe(axes[i, j], sub_values, ylab={ylabel!r}, xlab={xlabel!r})",
                 *(f"        {line}" for line in print_grid("axes[i, j]", log_y, "y")),
                 *(f"        {line}" for line in print_grid("axes[i, j]", log_x, "x")),
             ]
@@ -513,13 +454,18 @@ def print_mean_std() -> list[str]:
 
 def print_read_sql(**kwargs) -> list[str]:
     """Return the code of the function that perform the sql request."""
-    names: set[str] = {lbl.strip() for lbl in kwargs["x"] + kwargs["y"]}
-    for lbl in ["color", "marker", "window_x", "window_y", "error"]:
-        if kwargs[lbl] is not None:
-            names.add(kwargs[lbl].strip())
+    alias = {
+        f"x_{i}": expr for i, expr in enumerate(kwargs["x"])
+    } | {
+        f"y_{i}": expr for i, expr in enumerate(kwargs["y"])
+    } | {
+        lbl: kwargs[lbl]
+        for lbl in ["color", "marker", "window_x", "window_y", "error"]
+        if kwargs[lbl] is not None
+    }
 
     # get sql query
-    atom_names, line_extractor = merge_extractors(names, select=kwargs["filter"])
+    atom_names, line_extractor = merge_extractors(set(), alias=alias, select=kwargs["filter"])
     select = {s for lbl in atom_names for s in get_extractor(lbl).func.select}
     if len(queries := SqlLinker(*select).sql) == 0:
         logging.warning("fail to create the SQL query, please provide it yourself")
@@ -532,7 +478,7 @@ def print_read_sql(**kwargs) -> list[str]:
         "",
         "def read_sql(database: pathlib.Path) -> dict[str, list]:",
         '    """Extract the relevant values from the database."""',
-        f"    values: dict[str, list] = {{{', '.join(f'{n!r}: []' for n in sorted(names))}}}",
+        f"    values: dict[str, list] = {{{', '.join(f'{n!r}: []' for n in sorted(alias))}}}",
         '    with sqlite3.connect(database) as conn, Printer("Read database...") as prt:',
         "        conn.row_factory = sqlite3.Row",
         "        for raw in conn.execute(",

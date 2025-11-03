@@ -317,97 +317,133 @@ def get_extractor(name: str, safe: bool = False) -> ExtractContext:
 
 
 def merge_extractors(
-    labels: set[str], select: typing.Optional[str] = None, return_callable: bool = False
-) -> ast.Module:
+    labels: set[str],
+    alias: typing.Optional[dict[str, str]] = None,
+    select: typing.Optional[str] = None,
+    return_callable: bool = False
+) -> tuple[set[str]]:
     r'''Return the source code of the function that extracts all variables.
+
+    Parameters
+    ----------
+    labels : set[str]
+        The returned variable names. These are the keys to the output dictionary.
+    alias : dict[str, str], optional
+        By default, the label extraction method is defined by the function :py:func:`get_extractor`.
+        This list of aliases allows any unknown key to define a customised access method.
+    select : str, optional
+        A Python Boolean expression that raises a RejectError exception if it evaluates to False.
+    return_callable : boolean, default=False
+        By default, returns the source code of the function.
+        If this option is set to True, an executable function is returned.
+
+    Returns
+    -------
+    lbls_atom : set[str]
+        The name of the primary value to be extracted for the SQL query.
+    func : list[str] or callable
+        The function that consumes a line from the SQL query,
+        and returns the dictionary of extracted values.
 
     Examples
     --------
     >>> from mendevi.database.meta import merge_extractors
-    >>> print("\n".join(merge_extractors({"rate", "profile"})[1]))
+    >>> print("\n".join(merge_extractors({"rate", "enc_scenario"}, select="'yeti' in hostname")[1]))
     def line_extractor(raw: dict[str]) -> dict[str]:
-    """Get the labels: profile, rate."""
-        # deserialisation of basic values
-        profile = extract.extract_profile(raw)
+        """Get the labels: enc_scenario, rate, reject."""
+        hostname = extract.extract_hostname(raw)
+        reject = not ('yeti' in hostname)
+        if reject:
+            raise RejectError("this line must be filtered")
+        encode_cmd = extract.extract_encode_cmd(raw)
         size = extract.extract_video_size(raw)
+        video_name = extract.extract_video_name(raw)
         video_duration = extract.extract_video_duration(raw)
-    <BLANKLINE>
-        # association of basic values
-        rate = 8.0 * size / video_duration
-    <BLANKLINE>
-        # packaging
+        enc_scenario = f"cmd: {encode_cmd}, video_name: {video_name}, hostname: {hostname}"
+        rate = None if size is None or video_duration is None else 8.0 * size / video_duration
         return {
-            'profile': profile
-            'rate': rate
+            'enc_scenario': enc_scenario,
+            'rate': rate,
+            'reject': reject,
         }
-    >>>
     '''
     assert isinstance(labels, set), labels.__class__.__name__
     assert all(isinstance(lbl, str) for lbl in labels), labels.__class__.__name__
+    alias = (alias or {}).copy()
+    assert isinstance(alias, dict), alias.__class__.__name__
+    assert all(isinstance(k, str) for k in alias), alias
+    assert "reject" not in alias, "'reject' is a forbidden key for 'alias'"
     if select is not None:
         assert isinstance(select, str), select.__class__.__name__
 
-    def get_atom_tree(labels: set[str]) -> tuple[set[str], list[str]]:
-        """Return the minimalist labels name and the way to associate them."""
-        lbl_atom: set[str] = set()  # all atomic symbols
-        tree: list[str] = []  # intermediate symbols, in the correct order
-        lbl_func = {lbl: get_extractor(lbl).func for ls in labels for lbl in extract_names(ls)}
-        while lbl_func:
-            lbl_atom |= {lbl for lbl, f in lbl_func.items() if callable(f)}
-            tree = sorted(lbl for lbl in lbl_func if lbl not in lbl_atom) + tree
-            lbl_func = {
-                lbl: get_extractor(lbl).func
-                for ls in lbl_func.values() if isinstance(ls, str)
-                for lbl in extract_names(ls)
-            }
-        # remove tree redundency
-        set_tree = []
-        for lbl in tree:
-            if lbl not in set_tree:
-                set_tree.append(lbl)
-        return lbl_atom, set_tree
-
-    # selector
+    # recursively extracts all steps
+    # 1) initialisation of the tree leaves
+    for lbl in labels:
+        alias[lbl] = alias.get(lbl, get_extractor(lbl).func)
+    labels = sorted(alias)
     if select is not None:
-        select_lbl_atom, select_tree = get_atom_tree(extract_names(select))
-        check_lines = [
-            "    # exit if data are undesirable",
-            *(
-                f"    {lbl} = extract.{get_extractor(lbl).func.__name__}(raw)"
-                for lbl in sorted(select_lbl_atom)
-            ),
-            *(f"    {lbl} = {get_extractor(lbl).func}" for lbl in select_tree),
-            f"    if not ({select}):",
-            '        raise RejectError("this line must be filtered")',
-            "",
-        ]
-        select_tree = set(select_tree)
-    else:
-        select_lbl_atom = set()
-        select_tree = set()
-        check_lines = []
+        alias["reject"] = f"not ({select})"
+    # 2) recursive exploration of the tree to find the roots
+    leaves = {leave for leave, expr in alias.items() if not callable(expr)}
+    while leaves:
+        new_alias = {
+            lbl: get_extractor(lbl).func
+            for branch in leaves
+            for lbl in extract_names(alias[branch]) if lbl not in alias
+        }
+        alias |= new_alias
+        leaves = {leave for leave, expr in new_alias.items() if not callable(expr)}
+    # 3) keep all roots in meomry
+    lbls_atom = {root for root, func in alias.items() if callable(func)}
 
-    # final code, all together
-    lbl_atom, tree = get_atom_tree(labels)
+    # organising lines in the correct order
+    def get_roots(alias: dict[str], leave: str) -> str:
+        """Explore the tree and return a root."""
+        if callable(alias[leave]):
+            yield leave
+        elif subtree := {
+            root
+            for lbl in extract_names(alias[leave]) if lbl in alias
+            for root in get_roots(alias, lbl)
+        }:
+            yield from sorted(subtree)
+        else:  # case not callable but not subtree ever
+            yield leave
+
+    # 1) extract 'reject' first, go strait on it
+    tree: list[tuple[str, str]] = []  # orderd dict
+    while "reject" in alias:
+        root = next(iter(get_roots(alias, "reject")))
+        tree.append((root, alias.pop(root)))
+    # 2) extract the others
+    while alias:
+        for lbl in labels:
+            if lbl in alias:
+                root = next(iter(get_roots(alias, lbl)))
+                tree.append((root, alias.pop(root)))
+
+    # print the main functions
     code = [
         "def line_extractor(raw: dict[str]) -> dict[str]:",
         f'    """Get the labels: {", ".join(sorted(labels))}."""',
-        *check_lines,
-        "    # extract revelant values",
-        *(
-            f"    {lbl} = extract.{get_extractor(lbl).func.__name__}(raw)"
-            for lbl in sorted(lbl_atom - select_lbl_atom)  # limit redundancy
-        ),
-        *(f"    {lbl} = {get_extractor(lbl).func}" for lbl in tree if lbl not in select_tree),
-        "",
-        "    # packaging",
-        "    return {",
-        *(f"        {lbl!r}: {lbl}," for lbl in sorted(labels)),
-        "    }"
     ]
-    lbl_atom |= select_lbl_atom
+    for lbl, func in tree:
+        if callable(func):
+            code.append(f"    {lbl} = extract.{func.__name__}(raw)")
+        else:
+            code.append(f"    {lbl} = {func}")
+        if lbl == "reject":
+            code.extend([
+                "    if reject:",
+                '        raise RejectError("this line must be filtered")',
+            ])
+    code.extend([
+        "    return {",
+        *(f"        {lbl!r}: {lbl}," for lbl in labels),
+        "    }"
+    ])
     if not return_callable:
-        return lbl_atom, code
+        return lbls_atom, code
 
     # import the source code as a function
     code = [
@@ -423,4 +459,4 @@ def merge_extractors(
     modulevar = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(modulevar)
     path.unlink()
-    return lbl_atom, modulevar.line_extractor
+    return lbls_atom, modulevar.line_extractor
