@@ -82,9 +82,10 @@ Create the virtual environment.
 .. code:: shell
 
     pyenv update
-    env PYTHON_CONFIGURE_OPTS="--enable-shared --enable-optimizations --with-lto" PYTHON_CFLAGS='-march=native -mtune=native' \
-    pyenv install -v 3.14
-    pyenv virtualenv 3.14 mendevi
+    # --enable-experimental-jit=yes
+    env PYTHON_CONFIGURE_OPTS="--enable-shared --enable-optimizations --with-lto=yes --enable-bolt" PYTHON_CFLAGS='-march=native -mtune=native' \
+    pyenv install -v 3.14t
+    pyenv virtualenv 3.14t mendevi
     pyenv activate mendevi
     pip install uv
 
@@ -287,7 +288,7 @@ Ensure that ``transmission-daemon`` is installed correctly with the good permiss
         # sudo sed -i "s|User=$trans_user|User=$USER|g" /lib/systemd/system/transmission-daemon.service
         sudo systemctl daemon-reload
         sudo systemctl start transmission-daemon
-        echo "type 'systemctl status $trans_user' to check the status"
+        echo "type 'systemctl status transmission-daemon' to check the status"
     fi
 
     # enable transmission-daemon
