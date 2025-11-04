@@ -365,7 +365,7 @@ def extract_lpips(raw: dict[str]) -> float:
     """
     if (lpips := raw["met_lpips_vgg"] or raw["met_lpips_alex"]) is None:
         return None
-    return float(binary_to_list(lpips).mean())
+    return float(binary_to_list(lpips).nanmean())
 
 
 @verif
@@ -380,7 +380,7 @@ def extract_lpips_alex(raw: dict[str]) -> float:
     """
     if (lpips := raw["met_lpips_alex"]) is None:
         return None
-    return float(binary_to_list(lpips).mean())
+    return float(binary_to_list(lpips).nanmean())
 
 
 @verif
@@ -395,7 +395,7 @@ def extract_lpips_vgg(raw: dict[str]) -> float:
     """
     if (lpips := raw["met_lpips_vgg"]) is None:
         return None
-    return float(binary_to_list(lpips).mean())
+    return float(binary_to_list(lpips).nanmean())
 
 
 @verif
@@ -458,7 +458,7 @@ def extract_psnr(raw: dict[str]) -> float:
     """
     if (psnr := raw["met_psnr"]) is None:
         return None
-    return float(binary_to_list(psnr).mean())
+    return float(binary_to_list(psnr).nanmean())
 
 
 @verif
@@ -507,7 +507,7 @@ def extract_ssim(raw: dict[str]) -> float:
     """
     if (ssim := raw["met_ssim"]) is None:
         return None
-    return float(binary_to_list(ssim).mean())
+    return float(binary_to_list(ssim).nanmean())
 
 
 @verif
@@ -522,7 +522,7 @@ def extract_ssim_comp(raw: dict[str]) -> float:
     """
     if (ssim := raw["met_ssim"]) is None:
         return None
-    return 1.0 - float(binary_to_list(ssim).mean())
+    return 1.0 - float(binary_to_list(ssim).nanmean())
 
 
 @verif
@@ -633,7 +633,7 @@ def extract_vmaf(raw: dict[str]) -> float:
     """
     if (vmaf := raw["met_vmaf"]) is None:
         return None
-    return float(binary_to_list(vmaf).mean())
+    return float(binary_to_list(vmaf).nanmean())
 
 
 @verif

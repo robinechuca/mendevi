@@ -108,7 +108,7 @@ def _fill_vid_table(database: pathlib.Path, vid_id: bytes, video: pathlib.Path, 
         )
         for metric in sorted(new_metrics):
             values = new_metrics[metric]
-            prt.print(f"{metric:<{pad}}: {np.mean(values):.2f} +/- {np.std(values):.2f}")
+            prt.print(f"{metric:<{pad}}: {np.nanmean(values):.2f} +/- {np.nanstd(values):.2f}")
         prop |= {f"vid_{m}": list_to_binary(v) for m, v in new_metrics.items()}
 
     # update result
