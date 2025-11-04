@@ -8,6 +8,8 @@ import numbers
 import re
 import typing
 
+import numpy as np
+
 from mendevi.database.serialize import binary_to_list, binary_to_tensor
 
 
@@ -365,7 +367,7 @@ def extract_lpips(raw: dict[str]) -> float:
     """
     if (lpips := raw["met_lpips_vgg"] or raw["met_lpips_alex"]) is None:
         return None
-    return float(binary_to_list(lpips).nanmean())
+    return float(np.nanmean(binary_to_list(lpips)))
 
 
 @verif
@@ -380,7 +382,7 @@ def extract_lpips_alex(raw: dict[str]) -> float:
     """
     if (lpips := raw["met_lpips_alex"]) is None:
         return None
-    return float(binary_to_list(lpips).nanmean())
+    return float(np.nanmean(binary_to_list(lpips)))
 
 
 @verif
@@ -395,7 +397,7 @@ def extract_lpips_vgg(raw: dict[str]) -> float:
     """
     if (lpips := raw["met_lpips_vgg"]) is None:
         return None
-    return float(binary_to_list(lpips).nanmean())
+    return float(np.nanmean(binary_to_list(lpips)))
 
 
 @verif
@@ -458,7 +460,7 @@ def extract_psnr(raw: dict[str]) -> float:
     """
     if (psnr := raw["met_psnr"]) is None:
         return None
-    return float(binary_to_list(psnr).nanmean())
+    return float(np.nanmean(binary_to_list(psnr)))
 
 
 @verif
@@ -507,22 +509,7 @@ def extract_ssim(raw: dict[str]) -> float:
     """
     if (ssim := raw["met_ssim"]) is None:
         return None
-    return float(binary_to_list(ssim).nanmean())
-
-
-@verif
-@SqlLinker("t_met_metric.met_ssim")
-def extract_ssim_comp(raw: dict[str]) -> float:
-    """Return the complementary of Structural Similarity (1-SSIM).
-
-    Parameters
-    ----------
-    raw : dict[str]
-        The result line of select request.
-    """
-    if (ssim := raw["met_ssim"]) is None:
-        return None
-    return 1.0 - float(binary_to_list(ssim).nanmean())
+    return float(np.nanmean(binary_to_list(ssim)))
 
 
 @verif
@@ -633,7 +620,7 @@ def extract_vmaf(raw: dict[str]) -> float:
     """
     if (vmaf := raw["met_vmaf"]) is None:
         return None
-    return float(binary_to_list(vmaf).nanmean())
+    return float(np.nanmean(binary_to_list(vmaf)))
 
 
 @verif

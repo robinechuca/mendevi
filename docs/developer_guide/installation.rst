@@ -82,6 +82,11 @@ Create the virtual environment.
 .. code:: shell
 
     pyenv update
+    # on fedora, force to used gcc rather clang
+    export CC=gcc
+    export CXX=g++
+    export LLVM_CONFIG=
+    export LLVM_DIR=
     env PYTHON_CONFIGURE_OPTS="--enable-shared --enable-optimizations --with-lto=yes --enable-experimental-jit=yes --enable-bolt" PYTHON_CFLAGS='-march=native -mtune=native' \
     pyenv install -v 3.14
     pyenv virtualenv 3.14 mendevi

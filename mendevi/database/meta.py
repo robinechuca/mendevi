@@ -258,7 +258,7 @@ def get_extractor(name: str, safe: bool = False) -> ExtractContext:
         case "ssim_comp" | "comp_ssim" | "ssim_rev" | "rev_ssim":
             extractor = ExtractContext(
                 "Complementary of Structural Similarity (1-SSIM)",
-                extract.extract_ssim_comp,
+                "1.0 - ssim",
                 True,
             )
         case "threads":
