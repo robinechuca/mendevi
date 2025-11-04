@@ -8,6 +8,7 @@ import pathlib
 import sqlite3
 import typing
 
+from context_verbose import Printer
 import numpy as np
 import torch
 
@@ -15,6 +16,7 @@ from mendevi.cst.labels import LABELS
 from mendevi.database.create import is_sqlite
 from mendevi.database.extract import SqlLinker
 from mendevi.database.meta import get_extractor, merge_extractors
+from mendevi.download.decapsulation import retrive_file
 
 
 class Model(abc.ABC):
@@ -47,7 +49,7 @@ class Model(abc.ABC):
         output_labels : list[str]
             The name of all output parameters.
             The possibles values are :py:cst:`mendevi.plot.axis.Name`.
-        parameters : torch.Tensor, optional
+        parameters : object, optional
             The learnable parameters for regressive models.
         """
         assert set(kwargs).issubset({"sources", "input_labels", "output_labels", "parameters"})
@@ -68,9 +70,7 @@ class Model(abc.ABC):
         self._output_labels = output_labels
 
         # check parameters
-        if (parameters := kwargs.get("parameters", None)) is not None:
-            parameters = torch.asarray(parameters)
-        self._parameters = None
+        self._parameters = kwargs.get("parameters", None)
 
         # check title
         if title is None:
@@ -125,36 +125,44 @@ class Model(abc.ABC):
         self
             A reference to the inplace fitted model.
         """
-        # verification
-        # if self._parameters is None:
-        #     raise RuntimeError("This model is not trainable.")
-        database = pathlib.Path(database).expanduser()
-        assert is_sqlite(database), f"{database} is not a valid SQL database"
+        with Printer(f"Fit {self._title!r}...", color="pink") as prt:
+            # verification
+            database = retrive_file(database)
+            assert is_sqlite(database), f"{database} is not a valid SQL database"
 
-        # get sql query
-        atom_names, line_extractor = merge_extractors(
-            set(self._input_labels), select=select, return_callable=True
-        )
-        if query is None:
-            select = {s for lbl in atom_names for s in get_extractor(lbl).func.select}
-            if len(queries := SqlLinker(*select).sql) == 0:
-                raise RuntimeError("fail to create the SQL query, please provide it yourself")
-            if len(queries) > 1:
-                logging.warning("several request founded %s, please provide it yourself", queries)
-            query = queries.pop(0)
-        else:
-            assert isinstance(query, str), query.__class__.__name__
+            # get sql query
+            prt.print("get SQL query")
+            atom_names, line_extractor = merge_extractors(
+                set(self._input_labels) | set(self._output_labels),
+                select=select,
+                return_callable=True,
+            )
+            if query is None:
+                select = {s for lbl in atom_names for s in get_extractor(lbl).func.select}
+                if len(queries := SqlLinker(*select).sql) == 0:
+                    raise RuntimeError("fail to create the SQL query, please provide it yourself")
+                if len(queries) > 1:
+                    logging.warning(
+                        "several request founded %s, please select it yourself", queries
+                    )
+                query = queries.pop(0)
+            else:
+                assert isinstance(query, str), query.__class__.__name__
 
-        # perform sql request
-        values = {label: [] for label in self._input_labels}
-        with sqlite3.connect(database) as conn:
-            conn.row_factory = sqlite3.Row
-            for raw in conn.execute(query):
-                for label, value in line_extractor(dict(raw)).items():
-                    values[label].append(value)
+            # perform sql request
+            prt.print("perform SQL query")
+            values = {label: [] for label in set(self._input_labels) | set(self._output_labels)}
+            with sqlite3.connect(database) as conn:
+                conn.row_factory = sqlite3.Row
+                for raw in conn.execute(query):
+                    for label, value in line_extractor(dict(raw)).items():
+                        values[label].append(value)
 
-        # fit the model
-        self._fit(values)
+            # fit the model
+            prt.print("fit the model")
+            self._fit(values)
+
+            prt.print_time()
         return self
 
     @property
@@ -175,9 +183,9 @@ class Model(abc.ABC):
     @parameters.setter
     def parameters(self, new_params: torch.Tensor):
         """Update the parameters."""
-        new_params = torch.asarray(new_params)
         if self._parameters is not None:
-            assert self._parameters.shape == new_params.shape
+            if new_params.__class__ != self._parameters.__class__:
+                logging.warning("chage the type of parameters")
         self._parameters = new_params
 
     def predict(self, *input_args, **input_kwargs) -> dict[str]:
@@ -193,39 +201,45 @@ class Model(abc.ABC):
         prediction : dict[str]
             Associate each ouput variable with the prediction.
         """
-        # check args
-        values: dict[str] = {}
-        for i, arg in enumerate(input_args):
-            if i == len(self._input_labels):
-                raise ValueError(
-                    f"only {len(self._input)} arguments expeted {self._input_labels}, "
-                    f"{input_args} given"
-                )
-            values[self._input_labels[i]] = arg
-        for name, arg in input_kwargs.items():
-            if name in values:
-                raise ValueError(f"argument {name} given twice")
-            if name not in self._input:
-                raise ValueError(f"only {self._input_labels} arguments excpected, not {name}")
-            values[name] = arg
+        with Printer(f"Predict {self._title!r}...", color="pink") as prt:
+            # check args
+            prt.print("check args")
+            values: dict[str] = {}
+            for i, arg in enumerate(input_args):
+                if i == len(self._input_labels):
+                    raise ValueError(
+                        f"only {len(self._input)} arguments expeted {self._input_labels}, "
+                        f"{input_args} given"
+                    )
+                values[self._input_labels[i]] = arg
+            for name, arg in input_kwargs.items():
+                if name in values:
+                    raise ValueError(f"argument {name} given twice")
+                if name not in self._input:
+                    raise ValueError(f"only {self._input_labels} arguments excpected, not {name}")
+                values[name] = arg
 
-        # cast args
-        for name, arg in values.copy().items():
-            match arg:
-                case float():
-                    values[name] = torch.asarray(arg, dtype=torch.float32)
-                case np.ndarray():
-                    values[name] = torch.from_numpy(arg)
-                case list():
-                    if all(isinstance(item, float) for item in arg):
+            # cast args
+            prt.print("cast args")
+            for name, arg in values.copy().items():
+                match arg:
+                    case float():
                         values[name] = torch.asarray(arg, dtype=torch.float32)
+                    case np.ndarray():
+                        values[name] = torch.from_numpy(arg)
+                    case list():
+                        if all(isinstance(item, float) for item in arg):
+                            values[name] = torch.asarray(arg, dtype=torch.float32)
+                prt.print(f"{name} = {str(values[name]):.80}")
 
-        # predict
-        prediction = self._predict(values)
+            # predict
+            prt.print("predict")
+            prediction = self._predict(values)
 
-        # chack output
-        assert isinstance(prediction, dict), prediction.__class__.__name__
-        assert prediction.key() == set(self._output), \
-            f"_predict must return {self._output}, not {sorted(prediction)}"
+            # check output
+            assert isinstance(prediction, dict), prediction.__class__.__name__
+            assert prediction.keys() == set(self._output_labels), \
+                f"_predict must return {self._output_labels}, not {sorted(prediction)}"
 
+            prt.print_time()
         return prediction

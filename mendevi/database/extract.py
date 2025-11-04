@@ -123,12 +123,27 @@ class SqlLinker:
 
         # put in form the queries
         queries: list[str] = []
-        for src_table in sorted(joins, key=lambda t: (len(joins[t]), t)):  # priority no join
+        for src_table in sorted(
+            joins,
+            key=lambda t: (
+                len(joins[t]),
+                {
+                    "t_vid_video": 0,
+                    "t_act_activity": 1,
+                    "t_met_metric": 2,
+                    "t_enc_encode": 3,
+                    "t_dec_decode": 4,
+                    "t_env_environment": 5,
+                }[t],
+            )
+        ):  # priority no join
             select_str = f"SELECT {', '.join(self.select)}"
             if len(select_str) >= 80:
                 select_str = f"SELECT\n    {',\n    '.join(self.select)}"
             table_str = f"FROM {src_table}"
-            if (join_str := "\n".join(re.sub(" ON ", "\n    ON ", j) for j in joins[src_table])):
+            if (join_str := "\n".join(
+                re.sub(" ON ", "\n    ON ", j) for j in sorted(joins[src_table])
+            )):
                 sql = f"{select_str}\n{table_str}\n{join_str}"
             else:
                 sql = f"{select_str}\n{table_str}"
