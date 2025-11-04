@@ -33,15 +33,14 @@ First install the `python dependencies <https://github.com/pyenv/pyenv/wiki#sugg
 
         .. code:: shell
 
-            sudo apt install libedit-dev libncurses5-dev
-            sudo apt install build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev curl git libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
+            sudo apt install libedit-dev libncurses5-dev build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev curl git libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev llvm-bolt
 
     .. tab:: RHEL CentOS Fedora
 
         .. code:: shell
 
             sudo dnf install openssl11-devel --allowerasing
-            sudo dnf install gcc make patch zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel
+            sudo dnf install gcc make patch zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel openssl-devel tk-devel libffi-devel xz-devel llvm-bolt
 
     .. tab:: Arch Manjaro
 
@@ -63,7 +62,8 @@ First install the `python dependencies <https://github.com/pyenv/pyenv/wiki#sugg
     .. code:: shell
 
         brew install ncurses
-        brew install openssl readline sqlite3 xz zlib tcl-tk
+        brew install openssl readline sqlite3 xz zlib tcl-tk llvm
+        brew link llvm --force
         brew install pyenv
 
 .. tab:: Windows
@@ -82,10 +82,9 @@ Create the virtual environment.
 .. code:: shell
 
     pyenv update
-    # --enable-experimental-jit=yes
-    env PYTHON_CONFIGURE_OPTS="--enable-shared --enable-optimizations --with-lto=yes --enable-bolt" PYTHON_CFLAGS='-march=native -mtune=native' \
-    pyenv install -v 3.14t
-    pyenv virtualenv 3.14t mendevi
+    env PYTHON_CONFIGURE_OPTS="--enable-shared --enable-optimizations --with-lto=yes --enable-experimental-jit=yes --enable-bolt" PYTHON_CFLAGS='-march=native -mtune=native' \
+    pyenv install -v 3.14
+    pyenv virtualenv 3.14 mendevi
     pyenv activate mendevi
     pip install uv
 
