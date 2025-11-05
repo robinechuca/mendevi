@@ -24,7 +24,7 @@ After generating a database by following `these steps <https://mendevi.readthedo
 
 2) You must then compress these raw files by typing ``xz -vve9T1 --lzma2=dict=1GiB mendevi.json`` and ``xz -vvke9T1 --lzma2=dict=1GiB mendevi.db``.
 
-3) Rename files with a meaningful name, for example ``mv mendevi.json.xz coucougnoux.json.xz && `mv mendevi.db.xz coucougnoux.db.xz``
+3) Rename files with a meaningful name, for example ``mv mendevi.json.xz coucougnoux.json.xz && mv mendevi.db.xz coucougnoux.db.xz``
 
 4) Create a torent file, start to `install transmission-daemon <https://mendevi.readthedocs.io/latest/developer_guide/installation.html#transmission>`_.
 Then, you can create it with (change the filename and the description):

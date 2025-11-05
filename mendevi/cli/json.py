@@ -218,6 +218,6 @@ def main(database: str, **kwargs):
     content = [content[k] for k in sorted(content)]
     with Printer("Write JSON database...", color="cyan") as prt:
         content = orjson.dumps(content, option=orjson.OPT_INDENT_2|orjson.OPT_SORT_KEYS)
-        with open(output, "w", encoding="utf-8") as raw:
+        with open(output, "wb") as raw:
             raw.write(content)
         prt.print_time()

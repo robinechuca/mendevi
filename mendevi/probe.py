@@ -68,7 +68,9 @@ def _fill_vid_table(database: pathlib.Path, vid_id: bytes, video: pathlib.Path, 
                     header, info = cutcutcodec.core.analysis.ffprobe.get_slices_metadata(video)
                     header, info = header[0], info[0]
                     frames = [dict(zip(header, line)) for line in info.tolist()]
-                    prop["vid_frames"] = orjson.dumps(frames)
+                    prop["vid_frames"] = orjson.dumps(
+                        frames, option=orjson.OPT_INDENT_2|orjson.OPT_SORT_KEYS
+                    ).decode()
                     prt.print(f"{'frames':<{pad}}: {len(frames)} frames")
                 case "vid_height":
                     prop["vid_height"] = cutcutcodec.get_resolution(video)[0]
