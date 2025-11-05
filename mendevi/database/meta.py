@@ -162,7 +162,7 @@ def get_extractor(name: str, safe: bool = False) -> ExtractContext:
                 extract.extract_height,
                 False,
             )
-        case "gamut" | "primaries" | "color_primaries":
+        case "gamut" | "prim" | "primaries" | "color_primaries":
             extractor = ExtractContext(
                 "The tristimulus primaries colors name",
                 extract.extract_gamut,
@@ -267,7 +267,7 @@ def get_extractor(name: str, safe: bool = False) -> ExtractContext:
                 extract.extract_threads,
                 False,
             )
-        case "transfer" | "color_transfer" | "eotf":
+        case "transfer" | "trans" | "color_transfer" | "eotf":
             extractor = ExtractContext(
                 "The non-linear transfer function name",
                 extract.extract_transfer,
