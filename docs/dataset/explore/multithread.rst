@@ -43,7 +43,7 @@ Final energy as a function of the provided number of threads
 
 .. code:: shell
 
-    mendevi plot '<multithread.db>' -x threads -y energy -wx encoder -wy profile -c effort -m quality -f '"aerial" in name'
+mendevi plot '<multithread.db>' -x threads -y energy -wx encoder -wy profile -c effort -m quality -e '(threads, name)'
 
 .. image:: /_static/media/multithread_energy_threads.svg
     :alt: Final energy as a function of the provided number of threads

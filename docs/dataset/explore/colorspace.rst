@@ -31,7 +31,7 @@ Distortion as a function of bitrate for several colorspaces
 
 .. code:: shell
 
-    mendevi plot mendevi.db -x rate -y psnr -y ssim_comp -c eotf -m '(prim, range)' -wx 'name=="park_joy"' -f 'codec!="ffv1"'
+    mendevi plot '<colorspace.db>' -x rate -y psnr -y ssim_comp -c eotf -m '(prim, range)' -wx 'name=="park_joy"' -f 'codec!="ffv1"'
 
 .. image:: /_static/media/colorspace_bdr.svg
     :alt: Distortion as a function of bitrate
@@ -43,7 +43,7 @@ The reference videos ``park_joy_*`` are transformed back using the inverse color
 
 .. code:: shell
 
-    mendevi plot mendevi.db -x rate -y psnr -c eotf -m '(prim, range)' -f 'codec=="ffv1"'
+    mendevi plot '<colorspace.db>' -x rate -y psnr -c eotf -m '(prim, range)' -f 'codec=="ffv1"'
 
 .. image:: /_static/media/colorspace_bij.svg
     :alt: Lossless back colorspace transformation
