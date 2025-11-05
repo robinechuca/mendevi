@@ -2,13 +2,13 @@
 
 """Interacted with transmission-daemon."""
 
-import json
 import logging
 import pathlib
 import subprocess
 import time
 import typing
 
+import orjson
 import tqdm
 
 from context_verbose import Printer
@@ -105,8 +105,8 @@ def wait_until_finished(name: str):
                 capture_output=True,
             )
             try:
-                states = json.loads(out.stdout)
-            except json.decoder.JSONDecodeError as err:
+                states = orjson.loads(out.stdout)
+            except orjson.JSONDecodeError as err:
                 raise ImportError(
                     f"the transmission-daemon package appears to be corrupted, {out.stdout}"
                 ) from err

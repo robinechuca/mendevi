@@ -2,13 +2,13 @@
 
 """Extract the main fields from an SQL database into JSON format."""
 
-import json
 import pathlib
 import sqlite3
 
 from context_verbose import Printer
 from cutcutcodec.utils import mround
 import click
+import orjson
 
 from mendevi.database.meta import merge_extractors
 from .parse import parse_videos_database
@@ -217,6 +217,7 @@ def main(database: str, **kwargs):
     # write json
     content = [content[k] for k in sorted(content)]
     with Printer("Write JSON database...", color="cyan") as prt:
+        content = orjson.dumps(content, option=orjson.OPT_INDENT_2|orjson.OPT_SORT_KEYS)
         with open(output, "w", encoding="utf-8") as raw:
-            json.dump(content, raw, indent=4, sort_keys=True)
+            raw.write(content)
         prt.print_time()

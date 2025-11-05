@@ -119,7 +119,7 @@ def guess_servers() -> list[str]:
         servers = subprocess.run(["oarnodes", "--json"], capture_output=True, check=True)
     except FileNotFoundError:
         return []
-    servers = json.loads(servers.stdout)
+    servers = orjson.loads(servers.stdout)
 
     # select with wattmeter
     servers = {
@@ -325,8 +325,8 @@ def main(cmd: str, **kwargs):
 
                 # get job result
                 try:
-                    res = json.loads(res.payload["stdout"])
-                except json.JSONDecodeError as err:
+                    res = orjson.loads(res.payload["stdout"])
+                except orjson.JSONDecodeError as err:
                     logging.error(res.payload)
                     raise err
                 if res.get("changed", False) or "rc" in res:

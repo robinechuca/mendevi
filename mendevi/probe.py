@@ -3,7 +3,6 @@
 """Perform the metrics and video properties measures."""
 
 import datetime
-import json
 import logging
 import pathlib
 import sqlite3
@@ -12,6 +11,7 @@ from context_verbose import Printer
 from flufl.lock import Lock
 import cutcutcodec
 import numpy as np
+import orjson
 
 from mendevi.database.serialize import list_to_binary
 from mendevi.utils import compute_video_hash
@@ -68,7 +68,7 @@ def _fill_vid_table(database: pathlib.Path, vid_id: bytes, video: pathlib.Path, 
                     header, info = cutcutcodec.core.analysis.ffprobe.get_slices_metadata(video)
                     header, info = header[0], info[0]
                     frames = [dict(zip(header, line)) for line in info.tolist()]
-                    prop["vid_frames"] = json.dumps(frames)
+                    prop["vid_frames"] = orjson.dumps(frames)
                     prt.print(f"{'frames':<{pad}}: {len(frames)} frames")
                 case "vid_height":
                     prop["vid_height"] = cutcutcodec.get_resolution(video)[0]

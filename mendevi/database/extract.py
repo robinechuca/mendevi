@@ -3,12 +3,12 @@
 """Define the functions that enable values to be extracted from a select query."""
 
 import functools
-import json
 import numbers
 import re
 import typing
 
 import numpy as np
+import orjson
 
 from mendevi.database.serialize import binary_to_list, binary_to_tensor
 
@@ -320,7 +320,7 @@ def extract_frames(raw: dict[str]) -> list[dict]:
     """
     if (frames := raw["vid_frames"]) is None:
         return None
-    frames = json.loads(frames)
+    frames = orjson.loads(frames)
     return frames
 
 
