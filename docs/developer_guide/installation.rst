@@ -256,9 +256,8 @@ Ensure that ``transmission-daemon`` is installed correctly with the good permiss
     else
         echo "create a transshare group with $USER and $trans_user..."
         sudo groupadd transshare
-        sudo usermod -aG transshare "$USER"
-        trans_user=$(systemctl show -p User transmission-daemon.service | cut -d= -f2)
-        sudo usermod -aG transshare "$trans_user"
+        sudo usermod -aG transshare $USER
+        sudo usermod -aG transshare $trans_user
         sudo systemctl restart transmission-daemon  # apply the effect
         echo '    done'
     fi
