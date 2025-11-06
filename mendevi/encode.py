@@ -368,7 +368,7 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs) -> list[st
         case "h264_nvenc":
             if kwargs["mode"] == "vbr":
                 cmd.extend([
-                    "h264_nvenc",
+                    "h264_nvenc",  # metre dans le bon ordre
                     "-vsync", "0", "-hwaccel", "cuda", "-hwaccel_output_format", "cuda",
                     "-pix_fmt", "yuv420p",  # doesn't support 10 bits
                     "-preset", kwargs["quality"],

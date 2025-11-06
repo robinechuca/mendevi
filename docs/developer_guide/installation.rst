@@ -359,14 +359,13 @@ If you have a GPU, please install CUDA or ROC then follow the `PyTorch installat
 
         .. code:: shell
 
-            # detect driver
             if dpkg -l | grep -q nvidia-driver; then
-                INSTALLED_NVIDIA_DRIVER_VERSION=$(dpkg -l | grep nvidia-driver | awk '{print $3}')
+                INSTALLED_NVIDIA_DRIVER_VERSION=$(dpkg-query -W -f='${Version}' nvidia-driver)
                 echo "the nvidia driver $INSTALLED_NVIDIA_DRIVER_VERSION is installed and working"
             else
                 echo "no nvidia drivers are installed"
 
-                # add nvidia driver depoz
+                # add nvidia driver depos
                 if ! apt-cache show cuda-drivers >/dev/null 2>&1; then
                     echo "try to add the official nvidia depos"
                     wget https://developer.download.nvidia.com/compute/cuda/repos/debian12/x86_64/cuda-keyring_1.1-1_all.deb
@@ -389,7 +388,7 @@ If you have a GPU, please install CUDA or ROC then follow the `PyTorch installat
                 sudo dkms build -m nvidia -v ${AVAILABLE_NVIDIA_DRIVER_VERSION}
                 sudo dkms install -m nvidia -v ${AVAILABLE_NVIDIA_DRIVER_VERSION}
 
-                echo "the nvidia driver should be installed, rerun the code bloc to check"
+                echo "to verify the installation, re-execute the code block"
             fi
 
         Install cuda context (without the driver)
