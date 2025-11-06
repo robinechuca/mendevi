@@ -355,70 +355,60 @@ If you have a GPU, please install CUDA or ROC then follow the `PyTorch installat
 
     .. tab:: Debian Ubuntu Mint
 
+        Install nvidia driver
+
         .. code:: shell
 
-            sudo apt install nvidia-cuda-toolkit  # install context but not the driver
+            # detect driver
+            if dpkg -l | grep -q nvidia-driver; then
+                INSTALLED_NVIDIA_DRIVER_VERSION=$(dpkg -l | grep nvidia-driver | awk '{print $3}')
+                echo "the nvidia driver $INSTALLED_NVIDIA_DRIVER_VERSION is installed and working"
+            else
+                echo "no nvidia drivers are installed"
 
-            # pour le debaugage
-            lspci | grep -i nvidia  # pour voir si nvidia gpu dispo
-            dpkg -l | grep nvidia-driver  # pour voir si le driver est installé
+                # add nvidia driver depoz
+                if ! apt-cache show cuda-drivers >/dev/null 2>&1; then
+                    echo "try to add the official nvidia depos"
+                    wget https://developer.download.nvidia.com/compute/cuda/repos/debian12/x86_64/cuda-keyring_1.1-1_all.deb
+                    sudo dpkg -i cuda-keyring_1.1-1_all.deb
+                    sudo rm cuda-keyring_1.1-1_all.deb
+                    sudo apt update
+                else
+                    echo "the official nvidia depos is available"
+                fi
 
-            # pour le driver
-            sudo apt install firmware-misc-nonfree  # rend les paquets des drivers visibles
-            sudo apt install linux-headers-$(uname -r)
-
-            echo "deb http://deb.debian.org/debian unstable main contrib non-free non-free-firmware" | sudo tee /etc/apt/sources.list.d/unstable.list
-            sudo apt update
-            sudo apt install -t unstable firmware-nvidia-gsp nvidia-driver
-
-            # ou bien
-            wget https://developer.download.nvidia.com/compute/cuda/repos/debian12/x86_64/cuda-keyring_1.1-1_all.deb
-            sudo dpkg -i cuda-keyring_1.1-1_all.deb
-            sudo apt install nvidia-driver
-
-            # sudo reboot  # pour charger les drivers au démarrage
-            sudo dkms autoinstall  # peut etre a la place de rebbot
-
-
-            # si nvidia-smi est absent:
-            sudo apt install cuda-drivers
-
-            # if cuda avalaible
-            if apt-cache show cuda-drivers >/dev/null 2>&1; then
                 # detect available versions
-                NVIDIA_DRIVER_VERSION=$(sudo apt show cuda-drivers 2>/dev/null | awk '/Version:/ {print $2}' | head -n1 | cut -d'-' -f1)
-                echo "NVIDIA detected dirver version: $NVIDIA_DRIVER_VERSION"
-                DRIVER_BRANCH=${NVIDIA_DRIVER_VERSION%%.*}
+                AVAILABLE_NVIDIA_DRIVER_VERSION=$(sudo apt show cuda-drivers 2>/dev/null | awk '/Version:/ {print $2}' | head -n1 | cut -d'-' -f1)
+                echo "NVIDIA detected dirver version: $AVAILABLE_NVIDIA_DRIVER_VERSION"
+                DRIVER_BRANCH=${AVAILABLE_NVIDIA_DRIVER_VERSION%%.*}
 
                 # install cuda
                 # sudo apt remove --purge 'nvidia-*' cuda* && sudo apt update
                 sudo apt install linux-headers-$(uname -r)
                 sudo apt install cuda-drivers-${DRIVER_BRANCH}
-                sudo dkms build -m nvidia -v ${NVIDIA_DRIVER_VERSION}
-                sudo dkms install -m nvidia -v ${NVIDIA_DRIVER_VERSION}
+                sudo dkms build -m nvidia -v ${AVAILABLE_NVIDIA_DRIVER_VERSION}
+                sudo dkms install -m nvidia -v ${AVAILABLE_NVIDIA_DRIVER_VERSION}
 
-                # verification
-                nvidia-smi
-
-                # install nvcc
-                if ! command -v nvcc &> /dev/null; then
-                    sudo apt install cuda-toolkit
-                    # add the toolkit into the path
-                    if ! grep -q "/usr/local/cuda/bin" ~/.bashrc; then
-                        echo 'export PATH=/usr/local/cuda/bin:$PATH' >> ~/.bashrc
-                        echo 'export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH' >> ~/.bashrc
-                    fi
-                    source ~/.bashrc
-                fi
-            else
-                echo "cuda-driver package not found"
-                echo "try to add the official nvidia depos"
-                wget https://developer.download.nvidia.com/compute/cuda/repos/debian12/x86_64/cuda-keyring_1.1-1_all.deb
-                sudo dpkg -i cuda-keyring_1.1-1_all.deb
-                sudo rm cuda-keyring_1.1-1_all.deb
-                sudo apt update
-                echo "done: reexecute the code block"
+                echo "the nvidia driver should be installed, rerun the code bloc to check"
             fi
+
+        Install cuda context (without the driver)
+
+        .. code:: shell
+
+            # install nvcc
+            if ! command -v nvcc &> /dev/null; then
+                sudo apt install cuda-toolkit nvtop
+                # add the toolkit into the path
+                if ! grep -q "/usr/local/cuda/bin" ~/.bashrc; then
+                    echo 'export PATH=/usr/local/cuda/bin:$PATH' >> ~/.bashrc
+                    echo 'export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH' >> ~/.bashrc
+                fi
+                source ~/.bashrc
+            else
+                echo "the cuda context is installed"
+            fi
+
 
 .. tab:: FreeBSD
 
