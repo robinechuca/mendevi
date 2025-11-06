@@ -345,6 +345,7 @@ Although it is installed automatically, it is better to install **av** manually 
 cuda (optional)
 ^^^^^^^^^^^^^^^
 
+
 If you have a GPU, please install CUDA or ROC then follow the `PyTorch installation guide <https://pytorch.org>`_. Without CUDA or ROC, the software is not able to use the GPU (CPU only).
 
 .. tab:: Linux
@@ -355,6 +356,32 @@ If you have a GPU, please install CUDA or ROC then follow the `PyTorch installat
     .. tab:: Debian Ubuntu Mint
 
         .. code:: shell
+
+            sudo apt install nvidia-cuda-toolkit  # install context but not the driver
+
+            # pour le debaugage
+            lspci | grep -i nvidia  # pour voir si nvidia gpu dispo
+            dpkg -l | grep nvidia-driver  # pour voir si le driver est installé
+
+            # pour le driver
+            sudo apt install firmware-misc-nonfree  # rend les paquets des drivers visibles
+            sudo apt install linux-headers-$(uname -r)
+
+            echo "deb http://deb.debian.org/debian unstable main contrib non-free non-free-firmware" | sudo tee /etc/apt/sources.list.d/unstable.list
+            sudo apt update
+            sudo apt install -t unstable firmware-nvidia-gsp nvidia-driver
+
+            # ou bien
+            wget https://developer.download.nvidia.com/compute/cuda/repos/debian12/x86_64/cuda-keyring_1.1-1_all.deb
+            sudo dpkg -i cuda-keyring_1.1-1_all.deb
+            sudo apt install nvidia-driver
+
+            # sudo reboot  # pour charger les drivers au démarrage
+            sudo dkms autoinstall  # peut etre a la place de rebbot
+
+
+            # si nvidia-smi est absent:
+            sudo apt install cuda-drivers
 
             # if cuda avalaible
             if apt-cache show cuda-drivers >/dev/null 2>&1; then
@@ -385,8 +412,12 @@ If you have a GPU, please install CUDA or ROC then follow the `PyTorch installat
                 fi
             else
                 echo "cuda-driver package not found"
-                echo "please add the nvidia repository"
-                echo "https://linuxcapable.com/how-to-install-cuda-on-debian-linux/"
+                echo "try to add the official nvidia depos"
+                wget https://developer.download.nvidia.com/compute/cuda/repos/debian12/x86_64/cuda-keyring_1.1-1_all.deb
+                sudo dpkg -i cuda-keyring_1.1-1_all.deb
+                sudo rm cuda-keyring_1.1-1_all.deb
+                sudo apt update
+                echo "done: reexecute the code block"
             fi
 
 .. tab:: FreeBSD
