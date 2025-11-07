@@ -140,7 +140,7 @@ def _parse_args(prt: Printer, kwargs: dict):
 @click.option(
     "-n", "--points",
     type=int,
-    default=24,
+    default=16,
     help="The number of quality point per encoder.",
 )
 @click.option(
