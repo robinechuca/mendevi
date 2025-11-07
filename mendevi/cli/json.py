@@ -144,7 +144,7 @@ def main(database: str, **kwargs):
             ):
                 raw = line_extractor(dict(raw))
                 vid_id = raw.pop("video_hash")
-                content[vid_id] = content.get(vid_id, {})
+                content[vid_id] = content.get(vid_id, {"id": vid_id})
                 content[vid_id] |= {k: _round(raw[k]) for k in context if raw[k] is not None}
                 _add_key_key_val(
                     content[vid_id], "encode_duration", raw["hostname"], _round(raw["act_duration"])
@@ -201,7 +201,7 @@ def main(database: str, **kwargs):
                 raw = line_extractor(dict(raw))
                 raw["name"] = None
                 vid_id = raw.pop("video_hash")
-                content[vid_id] = content.get(vid_id, {})
+                content[vid_id] = content.get(vid_id, {"id": vid_id})
                 content[vid_id] |= {k: _round(raw[k]) for k in context if raw[k] is not None}
                 _add_key_key_val(
                     content[vid_id], "decode_duration", raw["hostname"], _round(raw["act_duration"])

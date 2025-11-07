@@ -182,7 +182,7 @@ compile
         --prefix="$HOME/ffmpeg_build" \
         --pkg-config-flags="--static" \
         --extra-cflags="-I$HOME/ffmpeg_build/include" \
-        --extra-ldflags="-L$HOME/ffmpeg_build/lib -L/usr/lib/x86_64-linux-gnu" \
+        --extra-ldflags="-L$HOME/ffmpeg_build/lib" \
         --extra-libs="-lpthread -lm" \
         --ld="g++" \
         --bindir="$HOME/bin" \

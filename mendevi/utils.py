@@ -63,7 +63,8 @@ def compute_video_hash(
     """
     def _hash(video: PATHLIKE) -> pathlib.Path:
         video = pathlib.Path(video)
-        if match := re.search(r"[2-7a-z]{26}", video.stem):
+        # [2-7a-z]{26} for mendevi > 1.2.2
+        if match := re.search(r"[0-9a-f]{32}|[2-7a-z]{26}", video.stem):
             return video, signature_to_hash(match.group())
         if not (video := video.expanduser()).is_file():
             return video, None
@@ -139,12 +140,12 @@ def hash_to_signature(checksum: bytes) -> str:
     --------
     >>> from mendevi.utils import hash_to_signature
     >>> hash_to_signature(b"\xd4\x1d\x8c\xd9\x8f\x00\xb2\x04\xe9\x80\t\x98\xec\xf8B~")
-    '2qoyzwmpaczaj2mabgmoz6ccpy'
+    'd41d8cd98f00b204e9800998ecf8427e'
     >>>
     """
     assert isinstance(checksum, bytes), checksum.__class__.__name__
     assert len(checksum) == 16, len(checksum)
-    return base64.b32encode(checksum)[:26].decode().lower()
+    return checksum.hex()
 
 
 def signature_to_hash(signature: str) -> bytes:
@@ -165,13 +166,20 @@ def signature_to_hash(signature: str) -> bytes:
     Examples
     --------
     >>> from mendevi.utils import signature_to_hash
-    >>> signature_to_hash("2qoyzwmpaczaj2mabgmoz6ccpy")
+    >>> signature_to_hash("d41d8cd98f00b204e9800998ecf8427e")
+    b'\xd4\x1d\x8c\xd9\x8f\x00\xb2\x04\xe9\x80\t\x98\xec\xf8B~'
+    >>> signature_to_hash("2qoyzwmpaczaj2mabgmoz6ccpy")  # mendevi < 1.2.2
     b'\xd4\x1d\x8c\xd9\x8f\x00\xb2\x04\xe9\x80\t\x98\xec\xf8B~'
     >>>
     """
     assert isinstance(signature, str), signature.__class__.__name__
-    assert re.fullmatch(r"[2-7a-z]{26}", signature), signature
-    return base64.b32decode(f"{signature.upper()}======".encode())
+    try:  # version >= 1.2.2
+        assert re.fullmatch(r"[0-9a-f]{32}", signature), signature
+    except AssertionError:  # retrocompatibility version < 1.2.2
+        assert re.fullmatch(r"[2-7a-z]{26}", signature), signature
+        return base64.b32decode(f"{signature.upper()}======".encode())
+    else:
+        return bytes.fromhex(signature)
 
 
 def unfold_video_files(
