@@ -17,6 +17,7 @@ dependencies = [  # https://packaging.python.org/en/latest/specifications/depend
   "flufl.lock",
   "matplotlib",
   "numpy",
+  "nvidia-ml-py",
   "orjson",
   "psutil",
   "pygments",

@@ -365,12 +365,15 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs) -> list[st
                 "-vvenc-params", f"internalbitdepth={bit}",
                 "-threads", str(kwargs['threads']),
             ])
+        # mount in RAM: mount -o mode=1777,nosuid,nodev -t tmpfs tmpfs /tmp
+        # https://developer.nvidia.com/video-encode-decode-support-matrix
         case "h264_nvenc":
+            # time ffmpeg -c:v h264_cuvid -gpu 0 -i sd_h264.mkv -c:v h264_nvenc -f null -
             if kwargs["mode"] == "vbr":
                 cmd.extend([
                     "h264_nvenc",  # metre dans le bon ordre
-                    "-vsync", "0", "-hwaccel", "cuda", "-hwaccel_output_format", "cuda",
-                    "-pix_fmt", "yuv420p",  # doesn't support 10 bits
+                    # "-pix_fmt", "yuv420p",  # doesn't support 10 bits
+                    "-gpu", "0",
                     "-preset", kwargs["quality"],
                     "-rc", "vbr",
                     "-cq", str(round(1.0 + kwargs["quality"]*50.0)),  # [1, 51]
@@ -379,8 +382,8 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs) -> list[st
                 rate = f"{quality_to_rate(kwargs)}k"
                 cmd.extend([
                     "h264_nvenc",
-                    "-vsync", "0", "-hwaccel", "cuda", "-hwaccel_output_format", "cuda",
-                    "-pix_fmt", "yuv420p",  # doesn't support 10 bits
+                    # "-pix_fmt", "yuv420p",  # doesn't support 10 bits
+                    "-gpu", "0",
                     "-preset", kwargs["quality"],
                     "-b:v", rate,
                     "-minrate", rate,

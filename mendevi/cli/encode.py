@@ -201,7 +201,7 @@ def main(videos: tuple, database: str = None, **kwargs):
         The effort made to compress, `fast`, `medium` or `slow`.
     encoder : tuple[str], default=("libsvtav1", "libvpx-vp9", "libx264", "libx265", "vvc")
         The encoders and therefore the codecs to use.
-    points : int, default=24
+    points : int, default=16
         The number of different qualities to use.
         It is an indirect way to determine the CRF or the QP.
         The quality values are distributed evenly over ]0, 1[,
