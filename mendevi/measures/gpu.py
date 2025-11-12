@@ -27,7 +27,7 @@ def measure():
         hand = pynvml.nvmlDeviceGetHandleByIndex(i)
         powers.append(pynvml.nvmlDeviceGetPowerUsage(hand) / 1000.0)  # in Watts
         gpus.append(pynvml.nvmlDeviceGetUtilizationRates(hand).gpu / 100.0)  # in [0, 1]
-        memory.append(pynvml.nvmlDeviceGetMemoryInfo(h).used)  # in bytes
+        memory.append(pynvml.nvmlDeviceGetMemoryInfo(hand).used)  # in bytes
     return {"memory": memory, "gpus": gpus, "powers": powers}
 
 
