@@ -13,7 +13,7 @@ from .gpu import UsageGPU
 from .psutil import Usage
 from .rapl import RAPL
 
-API_WAIT = 5.0  # waiting time (in seconds) before data from the grid5000 API becomes accessible
+G5K_API_WAIT = 2.0  # waiting time (in seconds) before data from the grid5000 API becomes accessible
 
 
 class Activity(threading.Thread):
@@ -121,7 +121,7 @@ class Activity(threading.Thread):
         self._exit_queue.put(None)
         self.join()
         # request wattmeter power
-        time.sleep(max(0.0, API_WAIT + self.res["start"] + self.res["duration"] - time.time()))
+        time.sleep(max(0.0, G5K_API_WAIT + self.res["start"] + self.res["duration"] - time.time()))
         try:
             wattmeter = g5kpower(platform.node(), self.res["start"], self.res["duration"])
         except ValueError:

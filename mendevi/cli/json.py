@@ -172,21 +172,6 @@ def main(database: str, **kwargs):
             for raw in tqdm.tqdm(
                 conn.execute(
                     """
-                    WITH enc_unique AS (
-                        SELECT
-                            enc_id,
-                            enc_dst_vid_id,
-                            enc_effort,
-                            enc_encoder,
-                            enc_mode,
-                            enc_quality,
-                            enc_threads,
-                            ROW_NUMBER() OVER (
-                                PARTITION BY enc_dst_vid_id
-                                ORDER BY enc_id
-                            ) AS enc_count_dst_vid_id
-                        FROM t_enc_encode
-                    )
                     SELECT
                         t_act_activity.act_duration,
                         t_act_activity.act_ps_core,
@@ -200,20 +185,14 @@ def main(database: str, **kwargs):
                         t_dst_video.vid_gamut,
                         t_dst_video.vid_height,
                         t_dst_video.vid_id,
-                        -- t_dst_video.vid_name AS ref_vid_name,  -- bulshit
-                        NULL AS ref_vid_name,
+                        NULL AS ref_vid_name,  -- bulshit
                         t_dst_video.vid_range,
                         t_dst_video.vid_size,
-                        -- enc_unique.enc_effort,
-                        -- enc_unique.enc_encoder,
-                        -- enc_unique.enc_mode,
-                        -- enc_unique.enc_quality,
-                        -- enc_unique.enc_threads,
-                        NULL AS enc_effort,
-                        NULL AS enc_encoder,
-                        NULL AS enc_mode,
-                        NULL AS enc_quality,
-                        NULL AS enc_threads,
+                        NULL AS enc_effort,  -- bulshit
+                        NULL AS enc_encoder,  -- bulshit
+                        NULL AS enc_mode,  -- bulshit
+                        NULL AS enc_quality,  -- bulshit
+                        NULL AS enc_threads,  -- bulshit
                         t_env_environment.env_hostname,
                         t_met_metric.met_lpips_alex,
                         t_met_metric.met_lpips_vgg,
@@ -221,9 +200,6 @@ def main(database: str, **kwargs):
                         t_met_metric.met_ssim,
                         t_met_metric.met_vmaf
                     FROM t_dec_decode
-                    /*JOIN enc_unique
-                        ON t_dec_decode.dec_vid_id = enc_unique.enc_dst_vid_id
-                        AND enc_unique.enc_count_dst_vid_id = 1  -- keep only the first occurrence*/
                     JOIN t_act_activity
                         ON t_dec_decode.dec_act_id = t_act_activity.act_id
                     LEFT JOIN t_met_metric
