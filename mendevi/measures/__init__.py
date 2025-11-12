@@ -9,6 +9,7 @@ import threading
 import time
 
 from .g5kpower import g5kpower
+from .gpu import UsageGPU
 from .psutil import Usage
 from .rapl import RAPL
 
@@ -42,6 +43,7 @@ class Activity(threading.Thread):
 
         self._rapl_catcher = RAPL(sleep=sleep, no_fail=True)
         self._usage_catcher = Usage(sleep=sleep)
+        self._usage_gpu_catcher = UsageGPU(sleep=sleep)
         self._exit_queue = queue.Queue()
         self.sleep = float(sleep)
         self.res: dict = {}
@@ -49,7 +51,11 @@ class Activity(threading.Thread):
     def run(self):
         """Perform the measures."""
         self.res["start"] = time.time()
-        with self._rapl_catcher as rapl, self._usage_catcher as usage:
+        with (
+            self._rapl_catcher as rapl,
+            self._usage_catcher as usage,
+            self._usage_gpu_catcher as gpu,
+        ):
             self._exit_queue.get()  # wait
         self.res |= {
             "ps_core": usage["cpu"],
@@ -63,6 +69,15 @@ class Activity(threading.Thread):
                 "rapl_energy": rapl["energy"],
                 "rapl_power": rapl["power"],
                 "rapl_powers": rapl["powers"],
+            }
+        if gpu is not None:
+            self.res |= {
+                "gpu_cores": gpu["gpus"],
+                "gpu_dt": gpu["dt"],
+                "gpu_energy": gpu["energy"],
+                "gpu_memory": gpu["memory"],
+                "gpu_power": gpu["power"],
+                "gpu_powers": gpu["powers"],
             }
 
     def __enter__(self) -> dict:
