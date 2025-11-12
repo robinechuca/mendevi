@@ -48,6 +48,41 @@ The reference videos ``park_joy_*`` are transformed back using the inverse color
 .. image:: /_static/media/colorspace_bij.svg
     :alt: Lossless back colorspace transformation
 
+Visualize transfer functions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code:: python
+
+    import cutcutcodec
+    import matplotlib.pyplot as plt
+    import torch
+    from mendevi.cst.plot import COLORS, FIGSIZE
+
+    # get curves
+    l2v_names: dict = {}
+    for name, (l2v, _) in cutcutcodec.core.colorspace.cst.TRC.items():
+        l2v_names[l2v] = l2v_names.get(l2v, [])
+        l2v_names[l2v].append(name)
+
+    # matplotlib plot chart
+    fig = plt.figure(layout="constrained", figsize=FIGSIZE)
+    axe = fig.subplots()
+    axe.grid()
+    fig.supylabel("v")
+    fig.supxlabel("l")
+
+    # plot data
+    l = torch.linspace(0, 1, 1000)
+    for i, (l2v, names) in enumerate(l2v_names.items()):
+        axe.plot(l, cutcutcodec.Lambdify(l2v)(l), label=min(names), color=COLORS[i%len(COLORS)])
+
+    axe.legend()
+    plt.savefig("transfer.svg", format="svg")
+    plt.show()
+
+.. image:: /_static/media/transfer.svg
+    :alt: The luminosity EOTF transfer functions
+
 Reproduce
 ---------
 

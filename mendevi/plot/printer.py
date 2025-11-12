@@ -6,8 +6,10 @@ import datetime
 import itertools
 import logging
 import re
+import subprocess
 
 from mendevi import __version__
+from mendevi.cst.plot import COLORS, FIGSIZE, MARKERS, MARKERSIZE
 from mendevi.database.extract import SqlLinker
 from mendevi.database.meta import get_extractor, merge_extractors
 
@@ -36,15 +38,28 @@ def printer(**kwargs) -> str:
     code = "\n".join(code)
 
     # format code
+    # try:
+    #     import black
+    # except ImportError:
+    #     logging.warning("failed to import black, please install it (uv pip install black)")
+    # else:
+    #     try:
+    #         code = black.format_str(code, mode=black.FileMode(line_length=100))
+    #     except black.parsing.InvalidInput as err:
+    #         logging.warning(err)
+    # return code
     try:
-        import black
-    except ImportError:
-        logging.warning("failed to import black, please install it (uv pip install black)")
-    else:
-        try:
-            code = black.format_str(code, mode=black.FileMode(line_length=100))
-        except black.parsing.InvalidInput as err:
-            logging.warning(err)
+        result = subprocess.run(
+            ["ruff", "format", "-"],
+            input=code.encode(),
+            capture_output=True,
+            check=True,
+        )
+        return result.stdout.decode()
+    except FileNotFoundError:
+        logging.warning("Ruff is not installed, please install it (uv pip install ruff)")
+    except subprocess.CalledProcessError as err:
+        logging.warning(f"Ruff formatting failed: {err.stderr.decode()}")
     return code
 
 
@@ -84,12 +99,12 @@ def print_error(**kwargs) -> list[str]:
 def print_cst(**kwargs) -> list[str]:
     """Return the code of the definition of the constants."""
     return [
-        'COLORS = ["#ef597b", "#29a2c6", "#ffcb18", "#73b66b", "#4e4f4b"]',
+        f"COLORS = {COLORS}",
         f"DATABASE = pathlib.Path({str(kwargs['database'])!r})",
         'FIGNAME = pathlib.Path(__file__).with_suffix(".svg")',
-        "FIGSIZE = (10.0, 8.0)  # (width, height)",
-        'MARKERS = ["o", "x", "+", "^", "d", "s", "v", "*", "D"]  # list of dot shapes',
-        "MARKERSIZE = 4",
+        f"FIGSIZE = {FIGSIZE}  # (width, height)",
+        f"MARKERS = {MARKERS}  # list of dot shapes",
+        f"MARKERSIZE = {MARKERSIZE}",
         "",
         "",
     ]
