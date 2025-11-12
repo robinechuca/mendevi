@@ -38,16 +38,6 @@ def printer(**kwargs) -> str:
     code = "\n".join(code)
 
     # format code
-    # try:
-    #     import black
-    # except ImportError:
-    #     logging.warning("failed to import black, please install it (uv pip install black)")
-    # else:
-    #     try:
-    #         code = black.format_str(code, mode=black.FileMode(line_length=100))
-    #     except black.parsing.InvalidInput as err:
-    #         logging.warning(err)
-    # return code
     try:
         result = subprocess.run(
             ["ruff", "format", "-"],
