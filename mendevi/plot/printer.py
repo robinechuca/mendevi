@@ -314,7 +314,7 @@ def print_subfigure(**kwargs) -> list[str]:
                 "        sub_values = {",
                 "            k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()",
                 "        }",
-                f'        axes[0, j].set_title({kwargs["window_y"]!r} f"={{window_y_value}}")',
+                f'        axes[i, 0].set_title({kwargs["window_y"]!r} f"={{window_y_value}}")',
                 f"        fill_axe(axes[i, 0], sub_values, ylab={ylabel!r}, xlab={xlabel!r})",
                 *(f"        {line}" for line in print_grid("axes[i, 0]", log_y, "y")),
                 *(f"        {line}" for line in print_grid("axes[i, 0]", log_x, "x")),
