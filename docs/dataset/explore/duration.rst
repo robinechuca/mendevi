@@ -25,8 +25,16 @@ Energy per frame as a function of the number of frames
 
     mendevi plot '<duration.db>' -x nbr_frames -y energy_per_frame -e nbr_frames -c encoder -m effort -wx quality -wy profile
 
-.. image:: /_static/media/duration_energy_frames.svg
-    :alt: Energy per frame as a function of the number of frames
+.. image:: /_static/media/duration_energy_frames_enc.svg
+    :alt: Energy per frame as a function of the number of frames during encoding
+
+.. code:: shell
+
+    mendevi plot '<duration.db>' -x nbr_frames -y energy_per_frame -e nbr_frames -c codec -wy profile -wx hostname -t t_dec_decode
+
+.. image:: /_static/media/duration_energy_frames_dec.svg
+    :alt: Energy per frame as a function of the number of frames during decoding
+
 
 Bitrate as a function of the number of frame at constant quality
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -37,6 +45,7 @@ Bitrate as a function of the number of frame at constant quality
 
 .. image:: /_static/media/duration_rate_frames.svg
     :alt: Energy per frame as a function of the number of frames
+
 
 Reproduce
 ---------
