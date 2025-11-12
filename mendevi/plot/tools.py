@@ -12,7 +12,7 @@ from mendevi.cst.profiles import PROFILES
 def sorted_profiles() -> dict[str, int]:
     """Sort the profiles."""
     profiles = sorted(
-        PROFILES, key=lambda p: PROFILES[p]["resolution"][0]*PROFILES[p]["resolution"][1]
+        PROFILES, key=lambda p: PROFILES[p]["resolution"][0]*PROFILES[p]["resolution"][1],
     )
     return dict(zip(profiles, range(len(profiles)), strict=True))
 

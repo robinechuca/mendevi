@@ -22,6 +22,7 @@ def retrive_file(file: pathlib.Path | str) -> pathlib.Path:
     -------
     decapsulated_file : pathlib.Path
         The final unencapsulated file.
+
     """
     file = pathlib.Path(file).expanduser()
 

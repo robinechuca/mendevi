@@ -4,8 +4,8 @@
 
 import pathlib
 
-from context_verbose import Printer
 import requests
+from context_verbose import Printer
 
 from mendevi.utils import get_project_root
 
@@ -27,6 +27,7 @@ def get_torrent(name: str) -> pathlib.Path:
     ------
     KeyError
         If the requested torrent is not included in the list of possible torrents.
+
     """
     assert isinstance(name, str), name.__class__.__name__
 
@@ -77,6 +78,7 @@ def probe_online_torrent() -> dict[str, str]:
     >>> sorted(probe_online_torrent())
     ['multithread.db.xz.torrent']
     >>>
+
     """
     url = "https://gitlab.inria.fr/api/v4/projects/rrichard%2Fmendevi/repository/tree?path=dataset"
     req = requests.get(url, timeout=60)
@@ -103,5 +105,6 @@ def probe_local_torrent() -> set[pathlib.Path]:
     >>> sorted(t.name for t in probe_local_torrent())
     ['multithread.db.xz.torrent']
     >>>
+
     """
     return set((get_project_root().parent / "dataset").glob("*.torrent"))

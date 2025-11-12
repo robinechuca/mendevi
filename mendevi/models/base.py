@@ -8,9 +8,9 @@ import pathlib
 import sqlite3
 import typing
 
-from context_verbose import Printer
 import numpy as np
 import torch
+from context_verbose import Printer
 
 from mendevi.cst.labels import LABELS
 from mendevi.database.create import is_sqlite
@@ -32,9 +32,10 @@ class Model(abc.ABC):
         The name of all input parameters (readonly).
     output_labels : list[str]
         The name of all output parameters (readonly).
+
     """
 
-    def __init__(self, title: typing.Optional[str] = None, **kwargs):
+    def __init__(self, title: str | None = None, **kwargs):
         """Initialise the model.
 
         Parameters
@@ -51,6 +52,7 @@ class Model(abc.ABC):
             The possibles values are :py:cst:`mendevi.plot.axis.Name`.
         parameters : object, optional
             The learnable parameters for regressive models.
+
         """
         assert set(kwargs).issubset({"sources", "input_labels", "output_labels", "parameters"})
         # check input_labels
@@ -70,7 +72,7 @@ class Model(abc.ABC):
         self._output_labels = output_labels
 
         # check parameters
-        self._parameters = kwargs.get("parameters", None)
+        self._parameters = kwargs.get("parameters")
 
         # check title
         if title is None:
@@ -105,8 +107,8 @@ class Model(abc.ABC):
     def fit(
         self,
         database: pathlib.Path | str,
-        select: typing.Optional[str] = None,
-        query: typing.Optional[str] = None,
+        select: str | None = None,
+        query: str | None = None,
     ) -> typing.Self:
         """Fit the trainable hyper parameters of the models.
 
@@ -124,6 +126,7 @@ class Model(abc.ABC):
         ------
         self
             A reference to the inplace fitted model.
+
         """
         with Printer(f"Fit {self._title!r}...", color="pink") as prt:
             # verification
@@ -143,7 +146,7 @@ class Model(abc.ABC):
                     raise RuntimeError("fail to create the SQL query, please provide it yourself")
                 if len(queries) > 1:
                     logging.warning(
-                        "several request founded %s, please select it yourself", queries
+                        "several request founded %s, please select it yourself", queries,
                     )
                 query = queries.pop(0)
             else:
@@ -200,6 +203,7 @@ class Model(abc.ABC):
         -------
         prediction : dict[str]
             Associate each ouput variable with the prediction.
+
         """
         with Printer(f"Predict {self._title!r}...", color="pink") as prt:
             # check args
@@ -209,7 +213,7 @@ class Model(abc.ABC):
                 if i == len(self._input_labels):
                     raise ValueError(
                         f"only {len(self._input)} arguments expeted {self._input_labels}, "
-                        f"{input_args} given"
+                        f"{input_args} given",
                     )
                 values[self._input_labels[i]] = arg
             for name, arg in input_kwargs.items():
@@ -230,7 +234,7 @@ class Model(abc.ABC):
                     case list():
                         if all(isinstance(item, float) for item in arg):
                             values[name] = torch.asarray(arg, dtype=torch.float32)
-                prt.print(f"{name} = {str(values[name]):.80}")
+                prt.print(f"{name} = {values[name]!s:.80}")
 
             # predict
             prt.print("predict")

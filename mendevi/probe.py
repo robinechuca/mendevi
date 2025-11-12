@@ -7,11 +7,11 @@ import logging
 import pathlib
 import sqlite3
 
-from context_verbose import Printer
-from flufl.lock import Lock
 import cutcutcodec
 import numpy as np
 import orjson
+from context_verbose import Printer
+from flufl.lock import Lock
 
 from mendevi.database.serialize import list_to_binary
 from mendevi.utils import compute_video_hash
@@ -24,7 +24,7 @@ def _fill_vid_table(database: pathlib.Path, vid_id: bytes, video: pathlib.Path, 
         sql_database.row_factory = sqlite3.Row
         cursor = sql_database.cursor()
         prop = cursor.execute(
-            "SELECT * FROM t_vid_video WHERE vid_id=?", (vid_id,)
+            "SELECT * FROM t_vid_video WHERE vid_id=?", (vid_id,),
         ).fetchone()
     prop = {} if prop is None else dict(prop)
 
@@ -69,7 +69,7 @@ def _fill_vid_table(database: pathlib.Path, vid_id: bytes, video: pathlib.Path, 
                     header, info = header[0], info[0]
                     frames = [dict(zip(header, line)) for line in info.tolist()]
                     prop["vid_frames"] = orjson.dumps(
-                        frames, option=orjson.OPT_INDENT_2|orjson.OPT_SORT_KEYS
+                        frames, option=orjson.OPT_INDENT_2|orjson.OPT_SORT_KEYS,
                     ).decode()
                     prt.print(f"{'frames':<{pad}}: {len(frames)} frames")
                 case "vid_height":
@@ -120,7 +120,7 @@ def _fill_vid_table(database: pathlib.Path, vid_id: bytes, video: pathlib.Path, 
     ):
         cursor = sql_database.cursor()
         cursor.execute(
-            "INSERT OR IGNORE INTO t_vid_video (vid_id) VALUES (?)", (vid_id,)
+            "INSERT OR IGNORE INTO t_vid_video (vid_id) VALUES (?)", (vid_id,),
         )
         cursor.execute(
             (
@@ -146,7 +146,7 @@ def _fill_met_table(
         cursor = sql_database.cursor()
         metrics = cursor.execute(
             "SELECT * FROM t_met_metric WHERE met_ref_vid_id=? AND met_dis_vid_id=?",
-            (ref_id, dis_id)
+            (ref_id, dis_id),
         ).fetchone()
     metrics = {} if metrics is None else dict(metrics)
 
@@ -166,7 +166,7 @@ def _fill_met_table(
     # fill missing fields
     pad = max(map(len, fields)) - 4
     with Printer(
-        f"Compute metrics between {ref_path.name} and {dis_path.name}...", color="green"
+        f"Compute metrics between {ref_path.name} and {dis_path.name}...", color="green",
     ) as prt:
         new_metrics = cutcutcodec.video_metrics(
             ref_path, dis_path,
@@ -189,7 +189,7 @@ def _fill_met_table(
         cursor = sql_database.cursor()
         cursor.execute(
             "INSERT OR IGNORE INTO t_met_metric (met_ref_vid_id, met_dis_vid_id) VALUES (?, ?)",
-            (ref_id, dis_id)
+            (ref_id, dis_id),
         )
         cursor.execute(
             (
@@ -211,6 +211,7 @@ def probe_and_store(database: pathlib.Path, video: pathlib.Path, **kwargs):
         The source video file to be annalysed.
     **kwargs : dict
         All the metrics
+
     """
     assert isinstance(video, pathlib.Path), video.__class__.__name__
     assert video.is_file(), video
@@ -232,9 +233,7 @@ def probe_and_store(database: pathlib.Path, video: pathlib.Path, **kwargs):
             (vid_id,),
         ):
             # try to find video full path
-            if (ref := database.with_name(ref_name)).is_file():
-                references[ref] = ref_id
-            elif (ref := video.with_name(ref_name)).is_file():
+            if (ref := database.with_name(ref_name)).is_file() or (ref := video.with_name(ref_name)).is_file():
                 references[ref] = ref_id
             else:
                 logging.info("failed to find the reference video %s", ref)

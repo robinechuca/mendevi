@@ -12,7 +12,6 @@ import orjson
 
 from mendevi.database.serialize import binary_to_list, binary_to_tensor
 
-
 JOIN: dict[str: dict[str, str]] = {  # join = JOIN[destination_table][source_table]
     "t_vid_video": {
         "t_dec_decode": "JOIN t_vid_video ON t_dec_decode.dec_vid_id = t_vid_video.vid_id",
@@ -100,6 +99,7 @@ class SqlLinker:
         ----------
         select : args[str]
             The fields to be returned (juste after SELECT), with the optional alias.
+
         """
         assert all(isinstance(s, str) for s in select), select
         self.select: list[str] = sorted(set(select))
@@ -135,7 +135,7 @@ class SqlLinker:
                     "t_dec_decode": 4,
                     "t_env_environment": 5,
                 }[t],
-            )
+            ),
         ):  # priority no join
             select_str = f"SELECT {', '.join(self.select)}"
             if len(select_str) >= 80:
@@ -158,6 +158,7 @@ class SqlLinker:
         A decorated function with the select.
         The docstring of the decorated function is also modified
         to illustrate the minimal SQL query with an example.
+
         """
         # set attributes
         func.select = self.select
@@ -201,6 +202,7 @@ def extract_act_duration(raw: dict[str]) -> float:
     ----------
     raw : dict[str]
         The result line of select request.
+
     """
     if (act_duration := raw["act_duration"]) is None:
         return None
@@ -218,6 +220,7 @@ def extract_codec(raw: dict[str]) -> str:
     ----------
     raw : dict[str]
         The result line of select request.
+
     """
     if (codec := raw["vid_codec"]) is None:
         return None
@@ -234,6 +237,7 @@ def extract_cores(raw: dict[str]) -> float:
     ----------
     raw : dict[str]
         The result line of select request.
+
     """
     act_ps_dt, act_ps_core = raw["act_ps_dt"], raw["act_ps_core"]
     if act_ps_dt is None or act_ps_core is None:
@@ -254,6 +258,7 @@ def extract_decode_cmd(raw: dict[str]) -> str:
     ----------
     raw : dict[str]
         The result line of select request.
+
     """
     if (cmd := raw["enc_cmd"]) is None:
         return None
@@ -270,6 +275,7 @@ def extract_effort(raw: dict[str]) -> str:
     ----------
     raw : dict[str]
         The result line of select request.
+
     """
     if (enc_effort := raw["enc_effort"]) is None:
         return None
@@ -278,7 +284,7 @@ def extract_effort(raw: dict[str]) -> str:
 
 
 @verif
-@SqlLinker("t_enc_encode.enc_cmd",)
+@SqlLinker("t_enc_encode.enc_cmd")
 def extract_encode_cmd(raw: dict[str]) -> str:
     """Return the ffmpeg command used for encoding.
 
@@ -286,6 +292,7 @@ def extract_encode_cmd(raw: dict[str]) -> str:
     ----------
     raw : dict[str]
         The result line of select request.
+
     """
     if (cmd := raw["enc_cmd"]) is None:
         return None
@@ -301,6 +308,7 @@ def extract_encoder(raw: dict[str]) -> str:
     ----------
     raw : dict[str]
         The result line of select request.
+
     """
     if (encoder := raw["enc_encoder"]) is None:
         return None
@@ -317,6 +325,7 @@ def extract_frames(raw: dict[str]) -> list[dict]:
     ----------
     raw : dict[str]
         The result line of select request.
+
     """
     if (frames := raw["vid_frames"]) is None:
         return None
@@ -333,6 +342,7 @@ def extract_gamut(raw: dict[str]) -> str:
     ----------
     raw : dict[str]
         The result line of select request.
+
     """
     if (gamut := raw["vid_gamut"]) is None:
         return None
@@ -349,6 +359,7 @@ def extract_height(raw: dict[str]) -> int:
     ----------
     raw : dict[str]
         The result line of select request.
+
     """
     if (height := raw["vid_height"]) is None:
         return None
@@ -364,6 +375,7 @@ def extract_hostname(raw: dict[str]) -> str:
     ----------
     raw : dict[str]
         The result line of select request.
+
     """
     if (hostname := raw["env_hostname"]) is None:
         return None
@@ -379,6 +391,7 @@ def extract_lpips(raw: dict[str]) -> float:
     ----------
     raw : dict[str]
         The result line of select request.
+
     """
     if (lpips := raw["met_lpips_vgg"] or raw["met_lpips_alex"]) is None:
         return None
@@ -394,6 +407,7 @@ def extract_lpips_alex(raw: dict[str]) -> float:
     ----------
     raw : dict[str]
         The result line of select request.
+
     """
     if (lpips := raw["met_lpips_alex"]) is None:
         return None
@@ -409,6 +423,7 @@ def extract_lpips_vgg(raw: dict[str]) -> float:
     ----------
     raw : dict[str]
         The result line of select request.
+
     """
     if (lpips := raw["met_lpips_vgg"]) is None:
         return None
@@ -424,6 +439,7 @@ def extract_mode(raw: dict[str]) -> str:
     ----------
     raw : dict[str]
         The result line of select request.
+
     """
     if (mode := raw["enc_mode"]) is None:
         return None
@@ -445,6 +461,7 @@ def extract_powers(raw: dict[str]) -> tuple:
     ----------
     raw : dict[str]
         The result line of select request.
+
     """
     assert isinstance(raw, dict), raw.__class__.__name__
     assert (
@@ -472,6 +489,7 @@ def extract_psnr(raw: dict[str]) -> float:
     ----------
     raw : dict[str]
         The result line of select request.
+
     """
     if (psnr := raw["met_psnr"]) is None:
         return None
@@ -487,6 +505,7 @@ def extract_quality(raw: dict[str]) -> float:
     ----------
     raw : dict[str]
         The result line of select request.
+
     """
     if (enc_quality := raw["enc_quality"]) is None:
         return None
@@ -504,6 +523,7 @@ def extract_range(raw: dict[str]) -> str:
     ----------
     raw : dict[str]
         The result line of select request.
+
     """
     if (range_ := raw["vid_range"]) is None:
         return None
@@ -521,6 +541,7 @@ def extract_ssim(raw: dict[str]) -> float:
     ----------
     raw : dict[str]
         The result line of select request.
+
     """
     if (ssim := raw["met_ssim"]) is None:
         return None
@@ -536,6 +557,7 @@ def extract_threads(raw: dict[str]) -> int:
     ----------
     raw : dict[str]
         The result line of select request.
+
     """
     if (threads := raw["enc_threads"]) is None:
         return None
@@ -553,6 +575,7 @@ def extract_transfer(raw: dict[str]) -> str:
     ----------
     raw : dict[str]
         The result line of select request.
+
     """
     if (transfer := raw["vid_eotf"]) is None:
         return None
@@ -569,6 +592,7 @@ def extract_video_duration(raw: dict[str]) -> float:
     ----------
     raw : dict[str]
         The result line of select request.
+
     """
     if (duration := raw["vid_duration"]) is None:
         return None
@@ -585,6 +609,7 @@ def extract_video_hash(raw: dict[str]) -> str:
     ----------
     raw : dict[str]
         The result line of select request.
+
     """
     return raw["vid_id"].hex()
 
@@ -598,6 +623,7 @@ def extract_video_name(raw: dict[str]) -> str:
     ----------
     raw : dict[str]
         The result line of select request.
+
     """
     from mendevi.cst.profiles import PROFILES
     if (vid_name := raw["ref_vid_name"]) is None:
@@ -616,6 +642,7 @@ def extract_video_size(raw: dict[str]) -> int:
     ----------
     raw : dict[str]
         The result line of select request.
+
     """
     if (size := raw["vid_size"]) is None:
         return None
@@ -632,6 +659,7 @@ def extract_vmaf(raw: dict[str]) -> float:
     ----------
     raw : dict[str]
         The result line of select request.
+
     """
     if (vmaf := raw["met_vmaf"]) is None:
         return None
@@ -647,6 +675,7 @@ def extract_width(raw: dict[str]) -> int:
     ----------
     raw : dict[str]
         The result line of select request.
+
     """
     if (width := raw["vid_width"]) is None:
         return None

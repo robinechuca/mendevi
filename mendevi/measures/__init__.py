@@ -26,6 +26,7 @@ class Activity(threading.Thread):
     ...
     >>> pprint.pprint(activity)
     >>>
+
     """
 
     def __init__(self, sleep: numbers.Real = 50e-3):
@@ -35,6 +36,7 @@ class Activity(threading.Thread):
         ----------
         sleep : float, default=50e-3
             The time interval between 2 measures (in s).
+
         """
         assert isinstance(sleep, numbers.Real), sleep.__class__.__name__
         assert sleep > 0, sleep
@@ -105,6 +107,7 @@ class Activity(threading.Thread):
         -----
         The returned dictionary is update inplace when we exit the code bloc.
         Only the successfull field are created.
+
         """
         self.start()
         return self.res

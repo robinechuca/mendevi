@@ -82,6 +82,7 @@ def g5kpower(
     * Power and time measurements are differental to increase the compressibility
       of the database containing this result.
     * Energy is estimated from the trapezoidal integral of instantaneous powers.
+
     """
     # verification
     assert isinstance(hostname, str), hostname.__class__.__name__
@@ -89,7 +90,7 @@ def g5kpower(
     assert isinstance(duration, numbers.Real), duration.__class__.__name__
     if (
         hostname_fields := re.search(
-            r"^(?P<node>[a-z0-9_-]+)\.(?P<site>[a-z0-9_-]+)", hostname, re.IGNORECASE
+            r"^(?P<node>[a-z0-9_-]+)\.(?P<site>[a-z0-9_-]+)", hostname, re.IGNORECASE,
         )
     ) is None:
         raise ValueError(f"the hostname {hostname} is not grid5000 formated")

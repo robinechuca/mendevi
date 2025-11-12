@@ -21,6 +21,7 @@ class Usage(threading.Thread):
     ...     time.sleep(1)
     ...
     >>>
+
     """
 
     def __init__(self, sleep: numbers.Real = 50e-3):
@@ -30,6 +31,7 @@ class Usage(threading.Thread):
         ----------
         sleep : float, default=50e-3
             The time interval between 2 measures (in s).
+
         """
         super().__init__(daemon=True)
 
@@ -58,6 +60,7 @@ class Usage(threading.Thread):
             * 'cpus': Each logical cpu usage at each time (in %).
             * 'dt': The time difference between 2 consecutive measurements (in s).
             * 'ram': The virtual ram usage (in bytes).
+
         """
         self.start()
         return self.res

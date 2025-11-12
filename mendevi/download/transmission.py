@@ -6,16 +6,14 @@ import logging
 import pathlib
 import subprocess
 import time
-import typing
 
 import orjson
 import tqdm
-
 from context_verbose import Printer
 
 
 def add_torrent(
-    torrent: pathlib.Path, download_dir: typing.Optional[pathlib.Path] = None
+    torrent: pathlib.Path, download_dir: pathlib.Path | None = None,
 ) -> pathlib.Path:
     """Add the torrent to transmission.
 
@@ -30,6 +28,7 @@ def add_torrent(
     -------
     file : pathlib.Path
         Return the downloaded file path, related to the torrent.
+
     """
     # verifications
     assert isinstance(torrent, pathlib.Path), torrent.__class__.__name__
@@ -54,7 +53,7 @@ def add_torrent(
                 [
                     "transmission-remote",
                     "--add", str(torrent),
-                    "--download-dir", str(download_dir)
+                    "--download-dir", str(download_dir),
                 ],
                 check=True,
                 capture_output=True,
@@ -76,13 +75,14 @@ def test_transmission_is_installed():
     ------
     ImportError
         If transmission-daemon is not well installed
+
     """
     try:
         out = subprocess.run(["transmission-remote", "--version"], check=True, capture_output=True)
     except FileNotFoundError as err:
         raise ImportError(
             "please install transmission-daemon "
-            "(https://mendevi.readthedocs.io/latest/developer_guide/installation.html#transmission)"
+            "(https://mendevi.readthedocs.io/latest/developer_guide/installation.html#transmission)",
         ) from err
     if not (out.stdout or out.stderr):
         raise logging.warning("the transmission-daemon package appears to be corrupted")
@@ -108,7 +108,7 @@ def wait_until_finished(name: str):
                 states = orjson.loads(out.stdout)
             except orjson.JSONDecodeError as err:
                 raise ImportError(
-                    f"the transmission-daemon package appears to be corrupted, {out.stdout}"
+                    f"the transmission-daemon package appears to be corrupted, {out.stdout}",
                 ) from err
             if len(state := [t for t in states["arguments"]["torrents"] if t["name"] == name]) == 0:
                 raise KeyError(f"the torrent {name} is not in the transmission-remote --list")

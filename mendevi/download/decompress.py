@@ -8,8 +8,8 @@ import pathlib
 import re
 import subprocess
 
-from context_verbose import Printer
 import tqdm
+from context_verbose import Printer
 
 
 def _get_size(compressed_file: pathlib.Path) -> int:
@@ -17,7 +17,7 @@ def _get_size(compressed_file: pathlib.Path) -> int:
     # this method should be improved
     try:
         out = subprocess.run(
-            ["xz", "--robot", "--list", str(compressed_file)], check=True, capture_output=True
+            ["xz", "--robot", "--list", str(compressed_file)], check=True, capture_output=True,
         )
     except FileNotFoundError as err:
         logging.warning("please install xz %s", err)
@@ -52,7 +52,7 @@ def decompress(compressed_file: pathlib.Path) -> pathlib.Path:
                 unit="Mo",
             ) as load,
             lzma.open(compressed_file, "r") as src,
-            open(decompressed_file, "wb") as dst
+            open(decompressed_file, "wb") as dst,
         ):
 
             while data := src.read(1_000_000):

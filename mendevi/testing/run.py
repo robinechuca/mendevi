@@ -35,7 +35,7 @@ def run_tests(
         path = str(root / "testing" / "coding_style.py")
         if (
             code := pytest.main(debug_options + [
-                "--verbose", "--exitfirst", "--capture=no", "--tb=no", "-rN", path  # no rapport
+                "--verbose", "--exitfirst", "--capture=no", "--tb=no", "-rN", path,  # no rapport
             ])
         ):
             return int(code)
@@ -48,8 +48,8 @@ def run_tests(
             (
                 set(root.rglob("*.py"))
                 - {root / "testing" / "install.py", root / "testing" / "coding_style.py"}
-            )
-        )
+            ),
+        ),
     )
     if (code := pytest.main(debug_options + ["-m", "not slow", "--doctest-modules"] + paths)):
         return int(code)

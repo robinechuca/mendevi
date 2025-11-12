@@ -3,8 +3,8 @@
 """Download and decapsule a file."""
 
 
-from context_verbose import Printer
 import click
+from context_verbose import Printer
 
 from mendevi.download.decapsulation import retrive_file
 
@@ -15,10 +15,12 @@ def main(file: str):
     """Download and decapsule a file.
 
     \b
+
     Parameters
     ----------
     file : pathlike
         The filename to get.
+
     """
     with Printer(f"Get {file!r}...", color="cyan") as prt:
         path = retrive_file(file)

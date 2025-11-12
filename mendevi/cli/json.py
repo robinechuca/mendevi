@@ -5,12 +5,13 @@
 import pathlib
 import sqlite3
 
-from context_verbose import Printer
-from cutcutcodec.utils import mround
 import click
 import orjson
+from context_verbose import Printer
+from cutcutcodec.utils import mround
 
 from mendevi.database.meta import merge_extractors
+
 from .parse import parse_videos_database
 
 
@@ -35,6 +36,7 @@ def main(database: str, **kwargs):
     """Extract the main fields from an SQL database into JSON format.
 
     \b
+
     Parameters
     ----------
     database : pathlike
@@ -42,11 +44,12 @@ def main(database: str, **kwargs):
     output : pathlike, optional
         The destination json database path.
         By default, the file is created in the same folder than the SQL database.
+
     """
     # parse args
     with Printer("Parse configuration...") as prt:
         _, database = parse_videos_database(prt, (), database)
-        if (output := kwargs.get("output", None)) is None:
+        if (output := kwargs.get("output")) is None:
             output = database.with_suffix(".json")
         else:
             output = pathlib.Path(output).expanduser()
@@ -140,20 +143,20 @@ def main(database: str, **kwargs):
                     ON t_enc_encode.enc_act_id = t_act_activity.act_id
                 JOIN t_env_environment
                     ON t_enc_encode.enc_env_id = t_env_environment.env_id
-                """
+                """,
             ):
                 raw = line_extractor(dict(raw))
                 vid_id = raw.pop("video_hash")
                 content[vid_id] = content.get(vid_id, {"id": vid_id})
                 content[vid_id] |= {k: _round(raw[k]) for k in context if raw[k] is not None}
                 _add_key_key_val(
-                    content[vid_id], "encode_duration", raw["hostname"], _round(raw["act_duration"])
+                    content[vid_id], "encode_duration", raw["hostname"], _round(raw["act_duration"]),
                 )
                 _add_key_key_val(
-                    content[vid_id], "encode_cores", raw["hostname"], _round(raw["cores"])
+                    content[vid_id], "encode_cores", raw["hostname"], _round(raw["cores"]),
                 )
                 _add_key_key_val(
-                    content[vid_id], "encode_power", raw["hostname"], _round(raw["power"])
+                    content[vid_id], "encode_power", raw["hostname"], _round(raw["power"]),
                 )
             prt.print("read 'decode' and 'metric' extractor")
             for raw in conn.execute(
@@ -196,7 +199,7 @@ def main(database: str, **kwargs):
                     ON t_dec_decode.dec_vid_id = t_dst_video.vid_id
                 JOIN t_env_environment
                     ON t_dec_decode.dec_env_id = t_env_environment.env_id
-                """
+                """,
             ):
                 raw = line_extractor(dict(raw))
                 raw["name"] = None
@@ -204,13 +207,13 @@ def main(database: str, **kwargs):
                 content[vid_id] = content.get(vid_id, {"id": vid_id})
                 content[vid_id] |= {k: _round(raw[k]) for k in context if raw[k] is not None}
                 _add_key_key_val(
-                    content[vid_id], "decode_duration", raw["hostname"], _round(raw["act_duration"])
+                    content[vid_id], "decode_duration", raw["hostname"], _round(raw["act_duration"]),
                 )
                 _add_key_key_val(
-                    content[vid_id], "decode_cores", raw["hostname"], _round(raw["cores"])
+                    content[vid_id], "decode_cores", raw["hostname"], _round(raw["cores"]),
                 )
                 _add_key_key_val(
-                    content[vid_id], "decode_power", raw["hostname"], _round(raw["power"])
+                    content[vid_id], "decode_power", raw["hostname"], _round(raw["power"]),
                 )
             prt.print_time()
 

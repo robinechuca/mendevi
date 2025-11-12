@@ -9,9 +9,9 @@ import shlex
 import sqlite3
 import subprocess
 
+import numpy as np
 from context_verbose import Printer
 from flufl.lock import Lock
-import numpy as np
 
 from mendevi.database.serialize import list_to_binary, tensor_to_binary
 from mendevi.measures import Activity
@@ -34,8 +34,9 @@ def decode(vid: pathlib.Path, **kwargs) -> tuple[str, dict[str]]:
         The ffmpeg command.
     activity : dict[str]
         The computeur activity during the decoding process.
+
     """
-    cmd = get_decode_cmd(vid, kwargs.get("filter", None), kwargs.get("resolution", None))
+    cmd = get_decode_cmd(vid, kwargs.get("filter"), kwargs.get("resolution"))
     prt_cmd = " ".join(map(shlex.quote, [{str(vid): "vid.mp4"}.get(c, c) for c in cmd]))
     with Printer(prt_cmd, color="green") as prt:
         prt.print(f"video: {vid.name}")
@@ -71,6 +72,7 @@ def decode_and_store(
         The path of the video to be encoded.
     **kwargs
         Transmitted to :py:func:`decode`.
+
     """
     # decode the video
     cmd, activity = decode(vid, **kwargs)
@@ -85,7 +87,7 @@ def decode_and_store(
         try:
             cursor.execute(
                 "INSERT INTO t_vid_video (vid_id, vid_name) VALUES (?, ?)",
-                (kwargs["dec_vid_id"], vid.name)
+                (kwargs["dec_vid_id"], vid.name),
             )
         except sqlite3.IntegrityError:
             pass
@@ -124,7 +126,7 @@ def decode_and_store(
         keys = list(values)
         cursor.execute(
             f"INSERT INTO t_dec_decode ({', '.join(keys)}) VALUES ({', '.join('?'*len(keys))})",
-            [values[k] for k in keys]
+            [values[k] for k in keys],
         )
 
 
@@ -160,6 +162,7 @@ def get_decode_cmd(
     >>> get_decode_cmd(media, additional_filter="", resolution=(480, 720))
     [..., '-vf', 'scale=h=480:w=720:sws_flags=bicubic,format=rgb24', '-f', 'null', '/dev/null']
     >>>
+
     """
     if resolution is not None:
         assert isinstance(resolution, tuple), resolution.__class__.__name__

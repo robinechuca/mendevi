@@ -6,19 +6,20 @@ import fractions
 import pathlib
 import shutil
 
-from context_verbose import Printer
 import click
 import cutcutcodec
+from context_verbose import Printer
 
 from mendevi.cst import PROFILES
 from mendevi.utils import best_profile, get_resolution
+
 from .parse import PixelParamType, ResolutionParamType
 
 
 def _parse_args(prt: Printer, video: pathlib.Path, kwargs: dict):
     """Verification of the arguments."""
     # profile
-    kwargs["profile"] = kwargs.get("profile", None)
+    kwargs["profile"] = kwargs.get("profile")
     if kwargs["profile"] is not None:
         assert isinstance(kwargs["profile"], str), kwargs["profile"].__class__.__name__
         kwargs["profile"] = kwargs["profile"].lower()
@@ -28,14 +29,14 @@ def _parse_args(prt: Printer, video: pathlib.Path, kwargs: dict):
     prt.print(f"profile   : {kwargs['profile']}")
 
     # fps
-    kwargs["fps"] = kwargs.get("fps", None) or PROFILES[kwargs["profile"]]["fps"]
+    kwargs["fps"] = kwargs.get("fps") or PROFILES[kwargs["profile"]]["fps"]
     assert isinstance(kwargs["fps"], fractions.Fraction), kwargs["fps"].__class__.__name__
     assert kwargs["fps"] > 0, kwargs["fps"]
     prt.print(f"fps       : {kwargs['fps']}")
 
     # resolution
     kwargs["resolution"] = (
-        kwargs.get("resolution", None) or PROFILES[kwargs["profile"]]["resolution"]
+        kwargs.get("resolution") or PROFILES[kwargs["profile"]]["resolution"]
     )
     assert isinstance(kwargs["resolution"], tuple), kwargs["resolution"].__class__.__name__
     assert (
@@ -45,26 +46,26 @@ def _parse_args(prt: Printer, video: pathlib.Path, kwargs: dict):
     prt.print(f"resolution: h={kwargs['resolution'][0]}:w={kwargs['resolution'][1]}")
 
     # pix_fmt
-    kwargs["pix_fmt"] = kwargs.get("pix_fmt", None) or PROFILES[kwargs["profile"]]["pix_fmt"]
+    kwargs["pix_fmt"] = kwargs.get("pix_fmt") or PROFILES[kwargs["profile"]]["pix_fmt"]
     assert isinstance(kwargs["pix_fmt"], str), kwargs["pix_fmt"].__class__.__name__
     prt.print(f"pix_fmt   : {kwargs['pix_fmt']}")
 
     # primaries
     kwargs["primaries"] = (
-        kwargs.get("primaries", None) or PROFILES[kwargs["profile"]]["primaries"]
+        kwargs.get("primaries") or PROFILES[kwargs["profile"]]["primaries"]
     )
     assert isinstance(kwargs["primaries"], str), kwargs["primaries"].__class__.__name__
     assert kwargs["primaries"] in cutcutcodec.core.colorspace.cst.PRIMARIES, kwargs["primaries"]
     prt.print(f"primaries : {kwargs['primaries']}")
 
     # transfer
-    kwargs["transfer"] = kwargs.get("transfer", None) or PROFILES[kwargs["profile"]]["transfer"]
+    kwargs["transfer"] = kwargs.get("transfer") or PROFILES[kwargs["profile"]]["transfer"]
     assert isinstance(kwargs["transfer"], str), kwargs["transfer"].__class__.__name__
     assert kwargs["transfer"] in cutcutcodec.core.colorspace.cst.TRC, kwargs["transfer"]
     prt.print(f"transfer  : {kwargs['transfer']}")
 
     # range
-    kwargs["range"] = kwargs.get("range", None) or PROFILES[kwargs["profile"]]["range"]
+    kwargs["range"] = kwargs.get("range") or PROFILES[kwargs["profile"]]["range"]
     assert isinstance(kwargs["range"], str), kwargs["range"].__class__.__name__
     assert kwargs["range"] in {"tv", "pc"}, kwargs["range"]
     prt.print(f"range     : {kwargs['range']}")
@@ -110,7 +111,7 @@ def _parse_args(prt: Printer, video: pathlib.Path, kwargs: dict):
 @click.option(
     "--range",
     type=click.Choice(["tv", "pc"]),
-    help="The pixel coding range."
+    help="The pixel coding range.",
 )
 def main(video: str, output: str | None = None, **kwargs) -> pathlib.Path:
     """Pre-Process the source video before performing the transcoding measurements.
@@ -126,6 +127,7 @@ def main(video: str, output: str | None = None, **kwargs) -> pathlib.Path:
     * Ensure that the pixel format is recognised.
 
     \b
+
     Parameters
     ----------
     video : pathlike
@@ -161,6 +163,7 @@ def main(video: str, output: str | None = None, **kwargs) -> pathlib.Path:
     range : str, optional
         The default value is defined in the profile.
         You can specify ``tv`` for limited range or ``pc`` for full range.
+
     """
     with Printer("Parse configuration...") as prt:
         # video
@@ -210,7 +213,7 @@ def main(video: str, output: str | None = None, **kwargs) -> pathlib.Path:
                 [stream],
                 tmp,
                 colorspace=cutcutcodec.Colorspace(
-                    "y'pbpr", kwargs["primaries"], kwargs["transfer"]
+                    "y'pbpr", kwargs["primaries"], kwargs["transfer"],
                 ),
                 streams_settings=[{  # extension .mp4
                     "encodec": "ffv1",  # fast lossless compression

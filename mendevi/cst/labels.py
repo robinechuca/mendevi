@@ -17,7 +17,7 @@ def extract_labels() -> list[str]:
     labels = []
     for match_case in node.cases:
         labels.extend(
-            [n.value for n in ast.walk(match_case.pattern) if isinstance(n, ast.Constant)]
+            [n.value for n in ast.walk(match_case.pattern) if isinstance(n, ast.Constant)],
         )
     return labels
 

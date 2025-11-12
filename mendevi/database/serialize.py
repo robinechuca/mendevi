@@ -7,7 +7,6 @@ import struct
 
 import numpy as np
 
-
 VECT_DTYPE = np.float32
 
 
@@ -41,6 +40,7 @@ def list_to_binary(vect: list[float]) -> bytes:
     >>> list_to_binary([0.0, -1.0, 0.123456789])
     b'\x00\x00\x00\x00\x00\x00\x80\xbf\xea\xd6\xfc='
     >>>
+
     """
     vect = np.asarray(vect, dtype=VECT_DTYPE)
     assert vect.ndim == 1, vect.shape
@@ -69,6 +69,7 @@ def binary_to_list(data: bytes) -> np.ndarray[VECT_DTYPE]:
     >>> binary_to_list(b'\x00\x00\x00\x00\x00\x00\x80\xbf\xea\xd6\xfc=')
     array([ 0.        , -1.        ,  0.12345679], dtype=float32)
     >>>
+
     """
     assert isinstance(data, bytes), data.__class__.__name__
     assert len(data) % np.dtype(VECT_DTYPE).itemsize == 0, len(data)
@@ -97,6 +98,7 @@ def tensor_to_binary(tensor: list[list[float]]) -> bytes:
     >>> tensor_to_binary([[1.1, 2.2], [3.3, 4.4], [5.5, 6.6]])
     b'\x02\x00\x00\x00\xcd\xcc\x8c?\xcd\xcc\x0c@33S@\xcd\xcc\x8c@\x00\x00\xb0@33\xd3@'
     >>>
+
     """
     tensor = np.asarray(tensor, dtype=VECT_DTYPE)
     assert tensor.ndim == 2, tensor.shape
@@ -128,6 +130,7 @@ def binary_to_tensor(data: bytes) -> np.ndarray[VECT_DTYPE, VECT_DTYPE]:
            [3.3, 4.4],
            [5.5, 6.6]], dtype=float32)
     >>>
+
     """
     assert isinstance(data, bytes), data.__class__.__name__
     size, data = data[:4], data[4:]

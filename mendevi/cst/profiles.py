@@ -12,7 +12,6 @@ For YouTube <https://support.google.com/youtube/answer/1722171>:
 
 from fractions import Fraction
 
-
 PROFILES = {
     "sd": {
         "fps": Fraction(24000, 1001),

@@ -22,7 +22,7 @@ def test_av_ffmpeg_link():
     except subprocess.CalledProcessError as err:
         raise ImportError(
             "ffmpeg is not accessible from the 'ffmpeg' commande line, "
-            "please refer to the ffmpeg installation guide"
+            "please refer to the ffmpeg installation guide",
         ) from err
     try:
         version_ffprobe = (
@@ -31,7 +31,7 @@ def test_av_ffmpeg_link():
     except subprocess.CalledProcessError as err:
         raise ImportError(
             "ffprobe is not accessible from the 'ffprobe' but ffmpeg is installed, "
-            "please check your environement variables"
+            "please check your environement variables",
         ) from err
 
     version_pattern = r"version\s+[^\n]*?(?P<major>\d+)\.(?P<minor>\d+)"
@@ -60,7 +60,7 @@ def test_av_ffmpeg_link():
                 "the av version of %s is %d.%d.%d but %s.%s.%s for ffmpeg, "
                 "please reinstall pyav using option --no-binary, see the installation guide "
                 "https://pyav.org/docs/develop/overview/installation.html",
-                lib, major, minor, micro, version["major"], version["minor"], version["micro"]
+                lib, major, minor, micro, version["major"], version["minor"], version["micro"],
             )
 
 
@@ -78,10 +78,10 @@ def test_gpu_torch():
             return  # assume there are not graphical card
         raise ImportError(
             "There seems to be an nvidia gpu on this machine, "
-            "however torch is not able to use it, please reinstall cuda"
+            "however torch is not able to use it, please reinstall cuda",
         ) from err
     if b" nvidia " in result.stdout.lower():
         raise ImportError(
             "There seems to be an nvidia gpu on this machine, "
-            "however torch is not able to use it, please reinstall cuda"
+            "however torch is not able to use it, please reinstall cuda",
         )

@@ -13,12 +13,11 @@ import pathlib
 import re
 import typing
 
-from cutcutcodec.core.io import VIDEO_SUFFIXES
 import cutcutcodec
 import tqdm
+from cutcutcodec.core.io import VIDEO_SUFFIXES
 
 from mendevi.cst.profiles import PROFILES
-
 
 PATHLIKE = str | bytes | pathlib.Path
 
@@ -37,7 +36,7 @@ def best_profile(height: numbers.Integral, width: numbers.Integral) -> str:
 
 
 def compute_video_hash(
-    videos: PATHLIKE | typing.Iterable[PATHLIKE]
+    videos: PATHLIKE | typing.Iterable[PATHLIKE],
 ) -> bytes | dict[pathlib.Path, bytes]:
     r"""Compute the checksum of the video.
 
@@ -60,6 +59,7 @@ def compute_video_hash(
         The md5 checksum of the video file. In the case of a multiple file,
         a dictionary containing the file and the hash is returned rather a single hash.
         If the file does not exists, return None.
+
     """
     def _hash(video: PATHLIKE) -> pathlib.Path:
         video = pathlib.Path(video)
@@ -105,6 +105,7 @@ def get_project_root() -> pathlib.Path:
     >>> sorted(p.name for p in root.iterdir())  # doctest: +ELLIPSIS
     ['__init__.py', '__main__.py', ...]
     >>>
+
     """
     return pathlib.Path(__file__).resolve().parent
 
@@ -142,6 +143,7 @@ def hash_to_signature(checksum: bytes) -> str:
     >>> hash_to_signature(b"\xd4\x1d\x8c\xd9\x8f\x00\xb2\x04\xe9\x80\t\x98\xec\xf8B~")
     'd41d8cd98f00b204e9800998ecf8427e'
     >>>
+
     """
     assert isinstance(checksum, bytes), checksum.__class__.__name__
     assert len(checksum) == 16, len(checksum)
@@ -171,6 +173,7 @@ def signature_to_hash(signature: str) -> bytes:
     >>> signature_to_hash("2qoyzwmpaczaj2mabgmoz6ccpy")  # mendevi < 1.2.2
     b'\xd4\x1d\x8c\xd9\x8f\x00\xb2\x04\xe9\x80\t\x98\xec\xf8B~'
     >>>
+
     """
     assert isinstance(signature, str), signature.__class__.__name__
     try:  # version >= 1.2.2
@@ -183,7 +186,7 @@ def signature_to_hash(signature: str) -> bytes:
 
 
 def unfold_video_files(
-    paths: typing.Iterable[PATHLIKE]
+    paths: typing.Iterable[PATHLIKE],
 ) -> typing.Iterable[pathlib.Path]:
     """Explore recursively the folders to find the video path.
 
@@ -196,6 +199,7 @@ def unfold_video_files(
     ------
     filename : pathlib.Path
         The path of the video.
+
     """
     assert hasattr(paths, "__iter__"), paths.__class__.__name__
     for path in paths:
@@ -213,7 +217,7 @@ def unfold_video_files(
         elif "**" in (parts := path.parts):
             idx = parts.index("**")
             yield from unfold_video_files(
-                pathlib.Path(*parts[:idx]).glob(pathlib.Path(*parts[idx:]))
+                pathlib.Path(*parts[:idx]).glob(pathlib.Path(*parts[idx:])),
             )
         else:
             logging.warning("the path %s is not correct", path)

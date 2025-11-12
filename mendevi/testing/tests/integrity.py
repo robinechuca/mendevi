@@ -21,22 +21,22 @@ def test_unicity_activity_from_env():
         for _ in range(4):
             sql_database.execute(
                 "INSERT INTO t_act_activity (act_start, act_duration) VALUES (?, ?)",
-                (time.time(), 1.0)
+                (time.time(), 1.0),
             )
         sql_database.execute(
             "INSERT INTO t_vid_video (vid_id) VALUES (?)",
-            ((0).to_bytes(16),)
+            ((0).to_bytes(16),),
         )
 
     # insert encode and decode
     with sqlite3.connect(database) as sql_database:
         sql_database.execute(
             "INSERT INTO t_enc_encode (enc_dst_vid_id, enc_env_id) VALUES (?, ?)",
-            ((0).to_bytes(16), 0)
+            ((0).to_bytes(16), 0),
         )
         sql_database.execute(
             "INSERT INTO t_dec_decode (dec_vid_id, dec_env_id) VALUES (?, ?)",
-            ((0).to_bytes(16), 1)
+            ((0).to_bytes(16), 1),
         )
 
     # insert environment OK
@@ -47,7 +47,7 @@ def test_unicity_activity_from_env():
             (env_ffmpeg_version, env_hostname, env_logical_cores, env_ram, env_idle_act_id)
             VALUES (?, ?, ?, ?, ?)
             """,
-            ("ffmpeg 0.0.0", "my_name", 8, 1024, 2)
+            ("ffmpeg 0.0.0", "my_name", 8, 1024, 2),
         )
 
     # insert environnement FAIL
@@ -58,7 +58,7 @@ def test_unicity_activity_from_env():
             (env_ffmpeg_version, env_hostname, env_logical_cores, env_ram, env_idle_act_id)
             VALUES (?, ?, ?, ?, ?)
             """,
-            ("ffmpeg 0.0.1", "my_name", 8, 1024, 2)
+            ("ffmpeg 0.0.1", "my_name", 8, 1024, 2),
         )
 
     # insert environment OK
@@ -69,7 +69,7 @@ def test_unicity_activity_from_env():
             (env_ffmpeg_version, env_hostname, env_logical_cores, env_ram, env_idle_act_id)
             VALUES (?, ?, ?, ?, ?)
             """,
-            ("ffmpeg 0.0.2", "my_name", 8, 1024, 3)
+            ("ffmpeg 0.0.2", "my_name", 8, 1024, 3),
         )
 
     # insert environment OK null env_idle_act_id
@@ -80,7 +80,7 @@ def test_unicity_activity_from_env():
             (env_ffmpeg_version, env_hostname, env_logical_cores, env_ram)
             VALUES (?, ?, ?, ?)
             """,
-            ("ffmpeg 0.0.3", "my_name", 8, 1024)
+            ("ffmpeg 0.0.3", "my_name", 8, 1024),
         )
 
     # insert environment OK null env_idle_act_id second time
@@ -91,7 +91,7 @@ def test_unicity_activity_from_env():
             (env_ffmpeg_version, env_hostname, env_logical_cores, env_ram)
             VALUES (?, ?, ?, ?)
             """,
-            ("ffmpeg 0.0.4", "my_name", 8, 1024)
+            ("ffmpeg 0.0.4", "my_name", 8, 1024),
         )
 
     # update environment FAIL
@@ -101,7 +101,7 @@ def test_unicity_activity_from_env():
             UPDATE t_env_environment SET env_idle_act_id=3
             WHERE env_ffmpeg_version=? AND env_hostname=? AND env_logical_cores=? AND env_ram=?
             """,
-            ("ffmpeg 0.0.3", "my_name", 8, 1024)
+            ("ffmpeg 0.0.3", "my_name", 8, 1024),
         )
 
     os.remove(database)

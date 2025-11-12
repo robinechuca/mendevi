@@ -7,12 +7,13 @@ import pathlib
 import sqlite3
 import time
 
-from flufl.lock import Lock
 import context_verbose as cv
 import numpy as np
+from flufl.lock import Lock
 
 from mendevi.measures import Activity
 from mendevi.measures.context import full_context
+
 from .create import ENV_UNIQUE, is_sqlite
 from .serialize import list_to_binary, tensor_to_binary
 
@@ -43,6 +44,7 @@ def get_idle(duration: float = 60.0) -> dict:
     >>> from mendevi.database.complete import get_idle
     >>> get_idle()
     >>>
+
     """
     assert isinstance(duration, float), duration.__class__.__name__
     assert duration > 0, duration.__class__.__name__
@@ -87,6 +89,7 @@ def add_environment(database: sqlite3.Cursor | str | bytes | pathlib.Path) -> in
     1
     >>> os.remove(database)
     >>>
+
     """
     # open file
     if not isinstance(database, sqlite3.Cursor):

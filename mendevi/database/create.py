@@ -5,7 +5,6 @@
 import pathlib
 import sqlite3
 
-
 ENV_UNIQUE = [
     "env_ffmpeg_version",
     "env_hostname",
@@ -30,6 +29,7 @@ def create_database(filename: str | bytes | pathlib.Path):
     >>> create_database(database := tempfile.mktemp(suffix=".sqlite"))
     >>> os.remove(database)
     >>>
+
     """
     filename = pathlib.Path(filename).expanduser().resolve()
     assert not filename.exists(), f"the database has to be new, {filename} exists"
@@ -256,6 +256,7 @@ def is_sqlite(file: str | bytes | pathlib.Path):
     True
     >>> os.remove(database)
     >>>
+
     """
     file = pathlib.Path(file).expanduser()
     if not file.is_file():

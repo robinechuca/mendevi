@@ -2,14 +2,15 @@
 
 """Perform the video properties measures."""
 
-import random
 import pathlib
+import random
 
-from context_verbose import Printer
 import click
+from context_verbose import Printer
 
 from mendevi.probe import probe_and_store
 from mendevi.utils import compute_video_hash
+
 from .parse import parse_videos_database
 
 
@@ -69,6 +70,7 @@ def main(videos: tuple[str], database: str = None, **kwargs):
     """Measures the video properties.
 
     \b
+
     Parameters
     ----------
     videos : tuple[pathlike], optional
@@ -85,6 +87,7 @@ def main(videos: tuple[str], database: str = None, **kwargs):
         If True, compute the comparative video metric, otherwise, skip it.
     rms_sobel, rms_time_diff, uvq : boolean
         If True, compute the absolute uvq metric, overwise, skip it.
+
     """
     with Printer("Parse configuration...") as prt:
         videos, database = parse_videos_database(prt, videos, database)

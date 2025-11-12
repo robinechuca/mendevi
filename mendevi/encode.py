@@ -13,17 +13,16 @@ import sqlite3
 import subprocess
 import tempfile
 
-from context_verbose import Printer
-from flufl.lock import Lock
 import cutcutcodec
 import numpy as np
 import tqdm
+from context_verbose import Printer
+from flufl.lock import Lock
 
 from mendevi.convert import get_convert_cmd
 from mendevi.database.serialize import list_to_binary, tensor_to_binary
 from mendevi.measures import Activity
 from mendevi.utils import best_profile, compute_video_hash, hash_to_signature
-
 
 ENCODERS = {"libx264", "libx265", "libvpx-vp9", "libsvtav1", "vvc"}
 
@@ -46,13 +45,14 @@ def encode(src: pathlib.Path, **kwargs) -> tuple[pathlib.Path, str, dict[str]]:
         The ffmpeg command.
     activity : dict[str]
         The computeur activity during the transcoding process.
+
     """
     assert isinstance(src, pathlib.Path), src.__class__.__name__
     assert src.is_file(), src
 
     # find tempfile name
     signature = hashlib.md5(
-        bytes(src) + " ".join(str(kwargs[k]) for k in sorted(kwargs)).encode("utf-8")
+        bytes(src) + " ".join(str(kwargs[k]) for k in sorted(kwargs)).encode("utf-8"),
     ).hexdigest()
     dst = pathlib.Path(tempfile.gettempdir()) / f"{signature}.mp4"
 
@@ -61,7 +61,7 @@ def encode(src: pathlib.Path, **kwargs) -> tuple[pathlib.Path, str, dict[str]]:
 
     # display
     prt_cmd = " ".join(
-        map(shlex.quote, [{str(src): "src.mp4", str(dst): "dst.mp4"}.get(c, c) for c in cmd])
+        map(shlex.quote, [{str(src): "src.mp4", str(dst): "dst.mp4"}.get(c, c) for c in cmd]),
     )
     with Printer(prt_cmd, color="green") as prt:
         prt.print(f"input video: {src.name}")
@@ -80,7 +80,7 @@ def encode(src: pathlib.Path, **kwargs) -> tuple[pathlib.Path, str, dict[str]]:
             while not is_finish:
                 while (
                     match := re.search(
-                        br"time=(?P<h>\d+):(?P<m>\d{1,2}):(?P<s>\d{1,2}\.\d*)", signature
+                        br"time=(?P<h>\d+):(?P<m>\d{1,2}):(?P<s>\d{1,2}\.\d*)", signature,
                     )
                 ) is None:
                     if not (buff := process.stderr.read(32)):
@@ -157,6 +157,7 @@ def encode_and_store(
     ... )
     >>> database.unlink()
     >>>
+
     """
     # transcode the video
     dst, cmd, activity = encode(src, **kwargs)
@@ -171,7 +172,7 @@ def encode_and_store(
         try:
             cursor.execute(
                 "INSERT INTO t_vid_video (vid_id, vid_name) VALUES (?, ?)",
-                (kwargs["src_vid_id"], src.name)
+                (kwargs["src_vid_id"], src.name),
             )
         except sqlite3.IntegrityError:
             pass
@@ -179,7 +180,7 @@ def encode_and_store(
         try:
             cursor.execute(
                 "INSERT INTO t_vid_video (vid_id, vid_name) VALUES (?, ?)",
-                (dst_vid_id, dst.name)
+                (dst_vid_id, dst.name),
             )
         except sqlite3.IntegrityError:
             pass
@@ -225,7 +226,7 @@ def encode_and_store(
         keys = list(values)
         cursor.execute(
             f"INSERT INTO t_enc_encode ({', '.join(keys)}) VALUES ({', '.join('?'*len(keys))})",
-            [values[k] for k in keys]
+            [values[k] for k in keys],
         )
 
 
@@ -363,7 +364,7 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs) -> list[st
                 "-preset", kwargs["effort"],
                 "-qpa", "1",
                 "-vvenc-params", f"internalbitdepth={bit}",
-                "-threads", str(kwargs['threads']),
+                "-threads", str(kwargs["threads"]),
             ])
         # mount in RAM: mount -o mode=1777,nosuid,nodev -t tmpfs tmpfs /tmp
         # https://developer.nvidia.com/video-encode-decode-support-matrix

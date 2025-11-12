@@ -8,15 +8,15 @@ import itertools
 import pathlib
 import sqlite3
 
-from context_verbose import Printer
 import click
 import numpy as np
+from context_verbose import Printer
 
 from mendevi.database.complete import add_environment
 from mendevi.encode import encode_and_store
 from mendevi.utils import compute_video_hash, get_pix_fmt, get_rate_video, get_resolution
-from .parse import PixelParamType, ResolutionParamType, parse_videos_database
 
+from .parse import PixelParamType, ResolutionParamType, parse_videos_database
 
 ENCODERS = {"libx264", "libx265", "libvpx-vp9", "libsvtav1", "vvc"}
 
@@ -101,7 +101,7 @@ def _parse_args(prt: Printer, kwargs: dict):
     kwargs["mode"] = tuple(sorted(set(kwargs["mode"])))
     prt.print(
         "br mode   : "
-        f"{' and '.join({'vbr': 'variable', 'cbr': 'constant'}[m] for m in kwargs['mode'])}"
+        f"{' and '.join({'vbr': 'variable', 'cbr': 'constant'}[m] for m in kwargs['mode'])}",
     )
 
     # filter
@@ -185,6 +185,7 @@ def main(videos: tuple, database: str = None, **kwargs):
     """Measures activity during encoding.
 
     \b
+
     Parameters
     ----------
     videos : tuple[pathlike]
@@ -225,6 +226,7 @@ def main(videos: tuple, database: str = None, **kwargs):
     filter : str, optional
         A video ffmpeg filter (after -vf) which applies at the time of transcoding,
         more precisely between decoding and conversion. It is a kind of pre-conversion.
+
     """
     with Printer("Parse configuration...") as prt:
         videos, database = parse_videos_database(prt, videos, database)
@@ -236,7 +238,7 @@ def main(videos: tuple, database: str = None, **kwargs):
     kwargs["src_vid_id"]: dict[pathlib.Path, bytes] = compute_video_hash(videos)
 
     keys = [
-        "effort", "encoder", "filter", "fps", "mode", "pix_fmt", "quality", "resolution", "threads"
+        "effort", "encoder", "filter", "fps", "mode", "pix_fmt", "quality", "resolution", "threads",
     ]
 
     # retrieves the settings for videos that have already been transcoded
@@ -244,7 +246,7 @@ def main(videos: tuple, database: str = None, **kwargs):
         sql_database.row_factory = sqlite3.Row
         done: dict[tuple, int] = {}
         for values in sql_database.execute(
-            "SELECT * FROM t_enc_encode WHERE enc_env_id=?", (env_id,)
+            "SELECT * FROM t_enc_encode WHERE enc_env_id=?", (env_id,),
         ):
             values = {
                 "effort": values["enc_effort"],

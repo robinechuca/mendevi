@@ -9,7 +9,6 @@ import time
 
 import pynvml  # uv pip install nvidia-ml-py
 
-
 # initialisation
 try:
     pynvml.nvmlInit()
@@ -43,6 +42,7 @@ class UsageGPU(threading.Thread):
     ...     time.sleep(1)
     ...
     >>>
+
     """
 
     def __init__(self, sleep: numbers.Real = 50e-3):
@@ -52,6 +52,7 @@ class UsageGPU(threading.Thread):
         ----------
         sleep : float, default=50e-3
             The time interval between 2 measures (in s).
+
         """
         super().__init__(daemon=True)
 
@@ -90,6 +91,7 @@ class UsageGPU(threading.Thread):
             * 'memory': The memory used for each gpu (in bytes).
             * 'power': The average power, energy divided by the duration (in w).
             * 'powers': The power measured between 2 consecutive points (in w).
+
         """
         self.start()
         return self.res

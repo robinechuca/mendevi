@@ -5,8 +5,8 @@
 import logging
 import math
 
-from context_verbose import Printer
 import numpy as np
+from context_verbose import Printer
 
 from mendevi.models import Model
 
@@ -29,6 +29,7 @@ class PowerCores(Model):
     >>> model.fit("<multithread.db>")
     >>> model.predict(["paradoxe-32.rennes.grid5000.fr"], [0.0])
     >>>
+
     """
 
     def __init__(self):
@@ -73,6 +74,6 @@ class PowerCores(Model):
             else:
                 all_power.append(
                     self.parameters[hostname]["p_static"]
-                    + cores * self.parameters[hostname]["p_cores"]
+                    + cores * self.parameters[hostname]["p_cores"],
                 )
         return {"power": all_power}

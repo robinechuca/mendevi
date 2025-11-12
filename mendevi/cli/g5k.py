@@ -4,7 +4,6 @@
 
 import getpass
 import hashlib
-import json
 import logging
 import pathlib
 import platform
@@ -12,10 +11,9 @@ import re
 import subprocess
 import time
 
-from context_verbose import Printer
 import click
 import requests
-
+from context_verbose import Printer
 
 SLEEP_INIT = 10.0  # initial sleeping time
 SLEEP_FINAL = 600.0  # final sleeping time
@@ -25,7 +23,7 @@ SLEEP_TRANSITION = 3600.0  # the transition time between the init and final slee
 def _parse_args(prt: Printer, kwargs: dict):
     """Verification of the arguments."""
     # env_name
-    kwargs["env_name"] = kwargs.get("env_name", None)
+    kwargs["env_name"] = kwargs.get("env_name")
     if kwargs["env_name"] is None:
         match len(env_name := guess_envname()):
             case 0:
@@ -34,7 +32,7 @@ def _parse_args(prt: Printer, kwargs: dict):
                     "You must therefore specify it with the argument --env-name.\n"
                     'See: "https://www.grid5000.fr/w/Getting_Started'
                     '#Deploying_your_nodes_to_get_root_access_and_'
-                    'create_your_own_experimental_environment".'
+                    'create_your_own_experimental_environment".',
                 )
             case 1:
                 kwargs["env_name"] = env_name[0]
@@ -48,7 +46,7 @@ def _parse_args(prt: Printer, kwargs: dict):
     prt.print(f"env_name: {kwargs['env_name']}")
 
     # walltime
-    kwargs["walltime"] = kwargs.get("walltime", None) or "24:00:00"
+    kwargs["walltime"] = kwargs.get("walltime") or "24:00:00"
     assert isinstance(kwargs["walltime"], str), kwargs["walltime"].__class__.__name__
     prt.print(f"walltime: {kwargs['walltime']}")
 
@@ -78,18 +76,19 @@ def guess_envname() -> list[str]:
     envnames : list[str]
         The candidate envnames, as a list of urls formated like:
         https://api.grid5000.fr/stable/sites/{{site}}/public/{{username}}/{{file}}
+
     """
     envnames: list[str] = []
     root = pathlib.Path.home() / "public"
     for path in root.rglob("*.yaml"):
-        with open(path, "r", encoding="utf-8") as file:
+        with open(path, encoding="utf-8") as file:
             content = file.read()
         if re.search(r"file:\s*https?://[\w.]+\.grid5000\.fr", content):
             envnames.append(
                 "https://api.grid5000.fr/stable"
                 f"/sites/{platform.node()[1:]}"  # "frennes", "fgrenoble", "ftoulouse" ...
                 f"/public/{getpass.getuser()}"  # os.getlogin failed sometimes
-                f"/{path.relative_to(root)}"
+                f"/{path.relative_to(root)}",
             )
     return envnames
 
@@ -101,6 +100,7 @@ def guess_roles() -> list[str]:
     -------
     roles : list[str]
         The name of the group to which one belongs
+
     """
     roles = re.findall(
         r"\S+",
@@ -187,7 +187,7 @@ def is_g5k_frontend(fail: bool = True) -> bool:
     raise OSError(
         "You are not on the Grid'5000 frontend!\n"
         "The command 'mendevi g5k ...' must be executed exclusively from the frontend.\n"
-        'See: "https://www.grid5000.fr/w/Getting_Started#Connect_to_a_Grid\'5000_access_machine"'
+        'See: "https://www.grid5000.fr/w/Getting_Started#Connect_to_a_Grid\'5000_access_machine"',
     )
 
 
@@ -216,23 +216,24 @@ def set_ansible_cfg():
     "-s", "server",
     type=str,
     multiple=True,
-    help="The specific node name."
+    help="The specific node name.",
 )
 @click.option(
     "-c", "--cluster",
     type=str,
-    help="The generique cluster name to use."
+    help="The generique cluster name to use.",
 )
 @click.option(
     "-n", "--nodes",
     type=int,
     default=1,
-    help="The number of nodes to be deployed."
+    help="The number of nodes to be deployed.",
 )
 def main(cmd: str, **kwargs):
     """Deploy a grid'5000 node and run a mendevi script inside it.
 
     \b
+
     Parameters
     ----------
     cmd : str
@@ -250,6 +251,7 @@ def main(cmd: str, **kwargs):
         The name of the cluster to used (ex: "paradoxe").
     nodes : int, default=1
         The number of nodes to deploy (incompatible with ``server``).
+
     """
     is_g5k_frontend()
     set_ansible_cfg()
@@ -319,7 +321,7 @@ def main(cmd: str, **kwargs):
                     if res.payload["stdout"] == "<no-log-yet>":
                         continue
                 except KeyError:
-                    logging.error("stop communication with %s", log_files)
+                    logging.exception("stop communication with %s", log_files)
                     log_files.remove(log_file)
                     continue
 
@@ -327,7 +329,7 @@ def main(cmd: str, **kwargs):
                 try:
                     res = orjson.loads(res.payload["stdout"])
                 except orjson.JSONDecodeError as err:
-                    logging.error(res.payload)
+                    logging.exception(res.payload)
                     raise err
                 if res.get("changed", False) or "rc" in res:
                     if msg := res.get("stdout", ""):

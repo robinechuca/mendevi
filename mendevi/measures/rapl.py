@@ -10,7 +10,6 @@ import subprocess
 import sys
 import time
 
-
 PATTERN = re.compile(br"^(?P<time>\d+\.\d*);(?P<energy>\d+[.,]\d*);(?P<unit>Joules)")
 
 
@@ -25,6 +24,7 @@ class RAPL:
     ...     time.sleep(1)
     ...
     >>>
+
     """
 
     def __init__(self, sleep: numbers.Real = 50e-3, no_fail: bool = False):
@@ -37,6 +37,7 @@ class RAPL:
         no_fail : bool, default=True
             If False, raise RuntimeError if it fails to get the RAPL measure.
             Otherwise (if True), return None instead of failing.
+
         """
         assert isinstance(sleep, numbers.Real), sleep.__class__.__name__
         assert sleep > 0, sleep
@@ -77,6 +78,7 @@ class RAPL:
             * 'energy': The total energy consumption (in J).
             * 'power': The average power, energy divided by the duration (in w).
             * 'powers': The power measured between 2 consecutive points (in w).
+
         """
         self.time_bounds[1] = time.time()
         return self.res
@@ -99,7 +101,7 @@ class RAPL:
             *(
                 (float(p["time"]), float(p["energy"].replace(b",", b".")))
                 for p in values if p is not None
-            )
+            ),
         )
 
         # convert energy in power

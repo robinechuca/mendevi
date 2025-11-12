@@ -33,7 +33,7 @@ class ResolutionParamType(click.ParamType):
     def convert(self, value, param, ctx):
         """Convert a video resolution into tuple."""
         if (match := re.search(
-            r"(?P<t1>he)?\D*(?P<d1>\d+)\D+?(?P<t2>w)?\D*(?P<d2>\d+)", value.lower()
+            r"(?P<t1>he)?\D*(?P<d1>\d+)\D+?(?P<t2>w)?\D*(?P<d2>\d+)", value.lower(),
         )) is None:
             self.fail(f"{value!r} is not a valid video shape", param, ctx)
         if match["t1"] == "he" or match["t2"] == "w":
@@ -61,7 +61,7 @@ def _guess_database(files: tuple[str]) -> str | None:
 
 
 def parse_videos_database(
-    prt: context_verbose.Printer, videos: tuple[str], database: str = None, _quiet: bool = False
+    prt: context_verbose.Printer, videos: tuple[str], database: str = None, _quiet: bool = False,
 ) -> tuple[list[pathlib.Path], pathlib.Path]:
     """Find or create the database and extract all the videos.
 
@@ -80,6 +80,7 @@ def parse_videos_database(
         All the existing unfolded video files.
     database : pathlib.Path
         The existing database path.
+
     """
     # test if database is provided
     assert isinstance(videos, tuple), videos.__class__.__name__

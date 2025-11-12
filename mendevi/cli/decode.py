@@ -7,12 +7,13 @@ import itertools
 import pathlib
 import sqlite3
 
-from context_verbose import Printer
 import click
+from context_verbose import Printer
 
 from mendevi.database.complete import add_environment
 from mendevi.decode import decode_and_store
 from mendevi.utils import compute_video_hash, get_resolution
+
 from .parse import ResolutionParamType, parse_videos_database
 
 
@@ -71,6 +72,7 @@ def main(videos: tuple[str], database: str = None, **kwargs):
     """Measures activity during decoding.
 
     \b
+
     Parameters
     ----------
     videos : tuple[pathlike], optional
@@ -87,6 +89,7 @@ def main(videos: tuple[str], database: str = None, **kwargs):
     filter : str, optional
         The additional ffmpeg video filter (after the -vf command)
         to be applied immediately after decoding and before other conversions.
+
     """
     with Printer("Parse configuration...") as prt:
         videos, database = parse_videos_database(prt, videos, database)
@@ -101,7 +104,7 @@ def main(videos: tuple[str], database: str = None, **kwargs):
         sql_database.row_factory = sqlite3.Row
         done: dict[tuple, int] = {}
         for values in sql_database.execute(
-            "SELECT * FROM t_dec_decode WHERE dec_env_id=?", (env_id,)
+            "SELECT * FROM t_dec_decode WHERE dec_env_id=?", (env_id,),
         ):
             values = (
                 values["dec_vid_id"],

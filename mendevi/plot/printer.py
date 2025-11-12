@@ -21,6 +21,7 @@ def printer(**kwargs) -> str:
         The database path.
     x, y : tuple[str]
         The name of the var along each axis.
+
     """
     # create code
     code: list[str] = []
@@ -105,6 +106,7 @@ def print_grid(axe: str, log: bool | None, dim: str) -> list[str]:
         Defined by get_extractor.
     dim : str
         "x" or "y".
+
     """
     assert isinstance(axe, str), axe.__class__.__name__
     assert log in {True, False, None}, log
@@ -315,7 +317,7 @@ def print_subfigure(**kwargs) -> list[str]:
             middle = [
                 "    # create a 1d horizontal subplot figure",
                 '    all_window_x_values = sorted(set(values["window_x"]), key=smartsort)',
-                f"    ncols = len(all_window_x_values)",
+                "    ncols = len(all_window_x_values)",
                 '    axes = subfig.subplots(ncols=ncols, squeeze=False, sharey="row")  # or "all"',
                 "",
                 "    # iterate over all subplots",
@@ -389,7 +391,7 @@ def print_main(**kwargs) -> list[str]:
         ),
     ])
     for (i, ylabel), (j, xlabel) in itertools.product(
-        enumerate(kwargs["y"]), enumerate(kwargs["x"])
+        enumerate(kwargs["y"]), enumerate(kwargs["x"]),
     ):
         code.extend([
             f"    plot_{safe_lbl(ylabel)}_{safe_lbl(xlabel)}(values, subfigs[{i}, {j}])",
@@ -421,21 +423,21 @@ def print_main(**kwargs) -> list[str]:
         '                lines, labels, loc="outside upper center", ncols=min(5, len(labels))',
         "            )",
         "    else:",
-        '        for subfig in subfigs.flat:',
-        '            axes = np.ravel(subfig.axes)',
-        '            labels = {frozenset(a.get_legend_handles_labels()[1]) for a in axes}',
-        '            if len(axes) != 1 and len(labels) == 1:  # same legend in all axes',
-        '                lines, labels = axes[0].get_legend_handles_labels()',
+        "        for subfig in subfigs.flat:",
+        "            axes = np.ravel(subfig.axes)",
+        "            labels = {frozenset(a.get_legend_handles_labels()[1]) for a in axes}",
+        "            if len(axes) != 1 and len(labels) == 1:  # same legend in all axes",
+        "                lines, labels = axes[0].get_legend_handles_labels()",
         "                if labels:",
-        '                    subfig.legend(',
+        "                    subfig.legend(",
         (
             "                        "
             'lines, labels, loc="outside upper center", ncols=min(3, len(labels))'
         ),
         "                    )",
-        '            else:  # legends are different for each axe of that subfigure',
-        '                for axe in axes:',
-        '                    axe.legend()',
+        "            else:  # legends are different for each axe of that subfigure",
+        "                for axe in axes:",
+        "                    axe.legend()",
         "",
     ])
     code.extend([

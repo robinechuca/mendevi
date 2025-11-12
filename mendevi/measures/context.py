@@ -38,9 +38,10 @@ def get_ffmpeg_version() -> str:
      'libavfilter    11.  1.100 / 11.  1.100\n'
      'libswscale      9.  0.100 /  9.  0.100\n'
      'libswresample   6.  0.100 /  6.  0.100')
+
     """
     out = subprocess.run(
-        ["ffmpeg", "-version"], check=False, capture_output=True
+        ["ffmpeg", "-version"], check=False, capture_output=True,
     ).stdout.decode()
     lines = out.split("\n")
     lines = [line for line in lines if line not in {"", "Exiting with exit code 0"}]
@@ -59,6 +60,7 @@ def get_libx265_version() -> str:
     [Linux][GCC 14.2.0][64 bit] 8bit+10bit+12bit
     MMX2 SSE2Fast LZCNT SSSE3 SSE4.2 AVX FMA3 BMI2 AVX2
     >>>
+
     """
     out = subprocess.run(
         [
@@ -66,7 +68,7 @@ def get_libx265_version() -> str:
             "-c:v", "libx265",
             "-f", "null", os.devnull,
         ],
-        check=False, capture_output=True
+        check=False, capture_output=True,
     ).stderr.decode()
 
     # version
@@ -101,6 +103,7 @@ def get_libvpx_vp9_version() -> str:
     >>> print(get_libvpx_vp9_version())
     v1.14.1
     >>>
+
     """
     out = subprocess.run(
         [
@@ -108,7 +111,7 @@ def get_libvpx_vp9_version() -> str:
             "-c:v", "libvpx-vp9",
             "-f", "null", os.devnull,
         ],
-        check=False, capture_output=True
+        check=False, capture_output=True,
     ).stderr.decode()
     if (match := re.search(r"\[libvpx-vp9 @ \w+\] (?P<version>\S+)", out)) is None:
         logging.warning("failed to find the libvpx-vp9 version")
@@ -126,6 +129,7 @@ def get_libsvtav1_version() -> str:
     v3.0.2-103-gc10214fa
     GCC 14.2.0 64 bit
     >>>
+
     """
     out = subprocess.run(
         [
@@ -133,7 +137,7 @@ def get_libsvtav1_version() -> str:
             "-c:v", "libsvtav1",
             "-f", "null", os.devnull,
         ],
-        check=False, capture_output=True
+        check=False, capture_output=True,
     ).stderr.decode()
 
     # version
@@ -162,6 +166,7 @@ def get_vvc_version() -> str:
     >>> print(get_vvc_version())
     1.13.1
     >>>
+
     """
     out = subprocess.run(
         [
@@ -169,7 +174,7 @@ def get_vvc_version() -> str:
             "-c:v", "vvc",
             "-f", "null", os.devnull,
         ],
-        check=False, capture_output=True
+        check=False, capture_output=True,
     ).stderr.decode()
     if (match := re.search(r"libvvenc version: (?P<version>\S+)", out)) is None:
         logging.warning("failed to find the vvc version")
@@ -193,6 +198,7 @@ def get_platform() -> dict:
      'system_version': '#29-Ubuntu SMP PREEMPT_DYNAMIC Fri Jun 13 20:29:41 UTC '
                        '2025'}
     >>>
+
     """
     return {
         "hostname": platform.node(),
@@ -215,6 +221,7 @@ def get_pip_freeze() -> str:
     --------
     >>> from mendevi.measures.context import get_pip_freeze
     >>> print(get_pip_freeze())
+
     """
     out = subprocess.run(
         ["pip", "freeze"], check=False, capture_output=True,
@@ -230,6 +237,7 @@ def get_lshw() -> str:
     >>> from mendevi.measures.context import get_lshw
     >>> full_info = get_lshw()
     >>>
+
     """
     if os.geteuid() != 0:
         logging.warning("you should run as super user to get more system info")
@@ -238,7 +246,7 @@ def get_lshw() -> str:
             ["lshw", "-json"], check=False, capture_output=True,
         ).stdout.decode()
     except FileNotFoundError:
-        logging.error("please install lshw: sudo apt install lshw")
+        logging.exception("please install lshw: sudo apt install lshw")
     return out
 
 
@@ -252,5 +260,5 @@ def full_context() -> dict:
         "vvc_version": get_vvc_version(),
         "pip_freeze": get_pip_freeze(),
         "lshw": get_lshw(),
-        **get_platform()
+        **get_platform(),
     }

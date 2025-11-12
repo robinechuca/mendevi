@@ -5,15 +5,16 @@
 import pathlib
 import sqlite3
 
-from context_verbose import Printer
 import click
+from context_verbose import Printer
 
 from mendevi.database.create import create_database
+
 from .parse import parse_videos_database
 
 
 def _insert_update(
-    cursor: sqlite3.Cursor, row: sqlite3.Row | dict, tab: str, keys: tuple[str]
+    cursor: sqlite3.Cursor, row: sqlite3.Row | dict, tab: str, keys: tuple[str],
 ) -> dict[str]:
     """Set or update the tab of the cursor with the new line."""
     line: dict[str] = {k: v for k, v in dict(row).items() if v is not None}
@@ -50,10 +51,12 @@ def main(databases: tuple[str]):
     """Merge several SQL databases together.
 
     \b
+
     Parameters
     ----------
     databases : list[pathlike]
         All databases to be merged.
+
     """
     with Printer("Parse configuration...") as prt:
         assert isinstance(databases, (tuple, list, set, frozenset)), databases.__class__.__name__
@@ -88,7 +91,7 @@ def main(databases: tuple[str]):
                     row = dict(row)
                     del row["met_id"]
                     _insert_update(
-                        cursor_dst, row, "t_met_metric", ("met_ref_vid_id", "met_dis_vid_id")
+                        cursor_dst, row, "t_met_metric", ("met_ref_vid_id", "met_dis_vid_id"),
                     )
 
                 # t_act_activity

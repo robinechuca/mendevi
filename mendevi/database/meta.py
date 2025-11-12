@@ -7,11 +7,9 @@ import collections
 import importlib
 import pathlib
 import tempfile
-import typing
 import uuid
 
 from mendevi.database import extract
-
 
 ExtractContext = collections.namedtuple("ExtractContext", ["label", "func", "is_log"])
 
@@ -33,12 +31,13 @@ def extract_names(expr: str) -> set[str]:
     >>> extract_names("foo.bar()")
     {'foo'}
     >>>
+
     """
     try:
         nodes = list(ast.walk(ast.parse(expr, mode="exec")))
     except SyntaxError as err:
         raise SyntaxError(
-            f"the argument {expr!r} is not a valid python expression"
+            f"the argument {expr!r} is not a valid python expression",
         ) from err
     reject = {
         n.id for n in nodes if isinstance(n, ast.Name) and isinstance(n.ctx, ast.Store | ast.Del)
@@ -73,6 +72,7 @@ def get_extractor(name: str, safe: bool = False) -> ExtractContext:
     is_log : boolean or None
         True to display in log space, False for linear.
         The value None means the axis is not continuous.
+
     """
     assert isinstance(name, str), name.__class__.__name__
     assert isinstance(safe, bool), safe.__class__.__name__
@@ -202,7 +202,7 @@ def get_extractor(name: str, safe: bool = False) -> ExtractContext:
             extractor = ExtractContext(
                 "The interval duration and the average power in each intervals",
                 extract.extract_powers,
-                None
+                None,
             )
         case "mode":
             extractor = ExtractContext(
@@ -318,9 +318,9 @@ def get_extractor(name: str, safe: bool = False) -> ExtractContext:
 
 def merge_extractors(
     labels: set[str],
-    alias: typing.Optional[dict[str, str]] = None,
-    select: typing.Optional[str] = None,
-    return_callable: bool = False
+    alias: dict[str, str] | None = None,
+    select: str | None = None,
+    return_callable: bool = False,
 ) -> tuple[set[str]]:
     r'''Return the source code of the function that extracts all variables.
 
@@ -366,6 +366,7 @@ def merge_extractors(
             'rate': rate,
             'reject': reject,
         }
+
     '''
     assert isinstance(labels, set), labels.__class__.__name__
     assert all(isinstance(lbl, str) for lbl in labels), labels.__class__.__name__
@@ -440,7 +441,7 @@ def merge_extractors(
     code.extend([
         "    return {",
         *(f"        {lbl!r}: {lbl}," for lbl in labels),
-        "    }"
+        "    }",
     ])
     if not return_callable:
         return lbls_atom, code

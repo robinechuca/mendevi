@@ -54,6 +54,7 @@ def get_convert_cmd(
     ... )
     'fps=24000/1001,scale=h=480:w=720:sws_flags=bicubic'
     >>>
+
     """
     if fps is not None:
         assert isinstance(fps, fractions.Fraction), fps.__class__.__name__
