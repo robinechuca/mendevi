@@ -72,7 +72,7 @@ def g5kpower(
     Examples
     --------
     >>> import platform, time
-    >>> from mendevi.g5kpower import g5kpower
+    >>> from mendevi.measures.g5kpower import g5kpower
     >>> g5kpower(platform.node(), time.time()-10.0, 10.0)
     >>>
 

@@ -98,7 +98,7 @@ class Activity(threading.Thread):
             * rapl_power: float, the average power, energy divided by the duration (in w).
             * rapl_powers: list[float], the average power in watt in each interval.
             * start: float, absolute timestamp.
-            * wattmeter_dt: list[float],  the duration of each interval (in s).
+            * wattmeter_dt: list[float], the duration of each interval (in s).
             * wattmeter_energy: float, the total energy consumption (in J).
             * wattmeter_power: float, the average power, energy divided by the duration (in w).
             * wattmeter_powers: list[float], the sampled power in watt in each point.
@@ -120,10 +120,13 @@ class Activity(threading.Thread):
         self.join()
         # request wattmeter power
         try:
+            print("ouiui")
             wattmeter = g5kpower(platform.node(), self.res["start"], self.res["duration"])
         except ValueError:
+            print("echec")
             wattmeter = None
         else:
+            print("zoulou!")
             self.res |= {
                 "wattmeter_dt": wattmeter["dt"],
                 "wattmeter_energy": wattmeter["energy"],
