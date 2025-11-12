@@ -74,7 +74,7 @@ Visualize transfer functions
     # plot data
     l = torch.linspace(0, 1, 1000)
     for i, (l2v, names) in enumerate(l2v_names.items()):
-        axe.plot(l, cutcutcodec.Lambdify(l2v)(l), label=min(names), color=COLORS[i%len(COLORS)])
+        axe.plot(l, cutcutcodec.Lambdify(l2v)(l), label=min(names), color=COLORS[i])
 
     axe.legend()
     plt.savefig("transfer.svg", format="svg")

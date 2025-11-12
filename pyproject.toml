@@ -21,6 +21,7 @@ dependencies = [  # https://packaging.python.org/en/latest/specifications/depend
   "psutil",
   "pygments",
   "requests",
+  "tqdm",
   "unidecode",
 ]
 readme = "README.rst"

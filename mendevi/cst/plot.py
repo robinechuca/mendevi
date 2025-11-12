@@ -2,7 +2,6 @@
 
 """The constants for graphical plot style."""
 
-# COLORS = ["#ef597b", "#29a2c6", "#ffcb18", "#73b66b", "#4e4f4b"]
 COLORS = [
     "#ef597b",  # bright pink
     "#29a2c6",  # cyan blue

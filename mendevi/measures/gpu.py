@@ -7,6 +7,7 @@ import numbers
 import threading
 import time
 
+import numpy as np
 import pynvml  # uv pip install nvidia-ml-py
 
 # initialisation

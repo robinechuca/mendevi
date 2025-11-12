@@ -5,10 +5,11 @@
 import pathlib
 import sqlite3
 
-import click
-import orjson
 from context_verbose import Printer
 from cutcutcodec.utils import mround
+import click
+import orjson
+import tqdm
 
 from mendevi.database.meta import merge_extractors
 
@@ -102,48 +103,56 @@ def main(database: str, **kwargs):
             # select = {s for lbl in atom_names for s in get_extractor(lbl).func.select}
             # for query in SqlLinker(*select).sql:
             #     print(query)
-            for raw in conn.execute(
-                """
-                SELECT
-                    t_act_activity.act_duration,
-                    t_act_activity.act_ps_core,
-                    t_act_activity.act_ps_dt,
-                    t_act_activity.act_rapl_dt,
-                    t_act_activity.act_rapl_power,
-                    t_act_activity.act_wattmeter_dt,
-                    t_act_activity.act_wattmeter_power,
-                    t_dst_video.vid_duration,
-                    t_dst_video.vid_eotf,
-                    t_dst_video.vid_gamut,
-                    t_dst_video.vid_height,
-                    t_dst_video.vid_id,
-                    t_dst_video.vid_range,
-                    t_dst_video.vid_size,
-                    t_enc_encode.enc_effort,
-                    t_enc_encode.enc_encoder,
-                    t_enc_encode.enc_mode,
-                    t_enc_encode.enc_quality,
-                    t_enc_encode.enc_threads,
-                    t_env_environment.env_hostname,
-                    t_met_metric.met_lpips_alex,
-                    t_met_metric.met_lpips_vgg,
-                    t_met_metric.met_psnr,
-                    t_met_metric.met_ssim,
-                    t_met_metric.met_vmaf,
-                    t_ref_video.vid_name AS ref_vid_name
-                FROM t_enc_encode
-                JOIN t_vid_video AS t_ref_video
-                    ON t_enc_encode.enc_src_vid_id = t_ref_video.vid_id
-                JOIN t_vid_video AS t_dst_video
-                    ON t_enc_encode.enc_dst_vid_id = t_dst_video.vid_id
-                LEFT JOIN t_met_metric
-                    ON t_enc_encode.enc_dst_vid_id = t_met_metric.met_dis_vid_id
-                    AND t_enc_encode.enc_src_vid_id = t_met_metric.met_ref_vid_id
-                JOIN t_act_activity
-                    ON t_enc_encode.enc_act_id = t_act_activity.act_id
-                JOIN t_env_environment
-                    ON t_enc_encode.enc_env_id = t_env_environment.env_id
-                """,
+            count = conn.execute("SELECT COUNT(*) FROM t_enc_encode").fetchone()["COUNT(*)"]
+            for raw in tqdm.tqdm(
+                conn.execute(
+                    """
+                    SELECT
+                        t_act_activity.act_duration,
+                        t_act_activity.act_ps_core,
+                        t_act_activity.act_ps_dt,
+                        t_act_activity.act_rapl_dt,
+                        t_act_activity.act_rapl_power,
+                        t_act_activity.act_wattmeter_dt,
+                        t_act_activity.act_wattmeter_power,
+                        t_dst_video.vid_duration,
+                        t_dst_video.vid_eotf,
+                        t_dst_video.vid_gamut,
+                        t_dst_video.vid_height,
+                        t_dst_video.vid_id,
+                        t_dst_video.vid_range,
+                        t_dst_video.vid_size,
+                        t_enc_encode.enc_effort,
+                        t_enc_encode.enc_encoder,
+                        t_enc_encode.enc_mode,
+                        t_enc_encode.enc_quality,
+                        t_enc_encode.enc_threads,
+                        t_env_environment.env_hostname,
+                        t_met_metric.met_lpips_alex,
+                        t_met_metric.met_lpips_vgg,
+                        t_met_metric.met_psnr,
+                        t_met_metric.met_ssim,
+                        t_met_metric.met_vmaf,
+                        t_ref_video.vid_name AS ref_vid_name
+                    FROM t_enc_encode
+                    JOIN t_vid_video AS t_ref_video
+                        ON t_enc_encode.enc_src_vid_id = t_ref_video.vid_id
+                    JOIN t_vid_video AS t_dst_video
+                        ON t_enc_encode.enc_dst_vid_id = t_dst_video.vid_id
+                    LEFT JOIN t_met_metric
+                        ON t_enc_encode.enc_dst_vid_id = t_met_metric.met_dis_vid_id
+                        AND t_enc_encode.enc_src_vid_id = t_met_metric.met_ref_vid_id
+                    JOIN t_act_activity
+                        ON t_enc_encode.enc_act_id = t_act_activity.act_id
+                    JOIN t_env_environment
+                        ON t_enc_encode.enc_env_id = t_env_environment.env_id
+                    """,
+                ),
+                dynamic_ncols=True,
+                leave=False,
+                smoothing=1e-6,
+                total=count,
+                unit="vid",
             ):
                 raw = line_extractor(dict(raw))
                 vid_id = raw.pop("video_hash")
@@ -159,47 +168,77 @@ def main(database: str, **kwargs):
                     content[vid_id], "encode_power", raw["hostname"], _round(raw["power"]),
                 )
             prt.print("read 'decode' and 'metric' extractor")
-            for raw in conn.execute(
-                """
-                SELECT
-                    t_act_activity.act_duration,
-                    t_act_activity.act_ps_core,
-                    t_act_activity.act_ps_dt,
-                    t_act_activity.act_rapl_dt,
-                    t_act_activity.act_rapl_power,
-                    t_act_activity.act_wattmeter_dt,
-                    t_act_activity.act_wattmeter_power,
-                    t_dst_video.vid_duration,
-                    t_dst_video.vid_eotf,
-                    t_dst_video.vid_gamut,
-                    t_dst_video.vid_height,
-                    t_dst_video.vid_id,
-                    t_dst_video.vid_name AS ref_vid_name,  -- bulshit
-                    t_dst_video.vid_range,
-                    t_dst_video.vid_size,
-                    t_enc_encode.enc_effort,
-                    t_enc_encode.enc_encoder,
-                    t_enc_encode.enc_mode,
-                    t_enc_encode.enc_quality,
-                    t_enc_encode.enc_threads,
-                    t_env_environment.env_hostname,
-                    t_met_metric.met_lpips_alex,
-                    t_met_metric.met_lpips_vgg,
-                    t_met_metric.met_psnr,
-                    t_met_metric.met_ssim,
-                    t_met_metric.met_vmaf
-                FROM t_dec_decode
-                JOIN t_enc_encode
-                    ON t_dec_decode.dec_vid_id = t_enc_encode.enc_dst_vid_id
-                JOIN t_act_activity
-                    ON t_dec_decode.dec_act_id = t_act_activity.act_id
-                LEFT JOIN t_met_metric
-                    ON t_dec_decode.dec_vid_id = t_met_metric.met_dis_vid_id
-                JOIN t_vid_video AS t_dst_video
-                    ON t_dec_decode.dec_vid_id = t_dst_video.vid_id
-                JOIN t_env_environment
-                    ON t_dec_decode.dec_env_id = t_env_environment.env_id
-                """,
+            count = conn.execute("SELECT COUNT(*) FROM t_dec_decode").fetchone()["COUNT(*)"]
+            for raw in tqdm.tqdm(
+                conn.execute(
+                    """
+                    WITH enc_unique AS (
+                        SELECT
+                            enc_id,
+                            enc_dst_vid_id,
+                            enc_effort,
+                            enc_encoder,
+                            enc_mode,
+                            enc_quality,
+                            enc_threads,
+                            ROW_NUMBER() OVER (
+                                PARTITION BY enc_dst_vid_id
+                                ORDER BY enc_id
+                            ) AS enc_count_dst_vid_id
+                        FROM t_enc_encode
+                    )
+                    SELECT
+                        t_act_activity.act_duration,
+                        t_act_activity.act_ps_core,
+                        t_act_activity.act_ps_dt,
+                        t_act_activity.act_rapl_dt,
+                        t_act_activity.act_rapl_power,
+                        t_act_activity.act_wattmeter_dt,
+                        t_act_activity.act_wattmeter_power,
+                        t_dst_video.vid_duration,
+                        t_dst_video.vid_eotf,
+                        t_dst_video.vid_gamut,
+                        t_dst_video.vid_height,
+                        t_dst_video.vid_id,
+                        -- t_dst_video.vid_name AS ref_vid_name,  -- bulshit
+                        NULL AS ref_vid_name,
+                        t_dst_video.vid_range,
+                        t_dst_video.vid_size,
+                        -- enc_unique.enc_effort,
+                        -- enc_unique.enc_encoder,
+                        -- enc_unique.enc_mode,
+                        -- enc_unique.enc_quality,
+                        -- enc_unique.enc_threads,
+                        NULL AS enc_effort,
+                        NULL AS enc_encoder,
+                        NULL AS enc_mode,
+                        NULL AS enc_quality,
+                        NULL AS enc_threads,
+                        t_env_environment.env_hostname,
+                        t_met_metric.met_lpips_alex,
+                        t_met_metric.met_lpips_vgg,
+                        t_met_metric.met_psnr,
+                        t_met_metric.met_ssim,
+                        t_met_metric.met_vmaf
+                    FROM t_dec_decode
+                    /*JOIN enc_unique
+                        ON t_dec_decode.dec_vid_id = enc_unique.enc_dst_vid_id
+                        AND enc_unique.enc_count_dst_vid_id = 1  -- keep only the first occurrence*/
+                    JOIN t_act_activity
+                        ON t_dec_decode.dec_act_id = t_act_activity.act_id
+                    LEFT JOIN t_met_metric
+                        ON t_dec_decode.dec_vid_id = t_met_metric.met_dis_vid_id
+                    JOIN t_vid_video AS t_dst_video
+                        ON t_dec_decode.dec_vid_id = t_dst_video.vid_id
+                    JOIN t_env_environment
+                        ON t_dec_decode.dec_env_id = t_env_environment.env_id
+                    """,
+                ),
+                dynamic_ncols=True,
+                leave=False,
+                smoothing=1e-6,
+                total=count,
+                unit="vid",
             ):
                 raw = line_extractor(dict(raw))
                 raw["name"] = None
