@@ -271,6 +271,7 @@ def print_import() -> list[str]:
         "import matplotlib.ticker as ticker",
         "import mendevi.database.extract as extract",
         "import numpy as np",
+        "import tqdm",
         "",
         "",
     ]
@@ -495,6 +496,16 @@ def print_read_sql(**kwargs) -> list[str]:
         logging.warning("fail to create the SQL query, please provide it yourself")
         queries = [""]
 
+    # select good query
+    if kwargs["table"] is not None:
+        table = kwargs["table"]
+        queries = {re.search(r"FROM\s+(?P<tab>\w+)", q)["tab"]: q for q in queries}
+        if table not in queries:
+            raise ValueError(f"possible queries from {', '.join(queries)}, not {table}")
+        queries = [queries[table]]
+    else:
+        table = re.search(r"FROM\s+(?P<tab>\w+)", queries[0])["tab"]
+
     # include in template
     return [
         *line_extractor,
@@ -514,8 +525,9 @@ def print_read_sql(**kwargs) -> list[str]:
         '    """Extract the relevant values from the database."""',
         f"    values: dict[str, list] = {{{', '.join(f'{n!r}: []' for n in sorted(alias))}}}",
         '    with sqlite3.connect(database) as conn, Printer("Read database...") as prt:',
+        f'        (count,) = conn.execute("SELECT COUNT(*) FROM {table}").fetchone()',
         "        conn.row_factory = sqlite3.Row",
-        "        for i, line in enumerate(  # enumerate is for debug",
+        "        for line in tqdm.tqdm(",
         "            cutcutcodec.core.opti.parallel.imap(",
         "                thread_line_extractor,",
         "                conn.execute(",
@@ -527,14 +539,16 @@ def print_read_sql(**kwargs) -> list[str]:
             for q in "\n".join(f'"""\n{q}\n"""' for q in queries[1:]).split("\n")
         ],
         "                ),",
-        "            )",
+        "            ),",
+        "            dynamic_ncols=True,",
+        "            leave=False,",
+        "            smoothing=1e-6,",
+        "            total=count,",
+        '            unit="line",',
         "        ):",
         "            if line is not None:",
         "                for label, value in line.items():",
         "                    values[label].append(value)",
-        '            # print(f"line {i+1:04}")',
-        "            # if i >= 999:",
-        "            #     break",
         "        prt.print_time()",
         "    return values",
         "",

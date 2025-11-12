@@ -51,6 +51,8 @@ filter : str, optional
     This allows you to filter the data to select only a portion of it.
     The character string provided must be a Boolean Python expression
     that returns True to keep the data. For example: ``enc_duration > 10 and profile == "fhd"``.
+table : str, optional
+    The main sql table juste after the FROM in SELECT.
 """
 
 
@@ -79,7 +81,7 @@ def _parse_args(prt: Printer, kwargs: dict):
     prt.print(f"y         : {', '.join(kwargs['y'])}")
 
     # color
-    kwargs["color"] = kwargs.get("color")
+    kwargs["color"] = kwargs.get("color", None)
     if kwargs["color"] is not None:
         assert isinstance(kwargs["color"], str), kwargs["color"].__class__.__name__
         names = extract_names(kwargs["color"])
@@ -88,7 +90,7 @@ def _parse_args(prt: Printer, kwargs: dict):
         prt.print(f"color     : {kwargs['color']}")
 
     # marker
-    kwargs["marker"] = kwargs.get("marker")
+    kwargs["marker"] = kwargs.get("marker", None)
     if kwargs["marker"] is not None:
         assert isinstance(kwargs["marker"], str), kwargs["marker"].__class__.__name__
         names = extract_names(kwargs["marker"])
@@ -97,7 +99,7 @@ def _parse_args(prt: Printer, kwargs: dict):
         prt.print(f"marker    : {kwargs['marker']}")
 
     # error
-    kwargs["error"] = kwargs.get("error")
+    kwargs["error"] = kwargs.get("error", None)
     if kwargs["error"] is not None:
         assert isinstance(kwargs["error"], str), kwargs["error"].__class__.__name__
         names = extract_names(kwargs["error"])
@@ -106,7 +108,7 @@ def _parse_args(prt: Printer, kwargs: dict):
         prt.print(f"error     : {kwargs['error']}")
 
     # window
-    kwargs["window"] = kwargs.get("window")
+    kwargs["window"] = kwargs.get("window", None)
     if kwargs["window"] is not None:
         match (  # preference for y axis
             kwargs.get("window_x") is None,
@@ -130,7 +132,7 @@ def _parse_args(prt: Printer, kwargs: dict):
                 kwargs["window_y"] = kwargs["window"]
 
     # window_x
-    kwargs["window_x"] = kwargs.get("window_x")
+    kwargs["window_x"] = kwargs.get("window_x", None)
     if kwargs["window_x"] is not None:
         assert isinstance(kwargs["window_x"], str), kwargs["window_x"].__class__.__name__
         names = extract_names(kwargs["window_x"])
@@ -139,7 +141,7 @@ def _parse_args(prt: Printer, kwargs: dict):
         prt.print(f"window x  : {kwargs['window_x']}")
 
     # window_y
-    kwargs["window_y"] = kwargs.get("window_y")
+    kwargs["window_y"] = kwargs.get("window_y", None)
     if kwargs["window_y"] is not None:
         assert isinstance(kwargs["window_y"], str), kwargs["window_y"].__class__.__name__
         names = extract_names(kwargs["window_y"])
@@ -148,13 +150,19 @@ def _parse_args(prt: Printer, kwargs: dict):
         prt.print(f"window y  : {kwargs['window_y']}")
 
     # filter
-    kwargs["filter"] = kwargs.get("filter")
+    kwargs["filter"] = kwargs.get("filter", None)
     if kwargs["filter"] is not None:
         assert isinstance(kwargs["filter"], str), kwargs["filter"].__class__.__name__
         names = extract_names(kwargs["filter"])
         assert names.issubset(LABELS), \
             f"{names-set(LABELS)} are invalid names, it has to be one of {LABELS}"
         prt.print(f"filter    : {kwargs['filter']}")
+
+    # table
+    kwargs["table"] = kwargs.get("table", None)
+    if kwargs["table"] is not None:
+        assert isinstance(kwargs["table"], str), kwargs["table"].__class__.__name__
+        prt.print(f"table     : {kwargs['table']}")
 
 
 @click.command(help=DOCSTRING)
@@ -204,12 +212,17 @@ def _parse_args(prt: Printer, kwargs: dict):
 @click.option(
     "--filter", "-f",
     type=str,
-    help="Data selection python expression",
+    help="Data selection python expression.",
 )
 @click.option(
     "-p", "--print",
     is_flag=True,
     help="Flag to print the source code.",
+)
+@click.option(
+    "-t", "--table",
+    type=str,
+    help="Form the SQL query around this table.",
 )
 def main(database: str, **kwargs):
     """See docstring at DOCSTRING."""
