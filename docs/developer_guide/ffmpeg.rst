@@ -158,7 +158,7 @@ dependencies
         libv4l-dev \
         libvidstab-dev \
         libvo-amrwbenc-dev \
-        libvpl2 \
+        libvpl-dev \
         libwebp-dev \
         libxvidcore-dev \
         libzimg-dev \
@@ -178,8 +178,9 @@ compile
     echo -e "$(cat VERSION) [$(date +%Y-%m-%d)] [$(cat RELEASE)] " > VERSION
 
     # compile
-    PATH="$HOME/bin:$PATH" \
-    PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig" \
+    PATH="$HOME/bin:$PATH"
+    PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig"
+    # --enable-libvpl and --enable-libmfx are mutualy exclusive
     ./configure \
         --prefix="$HOME/ffmpeg_build" \
         --pkg-config-flags="--static" \
@@ -210,7 +211,6 @@ compile
         --enable-libfreetype \
         --enable-libfribidi \
         --enable-libgme  \
-        --enable-libmfx \
         --enable-libmp3lame \
         --enable-libopenmpt \
         --enable-libopus \
