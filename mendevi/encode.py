@@ -395,6 +395,11 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs) -> list[st
             raise NotImplementedError
         case "av1_nvenc":
             raise NotImplementedError
+        # https://trac.ffmpeg.org/wiki/Encode/AV1#AMDAMFAV1
+        case "h264_amf":  # for AMD GPU
+            raise NotImplementedError
+        case "av1_amf":  # for AMD GPU
+            raise NotImplementedError
 
     # final
     cmd.append(str(dst))

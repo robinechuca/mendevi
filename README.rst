@@ -39,6 +39,7 @@ It manages the following parameters:
 
 #. It supports the ``libx264``, ``libx265``, ``libvpx-vp9``, ``libsvtav1`` and ``vvc`` encoders.
 #. Distortions are measured using the ``lpips``, ``psnr``, ``ssim`` and ``vmaf`` metrics.
+#. Complexity are measured using the ``rms_sobel`` and ``rms_time_diff`` metrics.
 #. Encoding efforts are ``fast``, ``medium`` and ``slow``.
 #. It takes care about the colorspaces.
 #. Iterate over different ``effort``, ``encoder``, ``mode``, ``quality``, ``threads``, ``fps``, ``resolution`` and ``pix_fmt``.

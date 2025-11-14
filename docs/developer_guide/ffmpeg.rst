@@ -131,37 +131,39 @@ dependencies
 .. code:: shell
 
     sudo apt install \
-        openssl \
-        libssl-dev \
+        diffutils \
+        flite1-dev \
         frei0r-plugins-dev \
+        ladspa-sdk \
+        libbluray-dev \
+        libbs2b-dev \
+        libcdio-dev \
+        libcdio-paranoia-dev \
+        libcdparanoia-dev \
         libchromaprint-dev \
         libgme-dev \
-        flite1-dev \
-        libbs2b-dev \
-        libopenjp2-7-dev \
+        libgsm1-dev \
+        liblzma-dev \
+        libmfx-dev \
         libopencore-amrnb-dev \
-        librubberband-dev \
+        libopenjp2-7-dev \
         libopenmpt-dev \
+        librubberband-dev \
         libshine-dev \
         libsnappy-dev \
         libsoxr-dev \
         libspeex-dev \
+        libssl-dev \
         libtwolame-dev \
         libv4l-dev \
         libvidstab-dev \
         libvo-amrwbenc-dev \
-        libxvidcore-dev \
-        liblzma-dev \
-        libbluray-dev \
-        libcdparanoia-dev \
-        libcdio-dev \
-        libcdio-paranoia-dev \
-        ladspa-sdk \
-        libgsm1-dev \
         libvpl2 \
         libwebp-dev \
+        libxvidcore-dev \
         libzimg-dev \
-        libzvbi-dev
+        libzvbi-dev \
+        openssl
 
 compile
 ^^^^^^^
@@ -187,8 +189,9 @@ compile
         --ld="g++" \
         --bindir="$HOME/bin" \
         \
-        --enable-ffnvcodec \
+        --enable-amf \
         --enable-cuda-nvcc \
+        --enable-ffnvcodec \
         \
         --enable-chromaprint \
         --enable-frei0r \
@@ -207,6 +210,7 @@ compile
         --enable-libfreetype \
         --enable-libfribidi \
         --enable-libgme  \
+        --enable-libmfx \
         --enable-libmp3lame \
         --enable-libopenmpt \
         --enable-libopus \
@@ -222,6 +226,7 @@ compile
         --enable-libvidstab \
         --enable-libvo-amrwbenc \
         --enable-libvorbis \
+        --enable-libvpl \
         --enable-libvpx \
         --enable-libx264 \
         --enable-libx265 \
