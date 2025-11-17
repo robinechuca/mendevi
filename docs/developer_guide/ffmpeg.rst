@@ -80,6 +80,15 @@ libsvtav1
     PATH="$HOME/bin:$PATH" make
     make install
 
+    # libaom for encoding
+    cd ~/ffmpeg_sources
+    git -C aom pull 2> /dev/null || git clone --depth 1 https://aomedia.googlesource.com/aom
+    mkdir -p aom_build
+    cd aom_build
+    PATH="$HOME/bin:$PATH" cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$HOME/ffmpeg_build" -DENABLE_TESTS=OFF -DENABLE_NASM=on ../aom
+    PATH="$HOME/bin:$PATH" make
+    make install
+
 vvc
 ^^^
 
@@ -144,7 +153,6 @@ dependencies
         libgme-dev \
         libgsm1-dev \
         liblzma-dev \
-        libmfx-dev \
         libopencore-amrnb-dev \
         libopenjp2-7-dev \
         libopenmpt-dev \
