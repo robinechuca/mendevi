@@ -185,11 +185,12 @@ compile
     cd ffmpeg
     echo -e "$(cat VERSION) [$(date +%Y-%m-%d)] [$(cat RELEASE)] " > VERSION
 
-    # compile
-    PATH="$HOME/bin:$PATH"
-    PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig"
+    # set context
+    export PATH="$HOME/bin:$PATH"
+    export PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig:$PKG_CONFIG_PATH"
+
     # --enable-libvpl and --enable-libmfx are mutualy exclusive
-    # dynamic des flag declaration
+    # dynamic flag declaration
     CONFIG_FLAGS="
         --prefix=\"$HOME/ffmpeg_build\"
         --pkg-config-flags=\"--static\"
@@ -198,9 +199,6 @@ compile
         --extra-libs=\"-lpthread -lm\"
         --ld=\"g++\"
         --bindir=\"$HOME/bin\"
-
-        --enable-amf
-        --enable-ffnvcodec
 
         --enable-chromaprint
         --enable-frei0r
@@ -213,16 +211,20 @@ compile
         --enable-libcaca
         --enable-libcdio
         --enable-libdav1d
+        --enable-libdrm
         --enable-libfdk-aac
         --enable-libflite
         --enable-libfontconfig
         --enable-libfreetype
         --enable-libfribidi
         --enable-libgme
+        --enable-libgsm
+        --enable-libharfbuzz
         --enable-libmp3lame
         --enable-libopenmpt
         --enable-libopus
         --enable-libpulse
+        --enable-librubberband
         --enable-librubberband
         --enable-libshine
         --enable-libsnappy
@@ -236,26 +238,23 @@ compile
         --enable-libvorbis
         --enable-libvpl
         --enable-libvpx
+        --enable-libvvenc
+        --enable-libwebp
         --enable-libx264
         --enable-libx265
         --enable-libxml2
         --enable-libxvid
+        --enable-libzimg
+        --enable-libzvbi
         --enable-nonfree
         --enable-opengl
         --enable-openssl
-        --enable-version3
-        --enable-librubberband
-        --enable-libharfbuzz
-        --enable-libwebp
-        --enable-libzimg
-        --enable-libzvbi
-        --enable-libgsm
-        --enable-libvvenc
         --enable-vaapi
+        --enable-version3
     "
     # add --enable-cuda-nvcc
     if command -v nvidia-smi &> /dev/null; then
-        CONFIG_FLAGS="$CONFIG_FLAGS --enable-cuda-nvcc"
+        CONFIG_FLAGS="$CONFIG_FLAGS --enable-cuda-nvcc --enable-ffnvcodec"
     fi
 
     # compilation and installation
