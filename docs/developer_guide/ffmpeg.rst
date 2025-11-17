@@ -181,69 +181,77 @@ compile
     PATH="$HOME/bin:$PATH"
     PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig"
     # --enable-libvpl and --enable-libmfx are mutualy exclusive
-    ./configure \
-        --prefix="$HOME/ffmpeg_build" \
-        --pkg-config-flags="--static" \
-        --extra-cflags="-I$HOME/ffmpeg_build/include" \
-        --extra-ldflags="-L$HOME/ffmpeg_build/lib" \
-        --extra-libs="-lpthread -lm" \
-        --ld="g++" \
-        --bindir="$HOME/bin" \
-        \
-        --enable-amf \
-        --enable-cuda-nvcc \
-        --enable-ffnvcodec \
-        \
-        --enable-chromaprint \
-        --enable-frei0r \
-        --enable-gpl \
-        --enable-ladspa \
-        --enable-libaom \
-        --enable-libass \
-        --enable-libbluray \
-        --enable-libbs2b \
-        --enable-libcaca \
-        --enable-libcdio \
-        --enable-libdav1d \
-        --enable-libfdk-aac \
-        --enable-libflite \
-        --enable-libfontconfig \
-        --enable-libfreetype \
-        --enable-libfribidi \
-        --enable-libgme  \
-        --enable-libmp3lame \
-        --enable-libopenmpt \
-        --enable-libopus \
-        --enable-libpulse \
-        --enable-librubberband \
-        --enable-libshine \
-        --enable-libsnappy \
-        --enable-libsoxr \
-        --enable-libspeex \
-        --enable-libsvtav1 \
-        --enable-libtheora \
-        --enable-libtwolame \
-        --enable-libvidstab \
-        --enable-libvo-amrwbenc \
-        --enable-libvorbis \
-        --enable-libvpl \
-        --enable-libvpx \
-        --enable-libx264 \
-        --enable-libx265 \
-        --enable-libxml2 \
-        --enable-libxvid \
-        --enable-nonfree \
-        --enable-opengl \
-        --enable-openssl \
-        --enable-version3 \
-        --enable-librubberband \
-        --enable-libharfbuzz \
-        --enable-libwebp \
-        --enable-libzimg \
-        --enable-libzvbi \
-        --enable-libgsm \
-        --enable-libvvenc \
+    # dynamic des flag declaration
+    CONFIG_FLAGS="
+        --prefix=\"$HOME/ffmpeg_build\"
+        --pkg-config-flags=\"--static\"
+        --extra-cflags=\"-I$HOME/ffmpeg_build/include\"
+        --extra-ldflags=\"-L$HOME/ffmpeg_build/lib\"
+        --extra-libs=\"-lpthread -lm\"
+        --ld=\"g++\"
+        --bindir=\"$HOME/bin\"
+
+        --enable-amf
+        --enable-ffnvcodec
+
+        --enable-chromaprint
+        --enable-frei0r
+        --enable-gpl
+        --enable-ladspa
+        --enable-libaom
+        --enable-libass
+        --enable-libbluray
+        --enable-libbs2b
+        --enable-libcaca
+        --enable-libcdio
+        --enable-libdav1d
+        --enable-libfdk-aac
+        --enable-libflite
+        --enable-libfontconfig
+        --enable-libfreetype
+        --enable-libfribidi
+        --enable-libgme
+        --enable-libmp3lame
+        --enable-libopenmpt
+        --enable-libopus
+        --enable-libpulse
+        --enable-librubberband
+        --enable-libshine
+        --enable-libsnappy
+        --enable-libsoxr
+        --enable-libspeex
+        --enable-libsvtav1
+        --enable-libtheora
+        --enable-libtwolame
+        --enable-libvidstab
+        --enable-libvo-amrwbenc
+        --enable-libvorbis
+        --enable-libvpl
+        --enable-libvpx
+        --enable-libx264
+        --enable-libx265
+        --enable-libxml2
+        --enable-libxvid
+        --enable-nonfree
+        --enable-opengl
+        --enable-openssl
+        --enable-version3
+        --enable-librubberband
+        --enable-libharfbuzz
+        --enable-libwebp
+        --enable-libzimg
+        --enable-libzvbi
+        --enable-libgsm
+        --enable-libvvenc
         --enable-vaapi
+    "
+    # add --enable-cuda-nvcc
+    if command -v nvidia-smi &> /dev/null; then
+        CONFIG_FLAGS="$CONFIG_FLAGS --enable-cuda-nvcc"
+    fi
+
+    # compilation and installation
+    eval ./configure $CONFIG_FLAGS
     PATH="$HOME/bin:$PATH" make -j$(nproc) && make -j$(nproc) install && hash -r
 
     # linkage
