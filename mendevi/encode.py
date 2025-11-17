@@ -351,6 +351,8 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs) -> list[st
                     "-tune", "ssim",  # -svtav1-params tune=2 not supported in cbr
                     "-svtav1-params", f"rc=1:film-grain=0:lp={libsvtav1_lp(kwargs['threads'])}",
                 ])
+        case "rav1e":
+            raise NotImplementedError
         case "vvc":  # https://github.com/fraunhoferhhi/vvenc/wiki/FFmpeg-Integration
             if kwargs["mode"] == "vbr":
                 quality = ["-qp", str(round(kwargs["quality"]*63.0))]

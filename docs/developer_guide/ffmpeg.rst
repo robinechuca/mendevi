@@ -89,6 +89,29 @@ libsvtav1
     PATH="$HOME/bin:$PATH" make
     make install
 
+    # librav1e for encoding
+    # https://askubuntu.com/questions/1189174/how-do-i-use-ffmpeg-and-rav1e-to-create-high-quality-av1-files-under-focal-fossa
+    sudo apt-get install nasm build-essential pkg-config libssl-dev &&
+    mkdir -pv $HOME/{bin,ffmpeg_sources,ffmpeg_build} &&
+    cd $HOME/ffmpeg_sources &&
+    wget https://github.com/xiph/rav1e/archive/refs/tags/v0.6.3.tar.gz &&
+    tar xvf v0.6.3.tar.gz && cd rav1e-0.6.3 &&
+    cargo build --release &&
+    find target -name rav1e -exec install -m 755 {} $HOME/bin \; &&
+    strip ~/bin/rav1e && \
+    cd $HOME/ffmpeg_sources && rm -rfv rav1e-0.6.3
+
+    cargo install cargo-c
+
+    cd $HOME/ffmpeg_sources && tar xvf v0.6.3.tar.gz && \
+    cd rav1e-0.6.3 && \
+    cargo cinstall --release \
+         --prefix=$HOME/ffmpeg_build \
+         --libdir=$HOME/ffmpeg_build/lib \
+         --includedir=$HOME/ffmpeg_build/include
+
+    rm -v $HOME/ffmpeg_build/lib/librav1e.so*
+
 vvc
 ^^^
 
@@ -224,6 +247,7 @@ compile
         --enable-libopenmpt
         --enable-libopus
         --enable-libpulse
+        --enable-librav1e
         --enable-librubberband
         --enable-librubberband
         --enable-libshine
