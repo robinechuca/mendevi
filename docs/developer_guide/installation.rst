@@ -84,8 +84,8 @@ Create the virtual environment.
     pyenv update
     # --enable-experimental-jit=yes
     # --enable-bolt
-    PYTHON_CONFIGURE_OPTS='--enable-shared --enable-optimizations --with-lto=yes'
-    PYTHON_CFLAGS='-march=native -mtune=native'
+    export PYTHON_CONFIGURE_OPTS='--enable-shared --enable-optimizations --with-lto=yes'
+    export PYTHON_CFLAGS='-march=native -mtune=native'
     pyenv install -v 3.14
     pyenv virtualenv 3.14 mendevi
     pyenv activate mendevi
