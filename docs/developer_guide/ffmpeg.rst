@@ -90,12 +90,13 @@ libsvtav1
     make install
 
     # librav1e for encoding
-    sudo apt install cargo
+    sudo apt install rustup && rustup default stable
     cd ~/ffmpeg_sources
     git -C rav1e pull 2> /dev/null || git clone https://github.com/xiph/rav1e.git
     mkdir -p rav1e/build
     cd rav1e/build
     RUSTFLAGS="-C target-cpu=native" cargo build --release
+    cargo install cargo-c
     cargo cinstall --release \
         --prefix=$HOME/ffmpeg_build \
         --libdir=$HOME/ffmpeg_build/lib \
