@@ -95,7 +95,7 @@ def get_libx265_version() -> str:
 
 
 def get_libvpx_vp9_version() -> str:
-    """Return the version of the libx265 encoder.
+    """Return the version of the libvpx-vp9 encoder.
 
     Examples
     --------
@@ -120,7 +120,7 @@ def get_libvpx_vp9_version() -> str:
 
 
 def get_libsvtav1_version() -> str:
-    """Return the version of the libx265 encoder.
+    """Return the version of the libsvtav1 encoder.
 
     Examples
     --------
@@ -157,8 +157,36 @@ def get_libsvtav1_version() -> str:
     return out
 
 
+def get_librav1e_version() -> str:
+    """Return the version of the librav1e encoder.
+
+    Examples
+    --------
+    >>> from mendevi.measures.context import get_librav1e_version
+    >>> print(get_librav1e_version())  # doctest: +ELLIPSIS
+    rav1e 0.8.0 (p20250624-1-gb7bf390) (release)
+    rustc 1.91.1 (ed61e7d7e 2025-11-07) x86_64-unknown-linux-gnu
+    Compiled CPU Features: adx,aes,avx,avx2,bmi1,bmi2,cmpxchg16b,...,xsaveopt,xsaves
+    Runtime Assembly Support: Enabled
+    Runtime Assembly Level: AVX2
+    Threading: Enabled
+    Unstable Features: Disabled
+    Compiler Flags: -C target-cpu=native
+    >>>
+
+    """
+    try:
+        return subprocess.run(
+            ["rav1e", "--version"],
+            check=False, capture_output=True,
+        ).stderr.decode()
+    except:
+        logging.warning("failed to find the librav1e version")
+        return ""
+
+
 def get_vvc_version() -> str:
-    """Return the version of the libx265 encoder.
+    """Return the version of the vvc encoder.
 
     Examples
     --------
@@ -257,6 +285,7 @@ def full_context() -> dict:
         "libx265_version": get_libx265_version(),
         "libvpx_vp9_version": get_libvpx_vp9_version(),
         "libsvtav1_version": get_libsvtav1_version(),
+        "librav1e_version": get_librav1e_version(),
         "vvc_version": get_vvc_version(),
         "pip_freeze": get_pip_freeze(),
         "lshw": get_lshw(),

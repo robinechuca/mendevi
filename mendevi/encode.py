@@ -351,8 +351,21 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs) -> list[st
                     "-tune", "ssim",  # -svtav1-params tune=2 not supported in cbr
                     "-svtav1-params", f"rc=1:film-grain=0:lp={libsvtav1_lp(kwargs['threads'])}",
                 ])
-        case "rav1e":
-            raise NotImplementedError
+        case "librav1e":  # https://docs.rs/rav1e/latest/rav1e/config/struct.EncoderConfig.html
+            if kwargs["mode"] == "vbr":
+                quality = ["-qp", str(round(kwargs["quality"]*255))]  # not realy constant quality
+            else:
+                rate = f"{quality_to_rate(kwargs)}k"
+                quality = ["-b:v", rate, "-minrate", rate, "-maxrate", rate]
+            cmd.extend([
+                "librav1e",
+                *quality,
+                # speed in 0, 10, default 6
+                "-speed", {"slow": "2", "medium": "6", "fast": "8"}[kwargs["effort"]],
+                "-rav1e-params", (
+                    f"threads={kwargs['threads']}:tiles={kwargs['threads']}:photon-noise=0"
+                ),
+            ])
         case "vvc":  # https://github.com/fraunhoferhhi/vvenc/wiki/FFmpeg-Integration
             if kwargs["mode"] == "vbr":
                 quality = ["-qp", str(round(kwargs["quality"]*63.0))]

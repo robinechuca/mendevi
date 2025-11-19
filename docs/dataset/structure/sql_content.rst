@@ -471,6 +471,8 @@ Table t_env_environment
 +-------------------------------+--------------+-------------------------------+
 | :ref:`env_kernel_version`     | *TINYTEXT*   | the linux kernel version      |
 +-------------------------------+--------------+-------------------------------+
+| :ref:`env_librav1e_version`   | *MEDIUMTEXT* | the version of librav1e       |
++-------------------------------+--------------+-------------------------------+
 | :ref:`env_libsvtav1_version`  | *MEDIUMTEXT* | the version of libsvtav1      |
 +-------------------------------+--------------+-------------------------------+
 | :ref:`env_libvpx_vp9_version` | *MEDIUMTEXT* | the version of libvpx-vp9     |
@@ -555,6 +557,24 @@ The version of the Linux kernel, given by ``platform.platform()``, from the func
 .. code:: text
 
     Linux-6.11.0-29-generic-x86_64-with-glibc2.40
+
+.. _env_librav1e_version:
+
+env_librav1e_version
+^^^^^^^^^^^^^^^^^^^^
+
+The version of rav1e excecutable file, whitch is a good candidate for ffmpeg librav1e encoder, from the function :py:func:`mendevi.measures.context.get_librav1e_version`.
+
+.. code:: text
+
+    rav1e 0.8.0 (p20250624-1-gb7bf390) (release)
+    rustc 1.91.1 (ed61e7d7e 2025-11-07) x86_64-unknown-linux-gnu
+    Compiled CPU Features: adx,aes,avx,avx2,bmi1,bmi2,cmpxchg16b,f16c,fma,fxsr,lzcnt,movbe,pclmulqdq,popcnt,rdrand,rdseed,sse,sse2,sse3,sse4.1,sse4.2,ssse3,xsave,xsavec,xsaveopt,xsaves
+    Runtime Assembly Support: Enabled
+    Runtime Assembly Level: AVX2
+    Threading: Enabled
+    Unstable Features: Disabled
+    Compiler Flags: -C target-cpu=native
 
 .. _env_libsvtav1_version:
 

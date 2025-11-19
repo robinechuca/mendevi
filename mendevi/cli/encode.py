@@ -12,13 +12,12 @@ import click
 import numpy as np
 from context_verbose import Printer
 
+from mendevi.cst.encoders import ENCODERS
 from mendevi.database.complete import add_environment
 from mendevi.encode import encode_and_store
 from mendevi.utils import compute_video_hash, get_pix_fmt, get_rate_video, get_resolution
 
 from .parse import PixelParamType, ResolutionParamType, parse_videos_database
-
-ENCODERS = {"libx264", "libx265", "libvpx-vp9", "libsvtav1", "vvc"}
 
 
 def _parse_args(prt: Printer, kwargs: dict):
@@ -133,7 +132,7 @@ def _parse_args(prt: Printer, kwargs: dict):
 @click.option(
     "-c", "--encoder",
     type=click.Choice(sorted(ENCODERS)),
-    default=sorted(ENCODERS),
+    default=["libx264", "libsvtav1"],
     multiple=True,
     help="The encoder name.",
 )
@@ -200,8 +199,9 @@ def main(videos: tuple, database: str = None, **kwargs):
         This allows us to estimate the variance of measurements.
     effort : tuple[str], default=("medium",)
         The effort made to compress, `fast`, `medium` or `slow`.
-    encoder : tuple[str], default=("libsvtav1", "libvpx-vp9", "libx264", "libx265", "vvc")
+    encoder : tuple[str], default=("libx264", "libsvtav1")
         The encoders and therefore the codecs to use.
+        The available encoders are mendevi.cst.encoders.ENCODERS.
     points : int, default=16
         The number of different qualities to use.
         It is an indirect way to determine the CRF or the QP.

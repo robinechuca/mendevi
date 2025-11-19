@@ -64,6 +64,7 @@ graph database {
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">env_ffmpeg_version</TD><TD ALIGN="LEFT">MEDIUMTEXT</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">env_hostname</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">env_kernel_version</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>
+        <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">env_librav1e_version</TD><TD ALIGN="LEFT">MEDIUMTEXT</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">env_libsvtav1_version</TD><TD ALIGN="LEFT">MEDIUMTEXT</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">env_libvpx_vp9_version</TD><TD ALIGN="LEFT">MEDIUMTEXT</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">env_libx265_version</TD><TD ALIGN="LEFT">MEDIUMTEXT</TD></TR>

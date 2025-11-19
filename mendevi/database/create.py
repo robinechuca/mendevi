@@ -9,7 +9,6 @@ ENV_UNIQUE = [
     "env_ffmpeg_version",
     "env_hostname",
     "env_logical_cores",
-    # "env_pip_freeze",
     "env_processor",
 ]
 
@@ -93,6 +92,7 @@ def create_database(filename: str | bytes | pathlib.Path):
             env_ffmpeg_version MEDIUMTEXT NOT NULL,
             env_hostname TINYTEXT NOT NULL,
             env_kernel_version TINYTEXT,
+            env_librav1e_version MEDIUMTEXT,
             env_libsvtav1_version MEDIUMTEXT,
             env_libvpx_vp9_version MEDIUMTEXT,
             env_libx265_version MEDIUMTEXT,
@@ -135,9 +135,7 @@ def create_database(filename: str | bytes | pathlib.Path):
             /* TASK DESCRIPTION */
             enc_cmd TEXT,  -- exact ffmpeg command used
             enc_effort TINYTEXT CHECK(enc_effort IN ('fast', 'medium', 'slow')),
-            enc_encoder TINYTEXT CHECK(
-                enc_encoder IN ('libx264', 'libx265', 'libvpx-vp9', 'libsvtav1', 'vvc')
-            ),
+            enc_encoder TINYTEXT,
             enc_filter TEXT,
             enc_fps FLOAT CHECK(enc_fps > 0.0),
             enc_height SMALLINT CHECK(enc_height > 0),

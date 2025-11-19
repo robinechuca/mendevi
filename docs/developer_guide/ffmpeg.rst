@@ -93,15 +93,15 @@ libsvtav1
     sudo apt install rustup && rustup default stable
     cd ~/ffmpeg_sources
     git -C rav1e pull 2> /dev/null || git clone https://github.com/xiph/rav1e.git
-    mkdir -p rav1e/build
-    cd rav1e/build
+    cd rav1e
     RUSTFLAGS="-C target-cpu=native" cargo build --release
     cargo install cargo-c
     cargo cinstall --release \
         --prefix=$HOME/ffmpeg_build \
         --libdir=$HOME/ffmpeg_build/lib \
         --includedir=$HOME/ffmpeg_build/include
-    # rm -v $HOME/ffmpeg_build/lib/librav1e.so*
+    rm -v $HOME/ffmpeg_build/lib/librav1e.so*
+    cp target/release/rav1e ~/bin/.
 
 vvc
 ^^^
