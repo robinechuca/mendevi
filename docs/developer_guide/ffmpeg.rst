@@ -11,10 +11,10 @@ Preparation
 .. code:: shell
 
     # get dependencies
-    sudo apt install autoconf automake build-essential cmake git-core libass-dev libfreetype6-dev libgnutls28-dev libmp3lame-dev libsdl2-dev libtool libva-dev libvdpau-dev libxcb1-dev libxcb-shm0-dev libxcb-xfixes0-dev meson ninja-build pkg-config texinfo wget yasm zlib1g-dev nasm
+    sudo apt install autoconf automake build-essential cmake git-core libass-dev libfreetype6-dev libgnutls28-dev libmp3lame-dev libsdl2-dev libtool libva-dev libvdpau-dev libxcb1-dev libxcb-shm0-dev libxcb-xfixes0-dev meson ninja-build pkg-config texinfo wget yasm zlib1g-dev nasm libssl-dev
     # create directories
     rm -rf ~/ffmpeg_sources
-    mkdir -p ~/ffmpeg_sources ~/bin
+    mkdir -pv ~/{bin,ffmpeg_sources}
 
 Compilation & Installation
 --------------------------
@@ -83,34 +83,24 @@ libsvtav1
     # libaom for encoding
     cd ~/ffmpeg_sources
     git -C aom pull 2> /dev/null || git clone --depth 1 https://aomedia.googlesource.com/aom
-    mkdir -p aom_build
-    cd aom_build
-    PATH="$HOME/bin:$PATH" cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$HOME/ffmpeg_build" -DENABLE_TESTS=OFF -DENABLE_NASM=on ../aom
+    mkdir -p aom/build
+    cd aom/build
+    PATH="$HOME/bin:$PATH" cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$HOME/ffmpeg_build" -DENABLE_TESTS=OFF -DENABLE_NASM=on ..
     PATH="$HOME/bin:$PATH" make
     make install
 
     # librav1e for encoding
-    # https://askubuntu.com/questions/1189174/how-do-i-use-ffmpeg-and-rav1e-to-create-high-quality-av1-files-under-focal-fossa
-    sudo apt-get install nasm build-essential pkg-config libssl-dev &&
-    mkdir -pv $HOME/{bin,ffmpeg_sources,ffmpeg_build} &&
-    cd $HOME/ffmpeg_sources &&
-    wget https://github.com/xiph/rav1e/archive/refs/tags/v0.6.3.tar.gz &&
-    tar xvf v0.6.3.tar.gz && cd rav1e-0.6.3 &&
-    cargo build --release &&
-    find target -name rav1e -exec install -m 755 {} $HOME/bin \; &&
-    strip ~/bin/rav1e && \
-    cd $HOME/ffmpeg_sources && rm -rfv rav1e-0.6.3
-
-    cargo install cargo-c
-
-    cd $HOME/ffmpeg_sources && tar xvf v0.6.3.tar.gz && \
-    cd rav1e-0.6.3 && \
+    sudo apt install cargo
+    cd ~/ffmpeg_sources
+    git -C rav1e pull 2> /dev/null || git clone https://github.com/xiph/rav1e.git
+    mkdir -p rav1e/build
+    cd rav1e/build
+    RUSTFLAGS="-C target-cpu=native" cargo build --release
     cargo cinstall --release \
-         --prefix=$HOME/ffmpeg_build \
-         --libdir=$HOME/ffmpeg_build/lib \
-         --includedir=$HOME/ffmpeg_build/include
-
-    rm -v $HOME/ffmpeg_build/lib/librav1e.so*
+        --prefix=$HOME/ffmpeg_build \
+        --libdir=$HOME/ffmpeg_build/lib \
+        --includedir=$HOME/ffmpeg_build/include
+    # rm -v $HOME/ffmpeg_build/lib/librav1e.so*
 
 vvc
 ^^^
@@ -151,7 +141,7 @@ others
 
 .. code:: shell
 
-    sudo apt install libfdk-aac-dev libopus-dev libaom-dev libcaca-dev libtheora-dev libvorbis-dev
+    sudo apt install libfdk-aac-dev libopus-dev libcaca-dev libtheora-dev libvorbis-dev
 
 
 Install ffmpeg
@@ -184,7 +174,6 @@ dependencies
         libsnappy-dev \
         libsoxr-dev \
         libspeex-dev \
-        libssl-dev \
         libtwolame-dev \
         libv4l-dev \
         libvidstab-dev \
