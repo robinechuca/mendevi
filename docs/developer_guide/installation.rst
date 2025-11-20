@@ -442,7 +442,7 @@ If you want to have acces to the `Netflix VMAF quality metric <https://wiki.x266
         .. code:: shell
 
             sudo apt install meson nasm
-            git clone https://github.com/Netflix/vmaf/ ~/vmaf_git
+            git clone --depth 1 https://github.com/Netflix/vmaf/ ~/vmaf_git
             cd ~/vmaf_git
             meson setup libvmaf libvmaf/build --buildtype release -Denable_float=true
             sudo ninja -vC libvmaf/build install

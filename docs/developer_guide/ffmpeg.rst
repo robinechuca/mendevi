@@ -3,7 +3,9 @@
 Build ffmpeg
 ============
 
-The folling guide is based on the `ubuntu guide <https://trac.ffmpeg.org/wiki/CompilationGuide/Ubuntu>`_ and the `linux mint guide <https://forums.linuxmint.com/viewtopic.php?t=435381>`_.
+Allows you to compile ffmpeg **on Debian** with the latest versions of video encoders.
+
+The following guide is based on the `official debian and ubuntu guide <https://trac.ffmpeg.org/wiki/CompilationGuide/Ubuntu>`_, and the `linux mint guide <https://forums.linuxmint.com/viewtopic.php?t=435381>`_.
 
 Preparation
 -----------
@@ -202,8 +204,9 @@ The code comes from the `amf wiki <https://github.com/GPUOpen-LibrariesAndSDKs/A
 .. code:: shell
 
     cd ~/ffmpeg_sources
-    git -C amf pull 2> /dev/null || git clone --depth 1 https://github.com/GPUOpen-LibrariesAndSDKs/AMF.git
-    cd amf
+    git -C AMF pull 2> /dev/null || git clone --depth 1 https://github.com/GPUOpen-LibrariesAndSDKs/AMF.git
+    mkdir -p /usr/local/include/AMF
+    cp -r AMF/amf/public/include/* /usr/local/include/AMF/
 
 others
 ^^^^^^
@@ -215,8 +218,8 @@ others
 Install ffmpeg
 --------------
 
-compile
-^^^^^^^
+preparation
+^^^^^^^^^^^
 
 .. code:: shell
 
@@ -225,7 +228,7 @@ compile
     wget -O ffmpeg-snapshot.tar.bz2 https://ffmpeg.org/releases/ffmpeg-snapshot.tar.bz2
     tar xjvf ffmpeg-snapshot.tar.bz2
     cd ffmpeg
-    echo -e "$(cat VERSION) [$(date +%Y-%m-%d)] [$(cat RELEASE)] " > VERSION
+    echo -e "$(cat VERSION) [$(date +%Y-%m-%d)] [$(cat RELEASE)]" > VERSION
 
     # set context
     export PATH="$HOME/bin:$PATH"
@@ -241,8 +244,6 @@ compile
         --extra-libs=\"-lpthread -lm\"
         --ld=\"g++\"
         --bindir=\"$HOME/bin\"
-
-        --enable-amf
 
         --enable-chromaprint
         --enable-frei0r
@@ -301,10 +302,19 @@ compile
     if command -v nvidia-smi &> /dev/null; then
         CONFIG_FLAGS="$CONFIG_FLAGS --enable-cuda-nvcc --enable-ffnvcodec"
     fi
+    # add --enable-amf
+    if [ -d "/usr/local/include/AMF" ]; then
+        CONFIG_FLAGS="$CONFIG_FLAGS --enable-amf"
+    fi
+
+compilation
+-----------
+
+.. code:: shell
 
     # compilation and installation
     eval ./configure $CONFIG_FLAGS
-    PATH="$HOME/bin:$PATH" make -j$(nproc) && make -j$(nproc) install && hash -r
+    make -j$(nproc) && make -j$(nproc) install && hash -r
 
     # linkage
     cp ~/ffmpeg_build/bin/x265 ~/bin
