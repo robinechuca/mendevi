@@ -11,7 +11,64 @@ Preparation
 .. code:: shell
 
     # get dependencies
-    sudo apt install autoconf automake build-essential cmake git-core libass-dev libfreetype6-dev libgnutls28-dev libmp3lame-dev libsdl2-dev libtool libva-dev libvdpau-dev libxcb1-dev libxcb-shm0-dev libxcb-xfixes0-dev meson ninja-build pkg-config texinfo wget yasm zlib1g-dev nasm libssl-dev
+    sudo apt install \
+        autoconf \
+        automake \
+        build-essential \
+        cmake git-core \
+        diffutils \
+        flite1-dev \
+        frei0r-plugins-dev \
+        gcc \
+        git \
+        ladspa-sdk \
+        libass-dev \
+        libbluray-dev \
+        libbs2b-dev \
+        libcdio-dev \
+        libcdio-paranoia-dev \
+        libcdparanoia-dev \
+        libchromaprint-dev \
+        libfreetype6-dev \
+        libgme-dev \
+        libgnutls28-dev \
+        libgsm1-dev \
+        liblzma-dev \
+        libmp3lame-dev \
+        libopencore-amrnb-dev \
+        libopenjp2-7-dev \
+        libopenmpt-dev \
+        librubberband-dev \
+        libsdl2-dev \
+        libshine-dev \
+        libsnappy-dev \
+        libsoxr-dev \
+        libspeex-dev \
+        libssl-dev \
+        libtool \
+        libtwolame-dev \
+        libv4l-dev \
+        libva-dev \
+        libvdpau-dev \
+        libvidstab-dev \
+        libvo-amrwbenc-dev \
+        libvpl-dev \
+        libwebp-dev \
+        libxcb-shm0-dev \
+        libxcb-xfixes0-dev \
+        libxcb1-dev \
+        libxvidcore-dev \
+        libzimg-dev \
+        libzvbi-dev \
+        meson \
+        nasm \
+        ninja-build \
+        openssl
+        pkg-config \
+        texinfo \
+        wget \
+        yasm \
+        zlib1g-dev
     # create directories
     rm -rf ~/ffmpeg_sources
     mkdir -pv ~/{bin,ffmpeg_sources}
@@ -116,8 +173,8 @@ vvc
 GPU \*_nvenc \*_nvdec
 ^^^^^^^^^^^^^^^^^^^^^
 
-Requires a GPU and CUDA to be installed (see :ref:`install_cuda`).
-The code comes from the `ffmpeg guide <https://trac.ffmpeg.org/wiki/HWAccelIntro#NVENC>`_
+Requires a NVIDIA GPU and CUDA to be installed (see :ref:`install_cuda`).
+The code comes from the `ffmpeg guide <https://trac.ffmpeg.org/wiki/HWAccelIntro#NVENC>`_.
 
 .. code:: shell
 
@@ -139,6 +196,9 @@ The code comes from the `ffmpeg guide <https://trac.ffmpeg.org/wiki/HWAccelIntro
 GPU \*_amf d3d11va
 ^^^^^^^^^^^^^^^^^^
 
+Requires a AMD GPU (see :ref:`install_amf`).
+The code comes from the `amf wiki <https://github.com/GPUOpen-LibrariesAndSDKs/AMF/wiki/Build-FFmpeg-with-AMF-Support>`_.
+
 .. code:: shell
 
     cd ~/ffmpeg_sources
@@ -154,44 +214,6 @@ others
 
 Install ffmpeg
 --------------
-
-dependencies
-^^^^^^^^^^^^
-
-.. code:: shell
-
-    sudo apt install \
-        diffutils \
-        flite1-dev \
-        frei0r-plugins-dev \
-        ladspa-sdk \
-        libbluray-dev \
-        libbs2b-dev \
-        libcdio-dev \
-        libcdio-paranoia-dev \
-        libcdparanoia-dev \
-        libchromaprint-dev \
-        libgme-dev \
-        libgsm1-dev \
-        liblzma-dev \
-        libopencore-amrnb-dev \
-        libopenjp2-7-dev \
-        libopenmpt-dev \
-        librubberband-dev \
-        libshine-dev \
-        libsnappy-dev \
-        libsoxr-dev \
-        libspeex-dev \
-        libtwolame-dev \
-        libv4l-dev \
-        libvidstab-dev \
-        libvo-amrwbenc-dev \
-        libvpl-dev \
-        libwebp-dev \
-        libxvidcore-dev \
-        libzimg-dev \
-        libzvbi-dev \
-        openssl
 
 compile
 ^^^^^^^
