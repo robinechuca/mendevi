@@ -437,7 +437,7 @@ To install the amf driver, you can use the `amdgpu-install package <https://amdg
         .. code:: shell
 
             # install amdgpu-install
-            if command -v amdgpu-install --help &> /dev/null; then
+            if ! command -v amdgpu-install --help &> /dev/null; then
                 BASE_URL='https://repo.radeon.com/amdgpu-install/latest/ubuntu/noble'
                 latest_deb=$(curl -s "$BASE_URL/" | grep -oP 'amdgpu-install_.*?_all\.deb' | sort -V | tail -n 1)
                 if [[ -z "$latest_deb" ]]; then
@@ -452,8 +452,7 @@ To install the amf driver, you can use the `amdgpu-install package <https://amdg
             fi
 
             # install drivers
-            amdgpu-install --usecase=amf
-
+            sudo amdgpu-install --usecase=amf
 
 .. _install_vmaf:
 
