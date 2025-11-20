@@ -428,6 +428,33 @@ amf (optional)
 
 If you have an AMD GPU, please install ROC then follow the `PyTorch installation guide <https://pytorch.org>`_. Without ROC, the software is not able to use the GPU (CPU only).
 
+To install the amf driver, you can use the `amdgpu-install package <https://amdgpu-install.readthedocs.io/en/latest/index.html>`_.
+
+.. tab:: Linux
+
+    .. tab:: Debian Ubuntu Mint
+
+        .. code:: shell
+
+            # install amdgpu-install
+            if command -v amdgpu-install --help &> /dev/null; then
+                BASE_URL='https://repo.radeon.com/amdgpu-install/latest/ubuntu/noble'
+                latest_deb=$(curl -s "$BASE_URL/" | grep -oP 'amdgpu-install_.*?_all\.deb' | sort -V | tail -n 1)
+                if [[ -z "$latest_deb" ]]; then
+                    echo "failed to find a .deb file in $BASE_URL"
+                else
+                    echo "last package: $latest_deb"
+                    wget --progress=dot:giga "$BASE_URL/$latest_deb" -O "/tmp/$latest_deb"
+                    sudo apt install "/tmp/$latest_deb"
+                fi
+            else
+                echo 'the amdgpu-install package is installed'
+            fi
+
+            # install drivers
+            amdgpu-install --usecase=amf
+
+
 .. _install_vmaf:
 
 vamf (optional)
