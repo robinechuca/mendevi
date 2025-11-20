@@ -46,6 +46,10 @@ Bitrate as a function of the number of frame at constant quality
 .. image:: /_static/media/duration_rate_frames.svg
     :alt: Energy per frame as a function of the number of frames
 
+Conclusion
+----------
+
+When the video contains enough images, the average energy per frame no longer depends on the duration of the video. Thus, for videos with more than 300 images, or more than 10 seconds, this effect becomes negligible.
 
 Reproduce
 ---------

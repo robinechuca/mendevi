@@ -51,7 +51,6 @@ def main(databases: tuple[str]):
     """Merge several SQL databases together.
 
     \b
-
     Parameters
     ----------
     databases : list[pathlike]

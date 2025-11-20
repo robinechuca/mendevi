@@ -73,7 +73,7 @@ libsvtav1
 
     # libsvtav1 for encoding
     cd ~/ffmpeg_sources
-    git -C SVT-AV1 pull 2> /dev/null || git clone https://gitlab.com/AOMediaCodec/SVT-AV1.git
+    git -C SVT-AV1 pull 2> /dev/null || git clone --depth 1 https://gitlab.com/AOMediaCodec/SVT-AV1.git
     mkdir -p SVT-AV1/build
     cd SVT-AV1/build
     PATH="$HOME/bin:$PATH" cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$HOME/ffmpeg_build" -DCMAKE_BUILD_TYPE=Release -DBUILD_DEC=OFF -DBUILD_SHARED_LIBS=OFF ..
@@ -92,7 +92,7 @@ libsvtav1
     # librav1e for encoding
     sudo apt install rustup && rustup default stable
     cd ~/ffmpeg_sources
-    git -C rav1e pull 2> /dev/null || git clone https://github.com/xiph/rav1e.git
+    git -C rav1e pull 2> /dev/null || git clone --depth 1 https://github.com/xiph/rav1e.git
     cd rav1e
     RUSTFLAGS="-C target-cpu=native" cargo build --release
     cargo install cargo-c
@@ -105,7 +105,6 @@ libsvtav1
 
 vvc
 ^^^
-
 .. code:: shell
 
     cd ~/ffmpeg_sources
@@ -129,7 +128,7 @@ The code comes from the `ffmpeg guide <https://trac.ffmpeg.org/wiki/HWAccelIntro
     if command -v nvidia-smi &> /dev/null; then
         # install nv-codec-headers (needed for NVENC/NVDEC support)
         cd ~/ffmpeg_sources
-        git -C nv-codec-headers pull 2> /dev/null || git clone https://github.com/FFmpeg/nv-codec-headers.git
+        git -C nv-codec-headers pull 2> /dev/null || git clone --depth 1 https://github.com/FFmpeg/nv-codec-headers.git
         cd nv-codec-headers
         sudo make install
         export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig:$PKG_CONFIG_PATH"
@@ -137,13 +136,21 @@ The code comes from the `ffmpeg guide <https://trac.ffmpeg.org/wiki/HWAccelIntro
         echo "nvidia-smi is not working, please install cuda first"
     fi
 
+GPU \*_amf d3d11va
+^^^^^^^^^^^^^^^^^^
+
+.. code:: shell
+
+    cd ~/ffmpeg_sources
+    git -C amf pull 2> /dev/null || git clone --depth 1 https://github.com/GPUOpen-LibrariesAndSDKs/AMF.git
+    cd amf
+
 others
 ^^^^^^
 
 .. code:: shell
 
     sudo apt install libfdk-aac-dev libopus-dev libcaca-dev libtheora-dev libvorbis-dev
-
 
 Install ffmpeg
 --------------
@@ -212,6 +219,8 @@ compile
         --extra-libs=\"-lpthread -lm\"
         --ld=\"g++\"
         --bindir=\"$HOME/bin\"
+
+        --enable-amf
 
         --enable-chromaprint
         --enable-frei0r

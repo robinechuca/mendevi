@@ -72,7 +72,6 @@ def main(videos: tuple[str], database: str = None, **kwargs):
     """Measures activity during decoding.
 
     \b
-
     Parameters
     ----------
     videos : tuple[pathlike], optional

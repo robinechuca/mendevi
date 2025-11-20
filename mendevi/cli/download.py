@@ -15,7 +15,6 @@ def main(file: str):
     """Download and decapsule a file.
 
     \b
-
     Parameters
     ----------
     file : pathlike

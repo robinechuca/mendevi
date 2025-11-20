@@ -70,7 +70,6 @@ def main(videos: tuple[str], database: str = None, **kwargs):
     """Measures the video properties.
 
     \b
-
     Parameters
     ----------
     videos : tuple[pathlike], optional

@@ -91,7 +91,6 @@ Create the virtual environment.
     pyenv activate mendevi
     pip install uv
 
-
 .. _dependencies:
 
 Dependencies
@@ -345,8 +344,7 @@ Although it is installed automatically, it is better to install **av** manually 
 cuda (optional)
 ^^^^^^^^^^^^^^^
 
-
-If you have a GPU, please install CUDA or ROC then follow the `PyTorch installation guide <https://pytorch.org>`_. Without CUDA or ROC, the software is not able to use the GPU (CPU only).
+If you have a NVIDIA GPU, please install CUDA then follow the `PyTorch installation guide <https://pytorch.org>`_. Without CUDA, the software is not able to use the GPU (CPU only).
 
 .. tab:: Linux
 
@@ -408,7 +406,6 @@ If you have a GPU, please install CUDA or ROC then follow the `PyTorch installat
                 echo "the cuda context is installed"
             fi
 
-
 .. tab:: FreeBSD
 
     It is not well supproted, you can try to follow `this bsd link <https://gist.github.com/Mostly-BSD/4d3cacc0ee2f045ed8505005fd664c6e>`_.
@@ -423,6 +420,13 @@ If you have a GPU, please install CUDA or ROC then follow the `PyTorch installat
 
     It is important to configure your environment variable to hook cuda to PyTorch.
     Good luck with the `official guide <https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html>`_.
+
+.. _install_amf:
+
+amf (optional)
+^^^^^^^^^^^^^^
+
+If you have an AMD GPU, please install ROC then follow the `PyTorch installation guide <https://pytorch.org>`_. Without ROC, the software is not able to use the GPU (CPU only).
 
 .. _install_vmaf:
 

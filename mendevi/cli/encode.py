@@ -184,7 +184,6 @@ def main(videos: tuple, database: str = None, **kwargs):
     """Measures activity during encoding.
 
     \b
-
     Parameters
     ----------
     videos : tuple[pathlike]

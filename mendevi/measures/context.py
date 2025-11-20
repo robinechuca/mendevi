@@ -179,7 +179,7 @@ def get_librav1e_version() -> str:
         return subprocess.run(
             ["rav1e", "--version"],
             check=False, capture_output=True,
-        ).stderr.decode()
+        ).stdout.decode().strip()
     except:
         logging.warning("failed to find the librav1e version")
         return ""

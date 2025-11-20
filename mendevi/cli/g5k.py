@@ -233,7 +233,6 @@ def main(cmd: str, **kwargs):
     """Deploy a grid'5000 node and run a mendevi script inside it.
 
     \b
-
     Parameters
     ----------
     cmd : str

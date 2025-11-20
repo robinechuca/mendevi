@@ -37,7 +37,6 @@ def main(database: str, **kwargs):
     """Extract the main fields from an SQL database into JSON format.
 
     \b
-
     Parameters
     ----------
     database : pathlike

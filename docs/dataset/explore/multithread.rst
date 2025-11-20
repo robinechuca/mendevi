@@ -48,6 +48,11 @@ mendevi plot '<multithread.db>' -x threads -y energy -wx encoder -wy profile -c 
 .. image:: /_static/media/multithread_energy_threads.svg
     :alt: Final energy as a function of the provided number of threads
 
+Conclusion
+----------
+
+The more cores used, the faster the encoding, and therefore the less significant the static power consumption. The gain is therefore very high for a small number of threads. However, this gain becomes less significant when exceeding 8 threads. In addition, bit rate distortion decreases with the number of threads due to tiling. Thus, 8 threads seems optimal.
+
 Reproduce
 ---------
 

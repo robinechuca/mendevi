@@ -127,7 +127,6 @@ def main(video: str, output: str | None = None, **kwargs) -> pathlib.Path:
     * Ensure that the pixel format is recognised.
 
     \b
-
     Parameters
     ----------
     video : pathlike
