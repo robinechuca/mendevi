@@ -428,11 +428,46 @@ amf (optional)
 
 If you have an AMD GPU, please install ROC then follow the `PyTorch installation guide <https://pytorch.org>`_. Without ROC, the software is not able to use the GPU (CPU only).
 
-To install the amf driver, you can use the `amdgpu-install package <https://amdgpu-install.readthedocs.io/en/latest/index.html>`_.
-
 .. tab:: Linux
 
     .. tab:: Debian Ubuntu Mint
+
+        Il faut ajouter https://github.com/CosmicFusion/debian-amdgpu-pro
+        To use the free drivers of `debian ati <https://wiki.debian.org/fr/AtiHowTo>`_, execute the following code:
+
+        .. code:: shell
+
+            sudo apt install firmware-linux-nonfree firmware-amd-graphics libgl1-mesa-dri libglx-mesa0 mesa-vulkan-drivers xserver-xorg-video-all
+
+            # git clone https://github.com/CosmicFusion/debian-amdgpu-pro.git
+            # sudo apt install vainfo mesa-va-drivers  # for vaapi
+
+            # lspci -nn | grep -E "VGA|Display|3D"  # for debug
+            # lsmod | grep amdgpu  # si rien n'apparait -> probleme
+
+        It comes from the `AMD documentation <https://instinct.docs.amd.com/projects/amdgpu-docs/en/latest/install/detailed-install/package-manager/package-manager-ubuntu.html>`_.
+
+        Then see https://rocm.docs.amd.com/projects/install-on-linux/en/latest/install/detailed-install.html
+
+        .. code:: shell
+
+            # Make the directory if it doesn't exist yet.
+            # This location is recommended by the distribution maintainers.
+            sudo mkdir --parents --mode=0755 /etc/apt/keyrings
+
+            # Download the key, convert the signing-key to a full
+            # keyring required by apt and store in the keyring directory
+            wget https://repo.radeon.com/rocm/rocm.gpg.key -O - | \
+                gpg --dearmor | sudo tee /etc/apt/keyrings/rocm.gpg > /dev/null
+
+            sudo tee /etc/apt/sources.list.d/amdgpu.list << EOF
+            deb [arch=amd64 signed-by=/etc/apt/keyrings/rocm.gpg] https://repo.radeon.com/amdgpu/30.20/ubuntu noble main
+            EOF
+            sudo apt update
+
+            sudo apt install amdgpu-dkms environment-modules
+
+        It comes from `amdgpu-install package <https://amdgpu-install.readthedocs.io/en/latest/index.html>`_.
 
         .. code:: shell
 
@@ -452,11 +487,11 @@ To install the amf driver, you can use the `amdgpu-install package <https://amdg
             fi
 
             # install drivers
-            sudo amdgpu-install --usecase=amf
+            sudo amdgpu-install --usecase=amf --accept-eula
 
 .. _install_vmaf:
 
-vamf (optional)
+vmaf (optional)
 ^^^^^^^^^^^^^^^
 
 If you want to have acces to the `Netflix VMAF quality metric <https://wiki.x266.mov/docs/metrics/VMAF>`_, please install it!
