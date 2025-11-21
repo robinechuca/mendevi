@@ -361,7 +361,7 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs) -> list[st
                 "librav1e",
                 *quality,
                 # speed in 0, 10, default 6
-                "-speed", {"slow": "2", "medium": "6", "fast": "8"}[kwargs["effort"]],
+                "-speed", {"slow": "2", "medium": "6", "fast": "9"}[kwargs["effort"]],
                 "-rav1e-params", (
                     f"threads={kwargs['threads']}:tiles={kwargs['threads']}:photon-noise=0"
                 ),

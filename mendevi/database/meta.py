@@ -243,6 +243,27 @@ def get_extractor(name: str, safe: bool = False) -> ExtractContext:
                 extract.extract_range,
                 None,
             )
+        case (
+            "reference_video_name" | "reference_vid_name" | "reference_name"
+            | "ref_video_name" | "ref_vid_name" | "ref_name"
+        ):
+            extractor = ExtractContext(
+                "Input video basename",
+                extract.extract_reference_video_name,
+                None,
+            )
+        case "rms_sobel":
+            extractor = ExtractContext(
+                "Spacial root mean square sobel gradient complexity",
+                extract.extract_rms_sobel,
+                False,
+            )
+        case "rms_time_diff":
+            extractor = ExtractContext(
+                "Temporal root means square time difference complexity",
+                extract.extract_rms_time_diff,
+                False,
+            )
         case "shape":
             extractor = ExtractContext(
                 "The image shapes height x width in pixels",
@@ -293,7 +314,7 @@ def get_extractor(name: str, safe: bool = False) -> ExtractContext:
             )
         case "video_name" | "vid_name" | "name":
             extractor = ExtractContext(
-                "Input video basename",
+                "Video basename",
                 extract.extract_video_name,
                 None,
             )

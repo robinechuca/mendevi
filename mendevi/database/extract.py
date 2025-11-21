@@ -4,6 +4,7 @@
 
 import functools
 import numbers
+import pathlib
 import re
 import typing
 
@@ -20,7 +21,15 @@ JOIN: dict[str: dict[str, str]] = {  # join = JOIN[destination_table][source_tab
     },
     "t_enc_encode": {
         "t_dec_decode": (
-            "JOIN t_enc_encode ON t_dec_decode.dec_vid_id = t_enc_encode.enc_dst_vid_id"
+            # rather "JOIN t_enc_encode ON t_dec_decode.dec_vid_id = t_enc_encode.enc_dst_vid_id"
+            # this requets select only one line of t_enc_encode
+            "JOIN (\n"
+            "    SELECT t_enc_encode.enc_dst_vid_id, MIN(enc_id) AS enc_id_min\n"
+            "    FROM t_enc_encode\n"
+            "    GROUP BY enc_dst_vid_id\n"
+            ") AS t_enc_encode_single_dst_vid_id "
+            "ON t_dec_decode.dec_vid_id = t_enc_encode_single_dst_vid_id.enc_dst_vid_id\n"
+            "JOIN t_enc_encode ON t_enc_encode.enc_id = t_enc_encode_single_dst_vid_id.enc_id_min"
         ),
     },
     "t_dec_decode": {
@@ -61,9 +70,15 @@ JOIN: dict[str: dict[str, str]] = {  # join = JOIN[destination_table][source_tab
             "JOIN t_vid_video AS t_ref_video "
             "ON t_enc_encode.enc_src_vid_id = t_ref_video.vid_id"
         ),
-        "t_dec_decode": (
+        "t_dec_decode": (  # to avoid redundency, we may define only atomic steps then link them
+            "JOIN (\n"
+            "    SELECT t_enc_encode.enc_dst_vid_id, MIN(enc_id) AS enc_id_min\n"
+            "    FROM t_enc_encode\n"
+            "    GROUP BY enc_dst_vid_id\n"
+            ") AS t_enc_encode_single_dst_vid_id_from_dec "
+            "ON t_dec_decode.dec_vid_id = t_enc_encode_single_dst_vid_id_from_dec.enc_dst_vid_id\n"
             "JOIN t_enc_encode AS t_enc_from_dec "
-            "ON t_dec_decode.dec_vid_id = t_enc_from_dec.enc_dst_vid_id "
+            "ON t_enc_from_dec.enc_id = t_enc_encode_single_dst_vid_id_from_dec.enc_id_min\n"
             "JOIN t_vid_video AS t_ref_video "
             "ON t_enc_from_dec.enc_src_vid_id = t_ref_video.vid_id"
         ),
@@ -87,6 +102,10 @@ JOIN: dict[str: dict[str, str]] = {  # join = JOIN[destination_table][source_tab
         ),
     },
 }
+# JOIN["t_ref_video"]["t_dec_decode"] = (  # and example of path
+#     f"{JOIN['t_enc_encode']['t_dec_decode']}\n"
+#     f"{JOIN['t_ref_video']['t_enc_encode']}"
+# )
 
 
 class SqlLinker:
@@ -533,6 +552,57 @@ def extract_range(raw: dict[str]) -> str:
 
 
 @verif
+@SqlLinker("t_ref_video.vid_name AS ref_vid_name")
+def extract_reference_video_name(raw: dict[str]) -> str:
+    """Return the input video basename.
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+
+    """
+    from mendevi.cst.profiles import PROFILES
+    if (vid_name := raw["ref_vid_name"]) is None:
+        return None
+    assert isinstance(vid_name, str), vid_name.__class__.__name__
+    vid_name = re.sub(fr"^reference_(\w+)_(?:{'|'.join(PROFILES)})\.\w+$", r"\1", vid_name)
+    return vid_name
+
+
+@verif
+@SqlLinker("t_vid_video.vid_rms_sobel")
+def extract_rms_sobel(raw: dict[str]) -> str:
+    """Return the spacial root mean square sobel gradient complexity.
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+
+    """
+    if (comp := raw["vid_rms_sobel"]) is None:
+        return None
+    return float(np.nanmean(binary_to_list(comp)))
+
+
+@verif
+@SqlLinker("t_vid_video.vid_rms_time_diff")
+def extract_rms_time_diff(raw: dict[str]) -> str:
+    """Return the temporal root means square time difference complexity.
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+
+    """
+    if (comp := raw["vid_rms_time_diff"]) is None:
+        return None
+    return float(np.nanmean(binary_to_list(comp)))
+
+
+@verif
 @SqlLinker("t_met_metric.met_ssim")
 def extract_ssim(raw: dict[str]) -> float:
     """Return the Structural Similarity (SSIM).
@@ -615,9 +685,9 @@ def extract_video_hash(raw: dict[str]) -> str:
 
 
 @verif
-@SqlLinker("t_ref_video.vid_name AS ref_vid_name")
+@SqlLinker("t_vid_video.vid_name")
 def extract_video_name(raw: dict[str]) -> str:
-    """Return the input video basename.
+    """Return the video basename.
 
     Parameters
     ----------
@@ -625,11 +695,10 @@ def extract_video_name(raw: dict[str]) -> str:
         The result line of select request.
 
     """
-    from mendevi.cst.profiles import PROFILES
-    if (vid_name := raw["ref_vid_name"]) is None:
+    if (vid_name := raw["vid_name"]) is None:
         return None
     assert isinstance(vid_name, str), vid_name.__class__.__name__
-    vid_name = re.sub(fr"^reference_(\w+)_(?:{'|'.join(PROFILES)})\.\w+$", r"\1", vid_name)
+    vid_name = pathlib.Path(vid_name).name
     return vid_name
 
 
