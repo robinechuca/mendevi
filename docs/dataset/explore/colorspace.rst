@@ -98,5 +98,5 @@ Reproduce
         done
     done
 
-    mendevi encode -r 1 -c libx264 -c libsvtav1 --mode vbr reference*
+    mendevi encode -r 1 -c libx264 -c libsvtav1 reference*
     mendevi probe --ref reference_park_joy_fhd.mp4 reference* sample*

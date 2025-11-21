@@ -18,8 +18,8 @@ Download
 Plots
 -----
 
-Energy per frame as a function of the number of frames
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Encoding energy per frame as a function of the number of frames
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code:: shell
 
@@ -28,9 +28,12 @@ Energy per frame as a function of the number of frames
 .. image:: /_static/media/duration_energy_frames_enc.svg
     :alt: Energy per frame as a function of the number of frames during encoding
 
+Decoding energy per frame as a function of the number of frames
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 .. code:: shell
 
-    mendevi plot '<duration.db>' -x nbr_frames -y energy_per_frame -e name -c codec -wy profile -wx hostname -t t_dec_decode
+    mendevi plot '<duration.db>' -x nbr_frames -y energy_per_frame -e name -c '(codec, effort)' -wy profile -wx hostname -t t_dec_decode
 
 .. image:: /_static/media/duration_energy_frames_dec.svg
     :alt: Energy per frame as a function of the number of frames during decoding
@@ -49,7 +52,7 @@ Bitrate as a function of the number of frame at constant quality
 Conclusion
 ----------
 
-When the video contains enough images, the average energy per frame no longer depends on the duration of the video. Thus, for videos with more than 300 images, or more than 10 seconds, this effect becomes negligible.
+When the video contains enough images, the average energy per frame no longer depends on the duration of the video. Thus, for videos with more than 300 images, ie more than 10 seconds, this effect becomes negligible.
 
 Reproduce
 ---------

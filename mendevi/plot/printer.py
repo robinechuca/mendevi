@@ -210,7 +210,7 @@ def print_fill_axe(**kwargs) -> list[str]:
                 "    for marker_label, marker in zip(marker_labels, itertools.cycle(MARKERS)):",
                 (
                     "        axe.errorbar("
-                    '[], [], color="black", fmt=marker, '
+                    '[], [], color="grey", fmt=marker, '
                     f'label=f"{kwargs["marker"]}={{marker_label}}"'
                     ")"
                 ),
@@ -446,10 +446,20 @@ def print_main(**kwargs) -> list[str]:
         "                    axe.legend()",
         "",
     ])
+    keys = ["x", "y", "color", "marker", "window_x", "window_y", "error", "filter", "table"]
     code.extend([
         "",
         "    # save the figure",
-        "    plt.savefig(FIGNAME, format=FIGNAME.suffix[1:], transparent=False)",
+        "    metadata = {",
+        '        "Keywords": ["mendevi", "video", "encoding", "decoding"],',
+        '        "Language": "en",',
+        '        "Rights": "Free lisence GLPv3",',
+        f'        "Contributor": ["Robin RICHARD (robinechuca)"],',
+        f'        "Creator": "mendevi {__version__}",',
+        f'        "Description": "A scatter plot with {", ".join(f"{k}={kwargs[k]}" for k in keys)}",',
+        f'        "Title": {kwargs["path"].stem!r},',
+        "    }",
+        "    plt.savefig(FIGNAME, format=FIGNAME.suffix[1:], transparent=False, metadata=metadata)",
         "    plt.show()",
         "",
         "",

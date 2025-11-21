@@ -243,7 +243,7 @@ def main(database: str, **kwargs):
     )
 
     # get code content
-    code = printer(database=database, **kwargs)
+    code = printer(database=database, **kwargs, path=path)
     if kwargs.get("print", False):
         print("**********************************PYTHON CODE**********************************")
         print(highlight(code, PythonLexer(), TerminalFormatter()))
