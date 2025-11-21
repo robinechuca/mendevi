@@ -57,12 +57,12 @@ This is a summarized version of :ref:`sql_content`.
             "height": 1080,  # height of images in pixels
             "lpips": 0.0421354321587,  # average Learned Perceptual Image Patch Similarity (LPIPS)
             "mode": "vbr",  # bitrate mode, constant (cbr) or variable (vbr)
-            "name": "netflix_crosswalk",  # input video basename
             "primaries": "bt709",  # tristimulus primaries colors name
             "profile": "hd",  # profile of the video
             "psnr": 27.739999771118164,  # average Peak Signal to Noise Ratio (PSNR)
             "quality": 0.919921875,  # quality level passed to the encoder
             "range": "tv",  # video encoding color range, 'tv' or 'pc'
+            "ref_name": "netflix_crosswalk",  # input video basename
             "ssim": 0.8184635639190674,  # average Structural Similarity (SSIM)
             "threads": 8,  # number of threads provided as a parameter to the encoder
             "video_duration": 5.005,  # video duration in seconds

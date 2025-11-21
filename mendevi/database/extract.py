@@ -207,7 +207,8 @@ def verif(func: typing.Callable) -> typing.Callable:
         assert isinstance(raw, dict), raw.__class__.__name__
         for select in func.select:
             name = select.split(" ")[-1].split(".")[-1]
-            assert name in raw, f"correct the SQL query because {select} is missing"
+            assert name in raw, \
+                f"correct the SQL query because {select} is missing (in {func.__name__})"
         return func(raw)
     return decorated
 
