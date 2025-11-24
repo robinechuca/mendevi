@@ -86,6 +86,7 @@ Example of energy per encoder:
 Alternatives
 ============
 
+#. The `GREEM <https://github.com/cd-athena/GREEM>`_ video encoding measurement tool.
 #. The `MVCD database <https://github.com/cd-athena/MVCD>`_ also includes video encoding and decoding energy measurements.
 #. The `COCONUT database <https://github.com/cd-athena/COCONUT>`_ also includes video decoding measurements.
 #. The `SEED and VEED dataset <https://github.com/cd-athena/VEED-dataset>`_ offers a comprehensive LCA and GPU measurements.
