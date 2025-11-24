@@ -353,7 +353,11 @@ If you have a NVIDIA GPU, please install CUDA then follow the `PyTorch installat
 
     .. tab:: Debian Ubuntu Mint
 
-        Install nvidia driver
+        Install nvidia driver.
+
+        .. warning::
+
+            **Do not install cuda-toolkit**, witch is conflicual with the official drivers.
 
         .. code:: shell
 

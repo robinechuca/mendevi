@@ -66,7 +66,7 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
 @click.option("--rms-time-diff/--no-rms-time-diff", default=True, help="Compute the C_td or not.")
 @click.option("--uvq/--no-uvq", default=False, help="Compute the UVQ or not.")
 @click.option("--vmaf/--no-vmaf", default=True, help="Compute the VMAF or not.")
-def main(videos: tuple[str], database: str | None = None, **kwargs) -> None:
+def main(videos: tuple[str], database: str | None = None, **kwargs: dict) -> None:
     r"""Measures the video properties.
 
     \b
@@ -99,5 +99,5 @@ def main(videos: tuple[str], database: str | None = None, **kwargs) -> None:
     random.shuffle(videos)  # heuristic to improve efficiency of multiple acces
     for i, video in enumerate(sorted(kwargs["ref"]) + videos):
         with Printer(f"Probe {i+1}/{len(videos)+len(kwargs['ref'])}...", color="cyan") as prt:
-            probe_and_store(database, video, **kwargs)
+            probe_and_store(database, video, **kwargs: dict)
             prt.print_time()

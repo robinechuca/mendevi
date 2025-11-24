@@ -224,7 +224,7 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
     type=str,
     help="Form the SQL query around this table.",
 )
-def main(database: str, **kwargs) -> None:
+def main(database: str, **kwargs: dict) -> None:
     """See docstring at DOCSTRING."""
     # parse args
     with Printer("Parse configuration...") as prt:

@@ -10,7 +10,7 @@ import click
 class LazyGroup(click.Group):
     """Overwite clik.Group to layy import."""
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args: tuple, **kwargs: dict) -> None:
         self._lazy_commands = {}
         super().__init__(*args, **kwargs)
 

@@ -35,7 +35,7 @@ class Model(abc.ABC):
 
     """
 
-    def __init__(self, title: str | None = None, **kwargs) -> None:
+    def __init__(self, title: str | None = None, **kwargs: dict) -> None:
         """Initialise the model.
 
         Parameters

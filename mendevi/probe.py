@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Perform the metrics and video properties measures."""
 
 import datetime
@@ -17,7 +15,9 @@ from mendevi.database.serialize import list_to_binary
 from mendevi.utils import compute_video_hash
 
 
-def _fill_vid_table(database: pathlib.Path, vid_id: bytes, video: pathlib.Path, **kwargs) -> None:
+def _fill_vid_table(
+    database: pathlib.Path, vid_id: bytes, video: pathlib.Path, **kwargs: dict,
+) -> None:
     """Complete the table t_vid_video."""
     # get actual informations
     with sqlite3.connect(database) as sql_database:
@@ -137,7 +137,7 @@ def _fill_met_table(
     ref_path: pathlib.Path,
     dis_id: bytes,
     dis_path: pathlib.Path,
-    **kwargs,
+    **kwargs: dict,
 ) -> None:
     """Complete the table t_met_metric."""
     # get actual informations
@@ -200,7 +200,7 @@ def _fill_met_table(
         )
 
 
-def probe_and_store(database: pathlib.Path, video: pathlib.Path, **kwargs) -> None:
+def probe_and_store(database: pathlib.Path, video: pathlib.Path, **kwargs: dict) -> None:
     """Measure the properties of the video.
 
     Parameters
@@ -233,7 +233,9 @@ def probe_and_store(database: pathlib.Path, video: pathlib.Path, **kwargs) -> No
             (vid_id,),
         ):
             # try to find video full path
-            if (ref := database.with_name(ref_name)).is_file() or (ref := video.with_name(ref_name)).is_file():
+            if (
+                ref := database.with_name(ref_name)).is_file() or (ref := video.with_name(ref_name)
+            ).is_file():
                 references[ref] = ref_id
             else:
                 logging.getLogger(__name__).info("failed to find the reference video %s", ref)

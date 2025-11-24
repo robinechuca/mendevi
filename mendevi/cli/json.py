@@ -33,7 +33,7 @@ def _add_key_key_val(dico: dict, key1: str, key2: str, value: object) -> None:
 @click.command()
 @click.argument("database", type=click.Path())
 @click.option("-o", "--output", type=click.Path(), help="The output json database path.")
-def main(database: str, **kwargs) -> None:
+def main(database: str, **kwargs: dict) -> None:
     r"""Extract the main fields from an SQL database into JSON format.
 
     \b

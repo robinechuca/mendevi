@@ -28,7 +28,7 @@ from mendevi.utils import best_profile, compute_video_hash, hash_to_signature
 ENCODERS = {"libx264", "libx265", "libvpx-vp9", "libsvtav1", "vvc"}
 
 
-def encode(src: pathlib.Path, **kwargs) -> tuple[pathlib.Path, str, dict[str]]:
+def encode(src: pathlib.Path, **kwargs: dict) -> tuple[pathlib.Path, str, dict[str]]:
     """Transcode an existing video.
 
     Parameters
@@ -58,7 +58,7 @@ def encode(src: pathlib.Path, **kwargs) -> tuple[pathlib.Path, str, dict[str]]:
     dst = pathlib.Path(tempfile.gettempdir()) / f"{signature}.mp4"
 
     # get cmd
-    cmd = get_transcode_cmd(src, dst, **kwargs)
+    cmd = get_transcode_cmd(src, dst, **kwargs: dict)
 
     # display
     prt_cmd = " ".join(
@@ -162,7 +162,7 @@ def encode_and_store(
 
     """
     # transcode the video
-    dst, cmd, activity = encode(src, **kwargs)
+    dst, cmd, activity = encode(src, **kwargs: dict)
 
     with (
         Lock(str(database.with_name(".dblock")), lifetime=datetime.timedelta(seconds=600)),
@@ -228,7 +228,7 @@ def encode_and_store(
         )
 
 
-def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs) -> list[str]:
+def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs: dict) -> list[str]:
     """Return the ffmpeg encode cmd."""
 
     def libsvtav1_lp(threads: int) -> int:

@@ -71,7 +71,7 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
     multiple=True,
     help="The ffmpeg filter to apply on fly.",
 )
-def main(videos: tuple[str], database: str | None = None, **kwargs) -> None:
+def main(videos: tuple[str], database: str | None = None, **kwargs: dict) -> None:
     r"""Measures activity during decoding.
 
     \b

@@ -19,7 +19,7 @@ from mendevi.measures import Activity
 from mendevi.utils import get_resolution
 
 
-def decode(vid: pathlib.Path, **kwargs) -> tuple[str, dict[str]]:
+def decode(vid: pathlib.Path, **kwargs: dict) -> tuple[str, dict[str]]:
     """Decode an existing video.
 
     Parameters
@@ -76,7 +76,7 @@ def decode_and_store(
 
     """
     # decode the video
-    cmd, activity = decode(vid, **kwargs)
+    cmd, activity = decode(vid, **kwargs: dict)
 
     with (
         Lock(str(database.with_name(".dblock")), lifetime=datetime.timedelta(seconds=600)),

@@ -234,7 +234,7 @@ def set_ansible_cfg() -> None:
     default=1,
     help="The number of nodes to be deployed.",
 )
-def main(cmd: str, **kwargs) -> None:
+def main(cmd: str, **kwargs: dict) -> None:
     r"""Deploy a grid'5000 node and run a mendevi script inside it.
 
     \b

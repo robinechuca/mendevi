@@ -113,7 +113,7 @@ def _parse_args(prt: Printer, video: pathlib.Path, kwargs: dict) -> None:
     type=click.Choice(["tv", "pc"]),
     help="The pixel coding range.",
 )
-def main(video: str, output: str | None = None, **kwargs) -> pathlib.Path:
+def main(video: str, output: str | None = None, **kwargs: dict) -> pathlib.Path:
     r"""Pre-Process the source video before performing the transcoding measurements.
 
     This step is required to provide the following guarantees:

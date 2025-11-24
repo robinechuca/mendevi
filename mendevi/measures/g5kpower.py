@@ -15,7 +15,7 @@ import requests
 class G5kPower(threading.Thread):
     """Asynchronous consumption request on g5k."""
 
-    def __init__(self, *args, **kwargs) -> None:
+    def __init__(self, *args, **kwargs: dict) -> None:
         super().__init__(daemon=True)
         self.args = args
         self.kwargs = kwargs

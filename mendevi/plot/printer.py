@@ -14,7 +14,7 @@ from mendevi.database.extract import SqlLinker
 from mendevi.database.meta import get_extractor, merge_extractors
 
 
-def printer(**kwargs) -> str:
+def printer(**kwargs: dict) -> str:
     """Create an excecutable python code.
 
     Parameters
@@ -29,11 +29,11 @@ def printer(**kwargs) -> str:
     code: list[str] = []
     code.extend(print_header())
     code.extend(print_import())
-    code.extend(print_cst(**kwargs))
+    code.extend(print_cst(**kwargs: dict))
     code.extend(print_mean_std())
-    code.extend(print_read_sql(**kwargs))
-    code.extend(print_fill_axe(**kwargs))
-    code.extend(print_main(**kwargs))
+    code.extend(print_read_sql(**kwargs: dict))
+    code.extend(print_fill_axe(**kwargs: dict))
+    code.extend(print_main(**kwargs: dict))
     code.extend(print_entry())
     code = "\n".join(code)
 
@@ -63,7 +63,7 @@ def print_entry() -> list[str]:
     ]
 
 
-def print_error(**kwargs) -> list[str]:
+def print_error(**kwargs: dict) -> list[str]:
     """Helper for print_fill_axe."""
     if kwargs["error"] is not None:
         return [
@@ -86,7 +86,7 @@ def print_error(**kwargs) -> list[str]:
     ]
 
 
-def print_cst(**kwargs) -> list[str]:
+def print_cst(**kwargs: dict) -> list[str]:
     """Return the code of the definition of the constants."""
     return [
         f"COLORS = {COLORS}",
@@ -135,7 +135,7 @@ def print_grid(axe: str, log: bool | None, dim: str) -> list[str]:
     ]
 
 
-def print_fill_axe(**kwargs) -> list[str]:
+def print_fill_axe(**kwargs: dict) -> list[str]:
     """Return the code that fill a given axes."""
     code = [
         "def fill_axe(axe: plt.Axes, values: dict[str], ylab: str, xlab: str):",
@@ -149,7 +149,7 @@ def print_fill_axe(**kwargs) -> list[str]:
         case (True, True):  # no color, no marker
             code.extend([
                 "    x_data, y_data = values[xlab], values[ylab]",
-                *(f"    {line}" for line in print_error(**kwargs)),
+                *(f"    {line}" for line in print_error(**kwargs: dict)),
                 "    axe.errorbar(",
                 "        x_data, y_data,",
                 "        xerr=xerr, yerr=yerr,",
@@ -167,7 +167,7 @@ def print_fill_axe(**kwargs) -> list[str]:
                 "            k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()",
                 "        }",
                 "        x_data, y_data = sub_values[xlab], sub_values[ylab]",
-                *(f"        {line}" for line in print_error(**kwargs)),
+                *(f"        {line}" for line in print_error(**kwargs: dict)),
                 "        axe.errorbar(",
                 "            x_data, y_data,",
                 "            xerr=xerr, yerr=yerr,",
@@ -186,7 +186,7 @@ def print_fill_axe(**kwargs) -> list[str]:
                 "            k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()",
                 "        }",
                 "        x_data, y_data = sub_values[xlab], sub_values[ylab]",
-                *(f"        {line}" for line in print_error(**kwargs)),
+                *(f"        {line}" for line in print_error(**kwargs: dict)),
                 "        axe.errorbar(",
                 "            x_data, y_data,",
                 "            xerr=xerr, yerr=yerr,",
@@ -228,7 +228,7 @@ def print_fill_axe(**kwargs) -> list[str]:
                 "            k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()",
                 "        }",
                 "        x_data, y_data = sub_values[xlab], sub_values[ylab]",
-                *(f"        {line}" for line in print_error(**kwargs)),
+                *(f"        {line}" for line in print_error(**kwargs: dict)),
                 "        axe.errorbar(",
                 "            x_data, y_data,",
                 "            xerr=xerr, yerr=yerr,",
@@ -277,7 +277,7 @@ def print_import() -> list[str]:
     ]
 
 
-def print_subfigure(**kwargs) -> list[str]:
+def print_subfigure(**kwargs: dict) -> list[str]:
     """Return the code for the subplot of a a given y and y axis."""
     header = [
         (
@@ -377,7 +377,7 @@ def print_subfigure(**kwargs) -> list[str]:
     return header + middle + end
 
 
-def print_main(**kwargs) -> list[str]:
+def print_main(**kwargs: dict) -> list[str]:
     """Return the code of the function that plot the final graphic."""
     code = []
     # subplots
@@ -487,7 +487,7 @@ def print_mean_std() -> list[str]:
     ]
 
 
-def print_read_sql(**kwargs) -> list[str]:
+def print_read_sql(**kwargs: dict) -> list[str]:
     """Return the code of the function that perform the sql request."""
     alias = {
         f"x_{i}": expr for i, expr in enumerate(kwargs["x"])

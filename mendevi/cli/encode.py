@@ -183,7 +183,7 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
     multiple=True,
     help="The ffmpeg filter to apply before encoding.",
 )
-def main(videos: tuple, database: str | None = None, **kwargs) -> None:
+def main(videos: tuple, database: str | None = None, **kwargs: dict) -> None:
     r"""Measures activity during encoding.
 
     \b
