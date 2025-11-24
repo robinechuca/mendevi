@@ -357,7 +357,7 @@ If you have a NVIDIA GPU, please install CUDA then follow the `PyTorch installat
 
         .. warning::
 
-            **Do not install cuda-toolkit**, witch is conflicual with the official drivers.
+            **Do not install "cuda-toolkit"**, witch is conflicual with the official drivers.
 
         .. code:: shell
 
@@ -399,7 +399,7 @@ If you have a NVIDIA GPU, please install CUDA then follow the `PyTorch installat
 
             # install nvcc
             if ! command -v nvcc &> /dev/null; then
-                sudo apt install cuda-toolkit nvtop
+                sudo apt install nvidia-cuda-dev nvidia-cuda-toolkit nvtop  # never cuda-toolkit
                 # add the toolkit into the path
                 if ! grep -q "/usr/local/cuda/bin" ~/.bashrc; then
                     echo 'export PATH=/usr/local/cuda/bin:$PATH' >> ~/.bashrc

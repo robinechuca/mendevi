@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Few tools to help display."""
 
 import functools

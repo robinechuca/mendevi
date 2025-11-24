@@ -456,7 +456,7 @@ def print_main(**kwargs: dict) -> list[str]:
         '        "Rights": "Free lisence GLPv3",',
         '        "Contributor": ["Robin RICHARD (robinechuca)"],',
         f'        "Creator": "mendevi {__version__}",',
-        f'        "Description": "A scatter plot with {", ".join(f"{k}={kwargs[k]}" for k in keys)}",',
+        f'        "Description": "A plot with {", ".join(f"{k}={kwargs[k]}" for k in keys)}",',
         f'        "Title": {kwargs["path"].stem!r},',
         "    }",
         "    plt.savefig(FIGNAME, format=FIGNAME.suffix[1:], transparent=False, metadata=metadata)",

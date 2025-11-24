@@ -12,7 +12,7 @@
     :alt: [linting: pylint]
     :target: https://github.com/pylint-dev/pylint
 
-.. image:: https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue
+.. image:: https://img.shields.io/badge/python-3.12%20%7C%203.13%20%7C%203.14-blue
     :alt: [versions]
 
 .. image:: https://static.pepy.tech/badge/mendevi
