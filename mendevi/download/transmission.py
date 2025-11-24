@@ -59,7 +59,8 @@ def add_torrent(
                 capture_output=True,
             )
         except subprocess.CalledProcessError as err:
-            raise ImportError("the transmission-daemon package appears to be corrupted") from err
+            msg = "the transmission-daemon package appears to be corrupted"
+            raise ImportError(msg) from err
         prt.print(out.stdout.decode().strip())
 
     # download content
@@ -68,7 +69,7 @@ def add_torrent(
     return final_file
 
 
-def test_transmission_is_installed():
+def test_transmission_is_installed() -> None:
     """Ensures that transmission-daemon has been installed correctly.
 
     Raises
@@ -80,15 +81,19 @@ def test_transmission_is_installed():
     try:
         out = subprocess.run(["transmission-remote", "--version"], check=True, capture_output=True)
     except FileNotFoundError as err:
-        raise ImportError(
+        msg = (
             "please install transmission-daemon "
-            "(https://mendevi.readthedocs.io/latest/developer_guide/installation.html#transmission)",
+            "(https://mendevi.readthedocs.io/latest/developer_guide/installation.html#transmission)"
+        )
+        raise ImportError(
+            msg,
         ) from err
     if not (out.stdout or out.stderr):
-        raise logging.warning("the transmission-daemon package appears to be corrupted")
+        msg = "the transmission-daemon package appears to be corrupted"
+        raise logging.getLogger(__name__).warning(msg)
 
 
-def wait_until_finished(name: str):
+def wait_until_finished(name: str) -> None:
     """Display the progress bar of the torrent download."""
     with Printer(f"Download {name!r} (transmission-remote -l)...", color="green") as prt:
         load = tqdm.tqdm(
@@ -107,11 +112,13 @@ def wait_until_finished(name: str):
             try:
                 states = orjson.loads(out.stdout)
             except orjson.JSONDecodeError as err:
+                msg = f"the transmission-daemon package appears to be corrupted, {out.stdout}"
                 raise ImportError(
-                    f"the transmission-daemon package appears to be corrupted, {out.stdout}",
+                    msg,
                 ) from err
             if len(state := [t for t in states["arguments"]["torrents"] if t["name"] == name]) == 0:
-                raise KeyError(f"the torrent {name} is not in the transmission-remote --list")
+                msg = f"the torrent {name} is not in the transmission-remote --list"
+                raise KeyError(msg)
             state = state.pop()
             if state["errorString"]:
                 load.set_description(state["errorString"])

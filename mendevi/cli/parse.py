@@ -50,7 +50,8 @@ def _guess_database(files: tuple[str]) -> str | None:
     if len(candidates) == 1:
         return candidates.pop()
     if len(candidates) > 1:
-        raise ValueError(f"only one database must be provided, {candidates} are given")
+        msg = f"only one database must be provided, {candidates} are given"
+        raise ValueError(msg)
     for file in files:
         file = pathlib.Path(file) / "mendevi.db"
         if is_sqlite(file):
@@ -61,7 +62,7 @@ def _guess_database(files: tuple[str]) -> str | None:
 
 
 def parse_videos_database(
-    prt: context_verbose.Printer, videos: tuple[str], database: str = None, _quiet: bool = False,
+    prt: context_verbose.Printer, videos: tuple[str], database: str | None = None, _quiet: bool = False,
 ) -> tuple[list[pathlib.Path], pathlib.Path]:
     """Find or create the database and extract all the videos.
 
@@ -100,7 +101,8 @@ def parse_videos_database(
         database_candidates = {f / "mendevi.db" for f in database_candidates}
         if not (database := sorted({d for d in database_candidates if d.is_file()})):
             if len(database_candidates) != 1:  # if no ambiguity, we can create it
-                raise ValueError("please provide the database path")
+                msg = "please provide the database path"
+                raise ValueError(msg)
             database = database_candidates
         database = database.pop()
     else:

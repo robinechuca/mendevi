@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Test if the dependents libraries are well installed and linked.
 
 Basicaly, it checks if the installation seems to be correct.
@@ -12,38 +10,49 @@ import subprocess
 import av
 import torch
 
+VERSION_MIN = 6
+VERSION_MAX = 8
 
-def test_av_ffmpeg_link():
+
+def test_av_ffmpeg_link() -> None:
     """Test the pyav and ffmpeg dependencies."""
     try:
         version_ffmpeg = (
             subprocess.run(["ffmpeg", "-version"], capture_output=True, check=True).stdout.decode()
         )
     except subprocess.CalledProcessError as err:
-        raise ImportError(
+        msg = (
             "ffmpeg is not accessible from the 'ffmpeg' commande line, "
-            "please refer to the ffmpeg installation guide",
+            "please refer to the ffmpeg installation guide"
+        )
+        raise ImportError(
+            msg,
         ) from err
     try:
         version_ffprobe = (
             subprocess.run(["ffprobe", "-version"], capture_output=True, check=True).stdout.decode()
         )
     except subprocess.CalledProcessError as err:
-        raise ImportError(
+        msg = (
             "ffprobe is not accessible from the 'ffprobe' but ffmpeg is installed, "
-            "please check your environement variables",
+            "please check your environement variables"
+        )
+        raise ImportError(
+            msg,
         ) from err
 
     version_pattern = r"version\s+[^\n]*?(?P<major>\d+)\.(?P<minor>\d+)"
     if (version := re.search(version_pattern, version_ffmpeg)) is None:
-        raise RuntimeError("failed to decode the version of ffmpeg")
-    assert 6 <= int(version["major"]) <= 8, (
+        msg = "failed to decode the version of ffmpeg"
+        raise RuntimeError(msg)
+    assert VERSION_MIN <= int(version["major"]) <= VERSION_MAX, (
         "only the version 4, 5, and 6 of ffmpeg are supported, "
         f"not {version['major']}.{version['minor']}"
     )
     if (version := re.search(version_pattern, version_ffprobe)) is None:
-        raise RuntimeError("failed to decode the version of ffprobe")
-    assert 6 <= int(version["major"]) <= 8, (
+        msg = "failed to decode the version of ffprobe"
+        raise RuntimeError(msg)
+    assert VERSION_MIN <= int(version["major"]) <= VERSION_MAX, (
         "only the version 4, 5, and 6 of ffprobe are supported, "
         f"not {version['major']}.{version['minor']}"
     )
@@ -51,12 +60,13 @@ def test_av_ffmpeg_link():
     version_pattern = r"(?P<major>\d+)\.\s*(?P<minor>\d+)\.\s*(?P<micro>\d+)"
     for lib, (major, minor, micro) in av.library_versions.items():
         if (version := re.search(rf"{lib}\s+{version_pattern}", version_ffmpeg)) is None:
-            raise RuntimeError(f"failed to extract the ffmpeg {lib} version")
+            msg = f"failed to extract the ffmpeg {lib} version"
+            raise RuntimeError(msg)
         if (
             (major, minor, micro)
             != (int(version["major"]), int(version["minor"]), int(version["micro"]))
         ):
-            logging.warning(
+            logging.getLogger(__name__).warning(
                 "the av version of %s is %d.%d.%d but %s.%s.%s for ffmpeg, "
                 "please reinstall pyav using option --no-binary, see the installation guide "
                 "https://pyav.org/docs/develop/overview/installation.html",
@@ -64,7 +74,7 @@ def test_av_ffmpeg_link():
             )
 
 
-def test_gpu_torch():
+def test_gpu_torch() -> None:
     """Test if torch is able to use the GPU."""
     # possible to test lspci | grep ' NVIDIA '
     if torch.cuda.is_available():
@@ -76,12 +86,18 @@ def test_gpu_torch():
             subprocess.run(["nvidia-smi"], capture_output=True, check=True)
         except FileNotFoundError:
             return  # assume there are not graphical card
-        raise ImportError(
+        msg = (
             "There seems to be an nvidia gpu on this machine, "
-            "however torch is not able to use it, please reinstall cuda",
+            "however torch is not able to use it, please reinstall cuda"
+        )
+        raise ImportError(
+            msg,
         ) from err
     if b" nvidia " in result.stdout.lower():
-        raise ImportError(
+        msg = (
             "There seems to be an nvidia gpu on this machine, "
-            "however torch is not able to use it, please reinstall cuda",
+            "however torch is not able to use it, please reinstall cuda"
+        )
+        raise ImportError(
+            msg,
         )

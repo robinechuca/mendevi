@@ -10,11 +10,11 @@ import click
 class LazyGroup(click.Group):
     """Overwite clik.Group to layy import."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         self._lazy_commands = {}
         super().__init__(*args, **kwargs)
 
-    def add_lazy_command(self, import_path: str, name: str):
+    def add_lazy_command(self, import_path: str, name: str) -> None:
         """Register a command without importing it immediately."""
         self._lazy_commands[name] = import_path
 
@@ -23,8 +23,7 @@ class LazyGroup(click.Group):
         if cmd_name in self._lazy_commands:
             module_path, func_name = self._lazy_commands[cmd_name].rsplit(".", 1)
             mod = importlib.import_module(module_path)
-            cmd = getattr(mod, func_name)
-            return cmd
+            return getattr(mod, func_name)
 
         return super().get_command(ctx, cmd_name)
 
@@ -36,7 +35,7 @@ class LazyGroup(click.Group):
 
 
 @click.group(cls=LazyGroup)
-def main():
+def main() -> None:
     """Perform video transcoding measurements."""
 
 

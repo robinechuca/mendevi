@@ -47,9 +47,9 @@ def printer(**kwargs) -> str:
         )
         return result.stdout.decode()
     except FileNotFoundError:
-        logging.warning("Ruff is not installed, please install it (uv pip install ruff)")
+        logging.getLogger(__name__).warning("Ruff is not installed, please install it (uv pip install ruff)")
     except subprocess.CalledProcessError as err:
-        logging.warning(f"Ruff formatting failed: {err.stderr.decode()}")
+        logging.getLogger(__name__).warning(f"Ruff formatting failed: {err.stderr.decode()}")
     return code
 
 
@@ -118,7 +118,7 @@ def print_grid(axe: str, log: bool | None, dim: str) -> list[str]:
     assert dim in {"x", "y"}, dim
 
     if log is None:
-        logging.warning("the axis %s should be display as bar plot", dim)
+        logging.getLogger(__name__).warning("the axis %s should be display as bar plot", dim)
         return []
     if log:
         return [
@@ -454,7 +454,7 @@ def print_main(**kwargs) -> list[str]:
         '        "Keywords": ["mendevi", "video", "encoding", "decoding"],',
         '        "Language": "en",',
         '        "Rights": "Free lisence GLPv3",',
-        f'        "Contributor": ["Robin RICHARD (robinechuca)"],',
+        '        "Contributor": ["Robin RICHARD (robinechuca)"],',
         f'        "Creator": "mendevi {__version__}",',
         f'        "Description": "A scatter plot with {", ".join(f"{k}={kwargs[k]}" for k in keys)}",',
         f'        "Title": {kwargs["path"].stem!r},',
@@ -503,7 +503,7 @@ def print_read_sql(**kwargs) -> list[str]:
     atom_names, line_extractor = merge_extractors(set(), alias=alias, select=kwargs["filter"])
     select = {s for lbl in atom_names for s in get_extractor(lbl).func.select}
     if len(queries := SqlLinker(*select).sql) == 0:
-        logging.warning("fail to create the SQL query, please provide it yourself")
+        logging.getLogger(__name__).warning("fail to create the SQL query, please provide it yourself")
         queries = [""]
 
     # select good query
@@ -511,7 +511,8 @@ def print_read_sql(**kwargs) -> list[str]:
         table = kwargs["table"]
         queries = {re.search(r"FROM\s+(?P<tab>\w+)", q)["tab"]: q for q in queries}
         if table not in queries:
-            raise ValueError(f"possible queries from {', '.join(queries)}, not {table}")
+            msg = f"possible queries from {', '.join(queries)}, not {table}"
+            raise ValueError(msg)
         queries = [queries[table]]
     else:
         table = re.search(r"FROM\s+(?P<tab>\w+)", queries[0])["tab"]

@@ -32,7 +32,7 @@ class PowerCores(Model):
 
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(
             "Power estimation based on the utilisation rate of logic cores",
             sources="""
@@ -50,14 +50,14 @@ class PowerCores(Model):
             parameters={},  # to each hostname, associate P_{static} and P_{core}
         )
 
-    def _fit(self, values: dict[str]):
+    def _fit(self, values: dict[str]) -> None:
         """Perform a linear regression for the 2 constants P_{static} and P_{core}."""
         for hostname in set(values["hostname"]):
             with Printer(f"Affine regression of power = f(cores) on {hostname}...") as prt:
                 mask = [i for i, h in enumerate(values["hostname"]) if h == hostname]
                 prt.print(f"fit on {len(mask)} points")
                 if len(mask) < 2:
-                    logging.error("can not fit model for hostname=%s, not enouth points", hostname)
+                    logging.getLogger(__name__).error("can not fit model for hostname=%s, not enouth points", hostname)
                     continue
                 cores = [values["cores"][i] for i in mask]
                 power = [values["power"][i] for i in mask]
@@ -69,7 +69,7 @@ class PowerCores(Model):
         all_power = []
         for hostname, cores in zip(values["hostname"], values["cores"], strict=True):
             if hostname not in self.parameters:
-                logging.error("fit the model for the hostname %s before to predict", hostname)
+                logging.getLogger(__name__).error("fit the model for the hostname %s before to predict", hostname)
                 all_power.append(math.nan)
             else:
                 all_power.append(

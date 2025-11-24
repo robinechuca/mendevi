@@ -20,24 +20,27 @@ SLEEP_FINAL = 600.0  # final sleeping time
 SLEEP_TRANSITION = 3600.0  # the transition time between the init and final sleep
 
 
-def _parse_args(prt: Printer, kwargs: dict):
+def _parse_args(prt: Printer, kwargs: dict) -> None:
     """Verification of the arguments."""
     # env_name
     kwargs["env_name"] = kwargs.get("env_name")
     if kwargs["env_name"] is None:
         match len(env_name := guess_envname()):
             case 0:
-                raise OSError(
+                msg = (
                     "No environment .yaml images were found.\n"
                     "You must therefore specify it with the argument --env-name.\n"
                     'See: "https://www.grid5000.fr/w/Getting_Started'
                     '#Deploying_your_nodes_to_get_root_access_and_'
-                    'create_your_own_experimental_environment".',
+                    'create_your_own_experimental_environment".'
+                )
+                raise OSError(
+                    msg,
                 )
             case 1:
                 kwargs["env_name"] = env_name[0]
             case _:
-                logging.warning(
+                logging.getLogger(__name__).warning(
                     "serveral env name were founded %s, please specify --env-name",
                     env_name,
                 )
@@ -106,8 +109,7 @@ def guess_roles() -> list[str]:
         r"\S+",
         subprocess.run(["id", "-Gn"], capture_output=True, check=True).stdout.decode("utf-8"),
     )
-    roles = [r for r in roles if r != "g5k-users"]
-    return roles
+    return [r for r in roles if r != "g5k-users"]
 
 
 def guess_servers() -> list[str]:
@@ -149,10 +151,10 @@ def guess_storage() -> list[str]:
     url = "https://www.grid5000.fr/w/Group_Storage"
     req = requests.get(url, timeout=60)
     if req.status_code != 200:
-        logging.warning("the request %s failed", req)
+        logging.getLogger(__name__).warning("the request %s failed", req)
         servers = []
     elif not (req := req.text):
-        logging.warning("the request %s gives an empty result", req)
+        logging.getLogger(__name__).warning("the request %s gives an empty result", req)
         servers = []
     else:
         servers = re.findall(r"storage\d+\.\w+\.grid5000\.fr", req)
@@ -184,14 +186,17 @@ def is_g5k_frontend(fail: bool = True) -> bool:
         return True
     if not fail:
         return False
-    raise OSError(
+    msg = (
         "You are not on the Grid'5000 frontend!\n"
         "The command 'mendevi g5k ...' must be executed exclusively from the frontend.\n"
-        'See: "https://www.grid5000.fr/w/Getting_Started#Connect_to_a_Grid\'5000_access_machine"',
+        'See: "https://www.grid5000.fr/w/Getting_Started#Connect_to_a_Grid\'5000_access_machine"'
+    )
+    raise OSError(
+        msg,
     )
 
 
-def set_ansible_cfg():
+def set_ansible_cfg() -> None:
     """Create and fill the file ~/.ansible.cfg."""
     path = pathlib.Path.home() / ".ansible.cfg"
     if not path.exists():
@@ -229,10 +234,11 @@ def set_ansible_cfg():
     default=1,
     help="The number of nodes to be deployed.",
 )
-def main(cmd: str, **kwargs):
-    """Deploy a grid'5000 node and run a mendevi script inside it.
+def main(cmd: str, **kwargs) -> None:
+    r"""Deploy a grid'5000 node and run a mendevi script inside it.
 
     \b
+
     Parameters
     ----------
     cmd : str
@@ -312,7 +318,7 @@ def main(cmd: str, **kwargs):
                 # display warnings
                 for msg in res.payload.get("warnings", []):
                     if msg not in warnings:
-                        logging.warning(msg)
+                        logging.getLogger(__name__).warning(msg)
                         warnings.add(msg)
 
                 # skip when file log is not yet created
@@ -327,12 +333,12 @@ def main(cmd: str, **kwargs):
                 # get job result
                 try:
                     res = orjson.loads(res.payload["stdout"])
-                except orjson.JSONDecodeError as err:
+                except orjson.JSONDecodeError:
                     logging.exception(res.payload)
-                    raise err
+                    raise
                 if res.get("changed", False) or "rc" in res:
                     if msg := res.get("stdout", ""):
                         print(msg)
                     if msg := res.get("stderr", ""):
-                        logging.error(msg)
+                        logging.getLogger(__name__).error(msg)
                     log_files.remove(log_file)

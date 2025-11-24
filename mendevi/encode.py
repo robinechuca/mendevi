@@ -2,6 +2,7 @@
 
 """Perform encoding measures."""
 
+import contextlib
 import datetime
 import hashlib
 import math
@@ -98,7 +99,8 @@ def encode(src: pathlib.Path, **kwargs) -> tuple[pathlib.Path, str, dict[str]]:
             load.close()
             if process.returncode or not dst.stat().st_size:
                 dst.unlink(missing_ok=True)
-                raise RuntimeError(f"failed to execute {cmd}")
+                msg = f"failed to execute {cmd}"
+                raise RuntimeError(msg)
 
         # print
         prt.print(f"avg cpu usage: {activity['ps_core']:.1f} %")
@@ -128,7 +130,7 @@ def encode_and_store(
     env_id: int,
     src: pathlib.Path,
     **kwargs,
-):
+) -> None:
     """Transcode a video file and store the result in the database.
 
     Parameters
@@ -169,21 +171,17 @@ def encode_and_store(
         cursor = sql_database.cursor()
 
         # fill video table
-        try:
+        with contextlib.suppress(sqlite3.IntegrityError):
             cursor.execute(
                 "INSERT INTO t_vid_video (vid_id, vid_name) VALUES (?, ?)",
                 (kwargs["src_vid_id"], src.name),
             )
-        except sqlite3.IntegrityError:
-            pass
         dst_vid_id: bytes = compute_video_hash(dst)
-        try:
+        with contextlib.suppress(sqlite3.IntegrityError):
             cursor.execute(
                 "INSERT INTO t_vid_video (vid_id, vid_name) VALUES (?, ?)",
                 (dst_vid_id, dst.name),
             )
-        except sqlite3.IntegrityError:
-            pass
 
         # fill activity table
         activity = {
@@ -446,7 +444,8 @@ def quality_to_rate(kwargs: dict[str]) -> int:
         case "uhd4k":
             mini, maxi = 10000, 51000
         case _:
-            raise NotImplementedError(f"please define a bitrate rule for the profile {profile}")
+            msg = f"please define a bitrate rule for the profile {profile}"
+            raise NotImplementedError(msg)
     mini, maxi = mini // 2, maxi * 2  # apply margin
     mini, maxi = math.log10(float(mini)), math.log10(float(maxi))
     return round(10.0**(maxi-quality*(maxi-mini)))

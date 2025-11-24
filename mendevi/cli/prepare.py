@@ -16,7 +16,7 @@ from mendevi.utils import best_profile, get_resolution
 from .parse import PixelParamType, ResolutionParamType
 
 
-def _parse_args(prt: Printer, video: pathlib.Path, kwargs: dict):
+def _parse_args(prt: Printer, video: pathlib.Path, kwargs: dict) -> None:
     """Verification of the arguments."""
     # profile
     kwargs["profile"] = kwargs.get("profile")
@@ -114,7 +114,7 @@ def _parse_args(prt: Printer, video: pathlib.Path, kwargs: dict):
     help="The pixel coding range.",
 )
 def main(video: str, output: str | None = None, **kwargs) -> pathlib.Path:
-    """Pre-Process the source video before performing the transcoding measurements.
+    r"""Pre-Process the source video before performing the transcoding measurements.
 
     This step is required to provide the following guarantees:
 
@@ -127,6 +127,7 @@ def main(video: str, output: str | None = None, **kwargs) -> pathlib.Path:
     * Ensure that the pixel format is recognised.
 
     \b
+
     Parameters
     ----------
     video : pathlike

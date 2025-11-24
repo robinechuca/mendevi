@@ -47,10 +47,11 @@ def _insert_update(
 
 @click.command()
 @click.argument("databases", type=click.Path(), nargs=-1)
-def main(databases: tuple[str]):
-    """Merge several SQL databases together.
+def main(databases: tuple[str]) -> None:
+    r"""Merge several SQL databases together.
 
     \b
+
     Parameters
     ----------
     databases : list[pathlike]

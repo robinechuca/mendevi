@@ -5,11 +5,11 @@
 import pathlib
 import sqlite3
 
-from context_verbose import Printer
-from cutcutcodec.utils import mround
 import click
 import orjson
 import tqdm
+from context_verbose import Printer
+from cutcutcodec.utils import mround
 
 from mendevi.database.meta import merge_extractors
 
@@ -23,7 +23,7 @@ def _round(value: object) -> object:
     return value
 
 
-def _add_key_key_val(dico: dict, key1: str, key2: str, value: object):
+def _add_key_key_val(dico: dict, key1: str, key2: str, value: object) -> None:
     """Ensure dico[key1][key2] = [value, ...]."""
     dico[key1] = dico.get(key1, {})
     dico[key1][key2] = dico[key1].get(key2, [])
@@ -33,10 +33,11 @@ def _add_key_key_val(dico: dict, key1: str, key2: str, value: object):
 @click.command()
 @click.argument("database", type=click.Path())
 @click.option("-o", "--output", type=click.Path(), help="The output json database path.")
-def main(database: str, **kwargs):
-    """Extract the main fields from an SQL database into JSON format.
+def main(database: str, **kwargs) -> None:
+    r"""Extract the main fields from an SQL database into JSON format.
 
     \b
+
     Parameters
     ----------
     database : pathlike
@@ -81,7 +82,7 @@ def main(database: str, **kwargs):
     ]
     with Printer("Read SQL database...", color="cyan") as prt:
         prt.print("compile the line extractor")
-        atom_names, line_extractor = merge_extractors(
+        _atom_names, line_extractor = merge_extractors(
             {
                 "video_hash",
                 # context

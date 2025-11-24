@@ -2,6 +2,7 @@
 
 """Perform decoding measures."""
 
+import contextlib
 import datetime
 import os
 import pathlib
@@ -59,7 +60,7 @@ def decode_and_store(
     env_id: int,
     vid: pathlib.Path,
     **kwargs,
-):
+) -> None:
     """Decode a video file and store the result in the database.
 
     Parameters
@@ -84,13 +85,11 @@ def decode_and_store(
         cursor = sql_database.cursor()
 
         # fill video table
-        try:
+        with contextlib.suppress(sqlite3.IntegrityError):
             cursor.execute(
                 "INSERT INTO t_vid_video (vid_id, vid_name) VALUES (?, ?)",
                 (kwargs["dec_vid_id"], vid.name),
             )
-        except sqlite3.IntegrityError:
-            pass
 
         # fill activity table
         activity = {

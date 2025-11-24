@@ -5,8 +5,8 @@
 import fractions
 import hashlib
 import itertools
-import pathlib
 import sqlite3
+from typing import TYPE_CHECKING
 
 import click
 import numpy as np
@@ -19,8 +19,11 @@ from mendevi.utils import compute_video_hash, get_pix_fmt, get_rate_video, get_r
 
 from .parse import PixelParamType, ResolutionParamType, parse_videos_database
 
+if TYPE_CHECKING:
+    import pathlib
 
-def _parse_args(prt: Printer, kwargs: dict):
+
+def _parse_args(prt: Printer, kwargs: dict) -> None:
     """Verification of the arguments."""
     # repeat
     assert "repeat" in kwargs, sorted(kwargs)
@@ -180,10 +183,11 @@ def _parse_args(prt: Printer, kwargs: dict):
     multiple=True,
     help="The ffmpeg filter to apply before encoding.",
 )
-def main(videos: tuple, database: str = None, **kwargs):
-    """Measures activity during encoding.
+def main(videos: tuple, database: str | None = None, **kwargs) -> None:
+    r"""Measures activity during encoding.
 
     \b
+
     Parameters
     ----------
     videos : tuple[pathlike]
@@ -275,7 +279,7 @@ def main(videos: tuple, database: str = None, **kwargs):
         values["pix_fmt"] = values["pix_fmt"] or get_pix_fmt(values["video"])
         values["resolution"] = values["resolution"] or get_resolution(values["video"])
         values["src_vid_id"] = kwargs["src_vid_id"][values["video"]]
-        key = (values["src_vid_id"],) + tuple(values[k] for k in keys)
+        key = (values["src_vid_id"], *tuple(values[k] for k in keys))
         if done.get(key, 0) > values["repeat"]:
             continue
         with Printer(f"Encode {i+1}/{kwargs["repeat"]*len(loops)}...", color="cyan") as prt:

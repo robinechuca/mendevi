@@ -45,8 +45,7 @@ def get_ffmpeg_version() -> str:
     ).stdout.decode()
     lines = out.split("\n")
     lines = [line for line in lines if line not in {"", "Exiting with exit code 0"}]
-    out = "\n".join(lines)
-    return out
+    return "\n".join(lines)
 
 
 def get_libx265_version() -> str:
@@ -73,25 +72,24 @@ def get_libx265_version() -> str:
 
     # version
     if (match := re.search(r"HEVC encoder version (?P<version>\S+)", out)) is None:
-        logging.warning("failed to find the libx265 version")
+        logging.getLogger(__name__).warning("failed to find the libx265 version")
         version = ""
     else:
         version = match["version"]
     # build
     if (match := re.search(r"build info (?P<build>.+)\n", out)) is None:
-        logging.warning("failed to find the libx265 build info")
+        logging.getLogger(__name__).warning("failed to find the libx265 build info")
         build = ""
     else:
         build = match["build"]
     # cpu
     if (match := re.search(r"using cpu capabilities: (?P<cpu>.+)\n", out)) is None:
-        logging.warning("failed to find the libx265 build info")
+        logging.getLogger(__name__).warning("failed to find the libx265 build info")
         cpu = ""
     else:
         cpu = match["cpu"]
 
-    out = f"{version}\n{build}\n{cpu}"
-    return out
+    return f"{version}\n{build}\n{cpu}"
 
 
 def get_libvpx_vp9_version() -> str:
@@ -114,7 +112,7 @@ def get_libvpx_vp9_version() -> str:
         check=False, capture_output=True,
     ).stderr.decode()
     if (match := re.search(r"\[libvpx-vp9 @ \w+\] (?P<version>\S+)", out)) is None:
-        logging.warning("failed to find the libvpx-vp9 version")
+        logging.getLogger(__name__).warning("failed to find the libvpx-vp9 version")
         return ""
     return match["version"]
 
@@ -142,19 +140,18 @@ def get_libsvtav1_version() -> str:
 
     # version
     if (match := re.search(r"SVT-AV1 Encoder Lib (?P<version>\S+)", out)) is None:
-        logging.warning("failed to find the libsvtav1 version")
+        logging.getLogger(__name__).warning("failed to find the libsvtav1 version")
         version = ""
     else:
         version = match["version"]
     # build
     if (match := re.search(r"SVT \[build\]\s*:\s*(?P<build>\S.*\S)\s*\n", out)) is None:
-        logging.warning("failed to find the libsvtav1 build info")
+        logging.getLogger(__name__).warning("failed to find the libsvtav1 build info")
         build = ""
     else:
         build = re.sub(r"\s+", " ", match["build"])
 
-    out = f"{version}\n{build}"
-    return out
+    return f"{version}\n{build}"
 
 
 def get_librav1e_version() -> str:
@@ -181,7 +178,7 @@ def get_librav1e_version() -> str:
             check=False, capture_output=True,
         ).stdout.decode().strip()
     except:
-        logging.warning("failed to find the librav1e version")
+        logging.getLogger(__name__).warning("failed to find the librav1e version")
         return ""
 
 
@@ -205,7 +202,7 @@ def get_vvc_version() -> str:
         check=False, capture_output=True,
     ).stderr.decode()
     if (match := re.search(r"libvvenc version: (?P<version>\S+)", out)) is None:
-        logging.warning("failed to find the vvc version")
+        logging.getLogger(__name__).warning("failed to find the vvc version")
         return ""
     return match["version"]
 
@@ -251,10 +248,9 @@ def get_pip_freeze() -> str:
     >>> print(get_pip_freeze())
 
     """
-    out = subprocess.run(
+    return subprocess.run(
         ["pip", "freeze"], check=False, capture_output=True,
     ).stdout.decode()
-    return out
 
 
 def get_lshw() -> str:
@@ -268,7 +264,7 @@ def get_lshw() -> str:
 
     """
     if os.geteuid() != 0:
-        logging.warning("you should run as super user to get more system info")
+        logging.getLogger(__name__).warning("you should run as super user to get more system info")
     try:
         out = subprocess.run(
             ["lshw", "-json"], check=False, capture_output=True,

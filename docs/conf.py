@@ -5,9 +5,7 @@
 
 # -- Path setup --------------------------------------------------------------
 import datetime
-import os
 import pathlib
-import shutil
 import sys
 
 root = pathlib.Path(__file__).resolve().parent.parent

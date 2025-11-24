@@ -36,8 +36,9 @@ def extract_names(expr: str) -> set[str]:
     try:
         nodes = list(ast.walk(ast.parse(expr, mode="exec")))
     except SyntaxError as err:
+        msg = f"the argument {expr!r} is not a valid python expression"
         raise SyntaxError(
-            f"the argument {expr!r} is not a valid python expression",
+            msg,
         ) from err
     reject = {
         n.id for n in nodes if isinstance(n, ast.Name) and isinstance(n.ctx, ast.Store | ast.Del)
@@ -47,8 +48,7 @@ def extract_names(expr: str) -> set[str]:
         for n_ in ast.walk(n.func) if isinstance(n_, ast.Name)
     }
     candidates = {n.id for n in nodes if isinstance(n, ast.Name)}
-    names = set(candidates - reject)  # set usefull for empty case
-    return names
+    return set(candidates - reject)  # set usefull for empty case
 
 
 def get_extractor(name: str, safe: bool = False) -> ExtractContext:
@@ -334,7 +334,8 @@ def get_extractor(name: str, safe: bool = False) -> ExtractContext:
         return extractor
     if safe:
         return ExtractContext(name, name, False)
-    raise KeyError(f"{name} is not recognised")
+    msg = f"{name} is not recognised"
+    raise KeyError(msg)
 
 
 def merge_extractors(

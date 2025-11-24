@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Provide simple tools."""
 
 import base64
@@ -12,6 +10,7 @@ import numbers
 import pathlib
 import re
 import typing
+from fractions import Fraction
 
 import cutcutcodec
 import tqdm
@@ -19,6 +18,7 @@ from cutcutcodec.core.io import VIDEO_SUFFIXES
 
 from mendevi.cst.profiles import PROFILES
 
+HASHSIZE = 16  # md5 has number of bytes
 PATHLIKE = str | bytes | pathlib.Path
 
 
@@ -68,7 +68,7 @@ def compute_video_hash(
             return video, signature_to_hash(match.group())
         if not (video := video.expanduser()).is_file():
             return video, None
-        with open(video, "rb") as raw:
+        with video.open("rb") as raw:
             return video, hashlib.file_digest(raw, "md5").digest()
 
     if isinstance(videos, list | tuple | set | frozenset):
@@ -86,7 +86,7 @@ def compute_video_hash(
 
 
 @functools.cache
-def get_pix_fmt(*args):
+def get_pix_fmt(*args: tuple) -> str:
     """Alias to cutcutcodec func."""
     return cutcutcodec.get_pix_fmt(*args)
 
@@ -111,13 +111,13 @@ def get_project_root() -> pathlib.Path:
 
 
 @functools.cache
-def get_rate_video(*args):
+def get_rate_video(*args: tuple) -> Fraction:
     """Alias to cutcutcodec func."""
     return cutcutcodec.get_rate_video(*args)
 
 
 @functools.cache
-def get_resolution(*args):
+def get_resolution(*args: tuple) -> tuple[int, int]:
     """Alias to cutcutcodec func."""
     return cutcutcodec.get_resolution(*args)
 
@@ -146,7 +146,7 @@ def hash_to_signature(checksum: bytes) -> str:
 
     """
     assert isinstance(checksum, bytes), checksum.__class__.__name__
-    assert len(checksum) == 16, len(checksum)
+    assert len(checksum) == HASHSIZE, len(checksum)
     return checksum.hex()
 
 
@@ -202,14 +202,14 @@ def unfold_video_files(
 
     """
     assert hasattr(paths, "__iter__"), paths.__class__.__name__
-    for path in paths:
-        path = pathlib.Path(path).expanduser()
+    for path_general in paths:
+        path = pathlib.Path(path_general).expanduser()
         if path.is_file():
             yield path
         elif path.is_dir():
             for root, _, files in path.walk():
-                for file in files:
-                    file = root / file
+                for file_name in files:
+                    file = root / file_name
                     if file.suffix.lower() in VIDEO_SUFFIXES:
                         yield file
         elif "*" in path.name and path.parent.is_dir():
@@ -220,4 +220,4 @@ def unfold_video_files(
                 pathlib.Path(*parts[:idx]).glob(pathlib.Path(*parts[idx:])),
             )
         else:
-            logging.warning("the path %s is not correct", path)
+            logging.getLogger(__name__).warning("the path %s is not correct", path)

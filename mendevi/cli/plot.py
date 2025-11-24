@@ -56,14 +56,14 @@ table : str, optional
 """
 
 
-def _parse_args(prt: Printer, kwargs: dict):
+def _parse_args(prt: Printer, kwargs: dict) -> None:
     """Verification of the arguments."""
     # x
     assert "x" in kwargs, sorted(kwargs)
     assert isinstance(kwargs["x"], tuple), kwargs["x"].__class__.__name__
     assert kwargs["x"], "you must provide the -x option"
     assert all(isinstance(x, str) and extract_names(x).issubset(LABELS) for x in kwargs["x"]), (
-        f"{set(lbl for ls in kwargs['x'] for lbl in extract_names(ls))-set(LABELS)} "
+        f"{ {lbl for ls in kwargs['x'] for lbl in extract_names(ls)}-set(LABELS)} "
         "are invalid names, "
         f"it has to be one of {LABELS}"
     )
@@ -74,14 +74,14 @@ def _parse_args(prt: Printer, kwargs: dict):
     assert isinstance(kwargs["y"], tuple), kwargs["y"].__class__.__name__
     assert kwargs["y"], "you must provide the -y option"
     assert all(isinstance(y, str) and extract_names(y).issubset(LABELS) for y in kwargs["y"]), (
-        f"{set(lbl for ls in kwargs['y'] for lbl in extract_names(ls))-set(LABELS)} "
+        f"{ {lbl for ls in kwargs['y'] for lbl in extract_names(ls)}-set(LABELS)} "
         "are invalid names, "
         f"it has to be one of {LABELS}"
     )
     prt.print(f"y         : {', '.join(kwargs['y'])}")
 
     # color
-    kwargs["color"] = kwargs.get("color", None)
+    kwargs["color"] = kwargs.get("color")
     if kwargs["color"] is not None:
         assert isinstance(kwargs["color"], str), kwargs["color"].__class__.__name__
         names = extract_names(kwargs["color"])
@@ -90,7 +90,7 @@ def _parse_args(prt: Printer, kwargs: dict):
         prt.print(f"color     : {kwargs['color']}")
 
     # marker
-    kwargs["marker"] = kwargs.get("marker", None)
+    kwargs["marker"] = kwargs.get("marker")
     if kwargs["marker"] is not None:
         assert isinstance(kwargs["marker"], str), kwargs["marker"].__class__.__name__
         names = extract_names(kwargs["marker"])
@@ -99,7 +99,7 @@ def _parse_args(prt: Printer, kwargs: dict):
         prt.print(f"marker    : {kwargs['marker']}")
 
     # error
-    kwargs["error"] = kwargs.get("error", None)
+    kwargs["error"] = kwargs.get("error")
     if kwargs["error"] is not None:
         assert isinstance(kwargs["error"], str), kwargs["error"].__class__.__name__
         names = extract_names(kwargs["error"])
@@ -108,7 +108,7 @@ def _parse_args(prt: Printer, kwargs: dict):
         prt.print(f"error     : {kwargs['error']}")
 
     # window
-    kwargs["window"] = kwargs.get("window", None)
+    kwargs["window"] = kwargs.get("window")
     if kwargs["window"] is not None:
         match (  # preference for y axis
             kwargs.get("window_x") is None,
@@ -132,7 +132,7 @@ def _parse_args(prt: Printer, kwargs: dict):
                 kwargs["window_y"] = kwargs["window"]
 
     # window_x
-    kwargs["window_x"] = kwargs.get("window_x", None)
+    kwargs["window_x"] = kwargs.get("window_x")
     if kwargs["window_x"] is not None:
         assert isinstance(kwargs["window_x"], str), kwargs["window_x"].__class__.__name__
         names = extract_names(kwargs["window_x"])
@@ -141,7 +141,7 @@ def _parse_args(prt: Printer, kwargs: dict):
         prt.print(f"window x  : {kwargs['window_x']}")
 
     # window_y
-    kwargs["window_y"] = kwargs.get("window_y", None)
+    kwargs["window_y"] = kwargs.get("window_y")
     if kwargs["window_y"] is not None:
         assert isinstance(kwargs["window_y"], str), kwargs["window_y"].__class__.__name__
         names = extract_names(kwargs["window_y"])
@@ -150,7 +150,7 @@ def _parse_args(prt: Printer, kwargs: dict):
         prt.print(f"window y  : {kwargs['window_y']}")
 
     # filter
-    kwargs["filter"] = kwargs.get("filter", None)
+    kwargs["filter"] = kwargs.get("filter")
     if kwargs["filter"] is not None:
         assert isinstance(kwargs["filter"], str), kwargs["filter"].__class__.__name__
         names = extract_names(kwargs["filter"])
@@ -159,7 +159,7 @@ def _parse_args(prt: Printer, kwargs: dict):
         prt.print(f"filter    : {kwargs['filter']}")
 
     # table
-    kwargs["table"] = kwargs.get("table", None)
+    kwargs["table"] = kwargs.get("table")
     if kwargs["table"] is not None:
         assert isinstance(kwargs["table"], str), kwargs["table"].__class__.__name__
         prt.print(f"table     : {kwargs['table']}")
@@ -224,7 +224,7 @@ def _parse_args(prt: Printer, kwargs: dict):
     type=str,
     help="Form the SQL query around this table.",
 )
-def main(database: str, **kwargs):
+def main(database: str, **kwargs) -> None:
     """See docstring at DOCSTRING."""
     # parse args
     with Printer("Parse configuration...") as prt:

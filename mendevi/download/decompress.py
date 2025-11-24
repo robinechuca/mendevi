@@ -20,7 +20,7 @@ def _get_size(compressed_file: pathlib.Path) -> int:
             ["xz", "--robot", "--list", str(compressed_file)], check=True, capture_output=True,
         )
     except FileNotFoundError as err:
-        logging.warning("please install xz %s", err)
+        logging.getLogger(__name__).warning("please install xz %s", err)
     sizes = re.findall(br"\d+", out.stdout)
     return max(map(int, sizes), default=0)
 

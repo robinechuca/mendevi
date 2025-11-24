@@ -13,7 +13,7 @@ from mendevi.utils import get_project_root
 @click.command()
 @click.option("-c", "--recompile", is_flag=True, help="Force to recompile the documentation.")
 @click.option("--no-open", is_flag=True, help="Do not open the documentation in the browser.")
-def main(recompile: bool = False, no_open: bool = False):
+def main(recompile: bool = False, no_open: bool = False) -> None:
     """Compile and show the documentation."""
     assert isinstance(recompile, bool), recompile.__class__.__name__
     assert isinstance(no_open, bool), no_open.__class__.__name__

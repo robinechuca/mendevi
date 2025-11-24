@@ -70,5 +70,5 @@ Next, perform the measurements
 .. code:: shell
 
     mendevi encode reference* -r 10 -c libx264 -c libsvtav1 -e fast -e medium -m cbr -m vbr -n 2
-    mendevi probe reference* sample* --no-lpips-alex --no-lpips-vgg --no-uvq --no-vmaf
+    mendevi probe reference* sample* --no-vmaf
     mendevi decode sample* -r 10

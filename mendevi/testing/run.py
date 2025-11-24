@@ -1,16 +1,16 @@
-#!/usr/bin/env python3
-
 """Executes all the tests via the ``pytest`` module."""
 
 try:
     import pytest
 except ImportError as err:
-    raise ImportError("pytest paquage required (uv pip install mendevi[test])") from err
+    msg = "pytest paquage required (uv pip install mendevi[test])"
+    raise ImportError(msg) from err
 
 from mendevi.utils import get_project_root
 
 
 def run_tests(
+    *,
     debug: bool = False,
     skip_install: bool = False,
     skip_coding_style: bool = False,
@@ -25,7 +25,7 @@ def run_tests(
         print("Checking if the dependencies are corrected...")
         path = str(root / "testing" / "install.py")
         if (
-            code := pytest.main(debug_options + ["--verbose", path])
+            code := pytest.main([*debug_options, "--verbose", path])
         ):
             return int(code)
 
@@ -34,7 +34,8 @@ def run_tests(
         print("Checking if the coding style respects the PEP...")
         path = str(root / "testing" / "coding_style.py")
         if (
-            code := pytest.main(debug_options + [
+            code := pytest.main([
+                *debug_options,
                 "--verbose", "--exitfirst", "--capture=no", "--tb=no", "-rN", path,  # no rapport
             ])
         ):
@@ -51,12 +52,12 @@ def run_tests(
             ),
         ),
     )
-    if (code := pytest.main(debug_options + ["-m", "not slow", "--doctest-modules"] + paths)):
+    if (code := pytest.main([*debug_options, "-m", "not slow", "--doctest-modules", *paths])):
         return int(code)
 
     # slow tests
     if not skip_slow:
         print("Runing the slow unit tests...")
-        if (code := pytest.main(debug_options + ["-m", "slow", "--verbose"] + paths)):
+        if (code := pytest.main([*debug_options, "-m", "slow", "--verbose", *paths])):
             return int(code)
     return 0

@@ -14,7 +14,7 @@ from mendevi.utils import compute_video_hash
 from .parse import parse_videos_database
 
 
-def _parse_args(prt: Printer, kwargs: dict):
+def _parse_args(prt: Printer, kwargs: dict) -> None:
     """Verification of the arguments."""
     kwargs["ref"] = kwargs.get("ref", ())
     assert isinstance(kwargs["ref"], tuple), kwargs["ref"]
@@ -66,10 +66,11 @@ def _parse_args(prt: Printer, kwargs: dict):
 @click.option("--rms-time-diff/--no-rms-time-diff", default=True, help="Compute the C_td or not.")
 @click.option("--uvq/--no-uvq", default=False, help="Compute the UVQ or not.")
 @click.option("--vmaf/--no-vmaf", default=True, help="Compute the VMAF or not.")
-def main(videos: tuple[str], database: str = None, **kwargs):
-    """Measures the video properties.
+def main(videos: tuple[str], database: str | None = None, **kwargs) -> None:
+    r"""Measures the video properties.
 
     \b
+
     Parameters
     ----------
     videos : tuple[pathlike], optional

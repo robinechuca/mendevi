@@ -48,7 +48,8 @@ def get_torrent(name: str) -> pathlib.Path:
         prt.print("get url")
         online = probe_online_torrent()
         if name not in online:
-            raise KeyError(f"{name!r} not in {', '.join(sorted(set(local) | set(online)))}")
+            msg = f"{name!r} not in {', '.join(sorted(set(local) | set(online)))}"
+            raise KeyError(msg)
 
         # download torrent file
         prt.print(f"download {online[name]}")
@@ -84,11 +85,10 @@ def probe_online_torrent() -> dict[str, str]:
     req = requests.get(url, timeout=60)
     req.raise_for_status()
     all_files = req.json()
-    torrents = {
+    return {
         f["name"]: f"https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/{f['path']}"
         for f in all_files if f["name"].endswith(".torrent")
     }
-    return torrents
 
 
 def probe_local_torrent() -> set[pathlib.Path]:

@@ -111,7 +111,7 @@ JOIN: dict[str: dict[str, str]] = {  # join = JOIN[destination_table][source_tab
 class SqlLinker:
     """Allow you to add an SQL query to an extractor."""
 
-    def __init__(self, *select: str):
+    def __init__(self, *select: str) -> None:
         """Initialise the linker.
 
         Parameters
@@ -349,8 +349,7 @@ def extract_frames(raw: dict[str]) -> list[dict]:
     """
     if (frames := raw["vid_frames"]) is None:
         return None
-    frames = orjson.loads(frames)
-    return frames
+    return orjson.loads(frames)
 
 
 @verif
@@ -567,8 +566,7 @@ def extract_reference_video_name(raw: dict[str]) -> str:
     if (vid_name := raw["ref_vid_name"]) is None:
         return None
     assert isinstance(vid_name, str), vid_name.__class__.__name__
-    vid_name = re.sub(fr"^reference_(\w+)_(?:{'|'.join(PROFILES)})\.\w+$", r"\1", vid_name)
-    return vid_name
+    return re.sub(fr"^reference_(\w+)_(?:{'|'.join(PROFILES)})\.\w+$", r"\1", vid_name)
 
 
 @verif
@@ -699,8 +697,7 @@ def extract_video_name(raw: dict[str]) -> str:
     if (vid_name := raw["vid_name"]) is None:
         return None
     assert isinstance(vid_name, str), vid_name.__class__.__name__
-    vid_name = pathlib.Path(vid_name).name
-    return vid_name
+    return pathlib.Path(vid_name).name
 
 
 @verif

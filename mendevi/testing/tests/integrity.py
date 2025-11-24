@@ -1,8 +1,6 @@
-#!/usr/bin/env python3
-
 """Benchmark."""
 
-import os
+import pathlib
 import sqlite3
 import tempfile
 import time
@@ -12,7 +10,7 @@ import pytest
 from mendevi.database.create import create_database
 
 
-def test_unicity_activity_from_env():
+def test_unicity_activity_from_env() -> None:
     """Ensure it raise and exception."""
     create_database(database := tempfile.mktemp(suffix=".sqlite"))
 
@@ -104,4 +102,4 @@ def test_unicity_activity_from_env():
             ("ffmpeg 0.0.3", "my_name", 8, 1024),
         )
 
-    os.remove(database)
+    pathlib.Path(database).unlink()

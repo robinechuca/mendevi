@@ -4,8 +4,8 @@
 
 import hashlib
 import itertools
-import pathlib
 import sqlite3
+from typing import TYPE_CHECKING
 
 import click
 from context_verbose import Printer
@@ -16,8 +16,11 @@ from mendevi.utils import compute_video_hash, get_resolution
 
 from .parse import ResolutionParamType, parse_videos_database
 
+if TYPE_CHECKING:
+    import pathlib
 
-def _parse_args(prt: Printer, kwargs: dict):
+
+def _parse_args(prt: Printer, kwargs: dict) -> None:
     """Verification of the arguments."""
     # repeat
     assert "repeat" in kwargs, sorted(kwargs)
@@ -68,10 +71,11 @@ def _parse_args(prt: Printer, kwargs: dict):
     multiple=True,
     help="The ffmpeg filter to apply on fly.",
 )
-def main(videos: tuple[str], database: str = None, **kwargs):
-    """Measures activity during decoding.
+def main(videos: tuple[str], database: str | None = None, **kwargs) -> None:
+    r"""Measures activity during decoding.
 
     \b
+
     Parameters
     ----------
     videos : tuple[pathlike], optional

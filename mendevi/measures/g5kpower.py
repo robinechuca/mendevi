@@ -15,18 +15,18 @@ import requests
 class G5kPower(threading.Thread):
     """Asynchronous consumption request on g5k."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(daemon=True)
         self.args = args
         self.kwargs = kwargs
         self.power = None
 
-    def run(self):
+    def run(self) -> None:
         """Perform the request."""
         try:
             self.power = g5kpower(*self.args, **self.kwargs)
         except ValueError as err:
-            logging.warning(err)
+            logging.getLogger(__name__).warning(err)
 
     def get(self):
         """Retrive the result."""
@@ -93,7 +93,8 @@ def g5kpower(
             r"^(?P<node>[a-z0-9_-]+)\.(?P<site>[a-z0-9_-]+)", hostname, re.IGNORECASE,
         )
     ) is None:
-        raise ValueError(f"the hostname {hostname} is not grid5000 formated")
+        msg = f"the hostname {hostname} is not grid5000 formated"
+        raise ValueError(msg)
 
     # grid5000 api request
     url = (
@@ -106,17 +107,19 @@ def g5kpower(
     try:
         req = requests.get(url, auth=auth, verify=True, timeout=60)
     except requests.exceptions.SSLError as err:
-        logging.warning(err)
+        logging.getLogger(__name__).warning(err)
         req = requests.get(url, auth=auth, verify=False, timeout=60)
     if req.status_code != 200:
-        raise ValueError(f"the request {url} failed", req)
+        msg = f"the request {url} failed"
+        raise ValueError(msg, req)
     if not (req := req.json()):
-        raise ValueError(f"the request {url} gives an empty result")
+        msg = f"the request {url} gives an empty result"
+        raise ValueError(msg)
 
     # parse result
     req = {datetime.datetime.fromisoformat(d["timestamp"]).timestamp(): d["value"] for d in req}
     req = {t: v for t, v in req.items() if start <= t <= start + duration}
-    times, powers = zip(*req.items())
+    times, powers = zip(*req.items(), strict=False)
     times, powers = np.array(times, dtype=np.float64), np.array(powers, dtype=np.float64)
 
     # pad for accurate boundaries

@@ -17,7 +17,7 @@ from mendevi.database.serialize import list_to_binary
 from mendevi.utils import compute_video_hash
 
 
-def _fill_vid_table(database: pathlib.Path, vid_id: bytes, video: pathlib.Path, **kwargs):
+def _fill_vid_table(database: pathlib.Path, vid_id: bytes, video: pathlib.Path, **kwargs) -> None:
     """Complete the table t_vid_video."""
     # get actual informations
     with sqlite3.connect(database) as sql_database:
@@ -67,7 +67,7 @@ def _fill_vid_table(database: pathlib.Path, vid_id: bytes, video: pathlib.Path, 
                 case "vid_frames":
                     header, info = cutcutcodec.core.analysis.ffprobe.get_slices_metadata(video)
                     header, info = header[0], info[0]
-                    frames = [dict(zip(header, line)) for line in info.tolist()]
+                    frames = [dict(zip(header, line, strict=False)) for line in info.tolist()]
                     prop["vid_frames"] = orjson.dumps(
                         frames, option=orjson.OPT_INDENT_2|orjson.OPT_SORT_KEYS,
                     ).decode()
@@ -138,7 +138,7 @@ def _fill_met_table(
     dis_id: bytes,
     dis_path: pathlib.Path,
     **kwargs,
-):
+) -> None:
     """Complete the table t_met_metric."""
     # get actual informations
     with sqlite3.connect(database) as sql_database:
@@ -151,13 +151,13 @@ def _fill_met_table(
     metrics = {} if metrics is None else dict(metrics)
 
     # missing fields
-    fields = set([
+    fields = {
         *(("met_lpips_alex",) if kwargs["lpips_alex"] else ()),
         *(("met_lpips_vgg",) if kwargs["lpips_vgg"] else ()),
         *(("met_psnr",) if kwargs["psnr"] else ()),
         *(("met_ssim",) if kwargs["ssim"] else ()),
         *(("met_vmaf",) if kwargs["vmaf"] else ()),
-    ])
+    }
     fields -= {k for k, v in metrics.items() if v is not None}
     if not fields:
         return
@@ -200,7 +200,7 @@ def _fill_met_table(
         )
 
 
-def probe_and_store(database: pathlib.Path, video: pathlib.Path, **kwargs):
+def probe_and_store(database: pathlib.Path, video: pathlib.Path, **kwargs) -> None:
     """Measure the properties of the video.
 
     Parameters
@@ -236,7 +236,7 @@ def probe_and_store(database: pathlib.Path, video: pathlib.Path, **kwargs):
             if (ref := database.with_name(ref_name)).is_file() or (ref := video.with_name(ref_name)).is_file():
                 references[ref] = ref_id
             else:
-                logging.info("failed to find the reference video %s", ref)
+                logging.getLogger(__name__).info("failed to find the reference video %s", ref)
     references = {ref: ref_id for ref, ref_id in references.items() if ref_id != vid_id}
 
     # perform the comparative metrics

@@ -24,7 +24,7 @@ class Usage(threading.Thread):
 
     """
 
-    def __init__(self, sleep: numbers.Real = 50e-3):
+    def __init__(self, sleep: numbers.Real = 50e-3) -> None:
         """Initialize the usage context.
 
         Parameters
@@ -42,7 +42,7 @@ class Usage(threading.Thread):
         self.sleep = float(sleep)
         self.res: dict = {"dt": [], "pcu": None, "cpus": [], "ram": []}
 
-    def run(self):
+    def run(self) -> None:
         """Perform the measures."""
         while not self._stop:
             t_init = time.time()

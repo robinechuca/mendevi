@@ -31,7 +31,7 @@ class Activity(threading.Thread):
 
     """
 
-    def __init__(self, sleep: numbers.Real = 50e-3):
+    def __init__(self, sleep: numbers.Real = 50e-3) -> None:
         """Init the perf context.
 
         Parameters
@@ -52,7 +52,7 @@ class Activity(threading.Thread):
         self.sleep = float(sleep)
         self.res: dict = {}
 
-    def run(self):
+    def run(self) -> None:
         """Perform the measures."""
         self.res["start"] = time.time()
         with (

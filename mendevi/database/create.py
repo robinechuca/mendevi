@@ -13,7 +13,7 @@ ENV_UNIQUE = [
 ]
 
 
-def create_database(filename: str | bytes | pathlib.Path):
+def create_database(filename: str | bytes | pathlib.Path) -> None:
     """Create a new SQL database to store all video informations.
 
     Parameters

@@ -14,7 +14,7 @@ import pynvml  # uv pip install nvidia-ml-py
 try:
     pynvml.nvmlInit()
 except pynvml.NVMLError as err:
-    logging.warning(err)
+    logging.getLogger(__name__).warning(err)
     GPUS = 0
 else:
     GPUS: int = pynvml.nvmlDeviceGetCount()
@@ -46,7 +46,7 @@ class UsageGPU(threading.Thread):
 
     """
 
-    def __init__(self, sleep: numbers.Real = 50e-3):
+    def __init__(self, sleep: numbers.Real = 50e-3) -> None:
         """Initialize the usage context.
 
         Parameters
@@ -71,7 +71,7 @@ class UsageGPU(threading.Thread):
             "powers": [],
         } if GPUS else None
 
-    def run(self):
+    def run(self) -> None:
         """Perform the measures."""
         while GPUS and not self._stop:
             t_init = time.time()
@@ -106,6 +106,6 @@ class UsageGPU(threading.Thread):
 
             # compute total energy
             self.res["energy"] = sum(
-                sum(ps) * dt for ps, dt in zip(self.res["powers"], self.res["dt"])
+                sum(ps) * dt for ps, dt in zip(self.res["powers"], self.res["dt"], strict=False)
             )
             self.res["power"] = self.res["energy"] / sum(self.res["dt"])

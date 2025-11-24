@@ -35,7 +35,7 @@ class Model(abc.ABC):
 
     """
 
-    def __init__(self, title: str | None = None, **kwargs):
+    def __init__(self, title: str | None = None, **kwargs) -> None:
         """Initialise the model.
 
         Parameters
@@ -90,7 +90,7 @@ class Model(abc.ABC):
         assert isinstance(sources, str), sources.__class__.__name__
         self._sources = sources
 
-    def _fit(self, values: dict[str]):
+    def _fit(self, values: dict[str]) -> typing.Never:
         """Perform regression on parameters ``self.parameters``."""
         raise NotImplementedError
 
@@ -143,9 +143,10 @@ class Model(abc.ABC):
             if query is None:
                 select = {s for lbl in atom_names for s in get_extractor(lbl).func.select}
                 if len(queries := SqlLinker(*select).sql) == 0:
-                    raise RuntimeError("fail to create the SQL query, please provide it yourself")
+                    msg = "fail to create the SQL query, please provide it yourself"
+                    raise RuntimeError(msg)
                 if len(queries) > 1:
-                    logging.warning(
+                    logging.getLogger(__name__).warning(
                         "several request founded %s, please select it yourself", queries,
                     )
                 query = queries.pop(0)
@@ -184,11 +185,11 @@ class Model(abc.ABC):
         return self._parameters
 
     @parameters.setter
-    def parameters(self, new_params: torch.Tensor):
+    def parameters(self, new_params: torch.Tensor) -> None:
         """Update the parameters."""
         if self._parameters is not None:
             if new_params.__class__ != self._parameters.__class__:
-                logging.warning("chage the type of parameters")
+                logging.getLogger(__name__).warning("chage the type of parameters")
         self._parameters = new_params
 
     def predict(self, *input_args, **input_kwargs) -> dict[str]:
@@ -211,16 +212,21 @@ class Model(abc.ABC):
             values: dict[str] = {}
             for i, arg in enumerate(input_args):
                 if i == len(self._input_labels):
-                    raise ValueError(
+                    msg = (
                         f"only {len(self._input)} arguments expeted {self._input_labels}, "
-                        f"{input_args} given",
+                        f"{input_args} given"
+                    )
+                    raise ValueError(
+                        msg,
                     )
                 values[self._input_labels[i]] = arg
             for name, arg in input_kwargs.items():
                 if name in values:
-                    raise ValueError(f"argument {name} given twice")
+                    msg = f"argument {name} given twice"
+                    raise ValueError(msg)
                 if name not in self._input:
-                    raise ValueError(f"only {self._input_labels} arguments excpected, not {name}")
+                    msg = f"only {self._input_labels} arguments excpected, not {name}"
+                    raise ValueError(msg)
                 values[name] = arg
 
             # cast args

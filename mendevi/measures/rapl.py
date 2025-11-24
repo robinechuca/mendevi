@@ -27,7 +27,7 @@ class RAPL:
 
     """
 
-    def __init__(self, sleep: numbers.Real = 50e-3, no_fail: bool = False):
+    def __init__(self, sleep: numbers.Real = 50e-3, no_fail: bool = False) -> None:
         """Init the perf context.
 
         Parameters
@@ -60,12 +60,12 @@ class RAPL:
         self.time_bounds = [time.time(), None, None]  # start proc, measure, stop
         if PATTERN.search(self.lines[0]) is None:
             if os.geteuid() != 0:  # if not root
-                logging.error("try with 'sudo %s'", sys.executable)
-                logging.error("or give rights with sudo sysctl -w kernel.perf_event_paranoid=0")
+                logging.getLogger(__name__).error("try with 'sudo %s'", sys.executable)
+                logging.getLogger(__name__).error("or give rights with sudo sysctl -w kernel.perf_event_paranoid=0")
             self.lines.extend(self.process.stderr.readlines())
             if not no_fail:
                 raise RuntimeError(b"".join(self.lines).decode())
-            logging.error(b"".join(self.lines).decode())
+            logging.getLogger(__name__).error(b"".join(self.lines).decode())
             self.res = None
 
     def __enter__(self) -> dict:
@@ -101,13 +101,13 @@ class RAPL:
             *(
                 (float(p["time"]), float(p["energy"].replace(b",", b".")))
                 for p in values if p is not None
-            ),
+            ), strict=False,
         )
 
         # convert energy in power
         times_end = [t - times_end[0] + self.time_bounds[0] for t in times_end]
-        times_start = [times_end[0] - self.sleep/1000] + times_end[:-1]
-        powers = [e / (te - ts) for e, ts, te in zip(energy, times_start, times_end)]
+        times_start = [times_end[0] - self.sleep / 1000, *times_end[:-1]]
+        powers = [e / (te - ts) for e, ts, te in zip(energy, times_start, times_end, strict=False)]
 
         # pad and crop
         while times_end[-1] < self.time_bounds[2]:  # pad
@@ -121,7 +121,7 @@ class RAPL:
         times_start[0], times_end[-1] = self.time_bounds[1], self.time_bounds[2]
 
         # compute total energy
-        self.res["dt"] = [te - ts for ts, te in zip(times_start, times_end)]
-        self.res["energy"] = sum(p * dt for p, dt in zip(powers, self.res["dt"]))
+        self.res["dt"] = [te - ts for ts, te in zip(times_start, times_end, strict=False)]
+        self.res["energy"] = sum(p * dt for p, dt in zip(powers, self.res["dt"], strict=False))
         self.res["power"] = self.res["energy"] / (times_end[-1] - times_start[0])
         self.res["powers"] = powers

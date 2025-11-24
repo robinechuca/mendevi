@@ -149,9 +149,12 @@ libsvtav1
     make install
 
     # librav1e for encoding
-    sudo apt install rustup && rustup default stable
-    # curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-    # source ~/.cargo/env
+    if apt-cache search --names-only "^rustup$" | grep -q "^rustup "; then
+        sudo apt install -y rustup && rustup default stable
+    else
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+        source "$HOME/.cargo/env"
+    fi
     cd ~/ffmpeg_sources
     git -C rav1e pull 2> /dev/null || git clone --depth 1 https://github.com/xiph/rav1e.git
     cd rav1e
@@ -179,6 +182,7 @@ GPU \*_nvenc \*_nvdec
 
 Requires a NVIDIA GPU and CUDA to be installed (see :ref:`install_cuda`).
 The code comes from the `ffmpeg guide <https://trac.ffmpeg.org/wiki/HWAccelIntro#NVENC>`_.
+If it fails, `this tutorial <https://www.cyberciti.biz/faq/how-to-install-ffmpeg-with-nvidia-gpu-acceleration-on-linux/>`_ may help you.
 
 .. code:: shell
 
