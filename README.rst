@@ -67,7 +67,6 @@ Example of rate distortion curve:
 
     mendevi plot mendevi.db -x bitrate -y psnr -y ssim -wx profile -c encoder
 
-
 .. image:: https://mendevi.readthedocs.io/latest/_images/rate_distortion.svg
     :alt: Result plot of rate distortion
 

@@ -99,5 +99,5 @@ def main(videos: tuple[str], database: str | None = None, **kwargs: dict) -> Non
     random.shuffle(videos)  # heuristic to improve efficiency of multiple acces
     for i, video in enumerate(sorted(kwargs["ref"]) + videos):
         with Printer(f"Probe {i+1}/{len(videos)+len(kwargs['ref'])}...", color="cyan") as prt:
-            probe_and_store(database, video, **kwargs: dict)
+            probe_and_store(database, video, **kwargs)
             prt.print_time()

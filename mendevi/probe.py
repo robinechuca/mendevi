@@ -169,7 +169,7 @@ def _fill_met_table(
         f"Compute metrics between {ref_path.name} and {dis_path.name}...", color="green",
     ) as prt:
         new_metrics = cutcutcodec.video_metrics(
-            ref_path, dis_path,
+            dis_path, ref_path,
             lpips_alex=kwargs["lpips_alex"],
             lpips_vgg=kwargs["lpips_vgg"],
             psnr=kwargs["psnr"],
