@@ -17,9 +17,9 @@ project = "mendevi"
 author = __author__
 version = __version__
 release = version
-now = datetime.datetime.now()
+now = datetime.datetime.now(tz=datetime.UTC)
 today = f"{now.year}-{now.month:02}-{now.day:02} {now.hour:02}H{now.minute:02}"
-copyright = f"2024-{now.year}, {author}, GPL"
+copyright = f"2024-{now.year}, {author}, GPLv3"
 source_suffix = ".rst"
 master_doc = "index"
 language = "en"

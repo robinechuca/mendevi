@@ -94,11 +94,12 @@ libsvtav1
 
     # librav1e for encoding
     if apt-cache search --names-only "^rustup$" | grep -q "^rustup "; then
-        sudo apt install -y rustup && rustup default stable
+        sudo apt install rustup
     else
         curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
         source "$HOME/.cargo/env"
     fi
+    rustup default stable
     cd ~/ffmpeg_sources
     git -C rav1e pull 2> /dev/null || git clone --depth 1 https://github.com/xiph/rav1e.git
     cd rav1e

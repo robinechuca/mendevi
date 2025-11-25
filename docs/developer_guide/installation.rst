@@ -416,19 +416,6 @@ If you have a NVIDIA GPU, please install CUDA then follow the `PyTorch installat
                 echo "sudo apt remove --purge 'nvidia-*' cuda* && sudo apt update && sudo apt autoremove"
                 echo "then rerun the previous code block"
             fi
-            
-            .. # install nvcc
-            .. if ! command -v nvcc &> /dev/null; then
-            ..     sudo apt install nvidia-cuda-dev nvidia-cuda-toolkit nvtop  # never cuda-toolkit
-            ..     # add the toolkit into the path
-            ..     if ! grep -q "/usr/local/cuda/bin" ~/.bashrc; then
-            ..         echo 'export PATH=/usr/local/cuda/bin:$PATH' >> ~/.bashrc
-            ..         echo 'export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH' >> ~/.bashrc
-            ..     fi
-            ..     source ~/.bashrc
-            .. else
-            ..     echo "the cuda context is installed"
-            .. fi
 
 .. tab:: FreeBSD
 

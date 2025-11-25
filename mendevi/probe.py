@@ -56,49 +56,7 @@ def _fill_vid_table(
     with Printer(f"Get properties of {video.name}...", color="green") as prt:
         # basic fields
         for field in fields:
-            match field:
-                case "vid_duration":
-                    prop["vid_duration"] = float(cutcutcodec.get_duration_video(video))
-                    prt.print(f"{'duration':<{pad}}: ", end="")
-                    prt.print_time(prop["vid_duration"], print_headers=False)
-                case "vid_fps":
-                    prop["vid_fps"] = float(cutcutcodec.get_rate_video(video))
-                    prt.print(f"{'fps':<{pad}}: {prop['vid_fps']:.2f} Hz")
-                case "vid_frames":
-                    header, info = cutcutcodec.core.analysis.ffprobe.get_slices_metadata(video)
-                    header, info = header[0], info[0]
-                    frames = [dict(zip(header, line, strict=False)) for line in info.tolist()]
-                    prop["vid_frames"] = orjson.dumps(
-                        frames, option=orjson.OPT_INDENT_2|orjson.OPT_SORT_KEYS,
-                    ).decode()
-                    prt.print(f"{'frames':<{pad}}: {len(frames)} frames")
-                case "vid_height":
-                    prop["vid_height"] = cutcutcodec.get_resolution(video)[0]
-                    prt.print(f"{'height':<{pad}}: {prop['vid_height']} pixels")
-                case "vid_width":
-                    prop["vid_width"] = cutcutcodec.get_resolution(video)[1]
-                    prt.print(f"{'width':<{pad}}: {prop['vid_width']} pixels")
-                case "vid_pix_fmt":
-                    prop["vid_pix_fmt"] = cutcutcodec.get_pix_fmt(video)
-                    prt.print(f"{'pix fmt':<{pad}}: {prop['vid_pix_fmt']}")
-                case "vid_range":
-                    prop["vid_range"] = cutcutcodec.get_range(video)
-                    prt.print(f"{'range':<{pad}}: {prop['vid_range']}")
-                case "vid_size":
-                    prop["vid_size"] = video.stat().st_size
-                    prt.print(f"{'size':<{pad}}: {prop['vid_size']*1e-6:.2f} MB")
-                case "vid_name":
-                    prop["vid_name"] = video.name
-                    prt.print(f"{'name':<{pad}}: {prop['vid_name']}")
-                case "vid_eotf":
-                    prop["vid_eotf"] = cutcutcodec.get_colorspace(video).transfer
-                    prt.print(f"{'eotf':<{pad}}: {prop['vid_eotf']}")
-                case "vid_gamut":
-                    prop["vid_gamut"] = cutcutcodec.get_colorspace(video).primaries
-                    prt.print(f"{'gamut':<{pad}}: {prop['vid_gamut']}")
-                case "vid_codec":
-                    prop["vid_codec"] = cutcutcodec.get_codec_video(video)
-                    prt.print(f"{'codec':<{pad}}: {prop['vid_codec']}")
+            prop["field"] = _fill_vid_table_prop(field, prt, pad, video)
 
         # metric fields
         fields = set(fields)
@@ -129,6 +87,49 @@ def _fill_vid_table(
             ),
             [prop[k] for k in fields] + [vid_id],
         )
+
+
+def _fill_vid_table_prop(field: str, prt: Printer, pad: int, video: pathlib.Path) -> object:
+    """Help _fill_vid_table."""
+    prop = None
+    match field:
+        case "vid_duration":
+            prop = float(cutcutcodec.get_duration_video(video))
+            prt.print(f"{'duration':<{pad}}: ", end="")
+            prt.print_time(prop, print_headers=False)
+        case "vid_fps":
+            prop = float(cutcutcodec.get_rate_video(video))
+            prt.print(f"{'fps':<{pad}}: {prop:.2f} Hz")
+        case "vid_frames":
+            header, info = cutcutcodec.core.analysis.ffprobe.get_slices_metadata(video)
+            header, info = header[0], info[0]
+            frames = [dict(zip(header, line, strict=False)) for line in info.tolist()]
+            prop = orjson.dumps(
+                frames, option=orjson.OPT_INDENT_2|orjson.OPT_SORT_KEYS,
+            ).decode()
+            prt.print(f"{'frames':<{pad}}: {len(frames)} frames")
+        case "vid_height":
+            prop = cutcutcodec.get_resolution(video)[0]
+            prt.print(f"{'height':<{pad}}: {prop} pixels")
+        case "vid_width":
+            prop = cutcutcodec.get_resolution(video)[1]
+            prt.print(f"{'width':<{pad}}: {prop} pixels")
+        case "vid_size":
+            prop = video.stat().st_size
+            prt.print(f"{'size':<{pad}}: {prop*1e-6:.2f} MB")
+        case "vid_pix_fmt" | "vid_range" | "vid_name" | "vid_eotf" | "vid_gamut" | "vid_codec":
+            prop = {
+                "vid_pix_fmt": cutcutcodec.get_pix_fmt,
+                "vid_range": cutcutcodec.get_range,
+                "vid_name": lambda p: p.stat().st_size,
+                "vid_eotf": lambda p: cutcutcodec.get_colorspace(p).transfer,
+                "vid_gamut": lambda p: cutcutcodec.get_colorspace(p).primaries,
+                "vid_codec": cutcutcodec.get_codec_video,
+            }[field](video)
+            prt.print(f"{' '.join(field.split('_')[1:]):<{pad}}: {prop}")
+        case _:
+            logging.getLogger(__name__).warning("field %s not recognised, skipped", field)
+    return prop
 
 
 def _fill_met_table(
