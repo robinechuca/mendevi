@@ -71,13 +71,11 @@ Example of rate distortion curve:
 .. image:: https://mendevi.readthedocs.io/latest/_images/rate_distortion.svg
     :alt: Result plot of rate distortion
 
-
 Example of energy per encoder:
 
 .. code:: shell
 
     mendevi plot mendevi.db -x quality -y energy -wx profile -wy mode -c encoder -m effort
-
 
 .. image:: https://mendevi.readthedocs.io/latest/_images/energy.svg
     :alt: Result plot of encoding energy

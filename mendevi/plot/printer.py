@@ -29,11 +29,11 @@ def printer(**kwargs: dict) -> str:
     code: list[str] = []
     code.extend(print_header())
     code.extend(print_import())
-    code.extend(print_cst(**kwargs: dict))
+    code.extend(print_cst(**kwargs))
     code.extend(print_mean_std())
-    code.extend(print_read_sql(**kwargs: dict))
-    code.extend(print_fill_axe(**kwargs: dict))
-    code.extend(print_main(**kwargs: dict))
+    code.extend(print_read_sql(**kwargs))
+    code.extend(print_fill_axe(**kwargs))
+    code.extend(print_main(**kwargs))
     code.extend(print_entry())
     code = "\n".join(code)
 
@@ -149,7 +149,7 @@ def print_fill_axe(**kwargs: dict) -> list[str]:
         case (True, True):  # no color, no marker
             code.extend([
                 "    x_data, y_data = values[xlab], values[ylab]",
-                *(f"    {line}" for line in print_error(**kwargs: dict)),
+                *(f"    {line}" for line in print_error(**kwargs)),
                 "    axe.errorbar(",
                 "        x_data, y_data,",
                 "        xerr=xerr, yerr=yerr,",
@@ -167,7 +167,7 @@ def print_fill_axe(**kwargs: dict) -> list[str]:
                 "            k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()",
                 "        }",
                 "        x_data, y_data = sub_values[xlab], sub_values[ylab]",
-                *(f"        {line}" for line in print_error(**kwargs: dict)),
+                *(f"        {line}" for line in print_error(**kwargs)),
                 "        axe.errorbar(",
                 "            x_data, y_data,",
                 "            xerr=xerr, yerr=yerr,",
@@ -186,7 +186,7 @@ def print_fill_axe(**kwargs: dict) -> list[str]:
                 "            k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()",
                 "        }",
                 "        x_data, y_data = sub_values[xlab], sub_values[ylab]",
-                *(f"        {line}" for line in print_error(**kwargs: dict)),
+                *(f"        {line}" for line in print_error(**kwargs)),
                 "        axe.errorbar(",
                 "            x_data, y_data,",
                 "            xerr=xerr, yerr=yerr,",
@@ -228,7 +228,7 @@ def print_fill_axe(**kwargs: dict) -> list[str]:
                 "            k: [v for v, m in zip(vs, mask) if m] for k, vs in values.items()",
                 "        }",
                 "        x_data, y_data = sub_values[xlab], sub_values[ylab]",
-                *(f"        {line}" for line in print_error(**kwargs: dict)),
+                *(f"        {line}" for line in print_error(**kwargs)),
                 "        axe.errorbar(",
                 "            x_data, y_data,",
                 "            xerr=xerr, yerr=yerr,",
