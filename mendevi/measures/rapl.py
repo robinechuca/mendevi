@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Try to read the energy with RAPL."""
 
 import logging
@@ -27,7 +25,7 @@ class RAPL:
 
     """
 
-    def __init__(self, sleep: numbers.Real = 50e-3, no_fail: bool = False) -> None:
+    def __init__(self, sleep: numbers.Real = 50e-3, *, no_fail: bool = False) -> None:
         """Init the perf context.
 
         Parameters
@@ -61,7 +59,9 @@ class RAPL:
         if PATTERN.search(self.lines[0]) is None:
             if os.geteuid() != 0:  # if not root
                 logging.getLogger(__name__).error("try with 'sudo %s'", sys.executable)
-                logging.getLogger(__name__).error("or give rights with sudo sysctl -w kernel.perf_event_paranoid=0")
+                logging.getLogger(__name__).error(
+                    "or give rights with sudo sysctl -w kernel.perf_event_paranoid=0",
+                )
             self.lines.extend(self.process.stderr.readlines())
             if not no_fail:
                 raise RuntimeError(b"".join(self.lines).decode())
@@ -83,7 +83,7 @@ class RAPL:
         self.time_bounds[1] = time.time()
         return self.res
 
-    def __exit__(self, *_):
+    def __exit__(self, *_: object) -> None:
         """Stop the measure and update the dictionary returnd by __enter__."""
         # stop measuring
         self.time_bounds[2] = time.time()

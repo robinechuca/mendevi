@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Use psutil to record the CPU and RAM usage."""
 
 import numbers
@@ -65,7 +63,7 @@ class Usage(threading.Thread):
         self.start()
         return self.res
 
-    def __exit__(self, *_):
+    def __exit__(self, *_: object) -> None:
         """Stop the measure and update the dictionary returnd by __enter__."""
         self._stop = True
         self.join()  # wait the last update of self.run

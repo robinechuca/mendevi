@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Unify all the models with a common sctucture."""
 
 import abc
@@ -42,6 +40,8 @@ class Model(abc.ABC):
         ----------
         title : str, optional
             The model title.
+        **kwargs : dict
+            Includes the following fields.
         sources : str
             All sources for the model, the conference paper, the authors, etc.
         input_labels : list[str]
@@ -187,12 +187,11 @@ class Model(abc.ABC):
     @parameters.setter
     def parameters(self, new_params: torch.Tensor) -> None:
         """Update the parameters."""
-        if self._parameters is not None:
-            if new_params.__class__ != self._parameters.__class__:
-                logging.getLogger(__name__).warning("chage the type of parameters")
+        if self._parameters is not None and new_params.__class__ != self._parameters.__class__:
+            logging.getLogger(__name__).warning("chage the type of parameters")
         self._parameters = new_params
 
-    def predict(self, *input_args, **input_kwargs) -> dict[str]:
+    def predict(self, *input_args: tuple, **input_kwargs: dict) -> dict[str]:
         """Perform the prediction(s) of this model.
 
         Parameters
@@ -211,14 +210,10 @@ class Model(abc.ABC):
             prt.print("check args")
             values: dict[str] = {}
             for i, arg in enumerate(input_args):
-                if i == len(self._input_labels):
-                    msg = (
-                        f"only {len(self._input)} arguments expeted {self._input_labels}, "
-                        f"{input_args} given"
-                    )
-                    raise ValueError(
-                        msg,
-                    )
+                assert i != len(self._input_labels), (
+                    f"only {len(self._input)} arguments expeted {self._input_labels}, "
+                    f"{input_args} given"
+                )
                 values[self._input_labels[i]] = arg
             for name, arg in input_kwargs.items():
                 if name in values:

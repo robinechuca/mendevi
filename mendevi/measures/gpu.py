@@ -97,7 +97,7 @@ class UsageGPU(threading.Thread):
         self.start()
         return self.res
 
-    def __exit__(self, *_):
+    def __exit__(self, *_: object) -> None:
         """Stop the measure and update the dictionary returnd by __enter__."""
         self._stop = True
         self.join()  # wait the last update of self.run

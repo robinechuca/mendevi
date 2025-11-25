@@ -114,7 +114,7 @@ class Activity(threading.Thread):
         self.start()
         return self.res
 
-    def __exit__(self, *_):
+    def __exit__(self, *_: object) -> None:
         """Stop the measure and update the dictionary returnd by __enter__."""
         # stop
         self.res["duration"] = time.time() - self.res["start"]
