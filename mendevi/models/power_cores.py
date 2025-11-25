@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Power prediction based on CPU utilisation rate."""
 
 import logging
@@ -9,6 +7,8 @@ import numpy as np
 from context_verbose import Printer
 
 from mendevi.models import Model
+
+MIN_POINTS = 2  # minimal number of points
 
 
 class PowerCores(Model):
@@ -33,6 +33,7 @@ class PowerCores(Model):
     """
 
     def __init__(self) -> None:
+        """Initialise the model."""
         super().__init__(
             "Power estimation based on the utilisation rate of logic cores",
             sources="""
@@ -41,8 +42,8 @@ class PowerCores(Model):
             Energy Consumption of MPI Applications at Scale Using a Single
             Node,” in IEEE Cluster Conference, 2017.
 
-            R. Rodrı́guez-Sánchez, F. D. Igual, J. L. Martı́nez, R. Mayo, and E. S.
-            Quintana-Ortı́, “Parallel performance and energy efficiency of modern
+            R. Rodriguez-Sánchez, F. D. Igual, J. L. Martinez, R. Mayo, and E. S.
+            Quintana-Orti, “Parallel performance and energy efficiency of modern
             video encoders on multithreaded architectures,” in Eur
             """,
             input_labels=["hostname", "cores"],
@@ -56,8 +57,10 @@ class PowerCores(Model):
             with Printer(f"Affine regression of power = f(cores) on {hostname}...") as prt:
                 mask = [i for i, h in enumerate(values["hostname"]) if h == hostname]
                 prt.print(f"fit on {len(mask)} points")
-                if len(mask) < 2:
-                    logging.getLogger(__name__).error("can not fit model for hostname=%s, not enouth points", hostname)
+                if len(mask) < MIN_POINTS:
+                    logging.getLogger(__name__).error(
+                        "can not fit model for hostname=%s, not enouth points", hostname,
+                    )
                     continue
                 cores = [values["cores"][i] for i in mask]
                 power = [values["power"][i] for i in mask]
@@ -69,7 +72,9 @@ class PowerCores(Model):
         all_power = []
         for hostname, cores in zip(values["hostname"], values["cores"], strict=True):
             if hostname not in self.parameters:
-                logging.getLogger(__name__).error("fit the model for the hostname %s before to predict", hostname)
+                logging.getLogger(__name__).error(
+                    "fit the model for the hostname %s before to predict", hostname,
+                )
                 all_power.append(math.nan)
             else:
                 all_power.append(

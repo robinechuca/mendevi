@@ -129,6 +129,10 @@ Requires a NVIDIA GPU and CUDA to be installed (see :ref:`install_cuda`).
 The code comes from the `ffmpeg guide <https://trac.ffmpeg.org/wiki/HWAccelIntro#NVENC>`_.
 If it fails, `this tutorial <https://www.cyberciti.biz/faq/how-to-install-ffmpeg-with-nvidia-gpu-acceleration-on-linux/>`_ may help you.
 
+.. note::
+
+    Only a few GPU supports all codecs. `These are the supported codecs <https://developer.nvidia.com/video-encode-decode-support-matrix>`_.
+
 .. code:: shell
 
     # get dependencies

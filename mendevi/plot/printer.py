@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Generate a Python code that allows you to plot the graph."""
 
 import datetime
