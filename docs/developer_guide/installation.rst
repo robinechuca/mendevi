@@ -362,7 +362,7 @@ If you have a NVIDIA GPU, please install CUDA then follow the `PyTorch installat
         .. code:: shell
 
             if dpkg -l | grep -q nvidia-driver; then
-                yuhINSTALLED_NVIDIA_DRIVER_VERSION=$(dpkg-query -W -f='${Version}' nvidia-driver)
+                INSTALLED_NVIDIA_DRIVER_VERSION=$(dpkg-query -W -f='${Version}' nvidia-driver)
                 echo "the nvidia driver $INSTALLED_NVIDIA_DRIVER_VERSION is installed and working"
             else
                 echo "no nvidia drivers are installed"
