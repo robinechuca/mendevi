@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Query the GPUs activity."""
 
 import logging
@@ -20,7 +18,7 @@ else:
     GPUS: int = pynvml.nvmlDeviceGetCount()
 
 
-def measure():
+def measure() -> dict[str]:
     """Get a instantaneous capture of all gpus."""
     memory, gpus, powers = [], [], []
     for i in range(GPUS):
@@ -29,7 +27,6 @@ def measure():
         gpus.append(pynvml.nvmlDeviceGetUtilizationRates(hand).gpu / 100.0)  # in [0, 1]
         memory.append(pynvml.nvmlDeviceGetMemoryInfo(hand).used)  # in bytes
     return {"memory": memory, "gpus": gpus, "powers": powers}
-
 
 
 class UsageGPU(threading.Thread):

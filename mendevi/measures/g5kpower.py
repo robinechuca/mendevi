@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Integrates grid5000's power meter."""
 
 import datetime
@@ -11,11 +9,14 @@ import threading
 import numpy as np
 import requests
 
+GOOD_REQ_STATUS = 200
+
 
 class G5kPower(threading.Thread):
     """Asynchronous consumption request on g5k."""
 
-    def __init__(self, *args, **kwargs: dict) -> None:
+    def __init__(self, *args: tuple, **kwargs: dict) -> None:
+        """Initialise the power thread."""
         super().__init__(daemon=True)
         self.args = args
         self.kwargs = kwargs
@@ -28,7 +29,7 @@ class G5kPower(threading.Thread):
         except ValueError as err:
             logging.getLogger(__name__).warning(err)
 
-    def get(self):
+    def get(self) -> dict[str]:
         """Retrive the result."""
         self.join()
         return self.power
@@ -100,8 +101,8 @@ def g5kpower(
     url = (
         f"https://api.grid5000.fr/stable/sites/{hostname_fields['site']}/metrics?"
         f"nodes={hostname_fields['node']}&metrics=wattmetre_power_watt"
-        f"&start_time={datetime.datetime.fromtimestamp(start).isoformat()}"
-        f"&end_time={datetime.datetime.fromtimestamp(start+duration).isoformat()}"
+        f"&start_time={datetime.datetime.fromtimestamp(start, tz=datetime.UTC).isoformat()}"
+        f"&end_time={datetime.datetime.fromtimestamp(start+duration, tz=datetime.UTC).isoformat()}"
     )
     auth = requests.auth.HTTPBasicAuth(login, password) if login and password else None
     try:
@@ -109,7 +110,7 @@ def g5kpower(
     except requests.exceptions.SSLError as err:
         logging.getLogger(__name__).warning(err)
         req = requests.get(url, auth=auth, verify=False, timeout=60)
-    if req.status_code != 200:
+    if req.status_code != GOOD_REQ_STATUS:
         msg = f"the request {url} failed"
         raise ValueError(msg, req)
     if not (req := req.json()):

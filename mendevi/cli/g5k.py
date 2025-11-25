@@ -15,8 +15,9 @@ import click
 import requests
 from context_verbose import Printer
 
-SLEEP_INIT = 10.0  # initial sleeping time
+GOOD_REQ_STATUS = 200
 SLEEP_FINAL = 600.0  # final sleeping time
+SLEEP_INIT = 10.0  # initial sleeping time
 SLEEP_TRANSITION = 3600.0  # the transition time between the init and final sleep
 
 
@@ -150,7 +151,7 @@ def guess_storage() -> list[str]:
     # try to get server_name
     url = "https://www.grid5000.fr/w/Group_Storage"
     req = requests.get(url, timeout=60)
-    if req.status_code != 200:
+    if req.status_code != GOOD_REQ_STATUS:
         logging.getLogger(__name__).warning("the request %s failed", req)
         servers = []
     elif not (req := req.text):

@@ -408,11 +408,15 @@ If you have a NVIDIA GPU, please install CUDA then follow the `PyTorch installat
                     CUDA_COMPILER_PACKAGE=$(apt-cache search "^cuda-compiler-${CUDA_MAJOR}-" | awk '{print $1}' | sort -V | tail -n1)
                     echo "try to install $CUDA_COMPILER_PACKAGE (see 'apt search cuda-compiler')"
                     sudo apt install $CUDA_COMPILER_PACKAGE
+
+                    CONTENT=$'export PATH=/usr/local/cuda/bin:$PATH\nexport LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH'
+                    grep -q "$CONTENT" ~/.bashrc || echo "$CONTENT" >> ~/.bashrc
+                    source ~/.bashrc
                 else
                     echo "nvcc is installed"
                 fi
             else
-                echo "nvidia-smi is not installed you have to (re)install the nvidia drivers"
+                echo "nvidia-smi is not installed, you have to (re)install the nvidia drivers"
                 echo "sudo apt remove --purge 'nvidia-*' cuda* && sudo apt update && sudo apt autoremove"
                 echo "then rerun the previous code block"
             fi
