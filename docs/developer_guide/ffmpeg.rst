@@ -14,7 +14,7 @@ Preparation
 
     # get dependencies
     sudo apt install \
-        autoconf automake build-essential cmake git-core diffutils flite1-dev frei0r-plugins-dev gcc git ladspa-sdk libass-dev libbluray-dev libbs2b-dev libcdio-dev libcdio-paranoia-dev libcdparanoia-dev libchromaprint-dev libfreetype6-dev libgme-dev libgnutls28-dev libgsm1-dev liblzma-dev libmp3lame-dev libopencore-amrnb-dev libopenjp2-7-dev libopenmpt-dev librubberband-dev libsdl2-dev libshine-dev libsnappy-dev libsoxr-dev libspeex-dev libssl-dev libtool libtwolame-dev libv4l-dev libva-dev libvdpau-dev libvidstab-dev libvo-amrwbenc-dev libvpl-dev libwebp-dev libxcb-shm0-dev libxcb-xfixes0-dev libxcb1-dev libxvidcore-dev libzimg-dev libzvbi-dev meson nasm ninja-build opensspkg-config texinfo wget yasm zlib1g-dev
+        autoconf automake build-essential cmake git-core diffutils flite1-dev frei0r-plugins-dev gcc git ladspa-sdk libass-dev libbluray-dev libbs2b-dev libcdio-dev libcdio-paranoia-dev libcdparanoia-dev libchromaprint-dev libfreetype6-dev libgme-dev libgnutls28-dev libgsm1-dev liblzma-dev libmp3lame-dev libopencore-amrnb-dev libopenjp2-7-dev libopenmpt-dev librubberband-dev libsdl2-dev libshine-dev libsnappy-dev libsoxr-dev libspeex-dev libssl-dev libtool libtwolame-dev libv4l-dev libva-dev libvdpau-dev libvidstab-dev libvo-amrwbenc-dev libvpl-dev libwebp-dev libxcb-shm0-dev libxcb-xfixes0-dev libxcb1-dev libxvidcore-dev libzimg-dev libzvbi-dev meson nasm ninja-build texinfo wget yasm zlib1g-dev
     # create directories
     rm -rf ~/ffmpeg_sources
     mkdir -pv ~/{bin,ffmpeg_sources}

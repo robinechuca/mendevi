@@ -384,7 +384,7 @@ If you have a NVIDIA GPU, please install CUDA then follow the `PyTorch installat
                 DRIVER_BRANCH=${AVAILABLE_NVIDIA_DRIVER_VERSION%%.*}
 
                 # install cuda
-                # sudo apt remove --purge 'nvidia-*' cuda* && sudo apt update
+                # sudo apt remove --purge 'nvidia-*' cuda* && sudo apt update && sudo apt autoremove
                 sudo apt install linux-headers-$(uname -r)
                 sudo apt install cuda-drivers-${DRIVER_BRANCH}
                 sudo dkms build -m nvidia -v ${AVAILABLE_NVIDIA_DRIVER_VERSION}
@@ -397,18 +397,38 @@ If you have a NVIDIA GPU, please install CUDA then follow the `PyTorch installat
 
         .. code:: shell
 
+            sudo apt install nvtop
+
             # install nvcc
-            if ! command -v nvcc &> /dev/null; then
-                sudo apt install nvidia-cuda-dev nvidia-cuda-toolkit nvtop  # never cuda-toolkit
-                # add the toolkit into the path
-                if ! grep -q "/usr/local/cuda/bin" ~/.bashrc; then
-                    echo 'export PATH=/usr/local/cuda/bin:$PATH' >> ~/.bashrc
-                    echo 'export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH' >> ~/.bashrc
+            if command -v nvidia-smi &> /dev/null; then
+                CUDA_VERSION=$(nvidia-smi --version | grep -oP 'CUDA Version\s*:\s*\K[0-9\.]+')
+                echo "detected cuda version: $CUDA_VERSION"
+                if ! command -v nvcc &> /dev/null; then
+                    CUDA_MAJOR=${CUDA_VERSION%%.*}
+                    CUDA_COMPILER_PACKAGE=$(apt-cache search "^cuda-compiler-${CUDA_MAJOR}-" | awk '{print $1}' | sort -V | tail -n1)
+                    echo "try to install $CUDA_COMPILER_PACKAGE (see 'apt search cuda-compiler')"
+                    sudo apt install $CUDA_COMPILER_PACKAGE
+                else
+                    echo "nvcc is installed"
                 fi
-                source ~/.bashrc
             else
-                echo "the cuda context is installed"
+                echo "nvidia-smi is not installed you have to (re)install the nvidia drivers"
+                echo "sudo apt remove --purge 'nvidia-*' cuda* && sudo apt update && sudo apt autoremove"
+                echo "then rerun the previous code block"
             fi
+            
+            .. # install nvcc
+            .. if ! command -v nvcc &> /dev/null; then
+            ..     sudo apt install nvidia-cuda-dev nvidia-cuda-toolkit nvtop  # never cuda-toolkit
+            ..     # add the toolkit into the path
+            ..     if ! grep -q "/usr/local/cuda/bin" ~/.bashrc; then
+            ..         echo 'export PATH=/usr/local/cuda/bin:$PATH' >> ~/.bashrc
+            ..         echo 'export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH' >> ~/.bashrc
+            ..     fi
+            ..     source ~/.bashrc
+            .. else
+            ..     echo "the cuda context is installed"
+            .. fi
 
 .. tab:: FreeBSD
 
