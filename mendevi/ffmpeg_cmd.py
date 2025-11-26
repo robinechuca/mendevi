@@ -113,6 +113,32 @@ def _encode_h264_nvenc(**kwargs: dict) -> list[str]:
 
 
 @decorator_pix_fmt
+def _encode_hevc_nvenc(**kwargs: dict) -> list[str]:
+    """Return the ffmpeg arguments."""
+    general = [
+        "-c:v", "hevc_nvenc",
+        "-gpu", "any",
+        "-tune", "hq",
+        "-preset", {"fast": "p2", "medium": "p4", "slow": "p6"}[kwargs["effort"]],
+    ]
+    if kwargs["mode"] == "vbr":
+        return [
+            *general,
+            "-rc", "vbr",
+            "-cq", str(round(1.0 + kwargs["quality"]*50.0)),  # [1, 51]
+        ]
+    rate = f"{quality_to_rate(kwargs)}k"
+    return [
+        *general,
+        "-b:v", rate,
+        "-minrate", rate,
+        "-maxrate", rate,
+        "-bufsize", rate,
+        "-rc", "cbr",
+    ]
+
+
+@decorator_pix_fmt
 def _encode_librav1e(**kwargs: dict) -> list[str]:
     """Return the ffmpeg arguments."""
     # https://docs.rs/rav1e/latest/rav1e/config/struct.EncoderConfig.html

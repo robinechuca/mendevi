@@ -23,6 +23,7 @@ from mendevi.database.serialize import list_to_binary, tensor_to_binary
 from mendevi.ffmpeg_cmd import (
     _encode_av1_nvenc,
     _encode_h264_nvenc,
+    _encode_hevc_nvenc,
     _encode_librav1e,
     _encode_libsvtav1,
     _encode_libvpx_vp9,
@@ -36,6 +37,7 @@ from mendevi.utils import best_profile, compute_video_hash, hash_to_signature
 ENCODERS_CMD = {
     "av1_nvenc": _encode_av1_nvenc,
     "h264_nvenc": _encode_h264_nvenc,
+    "hevc_nvenc": _encode_hevc_nvenc,
     "librav1e": _encode_librav1e,
     "libsvtav1": _encode_libsvtav1,
     "libvpx-vp9": _encode_libvpx_vp9,

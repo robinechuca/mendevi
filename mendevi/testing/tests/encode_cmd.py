@@ -7,6 +7,7 @@ import subprocess
 from mendevi.ffmpeg_cmd import (
     _encode_av1_nvenc,
     _encode_h264_nvenc,
+    _encode_hevc_nvenc,
     _encode_librav1e,
     _encode_libsvtav1,
     _encode_libvpx_vp9,
@@ -57,6 +58,11 @@ def test_encode_av1_nvenc() -> None:
 def test_encode_h264_nvenc() -> None:
     """Perform the ffmpeg encoding test on h264_nvenc."""
     encode("h264_nvenc", _encode_h264_nvenc)
+
+
+def test_encode_hevc_nvenc() -> None:
+    """Perform the ffmpeg encoding test on hevc_nvenc."""
+    encode("hevc_nvenc", _encode_hevc_nvenc)
 
 
 def test_encode_librav1e() -> None:

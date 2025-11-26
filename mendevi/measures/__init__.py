@@ -89,18 +89,23 @@ class Activity(threading.Thread):
         -------
         activity: dict[str]
             * duration: float, the real measure duration.
+            * gpu_cores: list[list[float]], tensor of detailed usage of each GPU in [0, 1].
+            * gpu_dt: list[float], the duration of each interval (in s).
+            * gpu_energy: float, the total energy consumption of all GPU (in J).
+            * gpu_power: float, the total power consumption of all GPU (in W).
+            * gpu_powers: list[list[float]], the sampled power in each point (in W).
             * ps_core: float, the mean cummulated usage of all the logical cpus.
             * ps_cores: list[list[float]], tensor of detailed usage of each logical core in %.
             * ps_dt: list[float], the duration of each interval (in s).
             * ps_ram: list[int], list of the sampled ram usage in bytes in each point.
             * rapl_dt: list[float], the duration of each interval (in s).
             * rapl_energy: float, the total energy consumption (in J).
-            * rapl_power: float, the average power, energy divided by the duration (in w).
-            * rapl_powers: list[float], the average power in watt in each interval.
+            * rapl_power: float, the average power, energy divided by the duration (in W).
+            * rapl_powers: list[float], the average power in each interval (in W).
             * start: float, absolute timestamp.
             * wattmeter_dt: list[float], the duration of each interval (in s).
             * wattmeter_energy: float, the total energy consumption (in J).
-            * wattmeter_power: float, the average power, energy divided by the duration (in w).
+            * wattmeter_power: float, the average power, energy divided by the duration (in W).
             * wattmeter_powers: list[float], the sampled power in watt in each point.
 
         Notes

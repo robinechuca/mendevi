@@ -8,7 +8,7 @@ import subprocess
 import sys
 import time
 
-PATTERN = re.compile(br"^(?P<time>\d+\.\d*);(?P<energy>\d+[.,]\d*);(?P<unit>Joules)")
+PATTERN = re.compile(br"^\s*(?P<time>\d+\.\d*);(?P<energy>\d+[.,]\d*);(?P<unit>Joules)")
 
 
 class RAPL:
@@ -41,7 +41,7 @@ class RAPL:
         assert sleep > 0, sleep
         assert isinstance(no_fail, bool), no_fail
 
-        self.sleep = round(1000*float(sleep))
+        self.sleep = round(1000*float(sleep))  # sleep time in ms
         self.res: dict = {"dt": [], "energy": None, "power": None, "powers": []}
         self.process = subprocess.Popen(  # pylint: disable=R1732
             [  # sudo apt install linux-perf
