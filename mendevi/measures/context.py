@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Get the information of the environment."""
 
 import logging
@@ -177,7 +175,7 @@ def get_librav1e_version() -> str:
             ["rav1e", "--version"],
             check=False, capture_output=True,
         ).stdout.decode().strip()
-    except:
+    except FileNotFoundError:
         logging.getLogger(__name__).warning("failed to find the librav1e version")
         return ""
 
@@ -270,7 +268,7 @@ def get_lshw() -> str:
             ["lshw", "-json"], check=False, capture_output=True,
         ).stdout.decode()
     except FileNotFoundError:
-        logging.exception("please install lshw: sudo apt install lshw")
+        logging.getLogger(__name__).exception("please install lshw: sudo apt install lshw")
     return out
 
 

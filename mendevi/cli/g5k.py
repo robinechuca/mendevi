@@ -327,7 +327,7 @@ def main(cmd: str, **kwargs: dict) -> None:
                     if res.payload["stdout"] == "<no-log-yet>":
                         continue
                 except KeyError:
-                    logging.exception("stop communication with %s", log_files)
+                    logging.getLogger(__name__).exception("stop communication with %s", log_files)
                     log_files.remove(log_file)
                     continue
 
@@ -335,7 +335,7 @@ def main(cmd: str, **kwargs: dict) -> None:
                 try:
                     res = orjson.loads(res.payload["stdout"])
                 except orjson.JSONDecodeError:
-                    logging.exception(res.payload)
+                    logging.getLogger(__name__).exception(res.payload)
                     raise
                 if res.get("changed", False) or "rc" in res:
                     if msg := res.get("stdout", ""):

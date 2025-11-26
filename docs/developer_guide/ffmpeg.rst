@@ -274,5 +274,9 @@ compilation
     # linkage
     cp ~/ffmpeg_build/bin/x265 ~/bin
     cp ~/ffmpeg_build/bin/SvtAv1EncApp ~/bin
-    cd ~/bin
-    # cp ffmpeg /usr/bin/. && cp ffprobe /usr/bin/.
+
+    CONTENT=$'export PATH=$HOME/bin:$PATH'
+    grep -q "$CONTENT" ~/.bashrc || echo "$CONTENT" >> ~/.bashrc
+    source ~/.bashrc
+
+    # cd ~/bin && cp ffmpeg /usr/bin/. && cp ffprobe /usr/bin/.

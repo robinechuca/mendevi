@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """All measurement helper."""
 
 import numbers

@@ -58,7 +58,7 @@ def encode(src: pathlib.Path, **kwargs: dict) -> tuple[pathlib.Path, str, dict[s
     dst = pathlib.Path(tempfile.gettempdir()) / f"{signature}.mp4"
 
     # get cmd
-    cmd = get_transcode_cmd(src, dst, **kwargs: dict)
+    cmd = get_transcode_cmd(src, dst, **kwargs)
 
     # display
     prt_cmd = " ".join(
@@ -162,7 +162,7 @@ def encode_and_store(
 
     """
     # transcode the video
-    dst, cmd, activity = encode(src, **kwargs: dict)
+    dst, cmd, activity = encode(src, **kwargs)
 
     with (
         Lock(str(database.with_name(".dblock")), lifetime=datetime.timedelta(seconds=600)),
@@ -230,24 +230,6 @@ def encode_and_store(
 
 def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs: dict) -> list[str]:
     """Return the ffmpeg encode cmd."""
-
-    def libsvtav1_lp(threads: int) -> int:
-        """Convert threads in parralel level."""
-        # https://gitlab.com/AOMediaCodec/SVT-AV1/-/blob/master/Source/Lib/Globals/enc_handle.c#L598
-        # lp=1 -> threads=1
-        # lp=2 -> threads=2
-        # lp=3 -> threads=8
-        # lp=4 -> threads=12
-        # lp=5 -> threads=16
-        # lp=6 -> threads=20
-        return {  # threads to lp
-            1: 1,
-            2: 2, 3: 2, 4: 2, 5: 2,
-            6: 3, 7: 3, 8: 3, 9: 3, 10: 3,
-            11: 4, 12: 4, 13: 4, 14: 4,
-            15: 5, 16: 5, 17: 5,
-        }.get(threads, 6)
-
     # header
     cmd: list[str] = ["ffmpeg", "-y", "-i", str(src)]
 
@@ -332,6 +314,22 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs: dict) -> l
                 "-row-mt", "0", "-threads", str(kwargs["threads"]),
             ])
         case "libsvtav1":
+            def libsvtav1_lp(threads: int) -> int:
+                """Convert threads in parralel level."""
+                # https://gitlab.com/AOMediaCodec/SVT-AV1/-/blob/master/Source/Lib/Globals/enc_handle.c#L598
+                # lp=1 -> threads=1
+                # lp=2 -> threads=2
+                # lp=3 -> threads=8
+                # lp=4 -> threads=12
+                # lp=5 -> threads=16
+                # lp=6 -> threads=20
+                return {  # threads to lp
+                    1: 1,
+                    2: 2, 3: 2, 4: 2, 5: 2,
+                    6: 3, 7: 3, 8: 3, 9: 3, 10: 3,
+                    11: 4, 12: 4, 13: 4, 14: 4,
+                    15: 5, 16: 5, 17: 5,
+                }.get(threads, 6)
             if kwargs["mode"] == "vbr":
                 cmd.extend([
                     "libsvtav1",
@@ -408,13 +406,13 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs: dict) -> l
             raise NotImplementedError
         case "av1_nvenc":
             raise NotImplementedError
-        # https://trac.ffmpeg.org/wiki/Encode/AV1#AMDAMFAV1
-        # https://trac.ffmpeg.org/wiki/Hardware/AMF
-        # https://github.com/GPUOpen-LibrariesAndSDKs/AMF/wiki/GPU%20and%20APU%20HW%20Features%20and%20Support
-        case "h264_amf":  # for AMD GPU
-            raise NotImplementedError
-        case "av1_amf":  # for AMD GPU
-            raise NotImplementedError
+        # # https://trac.ffmpeg.org/wiki/Encode/AV1#AMDAMFAV1
+        # # https://trac.ffmpeg.org/wiki/Hardware/AMF
+        # # https://github.com/GPUOpen-LibrariesAndSDKs/AMF/wiki/GPU%20and%20APU%20HW%20Features%20and%20Support
+        # case "h264_amf":  # for AMD GPU
+        #     raise NotImplementedError
+        # case "av1_amf":  # for AMD GPU
+        #     raise NotImplementedError
 
     # final
     cmd.append(str(dst))
