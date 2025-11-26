@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Serialize the sql binary data."""
 
 import functools

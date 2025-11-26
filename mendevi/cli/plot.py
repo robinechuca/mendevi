@@ -248,7 +248,7 @@ def main(database: str, **kwargs: dict) -> None:
         print("**********************************PYTHON CODE**********************************")
         print(highlight(code, PythonLexer(), TerminalFormatter()))
         print("*******************************************************************************")
-    with open(path, "w", encoding="utf-8") as file:
+    with path.open("w", encoding="utf-8") as file:
         file.write(code)
 
     # excecute code

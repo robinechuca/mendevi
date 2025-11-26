@@ -201,7 +201,7 @@ def set_ansible_cfg() -> None:
     """Create and fill the file ~/.ansible.cfg."""
     path = pathlib.Path.home() / ".ansible.cfg"
     if not path.exists():
-        with open(path, "w", encoding="utf-8") as file:
+        with path.open("w", encoding="utf-8") as file:
             file.write("[defaults]\n")
             file.write("interpreter_python = /root/.pyenv/shims/python\n")
 

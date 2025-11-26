@@ -82,139 +82,139 @@ def get_extractor(name: str, safe: bool = False) -> ExtractContext:
             return ExtractContext(
                 "Video processing activity duration in seconds",
                 extract.extract_act_duration,
-                False,
+                is_log=False,
             )
         case "bitrate" | "rate":
             return ExtractContext(
                 r"Video bitrate in $bit.s^{-1}$",
                 "None if size is None or video_duration is None else 8.0 * size / video_duration",
-                True,
+                is_log=True,
             )
         case "codec":
             return ExtractContext(
                 "Codec name",
                 extract.extract_codec,
-                None,
+                is_log=None,
             )
         case "cores":
             return ExtractContext(
                 "Average cumulative utilisation rate of logical cores",
                 extract.extract_cores,
-                False,
+                is_log=False,
             )
         case "decode_cmd" | "dec_cmd":
             return ExtractContext(
                 "The ffmpeg command used for decoding",
                 extract.extract_decode_cmd,
-                None,
+                is_log=None,
             )
         case "decode_scenario" | "dec_scenario":
             return ExtractContext(
                 "Unique string specific to the decoding scenario",
                 'f"cmd: {decode_cmd}, hostname: {hostname}"',
-                None,
+                is_log=None,
             )
         case "effort" | "preset":
             return ExtractContext(
                 "Effort provided as a parameter to the encoder",
                 extract.extract_effort,
-                None,
+                is_log=None,
             )
         case "encode_cmd" | "enc_cmd":
             return ExtractContext(
                 "The ffmpeg command used for encoding",
                 extract.extract_encode_cmd,
-                None,
+                is_log=None,
             )
         case "encode_scenario" | "enc_scenario":
             return ExtractContext(
                 "Unique string specific to the encoding scenario",
                 'f"cmd: {encode_cmd}, video_name: {video_name}, hostname: {hostname}"',
-                None,
+                is_log=None,
             )
         case "encoder":
             return ExtractContext(
                 "Name of the encoder",
                 extract.extract_encoder,
-                None,
+                is_log=None,
             )
         case "energy":
             return ExtractContext(
                 "Total energy consumption in Joules",
                 "float((powers[0] * powers[1]).sum())",
-                True,
+                is_log=True,
             )
         case "energy_per_frame":
             return ExtractContext(
                 "Average energy consumption per frame in Joules",
                 "energy / nbr_frames",
-                True,
+                is_log=True,
             )
         case "frames":
             extractor = ExtractContext(
                 "The metadata of each frame",
                 extract.extract_frames,
-                None,
+                is_log=None,
             )
         case "height":
             extractor = ExtractContext(
                 "Height of images in pixels",
                 extract.extract_height,
-                False,
+                is_log=False,
             )
         case "gamut" | "prim" | "primaries" | "color_primaries":
             extractor = ExtractContext(
                 "The tristimulus primaries colors name",
                 extract.extract_gamut,
-                None,
+                is_log=None,
             )
         case "hostname":
             extractor = ExtractContext(
                 "The machine name",
                 extract.extract_hostname,
-                None,
+                is_log=None,
             )
         case "lpips":
             extractor = ExtractContext(
                 "Learned Perceptual Image Patch Similarity (LPIPS)",
                 extract.extract_lpips,
-                False,
+                is_log=False,
             )
         case "lpips_alex":
             extractor = ExtractContext(
                 "Learned Perceptual Image Patch Similarity (LPIPS) with alex",
                 extract.extract_lpips_alex,
-                False,
+                is_log=False,
             )
         case "lpips_vgg":
             extractor = ExtractContext(
                 "Learned Perceptual Image Patch Similarity (LPIPS) with vgg",
                 extract.extract_lpips_vgg,
-                False,
+                is_log=False,
             )
         case "power":
             extractor = ExtractContext(
                 "Average power consumption in Watts",
                 "energy / float(powers[0].sum())",
-                False,
+                is_log=False,
             )
         case "powers":
             extractor = ExtractContext(
                 "The interval duration and the average power in each intervals",
                 extract.extract_powers,
-                None,
+                is_log=None,
             )
         case "mode":
             extractor = ExtractContext(
                 "Bitrate mode, constant (cbr) or variable (vbr)",
                 extract.extract_mode,
-                None,
+                is_log=None,
             )
         case "nb_frames" | "nbr_frames":
             extractor = ExtractContext(
                 "The real number of frames of the video file",
                 "len(frames)",
-                True,
+                is_log=True,
             )
         case "profile":
             extractor = ExtractContext(
@@ -223,25 +223,25 @@ def get_extractor(name: str, safe: bool = False) -> ExtractContext:
                     "None if height is None and width is None else "
                     "best_profile(height or width, width or height)"
                 ),
-                None,
+                is_log=None,
             )
         case "psnr":
             extractor = ExtractContext(
                 "Peak Signal to Noise Ratio (PSNR)",
                 extract.extract_psnr,
-                False,
+                is_log=False,
             )
         case "quality":
             extractor = ExtractContext(
                 "Quality level passed to the encoder",
                 extract.extract_quality,
-                False,
+                is_log=False,
             )
         case "range":
             extractor = ExtractContext(
                 "Video encoding color range, 'tv' or 'pc'",
                 extract.extract_range,
-                None,
+                is_log=None,
             )
         case (
             "reference_video_name" | "reference_vid_name" | "reference_name"
@@ -250,90 +250,90 @@ def get_extractor(name: str, safe: bool = False) -> ExtractContext:
             extractor = ExtractContext(
                 "Input video basename",
                 extract.extract_reference_video_name,
-                None,
+                is_log=None,
             )
         case "rms_sobel":
             extractor = ExtractContext(
                 "Spacial root mean square sobel gradient complexity",
                 extract.extract_rms_sobel,
-                False,
+                is_log=False,
             )
         case "rms_time_diff":
             extractor = ExtractContext(
                 "Temporal root means square time difference complexity",
                 extract.extract_rms_time_diff,
-                False,
+                is_log=False,
             )
         case "shape":
             extractor = ExtractContext(
                 "The image shapes height x width in pixels",
                 "(height, width)",
-                None,
+                is_log=None,
             )
         case "ssim":
             extractor = ExtractContext(
                 "Structural Similarity (SSIM)",
                 extract.extract_ssim,
-                False,
+                is_log=False,
             )
         case "ssim_comp" | "comp_ssim" | "ssim_rev" | "rev_ssim":
             extractor = ExtractContext(
                 "Complementary of Structural Similarity (1-SSIM)",
                 "1.0 - ssim",
-                True,
+                is_log=True,
             )
         case "threads":
             extractor = ExtractContext(
                 "Number of threads provided as a parameter to the encoder",
                 extract.extract_threads,
-                False,
+                is_log=False,
             )
         case "transfer" | "trans" | "color_transfer" | "eotf":
             extractor = ExtractContext(
                 "The non-linear transfer function name",
                 extract.extract_transfer,
-                None,
+                is_log=None,
             )
         case "vmaf":
             extractor = ExtractContext(
                 "Video Multi-Method Assessment Fusion (VMAF)",
                 extract.extract_vmaf,
-                False,
+                is_log=False,
             )
         case "video_duration" | "vid_duration":
             extractor = ExtractContext(
                 "Video duration in seconds",
                 extract.extract_video_duration,
-                False,
+                is_log=False,
             )
         case "video_hash" | "vid_hash" | "video_md5" | "vid_md5":
             extractor = ExtractContext(
                 "The hexadecimal md5 video file checksum",
                 extract.extract_video_hash,
-                None,
+                is_log=None,
             )
         case "video_name" | "vid_name" | "name":
             extractor = ExtractContext(
                 "Video basename",
                 extract.extract_video_name,
-                None,
+                is_log=None,
             )
         case "video_size" | "vid_size" | "size":
             extractor = ExtractContext(
                 "The total video file size in bytes",
                 extract.extract_video_size,
-                True,
+                is_log=True,
             )
         case "width":
             extractor = ExtractContext(
                 "Width of images in pixels",
                 extract.extract_height,
-                False,
+                is_log=False,
             )
     if extractor is not None:
         return extractor
     if safe:
-        return ExtractContext(name, name, False)
+        return ExtractContext(name, name, is_log=False)
     msg = f"{name} is not recognised"
     raise KeyError(msg)
 
@@ -342,6 +342,7 @@ def merge_extractors(
     labels: set[str],
     alias: dict[str, str] | None = None,
     select: str | None = None,
+    *,
     return_callable: bool = False,
 ) -> tuple[set[str]]:
     r'''Return the source code of the function that extracts all variables.
@@ -476,7 +477,7 @@ def merge_extractors(
         *code,
     ]
     path = pathlib.Path(tempfile.gettempdir()) / f"{uuid.uuid4().hex}.py"
-    with open(path, "w", encoding="utf-8") as file:
+    with path.open("w", encoding="utf-8") as file:
         file.write("\n".join(code))
     spec = importlib.util.spec_from_file_location(path.stem, path)
     modulevar = importlib.util.module_from_spec(spec)

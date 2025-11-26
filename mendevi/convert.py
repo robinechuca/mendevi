@@ -73,7 +73,8 @@ def get_convert_cmd(
     if resolution is not None:
         assert isinstance(resolution, tuple), resolution.__class__.__name__
         assert len(resolution) == 2, resolution
-        assert isinstance(resolution[0], int) and isinstance(resolution[1], int), resolution
+        assert isinstance(resolution[0], int), resolution
+        assert isinstance(resolution[1], int), resolution
         assert (resolution[0], resolution[1]) > (0, 0), resolution
 
     filters: list[str] = []

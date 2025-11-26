@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Perform decoding measures."""
 
 import contextlib
@@ -59,7 +57,7 @@ def decode_and_store(
     database: pathlib.Path,
     env_id: int,
     vid: pathlib.Path,
-    **kwargs,
+    **kwargs: dict,
 ) -> None:
     """Decode a video file and store the result in the database.
 
@@ -168,7 +166,8 @@ def get_decode_cmd(
     if resolution is not None:
         assert isinstance(resolution, tuple), resolution.__class__.__name__
         assert len(resolution) == 2, resolution
-        assert isinstance(resolution[0], int) and isinstance(resolution[1], int), resolution
+        assert isinstance(resolution[0], int), resolution
+        assert isinstance(resolution[1], int), resolution
         assert (resolution[0], resolution[1]) > (0, 0), resolution
 
     filters: list[str] = []
@@ -180,6 +179,5 @@ def get_decode_cmd(
     filters = ",".join(filters)
 
     # test with "ffmpeg -hwaccels", and see all decoders with "ffmpeg -decoders | grep cuvid"
-    # ffmpeg -c:v h264_cuvid -i ...  # for gpu, see "ffmpeg -h decoder=h264_cuvid"
-    # time ffmpeg -vsync 0 -hwaccel cuda -hwaccel_output_format cuda -c:v h264_cuvid -i ref_sd_h264.mkv -f null /dev/null
+    # ffmpeg -vsync 0 -hwaccel cuda -hwaccel_output_format cuda -c:v h264_cuvid -i vid.mkv -f null -
     return ["ffmpeg", "-threads", "1", "-i", str(video), "-vf", filters, "-f", "null", os.devnull]
