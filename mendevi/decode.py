@@ -76,7 +76,7 @@ def decode_and_store(
 
     """
     # decode the video
-    cmd, activity = decode(vid, **kwargs: dict)
+    cmd, activity = decode(vid, **kwargs)
 
     with (
         Lock(str(database.with_name(".dblock")), lifetime=datetime.timedelta(seconds=600)),

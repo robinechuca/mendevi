@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Search for available torrent files."""
 
 import pathlib
@@ -60,7 +58,7 @@ def get_torrent(name: str) -> pathlib.Path:
         assert torrent_data
 
     # write the file
-    with open(file, "wb") as raw:
+    with file.open("wb") as raw:
         raw.write(torrent_data)
     return file
 
