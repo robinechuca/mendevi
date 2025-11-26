@@ -45,6 +45,8 @@ def create_database(filename: str | bytes | pathlib.Path) -> None:
             act_rapl_power LONGBLOB,
             act_wattmeter_dt LONGBLOB,
             act_wattmeter_power LONGBLOB,
+            act_gpu_dt LONGBLOB,
+            act_gpu_power LONGBLOB,
             act_ps_dt LONGBLOB,
             act_ps_core LONGBLOB,
             act_ps_ram LONGBLOB

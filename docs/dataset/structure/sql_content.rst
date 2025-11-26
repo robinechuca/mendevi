@@ -30,6 +30,10 @@ Table t_act_activity
 +----------------------------+-------------+-------------------------------+
 | :ref:`act_wattmeter_power` | *LONGBLOB*  | wattmeter power values        |
 +----------------------------+-------------+-------------------------------+
+| :ref:`act_gpu_dt`          | *LONGBLOB*  | GPU measures intervals        |
++----------------------------+-------------+-------------------------------+
+| :ref:`act_gpu_power`       | *LONGBLOB*  | GPU power values              |
++----------------------------+-------------+-------------------------------+
 | :ref:`act_ps_dt`           | *LONGBLOB*  | time intervals for ps         |
 +----------------------------+-------------+-------------------------------+
 | :ref:`act_ps_core`         | *LONGBLOB*  | core usage values             |
@@ -110,6 +114,30 @@ To deserialize into an exploitable numpy array, please use the function :py:func
 .. tip::
 
     Only available for the measures taken on grid'5000.
+
+.. _act_gpu_dt:
+
+act_gpu_dt
+^^^^^^^^^^
+
+The list of time intervals in seconds between two consecutive GPU measures.
+To deserialize into an exploitable numpy array, please use the function :py:func:`mendevi.database.serialize.binary_to_list`.
+
+.. tip::
+
+    Only available for the measures taken with NVIDIA GPU.
+
+.. _act_gpu_power:
+
+act_gpu_power
+^^^^^^^^^^^^^
+
+The tensor of the sampled powers for each GPU.
+To deserialize into an exploitable numpy array, please use the function :py:func:`mendevi.database.serialize.binary_to_tensor`.
+
+.. tip::
+
+    Only available for the measures taken with NVIDIA GPU.
 
 .. _act_ps_dt:
 
