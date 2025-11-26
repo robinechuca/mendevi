@@ -272,16 +272,36 @@ def get_lshw() -> str:
     return out
 
 
+def get_lspci() -> str:
+    """Extract the information with lspci -k.
+
+    Examples
+    --------
+    >>> from mendevi.measures.context import get_lspci
+    >>> lspci_info = get_lspci()
+    >>>
+
+    """
+    try:
+        out = subprocess.run(
+            ["lspci", "-k"], check=False, capture_output=True,
+        ).stdout.decode()
+    except FileNotFoundError:
+        logging.getLogger(__name__).exception("please install lshw: sudo apt install lshw")
+    return out
+
+
 def full_context() -> dict:
     """Get the full context informations."""
     return {
         "ffmpeg_version": get_ffmpeg_version(),
-        "libx265_version": get_libx265_version(),
-        "libvpx_vp9_version": get_libvpx_vp9_version(),
-        "libsvtav1_version": get_libsvtav1_version(),
         "librav1e_version": get_librav1e_version(),
-        "vvc_version": get_vvc_version(),
-        "pip_freeze": get_pip_freeze(),
+        "libsvtav1_version": get_libsvtav1_version(),
+        "libvpx_vp9_version": get_libvpx_vp9_version(),
+        "libx265_version": get_libx265_version(),
         "lshw": get_lshw(),
+        "lspci": get_lspci(),
+        "pip_freeze": get_pip_freeze(),
+        "vvc_version": get_vvc_version(),
         **get_platform(),
     }

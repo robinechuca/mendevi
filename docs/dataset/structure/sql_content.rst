@@ -509,7 +509,9 @@ Table t_env_environment
 +-------------------------------+--------------+-------------------------------+
 | :ref:`env_logical_cores`      | *INTEGER*    | the number of visible cpu     |
 +-------------------------------+--------------+-------------------------------+
-| :ref:`env_lshw`               | *JSON*       | the machine config            |
+| :ref:`env_lshw`               | *JSON*       | the machine config (lshw)     |
++-------------------------------+--------------+-------------------------------+
+| :ref:`env_lspci`              | *LONGTEXT*   | the machine config (lspci)    |
 +-------------------------------+--------------+-------------------------------+
 | :ref:`env_physical_cores`     | *INTEGER*    | the real number of cpu        |
 +-------------------------------+--------------+-------------------------------+
@@ -652,7 +654,7 @@ The number of logical (threaded) cores, in general more than the number of physi
 env_lshw
 ^^^^^^^^
 
-A wealth of information on machine components, processor architecture, etc.
+A wealth of information on machine components, processor architecture, etc. Based on ``lshw -json``.
 
 .. important::
 
@@ -700,6 +702,13 @@ A wealth of information on machine components, processor architecture, etc.
             }
         ]
     }
+
+.. _env_lspci:
+
+env_lspci
+^^^^^^^^^
+
+Informations on periferics, based on ``lspci -k``.
 
 .. _env_physical_cores:
 

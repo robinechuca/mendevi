@@ -100,6 +100,7 @@ def create_database(filename: str | bytes | pathlib.Path) -> None:
             env_libx265_version MEDIUMTEXT,
             env_logical_cores INTEGER NOT NULL CHECK(env_logical_cores > 0),
             env_lshw LONGTEXT,
+            env_lspci LONGTEXT,
             env_physical_cores INTEGER,
             env_pip_freeze MEDIUMTEXT,
             env_processor TINYTEXT,

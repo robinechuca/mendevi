@@ -12,6 +12,8 @@ graph database {
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">act_rapl_power</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">act_wattmeter_dt</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">act_wattmeter_power</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
+        <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">act_gpu_dt</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
+        <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">act_gpu_power</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">act_ps_dt</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">act_ps_core</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">act_ps_ram</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
@@ -70,6 +72,7 @@ graph database {
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">env_libx265_version</TD><TD ALIGN="LEFT">MEDIUMTEXT</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">env_logical_cores</TD><TD ALIGN="LEFT">INTEGER</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">env_lshw</TD><TD ALIGN="LEFT">JSON</TD></TR>
+        <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">env_lspci</TD><TD ALIGN="LEFT">JSON</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">env_physical_cores</TD><TD ALIGN="LEFT">INTEGER</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">env_pip_freeze</TD><TD ALIGN="LEFT">MEDIUMTEXT</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">env_processor</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>
