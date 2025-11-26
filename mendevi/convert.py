@@ -43,14 +43,14 @@ def get_convert_cmd(
     >>> import cutcutcodec
     >>> from mendevi.convert import get_convert_cmd
     >>> media = cutcutcodec.utils.get_project_root().parent / "media" / "video" / "intro.webm"
-    >>> get_convert_cmd(media, filter="", fps=None, pix_fmt=None, resolution=None)
+    >>> get_convert_cmd(media, fps=None, pix_fmt=None, resolution=None)
     ''
     >>> get_convert_cmd(
     ...     media, fps=Fraction(60000, 1001), pix_fmt="yuv420p10le", resolution=(1080, 1920)
     ... )
     'scale=h=1080:w=1920:sws_flags=bicubic,format=yuv420p10le,fps=60000/1001'
     >>> get_convert_cmd(
-    ...     media, filter="", fps=Fraction(24000, 1001), pix_fmt="yuv420p", resolution=(480, 720)
+    ...     media, fps=Fraction(24000, 1001), pix_fmt="yuv420p", resolution=(480, 720)
     ... )
     'fps=24000/1001,scale=h=480:w=720:sws_flags=bicubic'
     >>>

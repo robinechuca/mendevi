@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Automatate the decapsulation process."""
 
 import pathlib

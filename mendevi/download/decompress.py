@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Decompress a file."""
 
 import logging
@@ -52,7 +50,7 @@ def decompress(compressed_file: pathlib.Path) -> pathlib.Path:
                 unit="Mo",
             ) as load,
             lzma.open(compressed_file, "r") as src,
-            open(decompressed_file, "wb") as dst,
+            decompressed_file.open("wb") as dst,
         ):
 
             while data := src.read(1_000_000):
