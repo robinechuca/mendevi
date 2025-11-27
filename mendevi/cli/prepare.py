@@ -39,10 +39,8 @@ def _parse_args(prt: Printer, video: pathlib.Path, kwargs: dict) -> None:
         kwargs.get("resolution") or PROFILES[kwargs["profile"]]["resolution"]
     )
     assert isinstance(kwargs["resolution"], tuple), kwargs["resolution"].__class__.__name__
-    assert (
-        isinstance(kwargs["resolution"], tuple) and len(kwargs["resolution"]) == 2
-        and all(isinstance(s, int) and s > 0 for s in kwargs["resolution"])
-    ), kwargs["resolution"]
+    assert len(kwargs["resolution"]) == 2, kwargs["resolution"]
+    assert all(isinstance(s, int) and s > 0 for s in kwargs["resolution"]), kwargs["resolution"]
     prt.print(f"resolution: h={kwargs['resolution'][0]}:w={kwargs['resolution'][1]}")
 
     # pix_fmt
@@ -114,7 +112,7 @@ def _parse_args(prt: Printer, video: pathlib.Path, kwargs: dict) -> None:
     help="The pixel coding range.",
 )
 def main(video: str, output: str | None = None, **kwargs: dict) -> pathlib.Path:
-    r"""Pre-Process the source video before performing the transcoding measurements.
+    """Pre-Process the source video before performing the transcoding measurements.
 
     This step is required to provide the following guarantees:
 
@@ -127,7 +125,6 @@ def main(video: str, output: str | None = None, **kwargs: dict) -> pathlib.Path:
     * Ensure that the pixel format is recognised.
 
     \b
-
     Parameters
     ----------
     video : pathlike
@@ -135,6 +132,8 @@ def main(video: str, output: str | None = None, **kwargs: dict) -> pathlib.Path:
     output : pathlike, optional
         The destination folder to store the reference file.
         If not provided, it is store in the same folder as the input video.
+    **kwargs: dict
+        Please refer to the detailed arguments below.
     profile : str, default=autodetect
         A value among ``sd``, ``hd``, ``fhd`` or ``uhd4k``.
         This represents a typical video profile, which includes a pixel format,

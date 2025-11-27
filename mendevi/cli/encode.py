@@ -182,10 +182,9 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
     help="The ffmpeg filter to apply before encoding.",
 )
 def main(videos: tuple, database: str | None = None, **kwargs: dict) -> None:
-    r"""Measures activity during encoding.
+    """Measures activity during encoding.
 
     \b
-
     Parameters
     ----------
     videos : tuple[pathlike]
@@ -195,6 +194,8 @@ def main(videos: tuple, database: str | None = None, **kwargs: dict) -> None:
         The path to the database where all measurements are stored.
         If a folder is provided, the database is created inside this folder.
         By default, it is created right next to the video.
+    **kwargs: dict
+        Please refer to the detailed arguments below.
     repeat : int, default=2
         The number of times the experiment is repeated on this environment.
         This allows us to estimate the variance of measurements.

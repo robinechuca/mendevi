@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Get ffmpeg filter chain command."""
 
 import fractions

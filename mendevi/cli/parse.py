@@ -62,7 +62,11 @@ def _guess_database(files: tuple[str]) -> str | None:
 
 
 def parse_videos_database(
-    prt: context_verbose.Printer, videos: tuple[str], database: str | None = None, _quiet: bool = False,
+    prt: context_verbose.Printer,
+    videos: tuple[str],
+    database: str | None = None,
+    *,
+    _quiet: bool = False,
 ) -> tuple[list[pathlib.Path], pathlib.Path]:
     """Find or create the database and extract all the videos.
 

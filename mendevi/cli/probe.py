@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Perform the video properties measures."""
 
 import pathlib
@@ -67,10 +65,9 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
 @click.option("--uvq/--no-uvq", default=False, help="Compute the UVQ or not.")
 @click.option("--vmaf/--no-vmaf", default=True, help="Compute the VMAF or not.")
 def main(videos: tuple[str], database: str | None = None, **kwargs: dict) -> None:
-    r"""Measures the video properties.
+    """Measures the video properties.
 
     \b
-
     Parameters
     ----------
     videos : tuple[pathlike], optional
@@ -78,6 +75,8 @@ def main(videos: tuple[str], database: str | None = None, **kwargs: dict) -> Non
     database : pathlike, optional
         The path to the database where all measurements are stored.
         If a folder is provided, the database is created inside this folder.
+    **kwargs: dict
+        Please refer to the detailed arguments below.
     ref : tuple(pathlike), optional
         If provided, in addition to the original video ``o``,
         which has been transcoded to produce video ``x``,

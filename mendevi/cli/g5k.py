@@ -236,12 +236,13 @@ def set_ansible_cfg() -> None:
     help="The number of nodes to be deployed.",
 )
 def main(cmd: str, **kwargs: dict) -> None:
-    r"""Deploy a grid'5000 node and run a mendevi script inside it.
+    """Deploy a grid'5000 node and run a mendevi script inside it.
 
     \b
-
     Parameters
     ----------
+    **kwargs: dict
+        Please refer to the detailed arguments below.
     cmd : str
         The mendevi command to be executed on the deployed node.
         When a path begins with ./, this part is automatically replaced by the shared folder file.

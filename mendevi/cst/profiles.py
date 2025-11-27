@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Defines the different video profiles used.
 
 For YouTube <https://support.google.com/youtube/answer/1722171>:

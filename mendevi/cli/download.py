@@ -12,10 +12,9 @@ from mendevi.download.decapsulation import retrive_file
 @click.command()
 @click.argument("file", type=str)
 def main(file: str) -> None:
-    r"""Download and decapsule a file.
+    """Download and decapsule a file.
 
     \b
-
     Parameters
     ----------
     file : pathlike

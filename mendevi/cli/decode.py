@@ -70,10 +70,9 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
     help="The ffmpeg filter to apply on fly.",
 )
 def main(videos: tuple[str], database: str | None = None, **kwargs: dict) -> None:
-    r"""Measures activity during decoding.
+    """Measures activity during decoding.
 
     \b
-
     Parameters
     ----------
     videos : tuple[pathlike], optional
@@ -81,6 +80,8 @@ def main(videos: tuple[str], database: str | None = None, **kwargs: dict) -> Non
     database : pathlike, optional
         The path to the database where all measurements are stored.
         If a folder is provided, the database is created inside this folder.
+    **kwargs: dict
+        Please refer to the detailed arguments below.
     repeat : int, default=5
         The number of times the experiment is repeated on this environment.
         This allows us to estimate the variance of measurements.
