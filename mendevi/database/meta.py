@@ -419,7 +419,7 @@ def get_extractor(name: str, *, safe: bool = False) -> Extractor:
     """
     assert isinstance(name, str), name.__class__.__name__
     assert isinstance(safe, bool), safe.__class__.__name__
-    if extractor := ALL_EXTRACTORS.get(ALIAS.get(name, name), None) is not None:
+    if (extractor := ALL_EXTRACTORS.get(ALIAS.get(name, name), None)) is not None:
         return extractor
     if safe:
         return Extractor(name, name, Scale.LINEAR)
@@ -523,13 +523,20 @@ def merge_extractors(
 
     extractors = nx.DiGraph()
 
+    def get_alias_extractor(alias: dict, lbl: str) -> Extractor:
+        return (
+            Extractor("alias", alias[lbl], get_extractor(alias[lbl], safe=True).scale)
+            if lbl in alias else
+            get_extractor(lbl, safe=True)
+        )
+
     # initialise the graph with final leaves
     for label in labels:
-        extractors.add_node(label, **get_extractor(alias.get(label, label), safe=True))
+        extractors.add_node(label, **get_alias_extractor(alias, label))
     # extractors.add_nodes_from(labels)  # adding leaves
     if select is not None:
         extractors.add_node(
-            "reject", **get_extractor(f"not ({alias.get(select, select)})", safe=True),
+            "reject", **get_extractor(f"not ({select})", safe=True),
         )
 
     # construct the full tree
@@ -539,7 +546,7 @@ def merge_extractors(
     ]:
         for node in nodes:
             for root in extract_names(alias.get(node, extractors.nodes[node]["func"])):
-                extractors.add_node(root, **get_extractor(alias.get(root, root), safe=True))
+                extractors.add_node(root, **get_alias_extractor(alias, root))
                 extractors.add_edge(root, node)
 
     # # draw graph for debug: sudo apt install graphviz graphviz-dev && uv pip install pygraphviz

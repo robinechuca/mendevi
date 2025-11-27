@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """CLI entry point to visualize database data."""
 
 import importlib
@@ -19,7 +17,7 @@ from mendevi.plot.printer import printer, safe_lbl
 from .parse import parse_videos_database
 
 NAMES_DOC = "        ".join(
-    f"* {n}: {get_extractor(n).label}.\n" for n in LABELS
+    f"* {n}: {get_extractor(n).legend}.\n" for n in LABELS
 )
 DOCSTRING = f"""Draw a chart from a database.
 

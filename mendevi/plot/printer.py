@@ -117,7 +117,7 @@ def print_grid(axe: str, dim: str, scale: Scale) -> list[str]:
             f'{axe}.grid(axis="{dim}", which="major")',
             f'{axe}.grid(axis="{dim}", which="minor", color="0.9")',
         ]
-    if scale == Scale.DISCRETE:
+    if scale == Scale.LINEAR:
         return [
             f'{axe}.set_{dim}scale("linear")  # or .set_{dim}scale("log", base=10)',
             f'{axe}.grid(axis="{dim}", which="major")',
@@ -497,7 +497,7 @@ def print_read_sql(**kwargs: dict) -> list[str]:
     }
 
     # get sql query
-    atom_names, line_extractor = merge_extractors(set(), alias=alias, select=kwargs["filter"])
+    atom_names, line_extractor = merge_extractors(set(alias), alias=alias, select=kwargs["filter"])
     select = {s for lbl in atom_names for s in get_extractor(lbl).func.select}
     if len(queries := SqlLinker(*select).sql) == 0:
         logging.getLogger(__name__).warning(

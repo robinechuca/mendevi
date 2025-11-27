@@ -17,7 +17,7 @@ class PixelParamType(click.ParamType):
 
     name = "pixel"
 
-    def convert(self, value, param, ctx):
+    def convert(self, value: str, param: click.Option, ctx: click.Context) -> str:
         """Normalize pixel format."""
         value = value.lower()
         if not re.fullmatch(r"yuv4[24][024]p(?:10le|12le)?", value):
@@ -30,7 +30,7 @@ class ResolutionParamType(click.ParamType):
 
     name = "resolution"
 
-    def convert(self, value, param, ctx):
+    def convert(self, value: str, param: click.Option, ctx: click.Context) -> tuple[int, int]:
         """Convert a video resolution into tuple."""
         if (match := re.search(
             r"(?P<t1>he)?\D*(?P<d1>\d+)\D+?(?P<t2>w)?\D*(?P<d2>\d+)", value.lower(),
@@ -52,8 +52,8 @@ def _guess_database(files: tuple[str]) -> str | None:
     if len(candidates) > 1:
         msg = f"only one database must be provided, {candidates} are given"
         raise ValueError(msg)
-    for file in files:
-        file = pathlib.Path(file) / "mendevi.db"
+    for file_ in files:
+        file = pathlib.Path(file_) / "mendevi.db"
         if is_sqlite(file):
             candidates.add(str(file))
     if len(candidates) == 1:
