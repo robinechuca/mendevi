@@ -9,7 +9,7 @@ import subprocess
 from mendevi import __version__
 from mendevi.cst.plot import COLORS, FIGSIZE, MARKERS, MARKERSIZE
 from mendevi.database.extract import SqlLinker
-from mendevi.database.meta import get_extractor, merge_extractors
+from mendevi.database.meta import Scale, get_extractor, merge_extractors
 
 
 def printer(**kwargs: dict) -> str:
@@ -91,7 +91,7 @@ def print_cst(**kwargs: dict) -> list[str]:
     ]
 
 
-def print_grid(axe: str, dim: str, *, log: bool | None) -> list[str]:
+def print_grid(axe: str, dim: str, scale: Scale) -> list[str]:
     """Define the ticks rule and log or linear scale.
 
     Parameters
@@ -100,30 +100,33 @@ def print_grid(axe: str, dim: str, *, log: bool | None) -> list[str]:
         The acessor to the matplotlib axe.
     dim : str
         "x" or "y".
-    log : boolean or None
-        Defined by get_extractor.
+    scale : Scale
+        Linear, logarithmic or discrete.
 
     """
     assert isinstance(axe, str), axe.__class__.__name__
-    assert log in {True, False, None}, log
+    assert isinstance(scale, Scale), scale.__class__.__name__
     assert dim in {"x", "y"}, dim
 
-    if log is None:
+    if scale == Scale.DISCRETE:
         logging.getLogger(__name__).warning("the axis %s should be display as bar plot", dim)
         return []
-    if log:
+    if scale == Scale.LOGARITHMIC:
         return [
             f'{axe}.set_{dim}scale("log", base=10)  # or .set_{dim}scale("linear")',
             f'{axe}.grid(axis="{dim}", which="major")',
             f'{axe}.grid(axis="{dim}", which="minor", color="0.9")',
         ]
-    return [
-        f'{axe}.set_{dim}scale("linear")  # or .set_{dim}scale("log", base=10)',
-        f'{axe}.grid(axis="{dim}", which="major")',
-        f'{axe}.grid(axis="{dim}", which="minor", color="0.9")',
-        f"ticks = {axe}.{dim}axis.get_majorticklocs()  # get main graduations",
-        f"{axe}.{dim}axis.set_minor_locator(ticker.MultipleLocator((ticks[1]-ticks[0])/10.0))",
-    ]
+    if scale == Scale.DISCRETE:
+        return [
+            f'{axe}.set_{dim}scale("linear")  # or .set_{dim}scale("log", base=10)',
+            f'{axe}.grid(axis="{dim}", which="major")',
+            f'{axe}.grid(axis="{dim}", which="minor", color="0.9")',
+            f"ticks = {axe}.{dim}axis.get_majorticklocs()  # get main graduations",
+            f"{axe}.{dim}axis.set_minor_locator(ticker.MultipleLocator((ticks[1]-ticks[0])/10.0))",
+        ]
+    msg = f"{scale} is not valid"
+    raise ValueError(msg)
 
 
 def print_fill_axe(**kwargs: dict) -> list[str]:
@@ -283,16 +286,16 @@ def print_subfigure(**kwargs: dict) -> list[str]:
     ]
     xlabel = f"x_{kwargs['x'].index(kwargs['xlabel'])}"
     ylabel = f"y_{kwargs['y'].index(kwargs['ylabel'])}"
-    log_x = get_extractor(kwargs["xlabel"], safe=True).is_log
-    log_y = get_extractor(kwargs["ylabel"], safe=True).is_log
+    scale_x = get_extractor(kwargs["xlabel"], safe=True).scale
+    scale_y = get_extractor(kwargs["ylabel"], safe=True).scale
     match (kwargs["window_y"] is None, kwargs["window_x"] is None):
         case (True, True):
             middle = [
                 "    # create a simple figure",
                 '    axe = subfig.subplots(sharex="col")  # or "all"',
                 f"    fill_axe(axe, values, ylab={ylabel!r}, xlab={xlabel!r})",
-                *(f"    {line}" for line in print_grid("axe", "y", log=log_y)),
-                *(f"    {line}" for line in print_grid("axe", "x", log=log_x)),
+                *(f"    {line}" for line in print_grid("axe", "y", scale=scale_y)),
+                *(f"    {line}" for line in print_grid("axe", "x", scale=scale_x)),
             ]
         case (False, True):
             middle = [
@@ -310,8 +313,8 @@ def print_subfigure(**kwargs: dict) -> list[str]:
                 "        }",
                 f'        axes[i, 0].set_title({kwargs["window_y"]!r} f"={{window_y_value}}")',
                 f"        fill_axe(axes[i, 0], sub_values, ylab={ylabel!r}, xlab={xlabel!r})",
-                *(f"        {line}" for line in print_grid("axes[i, 0]", "y", log=log_y)),
-                *(f"        {line}" for line in print_grid("axes[i, 0]", "x", log=log_x)),
+                *(f"        {line}" for line in print_grid("axes[i, 0]", "y", scale=scale_y)),
+                *(f"        {line}" for line in print_grid("axes[i, 0]", "x", scale=scale_x)),
             ]
         case (True, False):
             middle = [
@@ -329,8 +332,8 @@ def print_subfigure(**kwargs: dict) -> list[str]:
                 "        }",
                 f'        axes[0, j].set_title({kwargs["window_x"]!r} f"={{window_x_value}}")',
                 f"        fill_axe(axes[0, j], sub_values, ylab={ylabel!r}, xlab={xlabel!r})",
-                *(f"        {line}" for line in print_grid("axes[0, j]", "y", log=log_y)),
-                *(f"        {line}" for line in print_grid("axes[0, j]", "x", log=log_x)),
+                *(f"        {line}" for line in print_grid("axes[0, j]", "y", scale=scale_y)),
+                *(f"        {line}" for line in print_grid("axes[0, j]", "x", scale=scale_x)),
             ]
         case (False, False):  # 2d grid subplot
             middle = [
@@ -360,12 +363,12 @@ def print_subfigure(**kwargs: dict) -> list[str]:
                 f'            {kwargs["window_x"]!r} f"={{window_x_value}}"',
                 "        )",
                 f"        fill_axe(axes[i, j], sub_values, ylab={ylabel!r}, xlab={xlabel!r})",
-                *(f"        {line}" for line in print_grid("axes[i, j]", "y", log=log_y)),
-                *(f"        {line}" for line in print_grid("axes[i, j]", "x", log=log_x)),
+                *(f"        {line}" for line in print_grid("axes[i, j]", "y", scale=scale_y)),
+                *(f"        {line}" for line in print_grid("axes[i, j]", "x", scale=scale_x)),
             ]
     end = [
-        f"    subfig.supylabel({get_extractor(kwargs['ylabel'], safe=True).label!r})",
-        f"    subfig.supxlabel({get_extractor(kwargs['xlabel'], safe=True).label!r})",
+        f"    subfig.supylabel({get_extractor(kwargs['ylabel'], safe=True).legend!r})",
+        f"    subfig.supxlabel({get_extractor(kwargs['xlabel'], safe=True).legend!r})",
         "",
     ]
     return header + middle + end

@@ -101,6 +101,8 @@ select = ["ALL"]
 ignore = [
   "D203",  # incorrect-blank-line-before-class (D203) and no-blank-line-before-class (D211) are incompatible
   "D213",  # multi-line-summary-first-line (D212) and multi-line-summary-second-line (D213) are incompatible
+  "D411",  # Missing blank line before section: miss detection with \b
+  "D301",  # Use `r"""` if any backslashes in a docstring: miss detection with \b
   "ERA001",  # commented-out-code
   "S",  # all flake8-bandit
   "T20",  # flake8-print

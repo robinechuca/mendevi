@@ -49,17 +49,15 @@ def _fill_vid_table(
     fields -= {k for k, v in prop.items() if v is not None}
     if not fields:
         return
-    fields = sorted(fields)  # to frozen order in sql request and for printing repetability
 
     # fill missing fields
     pad = max(map(len, fields)) - 4
     with Printer(f"Get properties of {video.name}...", color="green") as prt:
         # basic fields
-        for field in fields:
+        for field in fields - {"vid_rms_sobel", "vid_rms_time_diff", "vid_uvq"}:
             prop["field"] = _fill_vid_table_prop(field, prt, pad, video)
 
         # metric fields
-        fields = set(fields)
         new_metrics = cutcutcodec.video_metrics(
             video,
             rms_sobel="vid_rms_sobel" in fields,
@@ -72,6 +70,7 @@ def _fill_vid_table(
         prop |= {f"vid_{m}": list_to_binary(v) for m, v in new_metrics.items()}
 
     # update result
+    fields = list(fields)  # to frozen order for sql request
     with (
         Lock(str(database.with_name(".dblock")), lifetime=datetime.timedelta(seconds=600)),
         sqlite3.connect(database) as sql_database,
