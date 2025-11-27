@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Help to get the good extractor."""
 
 import ast
@@ -17,26 +15,28 @@ from mendevi.database import extract
 
 
 class Scale(enum.Flag):
-    """The axis type."""
+    """Represent the nature of the variable, continuous or discrete."""
+
     LINEAR = enum.auto()
     LOGARITHMIC = enum.auto()
     DISCRETE = enum.auto()
 
 
-class ExtractContext(collections.abc.Mapping):
+class Extractor(collections.abc.Mapping):
     """Correctly define a variable in a context.
 
     Examples
     --------
-    >>> from mendevi.database.meta import Scale, ExtractContext
-    >>> ExtractContext("legend", "func", Scale.DISCRETE)
-    ExtractContext('legend', 'func', Scale.DISCRETE)
+    >>> from mendevi.database.meta import Scale, Extractor
+    >>> Extractor("legend", "func", Scale.DISCRETE)
+    Extractor('legend', 'func', Scale.DISCRETE)
     >>> {**_}
     {'legend': 'legend', 'func': 'func', 'scale': <Scale.DISCRETE: 4>}
     >>>
+
     """
 
-    def __init__(self, legend: str, func: typing.Callable | str, scale: Scale):
+    def __init__(self, legend: str, func: typing.Callable | str, scale: Scale) -> None:
         """Create a dictlike named tuple."""
         assert isinstance(legend, str), legend.__class__.__name__
         assert callable(func) or isinstance(func, str), func.__class__.__name__
@@ -45,17 +45,17 @@ class ExtractContext(collections.abc.Mapping):
 
     @property
     def legend(self) -> str:
-        """The description."""
+        """Return the description."""
         return self._legend
 
     @property
     def func(self) -> typing.Callable | str:
-        """The function or the expression to compute the variable."""
+        """Return the function or the expression to compute the variable."""
         return self._func
 
     @property
     def scale(self) -> Scale:
-        """The kind of variable."""
+        """Return the kind of variable."""
         return self._scale
 
     def __getitem__(self, item: str) -> object:
@@ -71,12 +71,259 @@ class ExtractContext(collections.abc.Mapping):
         yield from ("legend", "func", "scale")
 
     def __len__(self) -> int:
-        """The numbers of attributes."""
+        """Return the numbers of attributes."""
         return 3
 
     def __repr__(self) -> str:
         """Return a nice representation."""
         return f"{self.__class__.__name__}({self._legend!r}, {self._func!r}, {self._scale})"
+
+
+ALL_EXTRACTORS = {
+    "act_duration": Extractor(
+        "Video processing activity duration in seconds",
+        extract.extract_act_duration,
+        Scale.LINEAR,
+    ),
+    "bitrate": Extractor(
+        r"Video bitrate in $bit.s^{-1}$",
+        "None if size is None or video_duration is None else 8.0 * size / video_duration",
+        Scale.LOGARITHMIC,
+    ),
+    "codec": Extractor(
+        "Codec name",
+        extract.extract_codec,
+        Scale.DISCRETE,
+    ),
+    "cores": Extractor(
+        "Average cumulative utilisation rate of logical cores",
+        extract.extract_cores,
+        Scale.LINEAR,
+    ),
+    "decode_cmd": Extractor(
+        "The ffmpeg command used for decoding",
+        extract.extract_decode_cmd,
+        Scale.DISCRETE,
+    ),
+    "decode_scenario": Extractor(
+        "Unique string specific to the decoding scenario",
+        'f"cmd: {decode_cmd}, hostname: {hostname}"',
+        Scale.DISCRETE,
+    ),
+    "effort": Extractor(
+        "Effort provided as a parameter to the encoder",
+        extract.extract_effort,
+        Scale.DISCRETE,
+    ),
+    "encode_cmd": Extractor(
+        "The ffmpeg command used for encoding",
+        extract.extract_encode_cmd,
+        Scale.DISCRETE,
+    ),
+    "encode_scenario": Extractor(
+        "Unique string specific to the encoding scenario",
+        'f"cmd: {encode_cmd}, video_name: {video_name}, hostname: {hostname}"',
+        Scale.DISCRETE,
+    ),
+    "encoder": Extractor(
+        "Name of the encoder",
+        extract.extract_encoder,
+        Scale.DISCRETE,
+    ),
+    "energy": Extractor(
+        "Total energy consumption in Joules",
+        "float((powers[0] * powers[1]).sum())",
+        Scale.LOGARITHMIC,
+    ),
+    "energy_per_frame": Extractor(
+        "Average energy consumption per frame in Joules",
+        "energy / nbr_frames",
+        Scale.LOGARITHMIC,
+    ),
+    "frames": Extractor(
+        "The metadata of each frame",
+        extract.extract_frames,
+        Scale.DISCRETE,
+    ),
+    "height": Extractor(
+        "Height of images in pixels",
+        extract.extract_height,
+        Scale.LINEAR,
+    ),
+    "gamut": Extractor(
+        "The tristimulus primaries colors name",
+        extract.extract_gamut,
+        Scale.DISCRETE,
+    ),
+    "hostname": Extractor(
+        "The machine name",
+        extract.extract_hostname,
+        Scale.DISCRETE,
+    ),
+    "lpips": Extractor(
+        "Learned Perceptual Image Patch Similarity (LPIPS)",
+        extract.extract_lpips,
+        Scale.LINEAR,
+    ),
+    "lpips_alex": Extractor(
+        "Learned Perceptual Image Patch Similarity (LPIPS) with alex",
+        extract.extract_lpips_alex,
+        Scale.LINEAR,
+    ),
+    "lpips_vgg": Extractor(
+        "Learned Perceptual Image Patch Similarity (LPIPS) with vgg",
+        extract.extract_lpips_vgg,
+        Scale.LINEAR,
+    ),
+    "power": Extractor(
+        "Average power consumption in Watts",
+        "energy / float(powers[0].sum())",
+        Scale.LINEAR,
+    ),
+    "powers": Extractor(
+        "The interval duration and the average power in each intervals",
+        extract.extract_powers,
+        Scale.DISCRETE,
+    ),
+    "mode": Extractor(
+        "Bitrate mode, constant (cbr) or variable (vbr)",
+        extract.extract_mode,
+        Scale.DISCRETE,
+    ),
+    "nbr_frames": Extractor(
+        "The real number of frames of the video file",
+        "len(frames)",
+        Scale.LOGARITHMIC,
+    ),
+    "profile": Extractor(
+        "Profile of the video",
+        (
+            "None if height is None and width is None else "
+            "best_profile(height or width, width or height)"
+        ),
+        Scale.DISCRETE,
+    ),
+    "psnr": Extractor(
+        "Peak Signal to Noise Ratio (PSNR)",
+        extract.extract_psnr,
+        Scale.LINEAR,
+    ),
+    "quality": Extractor(
+        "Quality level passed to the encoder",
+        extract.extract_quality,
+        Scale.LINEAR,
+    ),
+    "range": Extractor(
+        "Video encoding color range, 'tv' or 'pc'",
+        extract.extract_range,
+        Scale.DISCRETE,
+    ),
+    "reference_video_name": Extractor(
+        "Input video basename",
+        extract.extract_reference_video_name,
+        Scale.DISCRETE,
+    ),
+    "rms_sobel": Extractor(
+        "Spacial root mean square sobel gradient complexity",
+        extract.extract_rms_sobel,
+        Scale.LINEAR,
+    ),
+    "rms_time_diff": Extractor(
+        "Temporal root means square time difference complexity",
+        extract.extract_rms_time_diff,
+        Scale.LINEAR,
+    ),
+    "shape": Extractor(
+        "The image shapes height x width in pixels",
+        "(height, width)",
+        Scale.DISCRETE,
+    ),
+    "ssim": Extractor(
+        "Structural Similarity (SSIM)",
+        extract.extract_ssim,
+        Scale.LINEAR,
+    ),
+    "ssim_comp": Extractor(
+        "Complementary of Structural Similarity (1-SSIM)",
+        "1.0 - ssim",
+        Scale.LOGARITHMIC,
+    ),
+    "threads": Extractor(
+        "Number of threads provided as a parameter to the encoder",
+        extract.extract_threads,
+        Scale.LINEAR,
+    ),
+    "transfer": Extractor(
+        "The non-linear transfer function name",
+        extract.extract_transfer,
+        Scale.DISCRETE,
+    ),
+    "vmaf": Extractor(
+        "Video Multi-Method Assessment Fusion (VMAF)",
+        extract.extract_vmaf,
+        Scale.LINEAR,
+    ),
+    "video_duration": Extractor(
+        "Video duration in seconds",
+        extract.extract_video_duration,
+        Scale.LINEAR,
+    ),
+    "video_hash": Extractor(
+        "The hexadecimal md5 video file checksum",
+        extract.extract_video_hash,
+        Scale.DISCRETE,
+    ),
+    "video_name": Extractor(
+        "Video basename",
+        extract.extract_video_name,
+        Scale.DISCRETE,
+    ),
+    "video_size": Extractor(
+        "The total video file size in bytes",
+        extract.extract_video_size,
+        Scale.LOGARITHMIC,
+    ),
+    "width": Extractor(
+        "Width of images in pixels",
+        extract.extract_height,  # comme dans ton code
+        Scale.LINEAR,
+    ),
+}
+
+
+ALIAS = {
+    "rate": "bitrate",
+    "dec_cmd": "decode_cmd",
+    "actdur": "act_duration",
+    "prim": "gamut",
+    "primaries": "gamut",
+    "color_primaries": "gamut",
+    "dec_scenario": "decode_scenario",
+    "preset": "effort",
+    "enc_cmd": "encode_cmd",
+    "enc_scenario": "encode_scenario",
+    "vid_duration": "video_duration",
+    "video_md5": "video_hash",
+    "vid_md5": "video_hash",
+    "vid_hash": "video_hash",
+    "vid_name": "video_name",
+    "name": "video_name",
+    "vid_size": "video_size",
+    "size": "video_size",
+    "ref_name": "reference_video_name",
+    "reference_vid_name": "reference_video_name",
+    "reference_name": "reference_video_name",
+    "ref_vid_name": "reference_video_name",
+    "ref_video_name": "reference_video_name",
+    "nb_frames": "nbr_frames",
+    "psnr_rev": "ssim_comp",
+    "comp_ssim": "ssim_comp",
+    "ssim_rev": "ssim_comp",
+    "rev_ssim": "ssim_comp",
+    "trans": "transfer",
+    "color_transfer": "transfer",
+    "eotf": "transfer",
+}
 
 
 def _import_extractor(code: list[str]) -> callable:
@@ -154,7 +401,7 @@ def extract_names(expr: str) -> set[str]:
     return set(candidates - reject)  # set usefull for empty case
 
 
-def get_extractor(name: str, *, safe: bool = False) -> ExtractContext:
+def get_extractor(name: str, *, safe: bool = False) -> Extractor:
     """Get the way to deserialize a raw value.
 
     Parameters
@@ -166,270 +413,16 @@ def get_extractor(name: str, *, safe: bool = False) -> ExtractContext:
 
     Returns
     -------
-    extractor : ExtractContext
+    extractor : Extractor
         The label, func and scale.
 
     """
     assert isinstance(name, str), name.__class__.__name__
     assert isinstance(safe, bool), safe.__class__.__name__
-    extractor = None
-    match name:  # catched by mendevi.cst.labels.extract_labels
-        case "act_duration":
-            return ExtractContext(
-                "Video processing activity duration in seconds",
-                extract.extract_act_duration,
-                Scale.LINEAR,
-            )
-        case "bitrate" | "rate":
-            return ExtractContext(
-                r"Video bitrate in $bit.s^{-1}$",
-                "None if size is None or video_duration is None else 8.0 * size / video_duration",
-                Scale.LOGARITHMIC,
-            )
-        case "codec":
-            return ExtractContext(
-                "Codec name",
-                extract.extract_codec,
-                Scale.DISCRETE,
-            )
-        case "cores":
-            return ExtractContext(
-                "Average cumulative utilisation rate of logical cores",
-                extract.extract_cores,
-                Scale.LINEAR,
-            )
-        case "decode_cmd" | "dec_cmd":
-            return ExtractContext(
-                "The ffmpeg command used for decoding",
-                extract.extract_decode_cmd,
-                Scale.DISCRETE,
-            )
-        case "decode_scenario" | "dec_scenario":
-            return ExtractContext(
-                "Unique string specific to the decoding scenario",
-                'f"cmd: {decode_cmd}, hostname: {hostname}"',
-                Scale.DISCRETE,
-            )
-        case "effort" | "preset":
-            return ExtractContext(
-                "Effort provided as a parameter to the encoder",
-                extract.extract_effort,
-                Scale.DISCRETE,
-            )
-        case "encode_cmd" | "enc_cmd":
-            return ExtractContext(
-                "The ffmpeg command used for encoding",
-                extract.extract_encode_cmd,
-                Scale.DISCRETE,
-            )
-        case "encode_scenario" | "enc_scenario":
-            return ExtractContext(
-                "Unique string specific to the encoding scenario",
-                'f"cmd: {encode_cmd}, video_name: {video_name}, hostname: {hostname}"',
-                Scale.DISCRETE,
-            )
-        case "encoder":
-            return ExtractContext(
-                "Name of the encoder",
-                extract.extract_encoder,
-                Scale.DISCRETE,
-            )
-        case "energy":
-            return ExtractContext(
-                "Total energy consumption in Joules",
-                "float((powers[0] * powers[1]).sum())",
-                Scale.LOGARITHMIC,
-            )
-        case "energy_per_frame":
-            return ExtractContext(
-                "Average energy consumption per frame in Joules",
-                "energy / nbr_frames",
-                Scale.LOGARITHMIC,
-            )
-        case "frames":
-            extractor = ExtractContext(
-                "The metadata of each frame",
-                extract.extract_frames,
-                Scale.DISCRETE,
-            )
-        case "height":
-            extractor = ExtractContext(
-                "Height of images in pixels",
-                extract.extract_height,
-                Scale.LINEAR,
-            )
-        case "gamut" | "prim" | "primaries" | "color_primaries":
-            extractor = ExtractContext(
-                "The tristimulus primaries colors name",
-                extract.extract_gamut,
-                Scale.DISCRETE,
-            )
-        case "hostname":
-            extractor = ExtractContext(
-                "The machine name",
-                extract.extract_hostname,
-                Scale.DISCRETE,
-            )
-        case "lpips":
-            extractor = ExtractContext(
-                "Learned Perceptual Image Patch Similarity (LPIPS)",
-                extract.extract_lpips,
-                Scale.LINEAR,
-            )
-        case "lpips_alex":
-            extractor = ExtractContext(
-                "Learned Perceptual Image Patch Similarity (LPIPS) with alex",
-                extract.extract_lpips_alex,
-                Scale.LINEAR,
-            )
-        case "lpips_vgg":
-            extractor = ExtractContext(
-                "Learned Perceptual Image Patch Similarity (LPIPS) with vgg",
-                extract.extract_lpips_vgg,
-                Scale.LINEAR,
-            )
-        case "power":
-            extractor = ExtractContext(
-                "Average power consumption in Watts",
-                "energy / float(powers[0].sum())",
-                Scale.LINEAR,
-            )
-        case "powers":
-            extractor = ExtractContext(
-                "The interval duration and the average power in each intervals",
-                extract.extract_powers,
-                Scale.DISCRETE,
-            )
-        case "mode":
-            extractor = ExtractContext(
-                "Bitrate mode, constant (cbr) or variable (vbr)",
-                extract.extract_mode,
-                Scale.DISCRETE,
-            )
-        case "nb_frames" | "nbr_frames":
-            extractor = ExtractContext(
-                "The real number of frames of the video file",
-                "len(frames)",
-                Scale.LOGARITHMIC,
-            )
-        case "profile":
-            extractor = ExtractContext(
-                "Profile of the video",
-                (
-                    "None if height is None and width is None else "
-                    "best_profile(height or width, width or height)"
-                ),
-                Scale.DISCRETE,
-            )
-        case "psnr":
-            extractor = ExtractContext(
-                "Peak Signal to Noise Ratio (PSNR)",
-                extract.extract_psnr,
-                Scale.LINEAR,
-            )
-        case "quality":
-            extractor = ExtractContext(
-                "Quality level passed to the encoder",
-                extract.extract_quality,
-                Scale.LINEAR,
-            )
-        case "range":
-            extractor = ExtractContext(
-                "Video encoding color range, 'tv' or 'pc'",
-                extract.extract_range,
-                Scale.DISCRETE,
-            )
-        case (
-            "reference_video_name" | "reference_vid_name" | "reference_name"
-            | "ref_video_name" | "ref_vid_name" | "ref_name"
-        ):
-            extractor = ExtractContext(
-                "Input video basename",
-                extract.extract_reference_video_name,
-                Scale.DISCRETE,
-            )
-        case "rms_sobel":
-            extractor = ExtractContext(
-                "Spacial root mean square sobel gradient complexity",
-                extract.extract_rms_sobel,
-                Scale.LINEAR,
-            )
-        case "rms_time_diff":
-            extractor = ExtractContext(
-                "Temporal root means square time difference complexity",
-                extract.extract_rms_time_diff,
-                Scale.LINEAR,
-            )
-        case "shape":
-            extractor = ExtractContext(
-                "The image shapes height x width in pixels",
-                "(height, width)",
-                Scale.DISCRETE,
-            )
-        case "ssim":
-            extractor = ExtractContext(
-                "Structural Similarity (SSIM)",
-                extract.extract_ssim,
-                Scale.LINEAR,
-            )
-        case "ssim_comp" | "comp_ssim" | "ssim_rev" | "rev_ssim":
-            extractor = ExtractContext(
-                "Complementary of Structural Similarity (1-SSIM)",
-                "1.0 - ssim",
-                Scale.LOGARITHMIC,
-            )
-        case "threads":
-            extractor = ExtractContext(
-                "Number of threads provided as a parameter to the encoder",
-                extract.extract_threads,
-                Scale.LINEAR,
-            )
-        case "transfer" | "trans" | "color_transfer" | "eotf":
-            extractor = ExtractContext(
-                "The non-linear transfer function name",
-                extract.extract_transfer,
-                Scale.DISCRETE,
-            )
-        case "vmaf":
-            extractor = ExtractContext(
-                "Video Multi-Method Assessment Fusion (VMAF)",
-                extract.extract_vmaf,
-                Scale.LINEAR,
-            )
-        case "video_duration" | "vid_duration":
-            extractor = ExtractContext(
-                "Video duration in seconds",
-                extract.extract_video_duration,
-                Scale.LINEAR,
-            )
-        case "video_hash" | "vid_hash" | "video_md5" | "vid_md5":
-            extractor = ExtractContext(
-                "The hexadecimal md5 video file checksum",
-                extract.extract_video_hash,
-                Scale.DISCRETE,
-            )
-        case "video_name" | "vid_name" | "name":
-            extractor = ExtractContext(
-                "Video basename",
-                extract.extract_video_name,
-                Scale.DISCRETE,
-            )
-        case "video_size" | "vid_size" | "size":
-            extractor = ExtractContext(
-                "The total video file size in bytes",
-                extract.extract_video_size,
-                Scale.LOGARITHMIC,
-            )
-        case "width":
-            extractor = ExtractContext(
-                "Width of images in pixels",
-                extract.extract_height,
-                Scale.LINEAR,
-            )
-    if extractor is not None:
+    if extractor := ALL_EXTRACTORS.get(ALIAS.get(name, name), None) is not None:
         return extractor
     if safe:
-        return ExtractContext(name, name, Scale.LINEAR)
+        return Extractor(name, name, Scale.LINEAR)
     msg = f"{name} is not recognised"
     raise KeyError(msg)
 

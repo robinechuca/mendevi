@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Define the functions that enable values to be extracted from a select query."""
 
 import functools
@@ -11,6 +9,7 @@ import typing
 import numpy as np
 import orjson
 
+from mendevi.cst.profiles import PROFILES
 from mendevi.database.serialize import binary_to_list, binary_to_tensor
 
 JOIN: dict[str: dict[str, str]] = {  # join = JOIN[destination_table][source_table]
@@ -562,7 +561,6 @@ def extract_reference_video_name(raw: dict[str]) -> str:
         The result line of select request.
 
     """
-    from mendevi.cst.profiles import PROFILES
     if (vid_name := raw["ref_vid_name"]) is None:
         return None
     assert isinstance(vid_name, str), vid_name.__class__.__name__

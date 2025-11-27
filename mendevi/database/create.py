@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Initialize the SQL database."""
 
 import pathlib
@@ -11,6 +9,8 @@ ENV_UNIQUE = [
     "env_logical_cores",
     "env_processor",
 ]
+
+SQL_HEADER_SIZE = 100  # SQLite database file header is 100 bytes
 
 
 def create_database(filename: str | bytes | pathlib.Path) -> None:
@@ -242,7 +242,7 @@ def create_database(filename: str | bytes | pathlib.Path) -> None:
     filename.chmod(0o777)
 
 
-def is_sqlite(file: str | bytes | pathlib.Path):
+def is_sqlite(file: str | bytes | pathlib.Path) -> bool:
     """Test if the provided path is an sqlite3 database.
 
     Examples
@@ -262,8 +262,8 @@ def is_sqlite(file: str | bytes | pathlib.Path):
     file = pathlib.Path(file).expanduser()
     if not file.is_file():
         return False
-    with open(file, "rb") as raw:
-        header = raw.read(100)
-    if len(header) < 100:  # SQLite database file header is 100 bytes
+    with file.open("rb") as raw:
+        header = raw.read(SQL_HEADER_SIZE)
+    if len(header) < SQL_HEADER_SIZE:
         return False
     return header.startswith(b"SQLite format 3")

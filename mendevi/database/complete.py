@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Fill the SQL database."""
 
 import datetime
