@@ -10,11 +10,11 @@ from pygments.formatters import TerminalFormatter
 from pygments.lexers import PythonLexer
 
 from mendevi.cst.labels import LABELS
-from mendevi.database.meta import extract_names, get_extractor
+from mendevi.database.meta import get_extractor
 from mendevi.download.decapsulation import retrive_file
 from mendevi.plot.printer import printer, safe_lbl
 
-from .parse import parse_videos_database
+from .parse import parse_expr, parse_videos_database
 
 NAMES_DOC = "        ".join(
     f"* {n}: {get_extractor(n).legend}.\n" for n in LABELS
@@ -60,101 +60,61 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
     assert "x" in kwargs, sorted(kwargs)
     assert isinstance(kwargs["x"], tuple), kwargs["x"].__class__.__name__
     assert kwargs["x"], "you must provide the -x option"
-    assert all(isinstance(x, str) and extract_names(x).issubset(LABELS) for x in kwargs["x"]), (
-        f"{ {lbl for ls in kwargs['x'] for lbl in extract_names(ls)}-set(LABELS)} "
-        "are invalid names, "
-        f"it has to be one of {LABELS}"
-    )
-    prt.print(f"x         : {', '.join(kwargs['x'])}")
+    for i, expr in enumerate(kwargs["x"]):
+        parse_expr(expr, prt, f"x_{i:<8}")
 
     # y
     assert "y" in kwargs, sorted(kwargs)
     assert isinstance(kwargs["y"], tuple), kwargs["y"].__class__.__name__
     assert kwargs["y"], "you must provide the -y option"
-    assert all(isinstance(y, str) and extract_names(y).issubset(LABELS) for y in kwargs["y"]), (
-        f"{ {lbl for ls in kwargs['y'] for lbl in extract_names(ls)}-set(LABELS)} "
-        "are invalid names, "
-        f"it has to be one of {LABELS}"
-    )
-    prt.print(f"y         : {', '.join(kwargs['y'])}")
+    for i, expr in enumerate(kwargs["y"]):
+        parse_expr(expr, prt, f"y_{i:<8}")
 
     # color
     kwargs["color"] = kwargs.get("color")
-    if kwargs["color"] is not None:
-        assert isinstance(kwargs["color"], str), kwargs["color"].__class__.__name__
-        names = extract_names(kwargs["color"])
-        assert names.issubset(LABELS), \
-            f"{names-set(LABELS)} are invalid names, it has to be one of {LABELS}"
-        prt.print(f"color     : {kwargs['color']}")
+    parse_expr(kwargs["color"], prt, "color     ")
 
     # marker
     kwargs["marker"] = kwargs.get("marker")
-    if kwargs["marker"] is not None:
-        assert isinstance(kwargs["marker"], str), kwargs["marker"].__class__.__name__
-        names = extract_names(kwargs["marker"])
-        assert names.issubset(LABELS), \
-            f"{names-set(LABELS)} are invalid names, it has to be one of {LABELS}"
-        prt.print(f"marker    : {kwargs['marker']}")
+    parse_expr(kwargs["marker"], prt, "marker    ")
 
     # error
     kwargs["error"] = kwargs.get("error")
-    if kwargs["error"] is not None:
-        assert isinstance(kwargs["error"], str), kwargs["error"].__class__.__name__
-        names = extract_names(kwargs["error"])
-        assert names.issubset(LABELS), \
-            f"{names-set(LABELS)} are invalid names, it has to be one of {LABELS}"
-        prt.print(f"error     : {kwargs['error']}")
+    parse_expr(kwargs["error"], prt, "error     ")
 
     # window
     kwargs["window"] = kwargs.get("window")
     if kwargs["window"] is not None:
-        match (  # preference for y axis
-            kwargs.get("window_x") is None,
-            kwargs.get("window_y") is None,
-            len(kwargs["x"]) == 1,
-            len(kwargs["y"]) == 1,
-        ):
-            case (False, True, False, True):
-                kwargs["window_y"] = kwargs["window"]
-            case (True, False, True, False):
-                kwargs["window_x"] = kwargs["window"]
-            case (True, True, False, True):
-                kwargs["window_y"] = kwargs["window"]
-            case (True, True, True, False):
-                kwargs["window_x"] = kwargs["window"]
-            case (False, True, False, False):
-                kwargs["window_y"] = kwargs["window"]
-            case (True, False, False, False):
-                kwargs["window_x"] = kwargs["window"]
-            case _:
-                kwargs["window_y"] = kwargs["window"]
+        kwargs[
+            {
+                (False, True, False, True): "window_y",
+                (True, False, True, False): "window_x",
+                (True, True, False, True): "window_y",
+                (True, True, True, False): "window_x",
+                (False, True, False, False): "window_y",
+                (True, False, False, False): "window_x",
+            }.get(
+                (
+                    kwargs.get("window_x") is None,
+                    kwargs.get("window_y") is None,
+                    len(kwargs["x"]) == 1,
+                    len(kwargs["y"]) == 1,
+                ),
+                "window_y",
+            )
+        ] = kwargs["window"]
 
     # window_x
     kwargs["window_x"] = kwargs.get("window_x")
-    if kwargs["window_x"] is not None:
-        assert isinstance(kwargs["window_x"], str), kwargs["window_x"].__class__.__name__
-        names = extract_names(kwargs["window_x"])
-        assert names.issubset(LABELS), \
-            f"{names-set(LABELS)} are invalid names, it has to be one of {LABELS}"
-        prt.print(f"window x  : {kwargs['window_x']}")
+    parse_expr(kwargs["window_x"], prt, "window x  ")
 
     # window_y
     kwargs["window_y"] = kwargs.get("window_y")
-    if kwargs["window_y"] is not None:
-        assert isinstance(kwargs["window_y"], str), kwargs["window_y"].__class__.__name__
-        names = extract_names(kwargs["window_y"])
-        assert names.issubset(LABELS), \
-            f"{names-set(LABELS)} are invalid names, it has to be one of {LABELS}"
-        prt.print(f"window y  : {kwargs['window_y']}")
+    parse_expr(kwargs["window_y"], prt, "window y  ")
 
     # filter
     kwargs["filter"] = kwargs.get("filter")
-    if kwargs["filter"] is not None:
-        assert isinstance(kwargs["filter"], str), kwargs["filter"].__class__.__name__
-        names = extract_names(kwargs["filter"])
-        assert names.issubset(LABELS), \
-            f"{names-set(LABELS)} are invalid names, it has to be one of {LABELS}"
-        prt.print(f"filter    : {kwargs['filter']}")
+    parse_expr(kwargs["filter"], prt, "filter    ")
 
     # table
     kwargs["table"] = kwargs.get("table")

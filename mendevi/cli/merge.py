@@ -81,13 +81,13 @@ def main(databases: tuple[str]) -> None:
 
                 # t_vid_video
                 prt.print("table 't_vid_video'")
-                for row in cursor_src.execute("SELECT * FROM t_vid_video"):
-                    _insert_update(cursor_dst, row, "t_vid_video", ("vid_id",))
+                for row_ in cursor_src.execute("SELECT * FROM t_vid_video"):
+                    _insert_update(cursor_dst, row_, "t_vid_video", ("vid_id",))
 
                 # t_met_metric
                 prt.print("table 't_met_metric'")
-                for row in cursor_src.execute("SELECT * FROM t_met_metric"):
-                    row = dict(row)
+                for row_ in cursor_src.execute("SELECT * FROM t_met_metric"):
+                    row = dict(row_)
                     del row["met_id"]
                     _insert_update(
                         cursor_dst, row, "t_met_metric", ("met_ref_vid_id", "met_dis_vid_id"),
@@ -96,8 +96,8 @@ def main(databases: tuple[str]) -> None:
                 # t_act_activity
                 prt.print("table 't_act_activity'")
                 act_old_to_new: dict[int, int] = {}
-                for row in cursor_src.execute("SELECT * FROM t_act_activity"):
-                    row = dict(row)
+                for row_ in cursor_src.execute("SELECT * FROM t_act_activity"):
+                    row = dict(row_)
                     old = row.pop("act_id")
                     new = _insert_update(cursor_dst, row, "t_act_activity", ())["act_id"]
                     act_old_to_new[old] = new
@@ -105,8 +105,8 @@ def main(databases: tuple[str]) -> None:
                 # t_env_environment
                 prt.print("table 't_env_environment'")
                 env_old_to_new: dict[int, int] = {}
-                for row in cursor_src.execute("SELECT * FROM t_env_environment"):
-                    row = dict(row)
+                for row_ in cursor_src.execute("SELECT * FROM t_env_environment"):
+                    row = dict(row_)
                     row["env_idle_act_id"] = act_old_to_new[row["env_idle_act_id"]]
                     old = row.pop("env_id")
                     new = _insert_update(cursor_dst, row, "t_env_environment", ())["env_id"]
@@ -114,8 +114,8 @@ def main(databases: tuple[str]) -> None:
 
                 # t_enc_encode
                 prt.print("table 't_enc_encode'")
-                for row in cursor_src.execute("SELECT * FROM t_enc_encode"):
-                    row = dict(row)
+                for row_ in cursor_src.execute("SELECT * FROM t_enc_encode"):
+                    row = dict(row_)
                     del row["enc_id"]
                     if "enc_vbr" in row:  # retrocompatibility with version <= 1.2.0
                         row["enc_mode"] = "vbr" if row.pop("enc_vbr") else "cbr"
@@ -125,8 +125,8 @@ def main(databases: tuple[str]) -> None:
 
                 # t_dec_decode
                 prt.print("table 't_dec_decode'")
-                for row in cursor_src.execute("SELECT * FROM t_dec_decode"):
-                    row = dict(row)
+                for row_ in cursor_src.execute("SELECT * FROM t_dec_decode"):
+                    row = dict(row_)
                     del row["dec_id"]
                     row["dec_env_id"] = env_old_to_new[row["dec_env_id"]]
                     row["dec_act_id"] = act_old_to_new[row["dec_act_id"]]

@@ -14,6 +14,7 @@ dependencies = [  # https://packaging.python.org/en/latest/specifications/depend
   "context_verbose",
   "cutcutcodec",
   "flufl.lock",
+  "levenshtein",
   "matplotlib",
   "networkx",
   "numpy",

@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Parse and verify some user input."""
 
 import pathlib
@@ -7,8 +5,12 @@ import re
 
 import click
 import context_verbose
+import Levenshtein
+from context_verbose import Printer
 
+from mendevi.cst.labels import LABELS
 from mendevi.database.create import create_database, is_sqlite
+from mendevi.database.meta import extract_names
 from mendevi.utils import unfold_video_files
 
 
@@ -59,6 +61,26 @@ def _guess_database(files: tuple[str]) -> str | None:
     if len(candidates) == 1:
         return candidates.pop()
     return None
+
+
+def parse_expr(expr: str | None, prt: Printer, start_msg: str) -> None:
+    """Ensure that the expression provided is valid."""
+    if expr is None:
+        return
+    assert isinstance(expr, str), expr.__class__.__name__
+    variables = extract_names(expr)  # retrieves the names of variables in the expression
+    if excess := set(LABELS) - variables:
+        def dist(label: list[str], excess: set[str]) -> tuple[int, str]:
+            return (
+                min(Levenshtein.distance(label, e) for e in excess),
+                label,
+            )
+        msg = (
+            f"{', '.join(sorted(excess))} are not recognized variables.\n"
+            f"Do you mean {', '.join(sorted(LABELS, key=lambda lab: dist(lab, excess)))}?"
+        )
+        raise ValueError(msg)
+    prt.print(f"{start_msg}: {expr}")
 
 
 def parse_videos_database(
