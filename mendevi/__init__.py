@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Mesures d'Encodage et Décodage Vidéo."""
 
 from .measures import Activity

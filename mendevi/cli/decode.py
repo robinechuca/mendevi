@@ -105,13 +105,13 @@ def main(videos: tuple[str], database: str | None = None, **kwargs: dict) -> Non
     with sqlite3.connect(database) as sql_database:
         sql_database.row_factory = sqlite3.Row
         done: dict[tuple, int] = {}
-        for values in sql_database.execute(
+        for row in sql_database.execute(
             "SELECT * FROM t_dec_decode WHERE dec_env_id=?", (env_id,),
         ):
             values = (
-                values["dec_vid_id"],
-                values["dec_filter"] or "",
-                (values["dec_height"], values["dec_width"]),
+                row["dec_vid_id"],
+                row["dec_filter"] or "",
+                (row["dec_height"], row["dec_width"]),
             )
             done[values] = done.get(values, 0) + 1
         prt.print(f"{sum(done.values())} video already decoded under these environment")

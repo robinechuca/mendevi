@@ -8,9 +8,10 @@ import click
 
 
 class LazyGroup(click.Group):
-    """Overwite clik.Group to layy import."""
+    """Overwite clik.Group to lasy import."""
 
     def __init__(self, *args: tuple, **kwargs: dict) -> None:
+        """Group initialisation."""
         self._lazy_commands = {}
         super().__init__(*args, **kwargs)
 
@@ -18,16 +19,15 @@ class LazyGroup(click.Group):
         """Register a command without importing it immediately."""
         self._lazy_commands[name] = import_path
 
-    def get_command(self, ctx, cmd_name):
+    def get_command(self, ctx: click.Context, cmd_name: str) -> click.Command:
         """Import the function of the module."""
         if cmd_name in self._lazy_commands:
             module_path, func_name = self._lazy_commands[cmd_name].rsplit(".", 1)
             mod = importlib.import_module(module_path)
             return getattr(mod, func_name)
-
         return super().get_command(ctx, cmd_name)
 
-    def list_commands(self, ctx):
+    def list_commands(self, ctx: click.Context) -> list[str]:
         """List all available command names (including lazy ones)."""
         cmds = set(super().list_commands(ctx))
         cmds.update(self._lazy_commands.keys())
