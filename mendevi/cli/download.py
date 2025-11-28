@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Download and decapsule a file."""
 
 

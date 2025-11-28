@@ -24,27 +24,23 @@ if TYPE_CHECKING:
 def _parse_args(prt: Printer, kwargs: dict) -> None:
     """Verification of the arguments."""
     # repeat
-    assert "repeat" in kwargs, sorted(kwargs)
     assert isinstance(kwargs["repeat"], int), kwargs["repeat"].__class__.__name__
     assert kwargs["repeat"] >= 1, kwargs["repeat"]
     prt.print(f"repeat    : {kwargs['repeat']}")
 
     # effort
-    assert "effort" in kwargs, sorted(kwargs)
     assert isinstance(kwargs["effort"], tuple), kwargs["effort"].__class__.__name__
     assert all(isinstance(p, str) for p in kwargs["effort"]), kwargs["effort"]
     assert all(p in {"fast", "medium", "slow"} for p in kwargs["effort"]), kwargs["effort"]
     prt.print(f"efforts   : {', '.join(kwargs['effort'])}")
 
     # encoder
-    assert "encoder" in kwargs, sorted(kwargs)
     assert isinstance(kwargs["encoder"], tuple), kwargs["encoder"].__class__.__name__
     assert all(isinstance(e, str) for e in kwargs["encoder"]), kwargs["encoder"]
     assert all(e in ENCODERS for e in kwargs["encoder"]), kwargs["encoder"]
     prt.print(f"encoders  : {', '.join(kwargs['encoder'])}")
 
     # points
-    assert "points" in kwargs, sorted(kwargs)
     assert isinstance(kwargs["points"], int), kwargs["points"].__class__.__name__
     assert kwargs["points"] >= 1, kwargs["points"]
     kwargs["quality"] = np.linspace(
@@ -56,14 +52,12 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
     prt.print(f"qualities : k/{kwargs['points']+1}, k \u2208 [1, {kwargs['points']}]")
 
     # threads
-    assert "threads" in kwargs, sorted(kwargs)
     assert isinstance(kwargs["threads"], tuple), kwargs["threads"].__class__.__name__
     assert all(isinstance(t, int) for t in kwargs["threads"]), kwargs["threads"]
     assert all(t >= 1 for t in kwargs["threads"]), kwargs["threads"]
     prt.print(f"threads   : {', '.join(map(str, kwargs['threads']))}")
 
     # fps
-    assert "fps" in kwargs, sorted(kwargs)
     assert isinstance(kwargs["fps"], tuple), kwargs["fps"].__class__.__name__
     assert all(isinstance(f, fractions.Fraction) for f in kwargs["fps"]), kwargs["fps"]
     assert all(f > 0 for f in kwargs["fps"]), kwargs["fps"]
@@ -74,7 +68,6 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
         kwargs["fps"] = (None,)
 
     # resolution
-    assert "resolution" in kwargs, sorted(kwargs)
     assert isinstance(kwargs["resolution"], tuple), kwargs["resolution"].__class__.__name__
     assert all(
         isinstance(r, tuple) and len(r) == 2 and all(isinstance(s, int) and s > 0 for s in r)
@@ -86,7 +79,6 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
         kwargs["resolution"] = (None,)
 
     # pix_fmt
-    assert "pix_fmt" in kwargs, sorted(kwargs)
     assert isinstance(kwargs["pix_fmt"], tuple), kwargs["pix_fmt"].__class__.__name__
     assert all(isinstance(p, str) for p in kwargs["pix_fmt"]), kwargs["pix_fmt"]
     if kwargs["pix_fmt"]:
@@ -95,7 +87,6 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
         kwargs["pix_fmt"] = (None,)
 
     # mode
-    assert "mode" in kwargs, sorted(kwargs)
     assert isinstance(kwargs["mode"], tuple), kwargs["mode"].__class__.__name__
     assert all(isinstance(p, str) and p in {"cbr", "vbr"} for p in kwargs["mode"]), kwargs["mode"]
     kwargs["mode"] = tuple(sorted(set(kwargs["mode"])))
@@ -105,7 +96,6 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
     )
 
     # filter
-    kwargs["filter"] = kwargs.get("filter", ())
     assert isinstance(kwargs["filter"], tuple), kwargs["filter"].__class__.__name__
     assert all(isinstance(f, str) for f in kwargs["filter"]), kwargs["filter"]
     if kwargs["filter"]:
@@ -247,20 +237,20 @@ def main(videos: tuple, database: str | None = None, **kwargs: dict) -> None:
     with sqlite3.connect(database) as sql_database, Printer("Search already done...") as prt:
         sql_database.row_factory = sqlite3.Row
         done: dict[tuple, int] = {}
-        for values in sql_database.execute(
+        for row in sql_database.execute(
             "SELECT * FROM t_enc_encode WHERE enc_env_id=?", (env_id,),
         ):
             values = {
-                "effort": values["enc_effort"],
-                "encoder": values["enc_encoder"],
-                "filter": values["enc_filter"] or None,
-                "fps": fractions.Fraction(values["enc_fps"]).limit_denominator(1001),
-                "mode": values["enc_mode"],
-                "pix_fmt": values["enc_pix_fmt"],
-                "quality": float(values["enc_quality"]),
-                "resolution": (values["enc_height"], values["enc_width"]),
-                "src_vid_id": values["enc_src_vid_id"],
-                "threads": values["enc_threads"],
+                "effort": row["enc_effort"],
+                "encoder": row["enc_encoder"],
+                "filter": row["enc_filter"] or None,
+                "fps": fractions.Fraction(row["enc_fps"]).limit_denominator(1001),
+                "mode": row["enc_mode"],
+                "pix_fmt": row["enc_pix_fmt"],
+                "quality": float(row["enc_quality"]),
+                "resolution": (row["enc_height"], row["enc_width"]),
+                "src_vid_id": row["enc_src_vid_id"],
+                "threads": row["enc_threads"],
             }
             values = tuple(values[k] for k in ["src_vid_id", *keys])
             done[values] = done.get(values, 0) + 1

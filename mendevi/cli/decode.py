@@ -121,8 +121,8 @@ def main(videos: tuple[str], database: str | None = None, **kwargs: dict) -> Non
         itertools.product(videos, kwargs["filter"], kwargs["resolution"]),
         key=lambda t: hashlib.md5(str(t).encode("utf-8")).hexdigest(),  # repetable shuffle
     )
-    for i, (repeat, values) in enumerate(itertools.product(range(kwargs["repeat"]), loops)):
-        values = dict(zip(("video", "filter", "resolution"), values, strict=True))
+    for i, (repeat, values_) in enumerate(itertools.product(range(kwargs["repeat"]), loops)):
+        values = dict(zip(("video", "filter", "resolution"), values_, strict=True))
         values["repeat"] = repeat
         values["dec_vid_id"] = kwargs["dec_vid_id"][values["video"]]
         values["filter"] = values["filter"] or ""
