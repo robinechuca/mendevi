@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Merge databases."""
 
 import pathlib
@@ -60,8 +58,8 @@ def main(databases: tuple[str]) -> None:
     with Printer("Parse configuration...") as prt:
         assert isinstance(databases, (tuple, list, set, frozenset)), databases.__class__.__name__
         all_databases: list[pathlib.Path] = []
-        for i, database in enumerate(databases):
-            _, database = parse_videos_database(prt, (), database, _quiet=True)
+        for i, database_ in enumerate(databases):
+            _, database = parse_videos_database(prt, (), database_, _quiet=True)
             all_databases.append(database)
             prt.print(f"database {i+1:>2}: {database}")
         dst = pathlib.Path(f"merge_{'_'.join(d.stem for d in all_databases)}.db")

@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Help to excecute a script on a node of grid'5000."""
 
 import getpass
@@ -12,6 +10,7 @@ import subprocess
 import time
 
 import click
+import orjson
 import requests
 from context_verbose import Printer
 
@@ -85,7 +84,7 @@ def guess_envname() -> list[str]:
     envnames: list[str] = []
     root = pathlib.Path.home() / "public"
     for path in root.rglob("*.yaml"):
-        with open(path, encoding="utf-8") as file:
+        with path.open("r", encoding="utf-8") as file:
             content = file.read()
         if re.search(r"file:\s*https?://[\w.]+\.grid5000\.fr", content):
             envnames.append(
@@ -171,7 +170,7 @@ def guess_storage() -> list[str]:
     storages: list[str] = []
     for path in candidates:
         try:
-            with open(path / "tmp_empty_mendevi", "wb"):
+            with (path / "tmp_empty_mendevi").open("wb"):
                 pass
         except (FileNotFoundError, PermissionError):
             continue
@@ -180,7 +179,7 @@ def guess_storage() -> list[str]:
     return storages
 
 
-def is_g5k_frontend(fail: bool = True) -> bool:
+def is_g5k_frontend(*, fail: bool = True) -> bool:
     """Test if we are on the grid'5000 frontend."""
     assert isinstance(fail, bool), fail.__class__.__name__
     if pathlib.Path("/etc/grid5000").exists():
@@ -271,7 +270,7 @@ def main(cmd: str, **kwargs: dict) -> None:
         _parse_args(prt, kwargs)
 
     # run on the grid
-    import enoslib  # not at top to avoid heavy, slow and optional import
+    import enoslib  # noqa: PLC0415
     enoslib.init_logging()
     conf = (
         # doc: https://discovery.gitlabpages.inria.fr/enoslib/apidoc/infra.html#g5k-schema
@@ -334,13 +333,11 @@ def main(cmd: str, **kwargs: dict) -> None:
 
                 # get job result
                 try:
-                    res = orjson.loads(res.payload["stdout"])
+                    res_ = orjson.loads(res.payload["stdout"])
                 except orjson.JSONDecodeError:
                     logging.getLogger(__name__).exception(res.payload)
                     raise
-                if res.get("changed", False) or "rc" in res:
-                    if msg := res.get("stdout", ""):
-                        print(msg)
-                    if msg := res.get("stderr", ""):
-                        logging.getLogger(__name__).error(msg)
+                if res_.get("changed", False) or "rc" in res_:
+                    print(res_.get("stdout", ""))
+                    logging.getLogger(__name__).error(res_.get("stderr", ""))
                     log_files.remove(log_file)

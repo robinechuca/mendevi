@@ -271,8 +271,8 @@ def main(videos: tuple, database: str | None = None, **kwargs: dict) -> None:
         itertools.product(videos, *(kwargs[k] for k in keys)),
         key=lambda t: hashlib.md5(str(t).encode("utf-8")).hexdigest(),  # repetable shuffle
     )
-    for i, (repeat, values) in enumerate(itertools.product(range(kwargs["repeat"]), loops)):
-        values = dict(zip(["video", *keys], values, strict=True), repeat=values[0])
+    for i, (repeat, values_) in enumerate(itertools.product(range(kwargs["repeat"]), loops)):
+        values = dict(zip(["video", *keys], values_, strict=True), repeat=values_[0])
         values["repeat"] = repeat
         values["fps"] = values["fps"] or get_rate_video(values["video"])
         values["pix_fmt"] = values["pix_fmt"] or get_pix_fmt(values["video"])

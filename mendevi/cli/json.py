@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 """Extract the main fields from an SQL database into JSON format."""
 
 import pathlib
@@ -105,7 +103,7 @@ def main(database: str, **kwargs: dict) -> None:
             # for query in SqlLinker(*select).sql:
             #     print(query)
             count = conn.execute("SELECT COUNT(*) FROM t_enc_encode").fetchone()["COUNT(*)"]
-            for raw in tqdm.tqdm(
+            for row_ in tqdm.tqdm(
                 conn.execute(
                     """
                     SELECT
@@ -155,22 +153,25 @@ def main(database: str, **kwargs: dict) -> None:
                 total=count,
                 unit="vid",
             ):
-                raw = line_extractor(dict(raw))
-                vid_id = raw.pop("video_hash")
+                row = line_extractor(dict(row_))
+                vid_id = row.pop("video_hash")
                 content[vid_id] = content.get(vid_id, {"id": vid_id})
-                content[vid_id] |= {k: _round(raw[k]) for k in context if raw[k] is not None}
+                content[vid_id] |= {k: _round(row[k]) for k in context if row[k] is not None}
                 _add_key_key_val(
-                    content[vid_id], "encode_duration", raw["hostname"], _round(raw["act_duration"]),
+                    content[vid_id],
+                    "encode_duration",
+                    row["hostname"],
+                    _round(row["act_duration"]),
                 )
                 _add_key_key_val(
-                    content[vid_id], "encode_cores", raw["hostname"], _round(raw["cores"]),
+                    content[vid_id], "encode_cores", row["hostname"], _round(row["cores"]),
                 )
                 _add_key_key_val(
-                    content[vid_id], "encode_power", raw["hostname"], _round(raw["power"]),
+                    content[vid_id], "encode_power", row["hostname"], _round(row["power"]),
                 )
             prt.print("read 'decode' and 'metric' extractor")
             count = conn.execute("SELECT COUNT(*) FROM t_dec_decode").fetchone()["COUNT(*)"]
-            for raw in tqdm.tqdm(
+            for row_ in tqdm.tqdm(
                 conn.execute(
                     """
                     SELECT
@@ -217,19 +218,22 @@ def main(database: str, **kwargs: dict) -> None:
                 total=count,
                 unit="vid",
             ):
-                raw = line_extractor(dict(raw))
-                raw["name"] = None
-                vid_id = raw.pop("video_hash")
+                row = line_extractor(dict(row_))
+                row["name"] = None
+                vid_id = row.pop("video_hash")
                 content[vid_id] = content.get(vid_id, {"id": vid_id})
-                content[vid_id] |= {k: _round(raw[k]) for k in context if raw[k] is not None}
+                content[vid_id] |= {k: _round(row[k]) for k in context if row[k] is not None}
                 _add_key_key_val(
-                    content[vid_id], "decode_duration", raw["hostname"], _round(raw["act_duration"]),
+                    content[vid_id],
+                    "decode_duration",
+                    row["hostname"],
+                    _round(row["act_duration"]),
                 )
                 _add_key_key_val(
-                    content[vid_id], "decode_cores", raw["hostname"], _round(raw["cores"]),
+                    content[vid_id], "decode_cores", row["hostname"], _round(row["cores"]),
                 )
                 _add_key_key_val(
-                    content[vid_id], "decode_power", raw["hostname"], _round(raw["power"]),
+                    content[vid_id], "decode_power", row["hostname"], _round(row["power"]),
                 )
             prt.print_time()
 
@@ -237,6 +241,6 @@ def main(database: str, **kwargs: dict) -> None:
     content = [content[k] for k in sorted(content)]
     with Printer("Write JSON database...", color="cyan") as prt:
         content = orjson.dumps(content, option=orjson.OPT_INDENT_2|orjson.OPT_SORT_KEYS)
-        with open(output, "wb") as raw:
+        with output.open("wb") as raw:
             raw.write(content)
         prt.print_time()
