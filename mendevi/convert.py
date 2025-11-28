@@ -40,7 +40,7 @@ def get_convert_cmd(
     >>> from fractions import Fraction
     >>> import cutcutcodec
     >>> from mendevi.convert import get_convert_cmd
-    >>> media = cutcutcodec.utils.get_project_root().parent / "media" / "video" / "intro.webm"
+    >>> media = cutcutcodec.utils.get_project_root() / "media" / "video" / "intro.webm"
     >>> get_convert_cmd(media, additional_filter="", fps=None, pix_fmt=None, resolution=None)
     ''
     >>> get_convert_cmd(

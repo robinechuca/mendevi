@@ -2,7 +2,6 @@
 
 import contextlib
 import datetime
-import os
 import pathlib
 import shlex
 import sqlite3
@@ -155,11 +154,11 @@ def get_decode_cmd(
     --------
     >>> import cutcutcodec
     >>> from mendevi.decode import get_decode_cmd
-    >>> media = cutcutcodec.utils.get_project_root().parent / "media" / "video" / "intro.webm"
+    >>> media = cutcutcodec.utils.get_project_root() / "media" / "video" / "intro.webm"
     >>> get_decode_cmd(media, additional_filter="", resolution=None)  # doctest: +ELLIPSIS
-    ['ffmpeg', '-i', '.../media/video/intro.webm', '-vf', 'format=rgb24', '-f', 'null', '/dev/null']
+    ['ffmpeg', '-threads', '1', '-i', '.../intro.webm', '-vf', 'format=rgb24', '-f', 'null', '-']
     >>> get_decode_cmd(media, additional_filter="", resolution=(480, 720))
-    [..., '-vf', 'scale=h=480:w=720:sws_flags=bicubic,format=rgb24', '-f', 'null', '/dev/null']
+    [..., '-vf', 'scale=h=480:w=720:sws_flags=bicubic,format=rgb24', '-f', 'null', '-']
     >>>
 
     """
@@ -180,4 +179,4 @@ def get_decode_cmd(
 
     # test with "ffmpeg -hwaccels", and see all decoders with "ffmpeg -decoders | grep cuvid"
     # ffmpeg -vsync 0 -hwaccel cuda -hwaccel_output_format cuda -c:v h264_cuvid -i vid.mkv -f null -
-    return ["ffmpeg", "-threads", "1", "-i", str(video), "-vf", filters, "-f", "null", os.devnull]
+    return ["ffmpeg", "-threads", "1", "-i", str(video), "-vf", filters, "-f", "null", "-"]

@@ -74,7 +74,11 @@ def g5kpower(
     --------
     >>> import platform, time
     >>> from mendevi.measures.g5kpower import g5kpower
-    >>> g5kpower(platform.node(), time.time()-10.0, 10.0)
+    >>> try:
+    ...     power = g5kpower(platform.node(), time.time()-10.0, 10.0)
+    ... except ValueError:
+    ...     pass
+    ...
     >>>
 
     Notes

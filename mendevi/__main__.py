@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 """Command line interface entry point."""
 
@@ -51,6 +51,7 @@ main.add_lazy_command("mendevi.cli.plot.main", "plot")
 main.add_lazy_command("mendevi.cli.prepare.main", "prepare")
 main.add_lazy_command("mendevi.cli.probe.main", "probe")
 main.add_lazy_command("mendevi.cli.test.main", "test")
+main.add_lazy_command("mendevi.cli.version.main", "version")
 
 
 if __name__ == "__main__":

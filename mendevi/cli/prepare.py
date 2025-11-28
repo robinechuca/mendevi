@@ -212,23 +212,23 @@ def main(video: str, output: str | None = None, **kwargs: dict) -> pathlib.Path:
                 colorspace=cutcutcodec.Colorspace(
                     "y'pbpr", kwargs["primaries"], kwargs["transfer"],
                 ),
-                streams_settings=[{  # extension .mp4
-                    "encodec": "ffv1",  # fast lossless compression
-                    "rate": kwargs["fps"],
-                    "shape": kwargs["resolution"],
-                    "pix_fmt": kwargs["pix_fmt"],
-                    "range": kwargs["range"],
-                }],
-
-                # # https://trac.ffmpeg.org/wiki/Encode/H.264
                 # streams_settings=[{  # extension .mp4
-                #     "encodec": "libx264",
-                #     "options": {"preset": "veryslow", "qp": "0"},
+                #     "encodec": "ffv1",  # fast lossless compression
                 #     "rate": kwargs["fps"],
                 #     "shape": kwargs["resolution"],
                 #     "pix_fmt": kwargs["pix_fmt"],
                 #     "range": kwargs["range"],
                 # }],
+
+                # https://trac.ffmpeg.org/wiki/Encode/H.264
+                streams_settings=[{  # extension .mp4
+                    "encodec": "libx264",
+                    "options": {"preset": "veryslow", "qp": "0"},
+                    "rate": kwargs["fps"],
+                    "shape": kwargs["resolution"],
+                    "pix_fmt": kwargs["pix_fmt"],
+                    "range": kwargs["range"],
+                }],
 
                 # # https://trac.ffmpeg.org/wiki/Encode/AV1#CRF
                 # streams_settings=[{  # extension .mp4

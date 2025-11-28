@@ -16,26 +16,37 @@ def get_ffmpeg_version() -> str:
     --------
     >>> import pprint
     >>> from mendevi.measures.context import get_ffmpeg_version
-    >>> pprint.pprint(get_ffmpeg_version())
-    ('ffmpeg version N-120220-g934e1c23b0 Copyright (c) 2000-2025 the FFmpeg '
-     'developers\n'
-     'built with gcc 14 (Ubuntu 14.2.0-4ubuntu2)\n'
-     'configuration: --prefix=/home/rrichard/ffmpeg_build '
+    >>> pprint.pprint(get_ffmpeg_version())  # doctest: +ELLIPSIS
+    ('ffmpeg version ... Copyright (c) '
+     '... the FFmpeg developers\n'
+     'built with gcc ...\n'
+     'configuration: --prefix=.../ffmpeg_build '
      '--pkg-config-flags=--static '
      '--extra-cflags=-I/home/rrichard/ffmpeg_build/include '
      "--extra-ldflags=-L/home/rrichard/ffmpeg_build/lib --extra-libs='-lpthread "
-     "-lm' --ld=g++ --bindir=/home/rrichard/bin --enable-gpl --enable-gnutls "
-     '--enable-libaom --enable-libass --enable-libfdk-aac --enable-libfreetype '
-     '--enable-libmp3lame --enable-libopus --enable-libsvtav1 --enable-libdav1d '
-     '--enable-libvorbis --enable-libvpx --enable-libx264 --enable-libx265 '
-     '--enable-libvvenc --enable-nonfree\n'
-     'libavutil      60.  4.101 / 60.  4.101\n'
-     'libavcodec     62.  6.100 / 62.  6.100\n'
-     'libavformat    62.  1.101 / 62.  1.101\n'
-     'libavdevice    62.  0.100 / 62.  0.100\n'
-     'libavfilter    11.  1.100 / 11.  1.100\n'
-     'libswscale      9.  0.100 /  9.  0.100\n'
-     'libswresample   6.  0.100 /  6.  0.100')
+     "-lm' --ld=g++ --bindir=/home/rrichard/bin --enable-chromaprint "
+     '--enable-frei0r --enable-gpl --enable-ladspa --enable-libaom --enable-libass '
+     '--enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio '
+     '--enable-libdav1d --enable-libdrm --enable-libfdk-aac --enable-libflite '
+     '--enable-libfontconfig --enable-libfreetype --enable-libfribidi '
+     '--enable-libgme --enable-libgsm --enable-libharfbuzz --enable-libmp3lame '
+     '--enable-libopenmpt --enable-libopus --enable-libpulse --enable-librav1e '
+     '--enable-librubberband --enable-librubberband --enable-libshine '
+     '--enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsvtav1 '
+     '--enable-libtheora --enable-libtwolame --enable-libvidstab '
+     '--enable-libvo-amrwbenc --enable-libvorbis --enable-libvpl --enable-libvpx '
+     '--enable-libvvenc --enable-libwebp --enable-libx264 --enable-libx265 '
+     '--enable-libxml2 --enable-libxvid --enable-libzimg --enable-libzvbi '
+     '--enable-nonfree --enable-opengl --enable-openssl --enable-vaapi '
+     '--enable-version3\n'
+     'libavutil ...\n'
+     'libavcodec ...\n'
+     'libavformat ...\n'
+     'libavdevice ...\n'
+     'libavfilter ...\n'
+     'libswscale ...\n'
+     'libswresample ...')
+    >>>
 
     """
     out = subprocess.run(
@@ -52,10 +63,10 @@ def get_libx265_version() -> str:
     Examples
     --------
     >>> from mendevi.measures.context import get_libx265_version
-    >>> print(get_libx265_version())
-    4.1+188-cd4f0d6e9
-    [Linux][GCC 14.2.0][64 bit] 8bit+10bit+12bit
-    MMX2 SSE2Fast LZCNT SSSE3 SSE4.2 AVX FMA3 BMI2 AVX2
+    >>> print(get_libx265_version())  # doctest: +ELLIPSIS
+    4...
+    [Linux][GCC ...][64 bit] 8bit+10bit+12bit
+    MMX2 ... AVX2
     >>>
 
     """
@@ -96,8 +107,8 @@ def get_libvpx_vp9_version() -> str:
     Examples
     --------
     >>> from mendevi.measures.context import get_libvpx_vp9_version
-    >>> print(get_libvpx_vp9_version())
-    v1.14.1
+    >>> print(get_libvpx_vp9_version())  # doctest: +ELLIPSIS
+    v...
     >>>
 
     """
@@ -121,9 +132,9 @@ def get_libsvtav1_version() -> str:
     Examples
     --------
     >>> from mendevi.measures.context import get_libsvtav1_version
-    >>> print(get_libsvtav1_version())
-    v3.0.2-103-gc10214fa
-    GCC 14.2.0 64 bit
+    >>> print(get_libsvtav1_version())  # doctest: +ELLIPSIS
+    v3...
+    GCC ... 64 bit
     >>>
 
     """
@@ -212,14 +223,17 @@ def get_platform() -> dict:
     --------
     >>> import pprint
     >>> from mendevi.measures.context import get_platform
-    >>> pprint.pprint(get_platform())
-    {'hostname': 'PTB-5CG4414JJD',
-     'kernel_version': 'Linux-6.11.0-29-generic-x86_64-with-glibc2.40',
-     'processor': 'x86_64',
-     'python_compiler': 'x86_64',
-     'python_version': 'x86_64',
-     'system_version': '#29-Ubuntu SMP PREEMPT_DYNAMIC Fri Jun 13 20:29:41 UTC '
-                       '2025'}
+    >>> pprint.pprint(get_platform())  # doctest: +ELLIPSIS
+    {'hostname': '...',
+     'kernel_version': 'Linux-...',
+     'logical_cores': ...,
+     'physical_cores': ...,
+     'processor': '...',
+     'python_compiler': '...',
+     'python_version': '...',
+     'ram': ...,
+     'swap': ...,
+     'system_version': '...'}
     >>>
 
     """
@@ -243,12 +257,16 @@ def get_pip_freeze() -> str:
     Examples
     --------
     >>> from mendevi.measures.context import get_pip_freeze
-    >>> print(get_pip_freeze())
+    >>> print(get_pip_freeze())  # doctest: +ELLIPSIS
+    accessible-pygments==...
+    ...
+    wheel==...
+    >>>
 
     """
     return subprocess.run(
         ["pip", "freeze"], check=False, capture_output=True,
-    ).stdout.decode()
+    ).stdout.decode().rstrip()
 
 
 def get_lshw() -> str:

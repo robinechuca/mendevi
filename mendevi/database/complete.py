@@ -27,25 +27,21 @@ def get_idle(duration: float = 60.0) -> dict:
     Returns
     -------
     measures : dict
-        duration: float, the real measure duration
-        ps_core: list[list[float]], tensor of detailed usage of each logical core in %
-        ps_dt: list[float], the duration of each interval in seconds
-        ps_ram: list[int], list of the sampled ram usage in bytes in each point
-        rapl_dt: list[float], the duration of each interval in seconds
-        rapl_power: list[float], the average power in watt in each interval
-        start: float, absolute timestamp
-        wattmeter_dt: list[float],  the duration of each interval in seconds
-        wattmeter_power: list[float], the sampled power in watt in each point
+        Same as :py:class:`mendevi.measures.Activity`.
 
     Examples
     --------
     >>> from mendevi.database.complete import get_idle
-    >>> get_idle()
+    >>> idle = get_idle(duration=1.0)  # doctest: +ELLIPSIS
+    Measure IDLE during 1.0 seconds...
+    █ avg cpu usage: ... %
+    █ avg ram usage: ... Go
+    █ avg rapl power: ... W
     >>>
 
     """
     assert isinstance(duration, float), duration.__class__.__name__
-    assert duration > 0, duration.__class__.__name__
+    assert duration > 0.0, duration.__class__.__name__
 
     with cv.Printer(f"Measure IDLE during {duration} seconds...") as printer:
 
@@ -58,6 +54,8 @@ def get_idle(duration: float = 60.0) -> dict:
         printer.print(f"avg ram usage: {1e-9*np.mean(activity['ps_ram']):.2g} Go")
         if "rapl_power" in activity:
             printer.print(f"avg rapl power: {activity['rapl_power']:.2g} W")
+        if "gpu_power" in activity:
+            printer.print(f"avg GPU power: {activity['gpu_power']:.2g} W")
         if "wattmeter_power" in activity:
             printer.print(f"avg wattmeter power: {activity['wattmeter_power']:.2g} W")
 
@@ -76,17 +74,6 @@ def add_environment(database: sqlite3.Cursor | str | bytes | pathlib.Path) -> in
     -------
     id : int
         The primary key of the freshly updated environment table.
-
-    Examples
-    --------
-    >>> import os, tempfile
-    >>> from mendevi.database.complete import add_environment
-    >>> from mendevi.database.create import create_database
-    >>> create_database(database := tempfile.mktemp(suffix=".sqlite"))
-    >>> add_environment(database)
-    1
-    >>> os.remove(database)
-    >>>
 
     """
     # open file

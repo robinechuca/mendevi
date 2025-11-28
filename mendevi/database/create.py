@@ -248,7 +248,7 @@ def is_sqlite(file: str | bytes | pathlib.Path) -> bool:
     Examples
     --------
     >>> import os, pathlib, tempfile
-    >>> from mendevi.database import create_database, is_sqlite
+    >>> from mendevi.database.create import create_database, is_sqlite
     >>> database = pathlib.Path(tempfile.mktemp())
     >>> is_sqlite(database)
     False

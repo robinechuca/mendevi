@@ -222,7 +222,7 @@ To be able to automatically retrieve and share datasets and videos. For more inf
 
         .. code:: shell
 
-            sudo apt install transmission-daemon
+            sudo apt install --reinstall transmission-daemon
 
 
     .. tab:: RHEL CentOS Fedora
@@ -230,7 +230,6 @@ To be able to automatically retrieve and share datasets and videos. For more inf
         .. code:: shell
 
             sudo dnf install transmission-daemon
-
 
 .. tab:: macOS
 
@@ -530,6 +529,20 @@ To install the lastest development version from `GitLab <https://gitlab.inria.fr
 .. pip uninstall typing_extensions to debug attribute '__default__' of 'typing.ParamSpec' objects is not writable
 
 You can now also compile documentation locally :ref:`documentation` and run the benchmark :ref:`testing` (after the previous step).
+
+.. _auto_completion:
+
+CLI auto-completion
+^^^^^^^^^^^^^^^^^^^
+
+To enable autocompletion in the command line interface, you can follow `this guide <https://click.palletsprojects.com/en/stable/shell-completion/>`_, which involves executing the following code:
+
+.. code:: shell
+
+    _MENDEVI_COMPLETE=bash_source mendevi > ~/.mendevi-complete.bash
+    CONTENT=$'. ~/.mendevi-complete.bash'
+    grep -q "$CONTENT" ~/.bashrc || echo "$CONTENT" >> ~/.bashrc
+    source ~/.bashrc
 
 
 .. _documentation:

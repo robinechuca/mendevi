@@ -372,7 +372,7 @@ def extract_names(expr: str) -> set[str]:
     >>> from mendevi.database.meta import extract_names
     >>> extract_names("foo")
     {'foo'}
-    >>> extract_names("[i**2 for i in foo]"")
+    >>> extract_names("[i**2 for i in foo]")
     {'foo'}
     >>> extract_names("foo.bar")
     {'foo'}
@@ -467,30 +467,30 @@ def merge_extractors(
     >>> print("\n".join(merge_extractors(labels, alias, select)[1]))  # doctest: +ELLIPSIS
     def line_extractor(raw: dict[str]) -> dict[str]:
         """Get the labels: enc_scenario, foo, power, rate.
-
+    <BLANKLINE>
         Causality constraint:
+            * abaca -> foo
             * enc_scenario -> abaca
             * encode_cmd -> enc_scenario
-            * hostname -> enc_scenario
-            * hostname -> reject
-            * hostname -> abaca
-            * video_name -> enc_scenario
-            * size -> rate
-            * video_duration -> rate
-            * abaca -> foo
             * energy -> foo
             * energy -> power
-            * powers -> power
-            * powers -> energy
-            * nbr_frames -> abaca
             * frames -> nbr_frames
+            * hostname -> abaca
+            * hostname -> enc_scenario
+            * hostname -> reject
+            * nbr_frames -> abaca
+            * powers -> energy
+            * powers -> power
+            * size -> rate
+            * video_duration -> rate
+            * video_name -> enc_scenario
         """
         # reject wrong line
         hostname = extract.extract_hostname(raw)  # The machine name
         reject = not ("yeti" not in hostname)  # not ("yeti" not in hostname)
         if reject:
             raise RejectError("this line must be filtered")
-
+    <BLANKLINE>
         # extract data
         video_name = extract.extract_video_name(raw)  # Video basename
         encode_cmd = extract.extract_encode_cmd(raw)  # The ffmpeg command used for encoding
@@ -499,18 +499,18 @@ def merge_extractors(
         powers = extract.extract_powers(raw)  # The interval duration and the average power in ea...
         nbr_frames = len(frames)  # The real number of frames of the video file
         energy = float((powers[0] * powers[1]).sum())  # Total energy consumption in Joules
-        abaca = (hostname, nbr_frames, enc_scenario)  # (hostname, nbr_frames, enc_scenario)
-        foo = (abaca, energy)  # (abaca, energy)
+        abaca = (hostname, nbr_frames, enc_scenario)  # alias
+        foo = (abaca, energy)  # alias
         power = energy / float(powers[0].sum())  # Average power consumption in Watts
         video_duration = extract.extract_video_duration(raw)  # Video duration in seconds
         size = extract.extract_video_size(raw)  # The total video file size in bytes
         rate = None if size is None or video_duration is None else 8.0 * size / video_duration  #...
-
+    <BLANKLINE>
         return {
             'enc_scenario': enc_scenario,
-            'rate': rate,
             'foo': foo,
             'power': power,
+            'rate': rate,
         }
     >>>
 
@@ -573,7 +573,7 @@ def merge_extractors(
         f'    """Get the labels: {", ".join(sorted(labels))}.',
         "",
         "    Causality constraint:",
-        *(f"        * {prev} -> {node}" for prev, node in extractors.edges),
+        *(f"        * {prev} -> {node}" for prev, node in sorted(extractors.edges)),
         '    """',
     ]
     skip: set[str] = set()  # processed nodes
@@ -598,7 +598,7 @@ def merge_extractors(
     # 4) cast and return the values
     code.extend([
         "    return {",
-        *(f"        {lbl!r}: {lbl}," for lbl in labels),
+        *(f"        {lbl!r}: {lbl}," for lbl in sorted(labels)),
         "    }",
     ])
 

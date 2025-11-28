@@ -65,7 +65,7 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
 @click.option("--uvq/--no-uvq", default=False, help="Compute the UVQ or not.")
 @click.option("--vmaf/--no-vmaf", default=True, help="Compute the VMAF or not.")
 def main(videos: tuple[str], database: str | None = None, **kwargs: dict) -> None:
-    """Measures the video properties.
+    """Measure the video properties.
 
     \b
     Parameters
