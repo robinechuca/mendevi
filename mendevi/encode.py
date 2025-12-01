@@ -2,7 +2,6 @@
 
 import contextlib
 import datetime
-import hashlib
 import math
 import pathlib
 import re
@@ -11,6 +10,7 @@ import shutil
 import sqlite3
 import subprocess
 import tempfile
+import uuid
 
 import cutcutcodec
 import numpy as np
@@ -79,10 +79,7 @@ def encode(src: pathlib.Path, **kwargs: dict) -> tuple[pathlib.Path, str, dict[s
     assert src.is_file(), src
 
     # find tempfile name
-    signature = hashlib.md5(
-        bytes(src) + " ".join(str(kwargs[k]) for k in sorted(kwargs)).encode("utf-8"),
-    ).hexdigest()
-    dst = pathlib.Path(tempfile.gettempdir()) / f"{signature}.mp4"
+    dst = pathlib.Path(tempfile.gettempdir()) / f"{uuid.uuid4().hex}.mp4"
 
     # get cmd
     cmd = get_transcode_cmd(src, dst, **kwargs)
@@ -103,20 +100,20 @@ def encode(src: pathlib.Path, **kwargs: dict) -> tuple[pathlib.Path, str, dict[s
 
         # transcode
         with Activity() as activity, subprocess.Popen(cmd, stderr=subprocess.PIPE) as process:
-            signature = b""
+            ffmpeg_output = b""
             is_finish = False
             while not is_finish:
                 while (
                     match := re.search(
-                        br"time=(?P<h>\d+):(?P<m>\d{1,2}):(?P<s>\d{1,2}\.\d*)", signature,
+                        br"time=(?P<h>\d+):(?P<m>\d{1,2}):(?P<s>\d{1,2}\.\d*)", ffmpeg_output,
                     )
                 ) is None:
                     if not (buff := process.stderr.read(32)):
                         is_finish = True
                         break
-                    signature += buff
+                    ffmpeg_output += buff
                 else:
-                    signature = signature[match.endpos:]
+                    ffmpeg_output = ffmpeg_output[match.endpos:]
                     elapsed = round(
                         3600.0*float(match["h"]) + 60.0*float(match["m"]) + float(match["s"]),
                         2,
@@ -138,7 +135,7 @@ def encode(src: pathlib.Path, **kwargs: dict) -> tuple[pathlib.Path, str, dict[s
             prt.print(f"avg wattmeter power: {activity['wattmeter_power']:.2g} W")
 
         # compute file hash
-        signature = hash_to_signature(compute_video_hash(dst))
+        signature = hash_to_signature(compute_video_hash(dst, fast=False))
         prt.print(f"output video: sample_{signature}.mp4")
 
     # move file

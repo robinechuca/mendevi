@@ -129,7 +129,7 @@ def _encode_vaapi(codec: str, **kwargs: dict) -> list[str]:
     compression = {
         "slow": "1",
         "medium": "3",
-        "fast": "5"
+        "fast": "6",
     }[kwargs["effort"]]
     general = [
         "-vaapi_device", "/dev/dri/renderD128",
