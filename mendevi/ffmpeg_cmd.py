@@ -86,6 +86,11 @@ def _encode_av1_nvenc(**kwargs: dict) -> list[str]:
     ]
 
 
+def _encode_av1_vaapi(**kwargs: dict) -> list[str]:
+    """Return the ffmpeg arguments."""
+    return _encode_vaapi("av1", **kwargs)
+
+
 @decorator_pix_fmt
 def _encode_h264_nvenc(**kwargs: dict) -> list[str]:
     """Return the ffmpeg arguments."""
@@ -112,9 +117,8 @@ def _encode_h264_nvenc(**kwargs: dict) -> list[str]:
     ]
 
 
-# @decorator_pix_fmt
-def _encode_h264_vaapi(**kwargs: dict) -> list[str]:
-    """Return the ffmpeg arguments."""
+def _encode_vaapi(codec: str, **kwargs: dict) -> list[str]:
+    """Return the ffmpeg arguments for the xxx_vaapi encoders."""
     # https://trac.ffmpeg.org/wiki/Hardware/VAAPI
     # https://www.ffmpeg.org/ffmpeg-codecs.html#VAAPI-encoders
     # see compatibility with "vainfo --all"
@@ -122,11 +126,17 @@ def _encode_h264_vaapi(**kwargs: dict) -> list[str]:
         "yuv420p": "nv12",
         "yuv420p10le": "p010",
     }[kwargs["pix_fmt"]]
+    compression = {
+        "slow": "1",
+        "medium": "3",
+        "fast": "5"
+    }[kwargs["effort"]]
     general = [
         "-vaapi_device", "/dev/dri/renderD128",
         "-vf", f"format={pix_fmt},hwupload",
-        "-c:v", "h264_vaapi",
+        "-c:v", f"{codec}_vaapi",
         "-async_depth", str(kwargs["threads"]),
+        "-compression_level", compression,
     ]
     if kwargs["mode"] == "vbr":
         return [
@@ -143,6 +153,11 @@ def _encode_h264_vaapi(**kwargs: dict) -> list[str]:
         "-bufsize", rate,
         # "rc_mode", "CBR",
     ]
+
+
+def _encode_h264_vaapi(**kwargs: dict) -> list[str]:
+    """Return the ffmpeg arguments."""
+    return _encode_vaapi("h264", **kwargs)
 
 
 @decorator_pix_fmt
@@ -169,6 +184,11 @@ def _encode_hevc_nvenc(**kwargs: dict) -> list[str]:
         "-bufsize", rate,
         "-rc", "cbr",
     ]
+
+
+def _encode_hevc_vaapi(**kwargs: dict) -> list[str]:
+    """Return the ffmpeg arguments."""
+    return _encode_vaapi("hevc", **kwargs)
 
 
 @decorator_pix_fmt
@@ -303,6 +323,11 @@ def _encode_libx265(**kwargs: dict) -> list[str]:
             f"wpp={1 if kwargs['threads'] != 1 else 0}"
         ),
     ]
+
+
+def _encode_vp9_vaapi(**kwargs: dict) -> list[str]:
+    """Return the ffmpeg arguments."""
+    return _encode_vaapi("vp9", **kwargs)
 
 
 @decorator_pix_fmt

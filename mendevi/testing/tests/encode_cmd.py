@@ -6,14 +6,17 @@ import subprocess
 
 from mendevi.ffmpeg_cmd import (
     _encode_av1_nvenc,
+    _encode_av1_vaapi,
     _encode_h264_nvenc,
     _encode_h264_vaapi,
     _encode_hevc_nvenc,
+    _encode_hevc_vaapi,
     _encode_librav1e,
     _encode_libsvtav1,
     _encode_libvpx_vp9,
     _encode_libx264,
     _encode_libx265,
+    _encode_vp9_vaapi,
     _encode_vvc,
 )
 
@@ -56,6 +59,11 @@ def test_encode_av1_nvenc() -> None:
     encode("av1_nvenc", _encode_av1_nvenc)
 
 
+def test_encode_av1_vaapi() -> None:
+    """Perform the ffmpeg encoding test on av1_vaapi."""
+    encode("av1_vaapi", _encode_av1_vaapi)
+
+
 def test_encode_h264_nvenc() -> None:
     """Perform the ffmpeg encoding test on h264_nvenc."""
     encode("h264_nvenc", _encode_h264_nvenc)
@@ -69,6 +77,11 @@ def test_encode_h264_vaapi() -> None:
 def test_encode_hevc_nvenc() -> None:
     """Perform the ffmpeg encoding test on hevc_nvenc."""
     encode("hevc_nvenc", _encode_hevc_nvenc)
+
+
+def test_encode_hevc_vaapi() -> None:
+    """Perform the ffmpeg encoding test on hevc_vaapi."""
+    encode("hevc_vaapi", _encode_hevc_vaapi)
 
 
 def test_encode_librav1e() -> None:
@@ -94,6 +107,11 @@ def test_encode_libx264() -> None:
 def test_encode_libx265() -> None:
     """Perform the ffmpeg encoding test on libx265."""
     encode("libx265", _encode_libx265)
+
+
+def test_encode_vp9_vaapi() -> None:
+    """Perform the ffmpeg encoding test on vp9_vaapi."""
+    encode("vp9_vaapi", _encode_vp9_vaapi)
 
 
 def test_encode_vvc() -> None:
