@@ -301,7 +301,7 @@ Ensure that ``transmission-daemon`` is installed correctly with the good permiss
     fi
 
     # open graphical interface in a web browser
-    xdg-open http://localhost:9091/transmission/web/
+    xdg-open http://localhost:9091
 
 
 .. _install_pyav:

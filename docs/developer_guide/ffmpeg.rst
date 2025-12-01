@@ -163,6 +163,20 @@ The code comes from the `amf wiki <https://github.com/GPUOpen-LibrariesAndSDKs/A
     mkdir -p /usr/local/include/AMF
     cp -r AMF/amf/public/include/* /usr/local/include/AMF/
 
+vaapi: integrated intel GPU chip
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Not all codecs are supported; it really depends on the CPUs. Here is a `non-exhaustive list <https://github.com/intel/media-drive>_`.
+
+.. code:: shell
+
+
+    if [ -e "/dev/dri/renderD128" ]; then
+        sudo apt install intel-media-va-driver-non-free vainfo
+    else
+        echo "It appears that vaapi is not supported by this hardware."
+    fi
+
 others
 ^^^^^^
 

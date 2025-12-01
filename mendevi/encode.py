@@ -23,6 +23,7 @@ from mendevi.database.serialize import list_to_binary, tensor_to_binary
 from mendevi.ffmpeg_cmd import (
     _encode_av1_nvenc,
     _encode_h264_nvenc,
+    _encode_h264_vaapi,
     _encode_hevc_nvenc,
     _encode_librav1e,
     _encode_libsvtav1,
@@ -37,6 +38,7 @@ from mendevi.utils import best_profile, compute_video_hash, hash_to_signature
 ENCODERS_CMD = {
     "av1_nvenc": _encode_av1_nvenc,
     "h264_nvenc": _encode_h264_nvenc,
+    "h264_vaapi": _encode_h264_vaapi,
     "hevc_nvenc": _encode_hevc_nvenc,
     "librav1e": _encode_librav1e,
     "libsvtav1": _encode_libsvtav1,
@@ -118,7 +120,7 @@ def encode(src: pathlib.Path, **kwargs: dict) -> tuple[pathlib.Path, str, dict[s
             load.close()
             if process.returncode or not dst.stat().st_size:
                 dst.unlink(missing_ok=True)
-                msg = f"failed to execute {cmd}"
+                msg = f"failed to execute {' '.join(map(shlex.quote, cmd))!r}"
                 raise RuntimeError(msg)
 
         # print

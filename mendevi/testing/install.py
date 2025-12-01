@@ -90,14 +90,10 @@ def test_gpu_torch() -> None:
             "There seems to be an nvidia gpu on this machine, "
             "however torch is not able to use it, please reinstall cuda"
         )
-        raise ImportError(
-            msg,
-        ) from err
+        raise ImportError(msg) from err
     if b" nvidia " in result.stdout.lower():
         msg = (
             "There seems to be an nvidia gpu on this machine, "
             "however torch is not able to use it, please reinstall cuda"
         )
-        raise ImportError(
-            msg,
-        )
+        raise ImportError(msg)

@@ -30,6 +30,7 @@ Developer guide
 .. toctree::
     :maxdepth: 2
 
+    developer_guide/ffmpeg.rst
     developer_guide/installation.rst
 
 

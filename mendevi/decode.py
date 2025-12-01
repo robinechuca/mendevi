@@ -179,4 +179,8 @@ def get_decode_cmd(
 
     # test with "ffmpeg -hwaccels", and see all decoders with "ffmpeg -decoders | grep cuvid"
     # ffmpeg -vsync 0 -hwaccel cuda -hwaccel_output_format cuda -c:v h264_cuvid -i vid.mkv -f null -
+
+    # test if available with "ffmpeg -init_hw_device qsv=hw"
+    # test with "ffmpeg -hwaccels", and see all decoders with "ffmpeg -decoders | grep qsv"
+    # ffmpeg -hide_banner -hwaccel qsv -hwaccel_output_format qsv -c:v h264_qsv -i vid.mkv -vf hwdownload,format=nv12 -f null -
     return ["ffmpeg", "-threads", "1", "-i", str(video), "-vf", filters, "-f", "null", "-"]

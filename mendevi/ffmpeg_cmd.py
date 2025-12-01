@@ -112,6 +112,39 @@ def _encode_h264_nvenc(**kwargs: dict) -> list[str]:
     ]
 
 
+# @decorator_pix_fmt
+def _encode_h264_vaapi(**kwargs: dict) -> list[str]:
+    """Return the ffmpeg arguments."""
+    # https://trac.ffmpeg.org/wiki/Hardware/VAAPI
+    # https://www.ffmpeg.org/ffmpeg-codecs.html#VAAPI-encoders
+    # see compatibility with "vainfo --all"
+    pix_fmt = {
+        "yuv420p": "nv12",
+        "yuv420p10le": "p010",
+    }[kwargs["pix_fmt"]]
+    general = [
+        "-vaapi_device", "/dev/dri/renderD128",
+        "-vf", f"format={pix_fmt},hwupload",
+        "-c:v", "h264_vaapi",
+        "-async_depth", str(kwargs["threads"]),
+    ]
+    if kwargs["mode"] == "vbr":
+        return [
+            *general,
+            # "rc_mode", "CQP",  # very rare VBR support
+            "-qp", str(round(1.0 + kwargs["quality"]*51.0)),  # [1, 52]
+        ]
+    rate = f"{quality_to_rate(kwargs)}k"
+    return [
+        *general,
+        "-b:v", rate,
+        "-minrate", rate,
+        "-maxrate", rate,
+        "-bufsize", rate,
+        # "rc_mode", "CBR",
+    ]
+
+
 @decorator_pix_fmt
 def _encode_hevc_nvenc(**kwargs: dict) -> list[str]:
     """Return the ffmpeg arguments."""

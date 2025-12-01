@@ -1,6 +1,5 @@
 """Query the GPUs activity."""
 
-import logging
 import numbers
 import threading
 import time
@@ -11,8 +10,7 @@ import pynvml  # uv pip install nvidia-ml-py
 # initialisation
 try:
     pynvml.nvmlInit()
-except pynvml.NVMLError as err:
-    logging.getLogger(__name__).warning(err)
+except pynvml.NVMLError:
     GPUS = 0
 else:
     GPUS: int = pynvml.nvmlDeviceGetCount()
