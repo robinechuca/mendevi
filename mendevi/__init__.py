@@ -4,4 +4,4 @@ from .measures import Activity
 
 __all__ = ["Activity"]
 __author__ = "Robin RICHARD (robinechuca)"
-__version__ = "1.2.4"  # pep 440
+__version__ = "1.2.5"  # pep 440
