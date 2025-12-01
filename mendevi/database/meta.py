@@ -584,7 +584,8 @@ def merge_extractors(
             "    # reject wrong line",
             *_print_branch("reject", skip, extractors),
             "    if reject:",
-            '        raise RejectError("this line must be filtered")',
+            '        msg = "this line must be filtered"',
+            "        raise RejectError(msg)",
             "",
         ])
 

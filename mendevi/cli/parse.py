@@ -69,7 +69,7 @@ def parse_expr(expr: str | None, prt: Printer, start_msg: str) -> None:
         return
     assert isinstance(expr, str), expr.__class__.__name__
     variables = extract_names(expr)  # retrieves the names of variables in the expression
-    if excess := set(LABELS) - variables:
+    if excess := variables - set(LABELS):
         def dist(label: list[str], excess: set[str]) -> tuple[int, str]:
             return (
                 min(Levenshtein.distance(label, e) for e in excess),
