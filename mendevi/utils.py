@@ -36,7 +36,7 @@ def best_profile(height: numbers.Integral, width: numbers.Integral) -> str:
 
 
 def compute_video_hash(
-    videos: PATHLIKE | typing.Iterable[PATHLIKE],
+    videos: PATHLIKE | typing.Iterable[PATHLIKE], *, fast: bool=True,
 ) -> bytes | dict[pathlib.Path, bytes]:
     r"""Compute the checksum of the video.
 
@@ -52,6 +52,9 @@ def compute_video_hash(
     ----------
     videos : pathlike or list[pathlike]
         The single or set of video you want to compute the signature.
+    fast : boolean, default=True
+        If the hash appears in the file name, it is returned immediately.
+        If False, the actual checksum is systematically recalculated.
 
     Returns
     -------
@@ -61,10 +64,13 @@ def compute_video_hash(
         If the file does not exists, return None.
 
     """
-    def _hash(video: PATHLIKE) -> pathlib.Path:
+    assert isinstance(fast, bool), fast.__class__.__name__
+
+    def _hash(video_fast: tuple[PATHLIKE, bool]) -> pathlib.Path:
+        video, fast = video_fast
         video = pathlib.Path(video)
         # [2-7a-z]{26} for mendevi > 1.2.2
-        if match := re.search(r"[0-9a-f]{32}|[2-7a-z]{26}", video.stem):
+        if fast and (match := re.search(r"[0-9a-f]{32}|[2-7a-z]{26}", video.stem)):
             return video, signature_to_hash(match.group())
         if not (video := video.expanduser()).is_file():
             return video, None
@@ -74,7 +80,7 @@ def compute_video_hash(
     if isinstance(videos, list | tuple | set | frozenset):
         with multiprocessing.pool.ThreadPool() as pool:
             return dict(tqdm.tqdm(
-                pool.imap_unordered(_hash, videos),
+                pool.imap_unordered(_hash, ((v, fast) for v in videos)),
                 desc="compute videos checksum",
                 dynamic_ncols=True,
                 leave=False,
@@ -82,7 +88,7 @@ def compute_video_hash(
                 total=len(videos),
                 unit="video",
             ))
-    return _hash(videos)[1]
+    return _hash((videos, fast))[1]
 
 
 @functools.cache
