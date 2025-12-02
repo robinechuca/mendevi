@@ -184,4 +184,6 @@ def get_decode_cmd(
     # test with "ffmpeg -hwaccels", and see all decoders with "ffmpeg -decoders | grep qsv"
     # ffmpeg -hide_banner -hwaccel qsv -hwaccel_output_format qsv
     # -c:v h264_qsv -i vid.mkv -vf hwdownload,format=nv12 -f null -
+    # j'ai fait sudo apt install libvpl-tools
+    # sudo apt install intel-gpu-tools pour avoir intel_gpu_top
     return ["ffmpeg", "-threads", "1", "-i", str(video), "-vf", filters, "-f", "null", "-"]

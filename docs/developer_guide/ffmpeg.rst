@@ -250,7 +250,6 @@ preparation
         --enable-libvidstab
         --enable-libvo-amrwbenc
         --enable-libvorbis
-        --enable-libvpl
         --enable-libvpx
         --enable-libvvenc
         --enable-libwebp
@@ -265,6 +264,9 @@ preparation
         --enable-openssl
         --enable-vaapi
         --enable-version3
+
+        --enable-libvpl
+        --disable-libmfx
     "
     # add --enable-cuda-nvcc
     if command -v nvidia-smi &> /dev/null; then
