@@ -171,7 +171,7 @@ Not all codecs are supported; it really depends on the CPUs. Here is a `non-exha
 .. code:: shell
 
     if [ -e "/dev/dri/renderD128" ]; then
-        sudo apt install intel-media-va-driver-non-free vainfo
+        sudo apt install intel-media-va-driver-non-free vainfo intel-gpu-tools
     else
         echo "It appears that vaapi is not supported by this hardware."
     fi
@@ -202,7 +202,7 @@ preparation
     export PATH="$HOME/bin:$PATH"
     export PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig:$PKG_CONFIG_PATH"
 
-    # --enable-libvpl and --enable-libmfx are mutualy exclusive
+    # --enable-libvpl and --enable-libmfx are mutualy exclusive, both are for *_qsv codecs
     # dynamic flag declaration
     CONFIG_FLAGS="
         --prefix=\"$HOME/ffmpeg_build\"
