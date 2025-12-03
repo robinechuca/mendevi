@@ -87,7 +87,7 @@ libsvtav1
     git -C dav1d pull 2> /dev/null || git clone --depth 1 https://code.videolan.org/videolan/dav1d.git
     mkdir -p dav1d/build
     cd dav1d/build
-    meson setup -Denable_tools=false -Denable_tests=false --default-library=static .. --prefix "$HOME/ffmpeg_build" --libdir="$HOME/ffmpeg_build/lib"
+    meson setup -Denable_tools=false -Denable_tests=false --default-library=static --optimization=3 -Db_lto=true -Dc_args="$CFLAGS" -Dcpp_args="$CXXFLAGS" .. --prefix "$HOME/ffmpeg_build" --libdir="$HOME/ffmpeg_build/lib"
     ninja
     ninja install
 
