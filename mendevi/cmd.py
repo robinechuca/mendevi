@@ -105,14 +105,14 @@ class CmdFFMPEG:
     @vid_filter.setter
     def vid_filter(self, vid_filter: str) -> None:
         """Update the filter string after -vf."""
-        assert isinstance(vid_filter), vid_filter.__class__.__name__
+        assert isinstance(vid_filter, str), vid_filter.__class__.__name__
         self._vid_filter = vid_filter
 
     @property
     def general(self) -> list[str]:
         """Return the options immediately after ffmpeg and immediately before the decoder."""
         if self._general is None:
-            return ["-y", "-log verbose"]
+            return ["-y", "-log_verbose"]
         return self._general.copy()
 
     @general.setter
@@ -153,5 +153,14 @@ class CmdFFMPEG:
         yield from ("-f", "null", "-")
 
     def __str__(self) -> str:
-        """Return the full shell cmd."""
+        """Return the full shell cmd.
+
+        Examples
+        --------
+        >>> from mendevi.cmd import CmdFFMPEG
+        >>> print(CmdFFMPEG(video="src.mp4"))
+        ffmpeg -y -log_verbose -i src.mp4 -f null -
+        >>>
+
+        """
         return " ".join(map(shlex.quote, self))

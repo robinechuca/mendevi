@@ -22,17 +22,23 @@ Preparation
 Compilation & Installation
 --------------------------
 
-libx264
-^^^^^^^
+libx264 and libopenh264
+^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code:: shell
 
+    # libx264
     cd ~/ffmpeg_sources
     git -C x264 pull 2> /dev/null || git clone --depth 1 https://code.videolan.org/videolan/x264.git
     cd x264
     PATH="$HOME/bin:$PATH" PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig" ./configure --prefix="$HOME/ffmpeg_build" --bindir="$HOME/bin" --enable-static --enable-pic
     PATH="$HOME/bin:$PATH" make
     make install
+
+    # libopenh264
+    cd ~/ffmpeg_sources
+    git -C openh264 pull 2> /dev/null || git clone --depth 1 https://github.com/cisco/openh264.git
+    cd openh264
 
 libx265
 ^^^^^^^
@@ -234,6 +240,7 @@ preparation
         --enable-libgsm
         --enable-libharfbuzz
         --enable-libmp3lame
+        --enable-libopenh264
         --enable-libopenmpt
         --enable-libopus
         --enable-libpulse
