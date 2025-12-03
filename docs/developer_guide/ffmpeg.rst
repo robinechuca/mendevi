@@ -36,9 +36,13 @@ libx264 and libopenh264
     make install
 
     # libopenh264
+    # Instead of the following code, you can do "sudo apt install libopenh264-dev".
     cd ~/ffmpeg_sources
     git -C openh264 pull 2> /dev/null || git clone --depth 1 https://github.com/cisco/openh264.git
     cd openh264
+    PATH="$HOME/bin:$PATH" make
+    make install PREFIX="$HOME/ffmpeg_build"
+    rm ~/ffmpeg_build/lib/*openh264.so*  # allows you to force the static build
 
 libx265
 ^^^^^^^
