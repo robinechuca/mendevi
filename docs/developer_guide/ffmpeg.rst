@@ -15,9 +15,15 @@ Preparation
     # get dependencies
     sudo apt install \
         autoconf automake build-essential cmake git-core diffutils flite1-dev frei0r-plugins-dev gcc git ladspa-sdk libass-dev libbluray-dev libbs2b-dev libcdio-dev libcdio-paranoia-dev libcdparanoia-dev libchromaprint-dev libfreetype6-dev libgme-dev libgnutls28-dev libgsm1-dev liblzma-dev libmp3lame-dev libopencore-amrnb-dev libopenjp2-7-dev libopenmpt-dev librubberband-dev libsdl2-dev libshine-dev libsnappy-dev libsoxr-dev libspeex-dev libssl-dev libtool libtwolame-dev libv4l-dev libva-dev libvdpau-dev libvidstab-dev libvo-amrwbenc-dev libvpl-dev libwebp-dev libxcb-shm0-dev libxcb-xfixes0-dev libxcb1-dev libxvidcore-dev libzimg-dev libzvbi-dev meson nasm ninja-build texinfo wget yasm zlib1g-dev
+
     # create directories
     rm -rf ~/ffmpeg_sources
     mkdir -pv ~/{bin,ffmpeg_sources}
+
+    # optimized compilation
+    export CFLAGS="-O3 -march=native -mtune=native -flto=auto"
+    export CXXFLAGS="$CFLAGS"
+    export LDFLAGS="-flto=auto"
 
 Compilation & Installation
 --------------------------
@@ -31,7 +37,8 @@ libx264 and libopenh264
     cd ~/ffmpeg_sources
     git -C x264 pull 2> /dev/null || git clone --depth 1 https://code.videolan.org/videolan/x264.git
     cd x264
-    PATH="$HOME/bin:$PATH" PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig" ./configure --prefix="$HOME/ffmpeg_build" --bindir="$HOME/bin" --enable-static --enable-pic
+    PATH="$HOME/bin:$PATH" PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig" \
+        ./configure --prefix="$HOME/ffmpeg_build" --bindir="$HOME/bin" --enable-static --enable-pic --enable-lto --extra-cflags="$CFLAGS" --extra-ldflags="$LDFLAGS"
     PATH="$HOME/bin:$PATH" make
     make install
 
@@ -42,7 +49,7 @@ libx264 and libopenh264
     cd openh264
     PATH="$HOME/bin:$PATH" make
     make install PREFIX="$HOME/ffmpeg_build"
-    rm ~/ffmpeg_build/lib/*openh264.so*  # allows you to force the static build
+    rm ~/ffmpeg_build/lib/*openh264.so*  # to force the static build overwise it will failed on dynamic
 
 libx265
 ^^^^^^^
