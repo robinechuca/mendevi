@@ -36,13 +36,13 @@ class Usage(threading.Thread):
         assert isinstance(sleep, numbers.Real), sleep.__class__.__name__
         assert sleep > 0, sleep
 
-        self._stop = False
+        self._stop_flag = False
         self.sleep = float(sleep)
         self.res: dict = {"dt": [], "pcu": None, "cpus": [], "ram": []}
 
     def run(self) -> None:
         """Perform the measures."""
-        while not self._stop:
+        while not self._stop_flag:
             t_init = time.time()
             self.res["cpus"].append(psutil.cpu_percent(self.sleep, percpu=True))
             self.res["ram"].append(psutil.virtual_memory().used)
@@ -65,6 +65,6 @@ class Usage(threading.Thread):
 
     def __exit__(self, *_: object) -> None:
         """Stop the measure and update the dictionary returnd by __enter__."""
-        self._stop = True
+        self._stop_flag = True
         self.join()  # wait the last update of self.run
         self.res["cpu"] = float(np.mean(self.res["cpus"], axis=0).sum())

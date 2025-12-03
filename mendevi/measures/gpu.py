@@ -55,7 +55,7 @@ class UsageGPU(threading.Thread):
         assert isinstance(sleep, numbers.Real), sleep.__class__.__name__
         assert sleep > 0, sleep
 
-        self._stop = False
+        self._stop_flag = False
         self.sleep = float(sleep)
         self.res: dict | None = {
             "dt": [],
@@ -68,7 +68,7 @@ class UsageGPU(threading.Thread):
 
     def run(self) -> None:
         """Perform the measures."""
-        while GPUS and not self._stop:
+        while GPUS and not self._stop_flag:
             t_init = time.time()
             for cat, vals in measure().items():
                 self.res[cat].append(vals)
@@ -94,7 +94,7 @@ class UsageGPU(threading.Thread):
 
     def __exit__(self, *_: object) -> None:
         """Stop the measure and update the dictionary returnd by __enter__."""
-        self._stop = True
+        self._stop_flag = True
         self.join()  # wait the last update of self.run
         if GPUS:
             self.res["gpu"] = float(np.mean(self.res["gpus"], axis=0).sum())
