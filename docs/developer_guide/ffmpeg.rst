@@ -302,7 +302,8 @@ compilation
 .. code:: shell
 
     # compilation and installation
-    eval ./configure "$CONFIG_FLAGS --extra-cflags=CFLAGS --extra-cxxflags=CXXFLAGS --extra-ldflags=LDFLAGS"
+    CONFIG_COMPILE_FLAGS="$CONFIG_FLAGS --extra-cflags='$CFLAGS' --extra-cxxflags='$CXXFLAGS' --extra-ldflags='$LDFLAGS'"
+    eval ./configure $CONFIG_COMPILE_FLAGS
     make && make install && hash -r
 
     # linkage
