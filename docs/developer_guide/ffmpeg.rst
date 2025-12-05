@@ -96,7 +96,7 @@ libsvtav1
     git -C SVT-AV1 pull 2> /dev/null || git clone --depth 1 https://gitlab.com/AOMediaCodec/SVT-AV1.git
     mkdir -p SVT-AV1/build
     cd SVT-AV1/build
-    PATH="$HOME/bin:$PATH" cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$HOME/ffmpeg_build" -DCMAKE_BUILD_TYPE=Release -DBUILD_DEC=OFF -DBUILD_SHARED_LIBS=OFF ..
+    PATH="$HOME/bin:$PATH" cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$HOME/ffmpeg_build" -DCMAKE_BUILD_TYPE=Release -DBUILD_DEC=OFF -DBUILD_SHARED_LIBS=OFF -DCMAKE_C_FLAGS="$CFLAGS" -DCMAKE_CXX_FLAGS="$CXXFLAGS" -DCMAKE_EXE_LINKER_FLAGS="$LDFLAGS" ..
     PATH="$HOME/bin:$PATH" make
     make install
 
@@ -105,7 +105,7 @@ libsvtav1
     git -C aom pull 2> /dev/null || git clone --depth 1 https://aomedia.googlesource.com/aom
     mkdir -p aom/build
     cd aom/build
-    PATH="$HOME/bin:$PATH" cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$HOME/ffmpeg_build" -DENABLE_TESTS=OFF -DENABLE_NASM=on ..
+    PATH="$HOME/bin:$PATH" cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$HOME/ffmpeg_build" -DENABLE_TESTS=OFF -DENABLE_NASM=on -DCMAKE_C_FLAGS="$CFLAGS" -DCMAKE_CXX_FLAGS="$CXXFLAGS" -DCMAKE_EXE_LINKER_FLAGS="$LDFLAGS" ..
     PATH="$HOME/bin:$PATH" make
     make install
 
@@ -135,9 +135,10 @@ vvc
 
     cd ~/ffmpeg_sources
     git -C vvenc pull 2> /dev/null || git clone --depth 1 https://github.com/fraunhoferhhi/vvenc
-    cd vvenc && PATH="$HOME/bin:$PATH" cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$HOME/ffmpeg_build" -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF
-    PATH="$HOME/bin:$PATH" make -j$(nproc)
-    make -j$(nproc) install
+    cd vvenc
+    PATH="$HOME/bin:$PATH" cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$HOME/ffmpeg_build" -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DCMAKE_C_FLAGS="$CFLAGS" -DCMAKE_CXX_FLAGS="$CXXFLAGS" -DCMAKE_EXE_LINKER_FLAGS="$LDFLAGS"
+    PATH="$HOME/bin:$PATH" make
+    make install
 
 GPU \*_nvenc \*_nvdec
 ^^^^^^^^^^^^^^^^^^^^^
@@ -301,8 +302,8 @@ compilation
 .. code:: shell
 
     # compilation and installation
-    eval ./configure $CONFIG_FLAGS
-    make -j$(nproc) && make -j$(nproc) install && hash -r
+    eval ./configure "$CONFIG_FLAGS --extra-cflags=CFLAGS --extra-cxxflags=CXXFLAGS --extra-ldflags=LDFLAGS"
+    make && make install && hash -r
 
     # linkage
     cp ~/ffmpeg_build/bin/x265 ~/bin
