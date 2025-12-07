@@ -120,7 +120,7 @@ libsvtav1
     cd ~/ffmpeg_sources
     git -C rav1e pull 2> /dev/null || git clone --depth 1 https://github.com/xiph/rav1e.git
     cd rav1e
-    RUSTFLAGS="-C target-cpu=native" cargo build --release
+    CFLAGS="-O3 -march=native -mtune=native" CXXFLAGS=$CFLAGS LDFLAGS="" RUSTFLAGS="-C target-cpu=native" cargo build --release
     cargo install cargo-c
     cargo cinstall --release \
         --prefix=$HOME/ffmpeg_build \
