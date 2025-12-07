@@ -121,8 +121,8 @@ libsvtav1
     git -C rav1e pull 2> /dev/null || git clone --depth 1 https://github.com/xiph/rav1e.git
     cd rav1e
     CFLAGS="-O3 -march=native -mtune=native" CXXFLAGS=$CFLAGS LDFLAGS="" RUSTFLAGS="-C target-cpu=native" cargo build --release
-    cargo install cargo-c
-    cargo cinstall --release \
+    CFLAGS="-O3 -march=native -mtune=native" CXXFLAGS=$CFLAGS LDFLAGS="" cargo install cargo-c
+    CFLAGS="-O3 -march=native -mtune=native" CXXFLAGS=$CFLAGS LDFLAGS="" cargo cinstall --release \
         --prefix=$HOME/ffmpeg_build \
         --libdir=$HOME/ffmpeg_build/lib \
         --includedir=$HOME/ffmpeg_build/include
@@ -302,7 +302,7 @@ compilation
 .. code:: shell
 
     # compilation and installation
-    CONFIG_COMPILE_FLAGS="$CONFIG_FLAGS --extra-cflags='$CFLAGS' --extra-cxxflags='$CXXFLAGS' --extra-ldflags='$LDFLAGS'"
+    CONFIG_COMPILE_FLAGS="$CONFIG_FLAGS --extra-cflags='-O3 -march=native -mtune=native' --extra-cxxflags='-O3 -march=native -mtune=native' --extra-ldflags=''"
     eval ./configure $CONFIG_COMPILE_FLAGS
     make && make install && hash -r
 
