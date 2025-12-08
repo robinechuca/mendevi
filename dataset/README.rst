@@ -26,7 +26,7 @@ After generating a database by following `these steps <https://mendevi.readthedo
 
 3) Rename files with a meaningful name, for example ``mv mendevi.json.xz coucougnoux.json.xz && mv mendevi.db.xz coucougnoux.db.xz``
 
-4) Create a torent file, start to `install transmission-daemon <https://mendevi.readthedocs.io/latest/developer_guide/installation.html#transmission>`_.
+4) Create a torrent file, start to `install transmission-daemon <https://mendevi.readthedocs.io/latest/developer_guide/installation.html#transmission>`_.
 Then, you can create it with (change the filename and the description):
 
 .. code:: shell
@@ -50,9 +50,7 @@ Then, you can create it with (change the filename and the description):
 
 .. code:: shell
 
-    transmission-remote \
-        --add ~/mendevi_git/dataset/coucougnoux.db.xz.torrent \
-        --download-dir /parent/dir/of/coucougnoux_db_xz/ \
+    transmission-remote --add ~/mendevi_git/dataset/coucougnoux.db.xz.torrent --download-dir ${PWD}
 
 Check the status with ``transmission-remote -l`` or ``http://localhost:9091/transmission/web/``.
 
