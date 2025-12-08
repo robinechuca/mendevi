@@ -73,8 +73,8 @@ libvpx
     cd ~/ffmpeg_sources
     git -C libvpx pull 2> /dev/null || git clone --depth 1 https://chromium.googlesource.com/webm/libvpx.git
     cd libvpx
-    PATH="$HOME/bin:$PATH" ./configure --prefix="$HOME/ffmpeg_build" --disable-examples --disable-unit-tests --enable-vp9-highbitdepth --as=yasm --extra-cflags="$CFLAGS" --extra-cxxflags="$CXXFLAGS"
-    PATH="$HOME/bin:$PATH" make
+    PATH="$HOME/bin:$PATH" LDFLAGS="" ./configure --prefix="$HOME/ffmpeg_build" --disable-examples --disable-unit-tests --enable-vp9-highbitdepth --as=yasm --extra-cflags='-O3 -march=native -mtune=native' --extra-cxxflags='-O3 -march=native -mtune=native'
+    PATH="$HOME/bin:$PATH" CFLAGS="-O3 -march=native -mtune=native" CXXFLAGS=$CFLAGS LDFLAGS="" make
     make install
 
 libsvtav1
