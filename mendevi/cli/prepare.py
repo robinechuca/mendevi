@@ -223,7 +223,7 @@ def main(video: str, output: str | None = None, **kwargs: dict) -> pathlib.Path:
                 # https://trac.ffmpeg.org/wiki/Encode/H.264
                 streams_settings=[{  # extension .mp4
                     "encodec": "libx264",
-                    "options": {"preset": "veryslow", "qp": "0"},
+                    "options": {"preset": "veryfast", "tune": "fastdecode", "qp": "0"},
                     "rate": kwargs["fps"],
                     "shape": kwargs["resolution"],
                     "pix_fmt": kwargs["pix_fmt"],

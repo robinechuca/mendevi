@@ -287,7 +287,7 @@ def _encode_libx264(**kwargs: dict) -> list[str]:
     return [  # https://ffmpeg.party/x264/
         "-c:v", "libx264",
         *quality,
-        "-preset", kwargs["effort"],
+        "-preset", {"fast": "veryfast", "medium": "medium", "slow": "veryslow"}[kwargs["effort"]],
         "-tune", "ssim",
         "-threads", str(kwargs["threads"]), "-thread_type", "frame",
     ]
@@ -313,7 +313,7 @@ def _encode_libx265(**kwargs: dict) -> list[str]:
     return [   # https://x265.readthedocs.io/en/master/cli.html
         "-c:v", "libx265",
         "-b:v", f"{rate}k",
-        "-preset", kwargs["effort"],
+        "-preset", {"fast": "veryfast", "medium": "medium", "slow": "veryslow"}[kwargs["effort"]],
         "-tune", "ssim",
         "-x265-params",
         (
