@@ -33,7 +33,7 @@ First install the `python dependencies <https://github.com/pyenv/pyenv/wiki#sugg
 
         .. code:: shell
 
-            sudo apt install libedit-dev libncurses5-dev build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev curl git libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev llvm-bolt
+            sudo apt install libedit-dev libncurses5-dev build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev curl git libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev llvm-bolt libbolt-dev
 
     .. tab:: RHEL CentOS Fedora
 

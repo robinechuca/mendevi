@@ -303,8 +303,8 @@ compilation
 
     # compilation and installation
     CONFIG_COMPILE_FLAGS="$CONFIG_FLAGS --extra-cflags='-O3 -march=native -mtune=native' --extra-cxxflags='-O3 -march=native -mtune=native' --extra-ldflags=''"
-    eval ./configure $CONFIG_COMPILE_FLAGS
-    make && make install && hash -r
+    CFLAGS="-O3 -march=native -mtune=native" CXXFLAGS=$CFLAGS LDFLAGS="" eval ./configure $CONFIG_COMPILE_FLAGS
+    CFLAGS="-O3 -march=native -mtune=native" CXXFLAGS=$CFLAGS LDFLAGS="" make && make install && hash -r
 
     # linkage
     cp ~/ffmpeg_build/bin/x265 ~/bin
