@@ -24,9 +24,9 @@
     :target: https://mendevi.readthedocs.io
 
 Useful links:
-`Binary Installers <https://pypi.org/project/mendevi>`_ |
-`Source Repository <https://gitlab.inria.fr/rrichard/mendevi>`_ |
-`Online Documentation <https://mendevi.readthedocs.io>`_ |
+`Binary Installers <https://pypi.org/project/mendevi/>`_ |
+`Source Repository <https://gitlab.inria.fr/rrichard/mendevi/>`_ |
+`Online Documentation <https://mendevi.readthedocs.io/>`_ |
 
 
 Description
