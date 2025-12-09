@@ -50,7 +50,7 @@ Then, you can create it with (change the filename and the description):
 
 .. code:: shell
 
-    transmission-remote --add ~/mendevi_git/dataset/coucougnoux.db.xz.torrent --download-dir ${PWD}
+    transmission-remote --add coucougnoux.db.xz.torrent --download-dir ${PWD}
 
 Check the status with ``transmission-remote -l`` or ``http://localhost:9091/transmission/web/``.
 

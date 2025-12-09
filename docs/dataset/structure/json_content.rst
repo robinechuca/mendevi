@@ -33,6 +33,13 @@ This is a summarized version of :ref:`sql_content`.
                     20.06601347820743
                 ]
             },
+            "decode_temp": {  # the average temperature of all devices in degrees
+                "kattappana": [
+                    60.987945899198474,
+                    64.501128622369583,
+                    58.06601347820743
+                ]
+            },
             "effort": "medium",  # effort provided as a parameter to the encoder
             "encode_cores": {
                 "kattappana": [
@@ -50,6 +57,13 @@ This is a summarized version of :ref:`sql_content`.
                 "kattappana": [
                     12.330227397691576,
                     13.64569849689595
+                ]
+            },
+            "encode_temp": {  # the average temperature of all devices in degrees
+                "kattappana": [
+                    60.987945899198474,
+                    64.501128622369583,
+                    58.06601347820743
                 ]
             },
             "encoder": "libx264",  # name of the encoder

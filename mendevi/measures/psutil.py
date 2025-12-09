@@ -38,7 +38,7 @@ class Usage(threading.Thread):
 
         self._stop_flag = False
         self.sleep = float(sleep)
-        self.res: dict = {"dt": [], "pcu": None, "cpus": [], "ram": []}
+        self.res: dict = {"dt": [], "pcu": None, "cpus": [], "ram": [], "temp": {}}
 
     def run(self) -> None:
         """Perform the measures."""
@@ -46,6 +46,14 @@ class Usage(threading.Thread):
             t_init = time.time()
             self.res["cpus"].append(psutil.cpu_percent(self.sleep, percpu=True))
             self.res["ram"].append(psutil.virtual_memory().used)
+            temp: dict[str, float] = {
+                f"{generic}_{shwtemp.label or i}": shwtemp.current
+                for generic, shwtemps in psutil.sensors_temperatures().items()
+                for i, shwtemp in enumerate(shwtemps)
+            }
+            for lbl, degrees in temp.items():
+                self.res["temp"][lbl] = self.res["temp"].get(lbl, [])
+                self.res["temp"][lbl].append(degrees)
             self.res["dt"].append(time.time() - t_init)
 
     def __enter__(self) -> dict:
@@ -58,6 +66,7 @@ class Usage(threading.Thread):
             * 'cpus': Each logical cpu usage at each time (in %).
             * 'dt': The time difference between 2 consecutive measurements (in s).
             * 'ram': The virtual ram usage (in bytes).
+            * 'temp': The temperatures measured at each moment for all sensors (in C).
 
         """
         self.start()

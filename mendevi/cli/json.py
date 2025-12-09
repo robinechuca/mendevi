@@ -91,6 +91,7 @@ def main(database: str, **kwargs: dict) -> None:
                 "act_duration",
                 "cores",
                 "power",
+                "temp",
             },
             return_callable=True,
         )
@@ -110,6 +111,7 @@ def main(database: str, **kwargs: dict) -> None:
                         t_act_activity.act_duration,
                         t_act_activity.act_ps_core,
                         t_act_activity.act_ps_dt,
+                        t_act_activity.act_ps_temp,
                         t_act_activity.act_rapl_dt,
                         t_act_activity.act_rapl_power,
                         t_act_activity.act_wattmeter_dt,
@@ -169,6 +171,9 @@ def main(database: str, **kwargs: dict) -> None:
                 _add_key_key_val(
                     content[vid_id], "encode_power", row["hostname"], _round(row["power"]),
                 )
+                _add_key_key_val(
+                    content[vid_id], "encode_temp", row["hostname"], _round(row["temp"]),
+                )
             prt.print("read 'decode' and 'metric' extractor")
             count = conn.execute("SELECT COUNT(*) FROM t_dec_decode").fetchone()["COUNT(*)"]
             for row_ in tqdm.tqdm(
@@ -178,6 +183,7 @@ def main(database: str, **kwargs: dict) -> None:
                         t_act_activity.act_duration,
                         t_act_activity.act_ps_core,
                         t_act_activity.act_ps_dt,
+                        t_act_activity.act_ps_temp,
                         t_act_activity.act_rapl_dt,
                         t_act_activity.act_rapl_power,
                         t_act_activity.act_wattmeter_dt,
@@ -234,6 +240,9 @@ def main(database: str, **kwargs: dict) -> None:
                 )
                 _add_key_key_val(
                     content[vid_id], "decode_power", row["hostname"], _round(row["power"]),
+                )
+                _add_key_key_val(
+                    content[vid_id], "decode_temp", row["hostname"], _round(row["temp"]),
                 )
             prt.print_time()
 

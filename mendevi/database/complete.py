@@ -7,6 +7,7 @@ import time
 
 import context_verbose as cv
 import numpy as np
+import orjson
 from flufl.lock import Lock
 
 from mendevi.measures import Activity
@@ -118,6 +119,9 @@ def add_environment(database: sqlite3.Cursor | str | bytes | pathlib.Path) -> in
         "act_duration": idle["duration"],
         "act_ps_core": tensor_to_binary(idle["ps_cores"]),
         "act_ps_dt": list_to_binary(idle["ps_dt"]),
+        "act_ps_temp": orjson.dumps(
+            idle["ps_temp"], option=orjson.OPT_INDENT_2|orjson.OPT_SORT_KEYS,
+        ),
         "act_ps_ram": list_to_binary(idle["ps_ram"]),
         "act_rapl_dt": list_to_binary(idle.get("rapl_dt", None)),
         "act_rapl_power": list_to_binary(idle.get("rapl_powers", None)),

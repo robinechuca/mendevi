@@ -14,6 +14,7 @@ import uuid
 
 import cutcutcodec
 import numpy as np
+import orjson
 import tqdm
 from context_verbose import Printer
 from flufl.lock import Lock
@@ -214,6 +215,9 @@ def encode_and_store(
             "act_gpu_power": tensor_to_binary(activity.get("gpu_powers", None)),
             "act_ps_core": tensor_to_binary(activity["ps_cores"]),
             "act_ps_dt": list_to_binary(activity["ps_dt"]),
+            "act_ps_temp": orjson.dumps(
+                activity["ps_temp"], option=orjson.OPT_INDENT_2|orjson.OPT_SORT_KEYS,
+            ),
             "act_ps_ram": list_to_binary(activity["ps_ram"]),
             "act_rapl_dt": list_to_binary(activity.get("rapl_dt", None)),
             "act_rapl_power": list_to_binary(activity.get("rapl_powers", None)),

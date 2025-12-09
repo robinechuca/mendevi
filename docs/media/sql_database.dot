@@ -16,6 +16,7 @@ graph database {
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">act_gpu_power</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">act_ps_dt</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">act_ps_core</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
+        <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">act_ps_temp</TD><TD ALIGN="LEFT">JSON</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">act_ps_ram</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
       </TABLE>
     >

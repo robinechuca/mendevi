@@ -64,6 +64,7 @@ class Activity(threading.Thread):
             "ps_cores": usage["cpus"],
             "ps_dt": usage["dt"],
             "ps_ram": usage["ram"],
+            "ps_temp": usage["temp"],
         }
         if rapl is not None:
             self.res |= {
@@ -98,6 +99,7 @@ class Activity(threading.Thread):
             * ps_cores: list[list[float]], tensor of detailed usage of each logical core in %.
             * ps_dt: list[float], the duration of each interval (in s).
             * ps_ram: list[int], list of the sampled ram usage in bytes in each point.
+            * ps_temp: dict[str, lis[float]], the temperature of each device (in C).
             * rapl_dt: list[float], the duration of each interval (in s).
             * rapl_energy: float, the total energy consumption (in J).
             * rapl_power: float, the average power, energy divided by the duration (in W).

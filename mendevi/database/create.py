@@ -49,6 +49,7 @@ def create_database(filename: str | bytes | pathlib.Path) -> None:
             act_gpu_power LONGBLOB,
             act_ps_dt LONGBLOB,
             act_ps_core LONGBLOB,
+            act_ps_temp LONGBLOB,
             act_ps_ram LONGBLOB
         )""")
         cursor.execute("""CREATE TABLE IF NOT EXISTS t_vid_video (

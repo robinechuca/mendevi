@@ -132,7 +132,7 @@ ALL_EXTRACTORS = {
     ),
     "energy": Extractor(
         "Total energy consumption in Joules",
-        "float((powers[0] * powers[1]).sum())",
+        "None if powers is None else float((powers[0] * powers[1]).sum())",
         Scale.LOGARITHMIC,
     ),
     "energy_per_frame": Extractor(
@@ -145,15 +145,15 @@ ALL_EXTRACTORS = {
         extract.extract_frames,
         Scale.DISCRETE,
     ),
-    "height": Extractor(
-        "Height of images in pixels",
-        extract.extract_height,
-        Scale.LINEAR,
-    ),
     "gamut": Extractor(
         "The tristimulus primaries colors name",
         extract.extract_gamut,
         Scale.DISCRETE,
+    ),
+    "height": Extractor(
+        "Height of images in pixels",
+        extract.extract_height,
+        Scale.LINEAR,
     ),
     "hostname": Extractor(
         "The machine name",
@@ -177,7 +177,7 @@ ALL_EXTRACTORS = {
     ),
     "power": Extractor(
         "Average power consumption in Watts",
-        "energy / float(powers[0].sum())",
+        "None if energy is None or powers is None else energy / float(powers[0].sum())",
         Scale.LINEAR,
     ),
     "powers": Extractor(
@@ -247,6 +247,11 @@ ALL_EXTRACTORS = {
         "Complementary of Structural Similarity (1-SSIM)",
         "1.0 - ssim",
         Scale.LOGARITHMIC,
+    ),
+    "temp": Extractor(
+        "Average temperature in C",
+        extract.extract_temp,
+        Scale.LINEAR,
     ),
     "threads": Extractor(
         "Number of threads provided as a parameter to the encoder",
@@ -320,6 +325,7 @@ ALIAS = {
     "comp_ssim": "ssim_comp",
     "ssim_rev": "ssim_comp",
     "rev_ssim": "ssim_comp",
+    "temperature": "temp",
     "trans": "transfer",
     "color_transfer": "transfer",
     "eotf": "transfer",
@@ -340,7 +346,7 @@ def _import_extractor(code: list[str]) -> callable:
     spec = importlib.util.spec_from_file_location(path.stem, path)
     modulevar = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(modulevar)
-    path.unlink()
+    # path.unlink()
     return modulevar.line_extractor
 
 

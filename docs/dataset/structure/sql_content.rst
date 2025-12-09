@@ -38,6 +38,8 @@ Table t_act_activity
 +----------------------------+-------------+-------------------------------+
 | :ref:`act_ps_core`         | *LONGBLOB*  | core usage values             |
 +----------------------------+-------------+-------------------------------+
+| :ref:`act_ps_temp`         | *JSON*      | temperature of all devices    |
++----------------------------+-------------+-------------------------------+
 | :ref:`act_ps_ram`          | *LONGBLOB*  | RAM usage values              |
 +----------------------------+-------------+-------------------------------+
 
@@ -154,6 +156,13 @@ act_ps_core
 
 The percent usage of each logical core average activity for each interval.
 To deserialize into an exploitable numpy array, please use the function :py:func:`mendevi.database.serialize.binary_to_tensor`.
+
+.. _act_ps_temp:
+
+act_ps_temp
+^^^^^^^^^^^
+
+The temperatures measured at each moment for all sensors. The data is presented in the form of a JSON dictionary that associates each sensor name with the list of temperatures recorded at each time interval :ref:`act_ps_dt`.
 
 .. _act_ps_ram:
 

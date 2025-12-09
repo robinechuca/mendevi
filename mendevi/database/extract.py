@@ -616,6 +616,28 @@ def extract_ssim(raw: dict[str]) -> float:
 
 
 @verif
+@SqlLinker("t_act_activity.act_ps_dt", "t_act_activity.act_ps_temp")
+def extract_temp(raw: dict[str]) -> float:
+    """Return the average temperature in C.
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+
+    """
+    act_ps_dt, act_ps_temp = raw["act_ps_dt"], raw["act_ps_temp"]
+    if act_ps_dt is None or act_ps_temp is None:
+        return None
+    act_ps_dt = binary_to_list(act_ps_dt)
+    act_ps_temp = orjson.loads(act_ps_temp)
+    avg_temp = sum(np.asarray(tps, act_ps_dt.dtype) for tps in act_ps_temp.values())
+    integral = (avg_temp * act_ps_dt).sum()
+    average = integral / (act_ps_dt.sum() * len(act_ps_temp))
+    return float(average)
+
+
+@verif
 @SqlLinker("t_enc_encode.enc_threads")
 def extract_threads(raw: dict[str]) -> int:
     """Return the number of threads provided as a parameter to the encoder.
