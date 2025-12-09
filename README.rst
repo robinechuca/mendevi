@@ -37,14 +37,15 @@ It also provides a detailed **dataset**.
 
 It manages the following parameters:
 
-#. It supports the ``libx264``, ``libx265``, ``libvpx-vp9``, ``libsvtav1``, ``librav1e`` and ``vvc`` encoders.
+#. It supports the ``libx264``, ``libx265``, ``libvpx-vp9``, ``libsvtav1``, ``librav1e`` and ``vvc`` cpu encoders.
+#. It supports the ``h264_nvenc``, ``hevc_nvenc``, ``av1_nvenc`` and ``*_vaapi`` gpu encoders.
 #. Distortions are measured using the ``lpips``, ``psnr``, ``ssim`` and ``vmaf`` metrics.
 #. Complexity are measured using the ``rms_sobel`` and ``rms_time_diff`` metrics.
 #. Encoding efforts are ``fast``, ``medium`` and ``slow``.
-#. It takes care about the colorspaces.
+#. It takes care about the colorspaces (``range``, ``transfer`` and ``primaries``).
 #. Iterate over different ``effort``, ``encoder``, ``mode``, ``quality``, ``threads``, ``fps``, ``resolution`` and ``pix_fmt``.
 #. Energy measurements are catched with ``RAPL`` and an external wattmeter on ``grid'5000``.
-#. Get the ``cpu`` and ``ram`` activity.
+#. Get the ``cpu``, ``gpu``, ``ram`` and ``temperature`` activity.
 #. Get a full environment context, including harware and software version.
 #. It support the mode (constant bitrate) ``cbr`` and (constant quality) ``vbr``.
 

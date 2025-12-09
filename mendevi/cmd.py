@@ -112,7 +112,7 @@ class CmdFFMPEG:
     def general(self) -> list[str]:
         """Return the options immediately after ffmpeg and immediately before the decoder."""
         if self._general is None:
-            return ["-y", "-log_verbose"]
+            return ["-y", "-loglevel", "verbose"]
         return self._general.copy()
 
     @general.setter

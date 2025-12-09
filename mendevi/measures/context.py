@@ -74,7 +74,7 @@ def get_libx265_version() -> str:
         [
             "ffmpeg", "-f", "lavfi", "-i", "nullsrc", "-frames:v", "1",
             "-c:v", "libx265",
-            "-f", "null", os.devnull,
+            "-f", "null", "-",
         ],
         check=False, capture_output=True,
     ).stderr.decode()
@@ -116,7 +116,7 @@ def get_libvpx_vp9_version() -> str:
         [
             "ffmpeg", "-f", "lavfi", "-i", "nullsrc", "-frames:v", "1",
             "-c:v", "libvpx-vp9",
-            "-f", "null", os.devnull,
+            "-f", "null", "-",
         ],
         check=False, capture_output=True,
     ).stderr.decode()
@@ -142,7 +142,7 @@ def get_libsvtav1_version() -> str:
         [
             "ffmpeg", "-f", "lavfi", "-i", "nullsrc", "-frames:v", "1",
             "-c:v", "libsvtav1",
-            "-f", "null", os.devnull,
+            "-f", "null", "-",
         ],
         check=False, capture_output=True,
     ).stderr.decode()
@@ -206,7 +206,7 @@ def get_vvc_version() -> str:
         [
             "ffmpeg", "-f", "lavfi", "-i", "nullsrc", "-frames:v", "1",
             "-c:v", "vvc",
-            "-f", "null", os.devnull,
+            "-f", "null", "-",
         ],
         check=False, capture_output=True,
     ).stderr.decode()
