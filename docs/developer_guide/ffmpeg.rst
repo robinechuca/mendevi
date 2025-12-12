@@ -21,7 +21,7 @@ Preparation
     mkdir -pv ~/{bin,ffmpeg_sources}
 
     # optimized compilation
-    export CFLAGS="-O3 -march=native -mtune=native -flto=auto"
+    export CFLAGS="-O2 -march=native -mtune=native -flto=auto"
     export CXXFLAGS="$CFLAGS"
     export LDFLAGS="-flto=auto"
 
@@ -73,8 +73,8 @@ libvpx
     cd ~/ffmpeg_sources
     git -C libvpx pull 2> /dev/null || git clone --depth 1 https://chromium.googlesource.com/webm/libvpx.git
     cd libvpx
-    PATH="$HOME/bin:$PATH" LDFLAGS="" ./configure --prefix="$HOME/ffmpeg_build" --disable-examples --disable-unit-tests --enable-vp9-highbitdepth --as=yasm --extra-cflags='-O3 -march=native -mtune=native' --extra-cxxflags='-O3 -march=native -mtune=native'
-    PATH="$HOME/bin:$PATH" CFLAGS="-O3 -march=native -mtune=native" CXXFLAGS=$CFLAGS LDFLAGS="" make
+    PATH="$HOME/bin:$PATH" LDFLAGS="" ./configure --prefix="$HOME/ffmpeg_build" --disable-examples --disable-unit-tests --enable-vp9-highbitdepth --as=yasm --extra-cflags='-O2 -march=native -mtune=native' --extra-cxxflags='-O2 -march=native -mtune=native'
+    PATH="$HOME/bin:$PATH" CFLAGS="-O2 -march=native -mtune=native" CXXFLAGS=$CFLAGS LDFLAGS="" make
     make install
 
 libsvtav1
@@ -120,9 +120,9 @@ libsvtav1
     cd ~/ffmpeg_sources
     git -C rav1e pull 2> /dev/null || git clone --depth 1 https://github.com/xiph/rav1e.git
     cd rav1e
-    CFLAGS="-O3 -march=native -mtune=native" CXXFLAGS=$CFLAGS LDFLAGS="" RUSTFLAGS="-C target-cpu=native" cargo build --release
-    CFLAGS="-O3 -march=native -mtune=native" CXXFLAGS=$CFLAGS LDFLAGS="" cargo install cargo-c
-    CFLAGS="-O3 -march=native -mtune=native" CXXFLAGS=$CFLAGS LDFLAGS="" cargo cinstall --release \
+    CFLAGS="-O2 -march=native -mtune=native" CXXFLAGS=$CFLAGS LDFLAGS="" RUSTFLAGS="-C target-cpu=native" cargo build --release
+    CFLAGS="-O2 -march=native -mtune=native" CXXFLAGS=$CFLAGS LDFLAGS="" cargo install cargo-c
+    CFLAGS="-O2 -march=native -mtune=native" CXXFLAGS=$CFLAGS LDFLAGS="" cargo cinstall --release \
         --prefix=$HOME/ffmpeg_build \
         --libdir=$HOME/ffmpeg_build/lib \
         --includedir=$HOME/ffmpeg_build/include
@@ -302,9 +302,9 @@ compilation
 .. code:: shell
 
     # compilation and installation
-    CONFIG_COMPILE_FLAGS="$CONFIG_FLAGS --extra-cflags='-O3 -march=native -mtune=native' --extra-cxxflags='-O3 -march=native -mtune=native' --extra-ldflags=''"
-    CFLAGS="-O3 -march=native -mtune=native" CXXFLAGS=$CFLAGS LDFLAGS="" eval ./configure $CONFIG_COMPILE_FLAGS
-    CFLAGS="-O3 -march=native -mtune=native" CXXFLAGS=$CFLAGS LDFLAGS="" make && make install && hash -r
+    CONFIG_COMPILE_FLAGS="$CONFIG_FLAGS --extra-cflags='-O2 -march=native -mtune=native' --extra-cxxflags='-O2 -march=native -mtune=native' --extra-ldflags=''"
+    CFLAGS="-O2 -march=native -mtune=native" CXXFLAGS=$CFLAGS LDFLAGS="" eval ./configure $CONFIG_COMPILE_FLAGS
+    CFLAGS="-O2 -march=native -mtune=native" CXXFLAGS=$CFLAGS LDFLAGS="" make && make install && hash -r
 
     # linkage
     cp ~/ffmpeg_build/bin/x265 ~/bin

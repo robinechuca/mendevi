@@ -101,9 +101,10 @@ Dependencies
 ffmpeg
 ^^^^^^
 
-If you want the latest version, please build it with: :ref:`build_ffmpeg`.
+.. warning:: If you want the latest version, please build it with: :ref:`build_ffmpeg`. And **DO NOT INSTALL** the precompiled ffmpeg package.
 
 *mendevi* has hard dependency on the FFmpeg package. You should install it first, please refer to the `FFmpeg download page <https://ffmpeg.org/download.html>`_.
+
 
 .. tab:: Linux
 
@@ -112,8 +113,6 @@ If you want the latest version, please build it with: :ref:`build_ffmpeg`.
         .. code:: shell
 
             sudo apt install ffmpeg
-            sudo apt install python-dev-is-python3 pkg-config
-            sudo apt install libavformat-dev libavcodec-dev libavdevice-dev libavutil-dev libswscale-dev libswresample-dev libavfilter-dev
 
     .. tab:: RHEL CentOS Fedora
 
