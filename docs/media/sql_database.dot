@@ -55,6 +55,7 @@ graph database {
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">met_lpips_vgg</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">met_psnr</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">met_ssim</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
+        <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">met_vif</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">met_vmaf</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
       </TABLE>
     >

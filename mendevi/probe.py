@@ -156,6 +156,7 @@ def _fill_met_table(
         *(("met_lpips_vgg",) if kwargs["lpips_vgg"] else ()),
         *(("met_psnr",) if kwargs["psnr"] else ()),
         *(("met_ssim",) if kwargs["ssim"] else ()),
+        *(("met_vif",) if kwargs["vif"] else ()),
         *(("met_vmaf",) if kwargs["vmaf"] else ()),
     }
     fields -= {k for k, v in metrics.items() if v is not None}
@@ -174,6 +175,7 @@ def _fill_met_table(
             lpips_vgg=kwargs["lpips_vgg"],
             psnr=kwargs["psnr"],
             ssim=kwargs["ssim"],
+            vif=kwargs["vif"],
             vmaf=kwargs["vmaf"],
         )
         for metric in sorted(new_metrics):

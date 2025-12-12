@@ -481,27 +481,6 @@ If you have an AMD GPU, please install ROC then follow the `PyTorch installation
             # install drivers
             sudo amdgpu-install --usecase=amf --accept-eula
 
-.. _install_vmaf:
-
-vmaf (optional)
-^^^^^^^^^^^^^^^
-
-If you want to have acces to the `Netflix VMAF quality metric <https://wiki.x266.mov/docs/metrics/VMAF>`_, please install it!
-
-.. tab:: Linux
-
-    .. tab:: Debian Ubuntu Mint
-
-        .. code:: shell
-
-            sudo apt install meson nasm
-            git clone --depth 1 https://github.com/Netflix/vmaf/ ~/vmaf_git
-            cd ~/vmaf_git
-            meson setup libvmaf libvmaf/build --buildtype release -Denable_float=true
-            sudo ninja -vC libvmaf/build install
-            cd -
-            rm -rf ~/vmaf_git
-
 
 Installation
 ------------

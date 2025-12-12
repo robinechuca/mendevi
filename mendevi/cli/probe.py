@@ -21,30 +21,20 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
     assert all(r.is_file() for r in kwargs["ref"]), kwargs["ref"]
     if kwargs["ref"]:
         prt.print(f"ref       : {', '.join(r.name for r in kwargs['ref'])}")
-    assert "lpips_alex" in kwargs, sorted(kwargs)
-    assert isinstance(kwargs["lpips_alex"], bool), kwargs["lpips_alex"].__class__.__name__
-    prt.print(f"lpips alex: {'yes' if kwargs['lpips_alex'] else 'no'}")
-    assert "lpips_vgg" in kwargs, sorted(kwargs)
-    assert isinstance(kwargs["lpips_vgg"], bool), kwargs["lpips_vgg"].__class__.__name__
-    prt.print(f"lpips vgg : {'yes' if kwargs['lpips_vgg'] else 'no'}")
-    assert "psnr" in kwargs, sorted(kwargs)
-    assert isinstance(kwargs["psnr"], bool), kwargs["psnr"].__class__.__name__
-    prt.print(f"psnr      : {'yes' if kwargs['psnr'] else 'no'}")
-    assert "ssim" in kwargs, sorted(kwargs)
-    assert isinstance(kwargs["ssim"], bool), kwargs["ssim"].__class__.__name__
-    prt.print(f"ssim      : {'yes' if kwargs['ssim'] else 'no'}")
-    assert "rms_sobel" in kwargs, sorted(kwargs)
-    assert isinstance(kwargs["rms_sobel"], bool), kwargs["rms_sobel"].__class__.__name__
-    prt.print(f"rms sobel : {'yes' if kwargs['rms_sobel'] else 'no'}")
-    assert "rms_time_diff" in kwargs, sorted(kwargs)
-    assert isinstance(kwargs["rms_time_diff"], bool), kwargs["rms_time_diff"].__class__.__name__
-    prt.print(f"rms td    : {'yes' if kwargs['rms_time_diff'] else 'no'}")
-    assert "uvq" in kwargs, sorted(kwargs)
-    assert isinstance(kwargs["uvq"], bool), kwargs["uvq"].__class__.__name__
-    prt.print(f"uvq       : {'yes' if kwargs['uvq'] else 'no'}")
-    assert "vmaf" in kwargs, sorted(kwargs)
-    assert isinstance(kwargs["vmaf"], bool), kwargs["vmaf"].__class__.__name__
-    prt.print(f"vmaf      : {'yes' if kwargs['vmaf'] else 'no'}")
+    for met in [
+        "lpips_alex",
+        "lpips_vgg",
+        "psnr",
+        "rms_sobel",
+        "rms_time_diff",
+        "ssim",
+        "uvq",
+        "vif",
+        "vmaf",
+    ]:
+        assert met in kwargs, f"{met} not in {sorted(kwargs)}"
+        assert isinstance(kwargs[met], bool), kwargs[met].__class__.__name__
+        prt.print(f"{met:<10}: {'yes' if kwargs[met] else 'no'}")
 
 
 @click.command()
@@ -63,6 +53,7 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
 @click.option("--rms-sobel/--no-rms-sobel", default=True, help="Compute the C_sob or not.")
 @click.option("--rms-time-diff/--no-rms-time-diff", default=True, help="Compute the C_td or not.")
 @click.option("--uvq/--no-uvq", default=False, help="Compute the UVQ or not.")
+@click.option("--vif/--no-vif", default=True, help="Compute the VIF or not.")
 @click.option("--vmaf/--no-vmaf", default=True, help="Compute the VMAF or not.")
 def main(videos: tuple[str], database: str | None = None, **kwargs: dict) -> None:
     """Measure the video properties.
@@ -82,7 +73,7 @@ def main(videos: tuple[str], database: str | None = None, **kwargs: dict) -> Non
         which has been transcoded to produce video ``x``,
         the metrics will also be calculated in relation to these reference videos ``ref``.
         Finaly comparatives metrics will be between ``o`` and ``x``, and also ``ref`` and ``x``.
-    lpips_alex, lpips_vgg, psnr, ssim, vmaf : boolean
+    lpips_alex, lpips_vgg, psnr, ssim, vif, vmaf : boolean
         If True, compute the comparative video metric, otherwise, skip it.
     rms_sobel, rms_time_diff, uvq : boolean
         If True, compute the absolute uvq metric, overwise, skip it.

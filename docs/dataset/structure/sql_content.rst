@@ -416,6 +416,8 @@ Table t_met_metric
 +-----------------------+---------------+---------------------------------------+
 | :ref:`met_ssim`       | *LONGBLOB*    | values of SSIM metric                 |
 +-----------------------+---------------+---------------------------------------+
+| :ref:`met_vif`        | *LONGBLOB*    | values of VIF metric                  |
++-----------------------+---------------+---------------------------------------+
 | :ref:`met_vmaf`       | *LONGBLOB*    | values of VMAF metric                 |
 +-----------------------+---------------+---------------------------------------+
 
@@ -478,6 +480,15 @@ The serialised list of the yuv (6, 1, 1) (gauss win 11x11) structural similarity
 Catched by ``cutcutcodec.video_metrics(dis, ref, ssim=True)["ssim"]``.
 To deserialize into an exploitable numpy array, please use the function :py:func:`mendevi.database.serialize.binary_to_list`.
 
+.. _met_vif:
+
+met_vif
+^^^^^^^
+
+The serialised list of the visual information fidelity comparative metric on luminance.
+Catched by ``cutcutcodec.video_metrics(dis, ref, vif=True)["vif"]``.
+To deserialize into an exploitable numpy array, please use the function :py:func:`mendevi.database.serialize.binary_to_list`.
+
 .. _met_vmaf:
 
 met_vmaf
@@ -486,12 +497,6 @@ met_vmaf
 The serialised list of the comparative metric `Netflix Video Multi-Method Assessment Fusion <https://github.com/Netflix/vmaf>`_ metric.
 Catched by ``cutcutcodec.video_metrics(dis, ref, vmaf=True)["vmaf"]``.
 To deserialize into an exploitable numpy array, please use the function :py:func:`mendevi.database.serialize.binary_to_list`.
-
-
-.. important::
-
-    If you want to measure this metric, the **vmaf** library must be installed.
-    Refer the :ref:`install_vmaf` guide.
 
 
 .. _t_env_environment:

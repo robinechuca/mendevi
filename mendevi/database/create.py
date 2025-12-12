@@ -84,6 +84,7 @@ def create_database(filename: str | bytes | pathlib.Path) -> None:
             met_lpips_vgg LONGBLOB,
             met_psnr LONGBLOB,
             met_ssim LONGBLOB,
+            met_vif LONGBLOB,
             met_vmaf LONGBLOB,
 
             UNIQUE(met_ref_vid_id, met_dis_vid_id) ON CONFLICT FAIL
