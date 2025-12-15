@@ -48,7 +48,8 @@ libx264 and libopenh264
     cd ~/ffmpeg_sources
     git -C openh264 pull 2> /dev/null || git clone --depth 1 https://github.com/cisco/openh264.git
     cd openh264
-    PATH="$HOME/bin:$PATH" make
+    ARCH=$(uname -m)
+    PATH="$HOME/bin:$PATH" make OS=linux ARCH="$ARCH"
     make install PREFIX="$HOME/ffmpeg_build"
     rm ~/ffmpeg_build/lib/libopenh264.so*  # to force the static build overwise it will failed on dynamic
 
