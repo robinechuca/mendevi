@@ -11,6 +11,7 @@ from mendevi.ffmpeg_cmd import (
     _encode_h264_vaapi,
     _encode_hevc_nvenc,
     _encode_hevc_vaapi,
+    _encode_libopenh264,
     _encode_librav1e,
     _encode_libsvtav1,
     _encode_libvpx_vp9,
@@ -82,6 +83,11 @@ def test_encode_hevc_nvenc() -> None:
 def test_encode_hevc_vaapi() -> None:
     """Perform the ffmpeg encoding test on hevc_vaapi."""
     encode("hevc_vaapi", _encode_hevc_vaapi)
+
+
+def test_encode_libopenh264() -> None:
+    """Perform the ffmpeg encoding test on libopenh264."""
+    encode("libopenh264", _encode_libopenh264)
 
 
 def test_encode_librav1e() -> None:

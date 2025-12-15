@@ -34,9 +34,7 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
                     '#Deploying_your_nodes_to_get_root_access_and_'
                     'create_your_own_experimental_environment".'
                 )
-                raise OSError(
-                    msg,
-                )
+                raise OSError(msg)
             case 1:
                 kwargs["env_name"] = env_name[0]
             case _:

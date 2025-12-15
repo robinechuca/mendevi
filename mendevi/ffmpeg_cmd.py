@@ -117,6 +117,25 @@ def _encode_h264_nvenc(**kwargs: dict) -> list[str]:
     ]
 
 
+@decorator_pix_fmt
+def _encode_libopenh264(**kwargs: dict) -> list[str]:
+    """Return the ffmpeg arguments."""
+    general = [
+        "-c:v", "libopenh264",
+    ]
+    if kwargs["mode"] == "vbr":
+        return [*general, "-rc_mode", "quality"]
+    rate = f"{quality_to_rate(kwargs)}k"
+    return [
+        *general,
+        "-b:v", rate,
+        "-minrate", rate,
+        "-maxrate", rate,
+        "-bufsize", rate,
+        "-rc_mode", "bitrate",
+    ]
+
+
 def _encode_vaapi(codec: str, **kwargs: dict) -> list[str]:
     """Return the ffmpeg arguments for the xxx_vaapi encoders."""
     # https://trac.ffmpeg.org/wiki/Hardware/VAAPI
