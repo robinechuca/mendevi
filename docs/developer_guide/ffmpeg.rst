@@ -34,6 +34,7 @@ libx264 and libopenh264
 .. code:: shell
 
     # libx264
+    # Instead of the following code, you can do "sudo apt install libx264-dev".
     cd ~/ffmpeg_sources
     git -C x264 pull 2> /dev/null || git clone --depth 1 https://code.videolan.org/videolan/x264.git
     cd x264
@@ -56,6 +57,7 @@ libx265
 
 .. code:: shell
 
+    # Instead of the following code, you can do "sudo apt install libx265-dev".
     sudo apt install libnuma-dev
     cd ~/ffmpeg_sources
     wget -O x265.tar.bz2 https://bitbucket.org/multicoreware/x265_git/get/master.tar.bz2
@@ -70,6 +72,7 @@ libvpx
 
 .. code:: shell
 
+    # Instead of the following code, you can do "sudo apt install libvpx-dev".
     cd ~/ffmpeg_sources
     git -C libvpx pull 2> /dev/null || git clone --depth 1 https://chromium.googlesource.com/webm/libvpx.git
     cd libvpx
@@ -83,6 +86,7 @@ libdav1d, libsvtav1, libaom and librav1e
 .. code:: shell
 
     # libdav1d for decoding
+    # Instead of the following code, you can do "sudo apt install libdav1d-dev".
     cd ~/ffmpeg_sources
     git -C dav1d pull 2> /dev/null || git clone --depth 1 https://code.videolan.org/videolan/dav1d.git
     mkdir -p dav1d/build
@@ -92,6 +96,7 @@ libdav1d, libsvtav1, libaom and librav1e
     ninja install
 
     # libsvtav1 for encoding
+    # Instead of the following code, you can do "sudo apt install libsvtav1enc-dev".
     cd ~/ffmpeg_sources
     git -C SVT-AV1 pull 2> /dev/null || git clone --depth 1 https://gitlab.com/AOMediaCodec/SVT-AV1.git
     mkdir -p SVT-AV1/build
@@ -101,6 +106,7 @@ libdav1d, libsvtav1, libaom and librav1e
     make install
 
     # libaom for encoding
+    # Instead of the following code, you can do "sudo apt install libaom-dev".
     cd ~/ffmpeg_sources
     git -C aom pull 2> /dev/null || git clone --depth 1 https://aomedia.googlesource.com/aom
     mkdir -p aom/build
@@ -110,6 +116,7 @@ libdav1d, libsvtav1, libaom and librav1e
     make install
 
     # librav1e for encoding
+    # Instead of the following code, you can do "sudo apt install librav1e-dev".
     if apt-cache search --names-only "^rustup$" | grep -q "^rustup "; then
         sudo apt install rustup
     else
