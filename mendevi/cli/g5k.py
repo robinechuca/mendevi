@@ -4,6 +4,7 @@ import getpass
 import hashlib
 import logging
 import pathlib
+import json
 import platform
 import re
 import subprocess
@@ -345,14 +346,11 @@ def main(cmd: str, **kwargs: dict) -> None:
                     continue
 
                 # get job result
-                res_ = res.payload["stdout"]
-                import ipdb; ipdb.set_trace()
-                if isinstance(res_, str):
-                    try:
-                        res_ = orjson.loads(res.payload["stdout"])
-                    except orjson.JSONDecodeError as err:
-                        logging.getLogger(__name__).exception(res.payload)
-                        raise err
+                try:
+                    res_ = json.loads(res.payload["stdout"])  # orjson failed
+                except json.JSONDecodeError as err:
+                    logging.getLogger(__name__).exception(res.payload)
+                    raise err
                 if res_.get("changed", False) or "rc" in res_:
                     print(res_.get("stdout", ""))
                     logging.getLogger(__name__).error(res_.get("stderr", ""))
