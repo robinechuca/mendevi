@@ -23,8 +23,8 @@ SLEEP_TRANSITION = 3600.0  # the transition time between the init and final slee
 def _parse_args(prt: Printer, kwargs: dict) -> None:
     """Verification of the arguments."""
     # env_name
-    kwargs["env_name"] = kwargs.get("env_name")
-    if kwargs["env_name"] is None:
+    kwargs["env_name"] = kwargs.get("env_name", "")
+    if not kwargs["env_name"]:
         match len(env_name := guess_envname()):
             case 0:
                 msg = (
