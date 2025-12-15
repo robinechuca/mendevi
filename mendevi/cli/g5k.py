@@ -53,6 +53,13 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
     assert isinstance(kwargs["walltime"], str), kwargs["walltime"].__class__.__name__
     prt.print(f"walltime: {kwargs['walltime']}")
 
+    # roles
+    kwargs["roles"] = kwargs.get("roles", []) or guess_roles()
+    assert isinstance(kwargs["roles"], tuple | list), kwargs["roles"].__class__.__name__
+    kwargs["roles"] = list(kwargs["roles"])
+    assert all(isinstance(r, str) for r in kwargs["roles"]), kwargs["roles"]
+    prt.print(f"roles   : {kwargs['roles']}")
+
     # server
     kwargs["server"] = kwargs.get("server", ())
     assert isinstance(kwargs["server"], tuple), kwargs["server"].__class__.__name__
@@ -229,6 +236,12 @@ def set_ansible_cfg() -> None:
     help="The generique cluster name to use.",
 )
 @click.option(
+    "-r", "roles",
+    type=str,
+    multiple=True,
+    help="The specific role to use.",
+)
+@click.option(
     "-n", "--nodes",
     type=int,
     default=1,
@@ -251,6 +264,8 @@ def main(cmd: str, **kwargs: dict) -> None:
     walltime : str, default=24:00:00
         The maximum reservation time for the node.
         If the script finishes before this time, the resources are released before the expiry date.
+    roles : tuple[str], default=autodetect
+        The role to used, by default, the list is autodetected with :py:func:`guess_roles`.
     server : tuple[str], optional
         The specific node names (ex: ("paradoxe-1.rennes.grid5000.fr",)).
     cluster : str
@@ -283,7 +298,7 @@ def main(cmd: str, **kwargs: dict) -> None:
             # queue="production",  # "default", "testing", "besteffort"
         )
         .add_machine(
-            roles=guess_roles(),
+            roles=kwargs["roles"],
             cluster=kwargs["cluster"],
             nodes=kwargs["nodes"],
             **({"servers": list(kwargs["server"])} if kwargs["server"] else {}),
