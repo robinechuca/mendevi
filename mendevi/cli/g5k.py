@@ -105,7 +105,6 @@ def guess_roles() -> list[str]:
         The name of the group to which one belongs
 
     """
-    return ["magellan"]
     roles = re.findall(
         r"\S+",
         subprocess.run(["id", "-Gn"], capture_output=True, check=True).stdout.decode("utf-8"),

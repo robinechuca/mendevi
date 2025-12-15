@@ -77,8 +77,8 @@ libvpx
     PATH="$HOME/bin:$PATH" CFLAGS="-O3 -march=native -mtune=native" CXXFLAGS=$CFLAGS LDFLAGS="" make
     make install
 
-libsvtav1
-^^^^^^^^^
+libdav1d, libsvtav1, libaom and librav1e
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code:: shell
 
