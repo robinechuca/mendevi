@@ -102,11 +102,11 @@ def g5kpower(
         raise ValueError(msg)
 
     # grid5000 api request
-    url = (
+    url = (  # tz=datetime.UTC add a non supported +00:00 by the g5k api
         f"https://api.grid5000.fr/stable/sites/{hostname_fields['site']}/metrics?"
         f"nodes={hostname_fields['node']}&metrics=wattmetre_power_watt"
-        f"&start_time={datetime.datetime.fromtimestamp(start, tz=datetime.UTC).isoformat()}"
-        f"&end_time={datetime.datetime.fromtimestamp(start+duration, tz=datetime.UTC).isoformat()}"
+        f"&start_time={datetime.datetime.fromtimestamp(start, tz=None).isoformat()}"
+        f"&end_time={datetime.datetime.fromtimestamp(start+duration, tz=None).isoformat()}"
     )
     auth = requests.auth.HTTPBasicAuth(login, password) if login and password else None
     try:
