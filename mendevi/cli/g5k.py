@@ -345,12 +345,14 @@ def main(cmd: str, **kwargs: dict) -> None:
                     continue
 
                 # get job result
-                print(res.payload["stdout"])
-                try:
-                    res_ = orjson.loads(res.payload["stdout"])
-                except orjson.JSONDecodeError:
-                    logging.getLogger(__name__).exception(res.payload)
-                    raise
+                res_ = res.payload["stdout"]
+                import ipdb; ipdb.set_trace()
+                if isinstance(res_, str):
+                    try:
+                        res_ = orjson.loads(res.payload["stdout"])
+                    except orjson.JSONDecodeError as err:
+                        logging.getLogger(__name__).exception(res.payload)
+                        raise from err
                 if res_.get("changed", False) or "rc" in res_:
                     print(res_.get("stdout", ""))
                     logging.getLogger(__name__).error(res_.get("stderr", ""))
