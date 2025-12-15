@@ -345,6 +345,7 @@ def main(cmd: str, **kwargs: dict) -> None:
                     continue
 
                 # get job result
+                print(res.payload["stdout"])
                 try:
                     res_ = orjson.loads(res.payload["stdout"])
                 except orjson.JSONDecodeError:
