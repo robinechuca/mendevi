@@ -1,6 +1,7 @@
 """Search for available torrent files."""
 
 import pathlib
+import shutil
 
 import requests
 from context_verbose import Printer
@@ -29,16 +30,18 @@ def get_torrent(name: str) -> pathlib.Path:
     """
     assert isinstance(name, str), name.__class__.__name__
 
-    # look localy first
-    local = {p.name: p for p in probe_local_torrent()}
-    if name in local:
-        return local[name]
-
     # look in cachedir
     cachedir = pathlib.Path.home() / ".cache" / "mendevi"
     cachedir.mkdir(mode=0o777, parents=True, exist_ok=True)
     if (file := cachedir / name).exists():
         return file
+
+    # look on the local cloned mndevi git
+    local = {p.name: p for p in probe_local_torrent()}
+    if name in local:
+        # copy in mendevi cachedir for transmission permission
+        shutil.copy(local[name], cachedir / name)
+        return cachedir / name
 
     # download online
     with Printer(f"Download {name!r}...", color="green") as prt:
