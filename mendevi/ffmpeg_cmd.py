@@ -125,7 +125,6 @@ def _encode_libopenh264(**kwargs: dict) -> list[str]:
     ]
     if kwargs["mode"] == "vbr":
         return [*general, "-rc_mode", "quality"]
-    rate = f"{quality_to_rate(kwargs)}k"
     return [
         *general,
         "-b:v", rate,

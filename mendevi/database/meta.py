@@ -245,7 +245,7 @@ ALL_EXTRACTORS = {
     ),
     "ssim_comp": Extractor(
         "Complementary of Structural Similarity (1-SSIM)",
-        "1.0 - ssim",
+        "None if ssim is None else 1.0 - ssim",
         Scale.LOGARITHMIC,
     ),
     "temp": Extractor(

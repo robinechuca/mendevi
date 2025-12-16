@@ -469,6 +469,7 @@ def print_mean_std() -> list[str]:
     return [
         "def mean_std(data: list[float]) -> tuple[float, float]:",
         '    """Compute the mean and the unbiaised std of a list."""',
+        "    data = [d for d in data if d is not None]",
         "    match nbr := float(len(data)):",
         "        case 0.0:",
         "            return math.nan, math.nan",
