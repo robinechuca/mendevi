@@ -53,7 +53,7 @@ Conclusion
 
 When the video contains enough images, the average energy per frame no longer depends on the duration of the video. Thus, for videos with more than 300 images, ie more than 10 seconds, this effect becomes negligible.
 
-These results are consistent with the `UIT-R BT.500-15 (05/2023)<https://www.itu.int/rec/R-REC-BT.500-15-202305-I>`_ which recommends 10-second sequences.
+These results are consistent with the `UIT-R BT.500-15 (05/2023) <https://www.itu.int/rec/R-REC-BT.500-15-202305-I>`_ which recommends 10-second sequences.
 
 Reproduce
 ---------
