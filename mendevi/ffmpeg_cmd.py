@@ -120,11 +120,13 @@ def _encode_h264_nvenc(**kwargs: dict) -> list[str]:
 @decorator_pix_fmt
 def _encode_libopenh264(**kwargs: dict) -> list[str]:
     """Return the ffmpeg arguments."""
-    general = [
-        "-c:v", "libopenh264",
-        "-loopfilter", {"slow": "1", "medium": "1", "fast": "0"}[kwargs["effort"]],
-        "-profile", {"slow": "high", "medium": "high", "fast": "main"}[kwargs["effort"]],
-    ]
+    general = ["-c:v", "libopenh264"]
+    if kwargs["effort"] != "medium":
+        general = [
+            *general,
+            "-loopfilter", {"slow": "1", "fast": "0"}[kwargs["effort"]],
+            "-profile", {"slow": "high", "fast": "main"}[kwargs["effort"]],
+        ]
     if kwargs["mode"] == "vbr":
         # https://patchwork.ffmpeg.org/project/ffmpeg/patch/
         # 1585926759-22569-1-git-send-email-linjie.fu@intel.com/
