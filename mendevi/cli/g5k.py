@@ -2,9 +2,9 @@
 
 import getpass
 import hashlib
+import json
 import logging
 import pathlib
-import json
 import platform
 import re
 import subprocess
@@ -348,9 +348,9 @@ def main(cmd: str, **kwargs: dict) -> None:
                 # get job result
                 try:
                     res_ = json.loads(res.payload["stdout"])  # orjson failed
-                except json.JSONDecodeError as err:
+                except json.JSONDecodeError:
                     logging.getLogger(__name__).exception(res.payload)
-                    raise err
+                    raise
                 if res_.get("changed", False) or "rc" in res_:
                     print(res_.get("stdout", ""))
                     logging.getLogger(__name__).error(res_.get("stderr", ""))

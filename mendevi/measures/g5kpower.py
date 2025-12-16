@@ -101,12 +101,17 @@ def g5kpower(
         msg = f"the hostname {hostname} is not grid5000 formated"
         raise ValueError(msg)
 
+    def timestamp_to_str(timestamp: float) -> str:
+        return datetime.datetime.fromtimestamp(
+            timestamp, tz=datetime.UTC,
+        ).strftime("%Y-%m-%dT%H:%M:%S.%f")
+
     # grid5000 api request
     url = (  # tz=datetime.UTC add a non supported +00:00 by the g5k api
         f"https://api.grid5000.fr/stable/sites/{hostname_fields['site']}/metrics?"
         f"nodes={hostname_fields['node']}&metrics=wattmetre_power_watt"
-        f"&start_time={datetime.datetime.fromtimestamp(start, tz=None).isoformat()}"
-        f"&end_time={datetime.datetime.fromtimestamp(start+duration, tz=None).isoformat()}"
+        f"&start_time={timestamp_to_str(start)}"
+        f"&end_time={timestamp_to_str(start+duration)}"
     )
     auth = requests.auth.HTTPBasicAuth(login, password) if login and password else None
     try:
