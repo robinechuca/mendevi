@@ -24,7 +24,16 @@ PATHLIKE = str | bytes | pathlib.Path
 
 @functools.cache
 def best_profile(height: numbers.Integral, width: numbers.Integral) -> str:
-    """Return the closest profile name."""
+    """Return the closest profile name.
+
+    Examples
+    --------
+    >>> from mendevi.utils import best_profile
+    >>> best_profile(1080, 1920)
+    'fhd'
+    >>>
+
+    """
     assert isinstance(height, numbers.Integral), height.__class__.__name__
     assert isinstance(width, numbers.Integral), width.__class__.__name__
     size = math.sqrt(float(height * width))

@@ -290,7 +290,7 @@ ALL_EXTRACTORS = {
     ),
     "width": Extractor(
         "Width of images in pixels",
-        extract.extract_height,  # comme dans ton code
+        extract.extract_width,  # comme dans ton code
         Scale.LINEAR,
     ),
 }
