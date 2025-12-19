@@ -28,6 +28,26 @@ Distortion as a function of bitrate
 .. image:: /_static/media/x264_vs_openh264_bdr.svg
     :alt: Distortion as a function of bitrate
 
+4K-TV consomation as a function of bitrate
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code:: shell
+
+    mendevi plot '<x264_vs_openh264.db>' -x rate -y energy -wx profile -c encoder -m effort -f "category=='4K-TV'"
+
+.. image:: /_static/media/x264_vs_openh264_4k_tv_energy.svg
+    :alt: Consomation as a function of bitrate
+
+Gaming consomation as a function of bitrate
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code:: shell
+
+    mendevi plot '<x264_vs_openh264.db>' -x rate -y energy -wx profile -c encoder -m effort -f "category=='Gaming'"
+
+.. image:: /_static/media/x264_vs_openh264_gaming_energy.svg
+    :alt: Consomation as a function of bitrate
+
 Conclusion
 ----------
 

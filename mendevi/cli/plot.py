@@ -193,9 +193,9 @@ def main(database: str, **kwargs: dict) -> None:
     # get title name
     path = (
         pathlib.Path.cwd() / (
-            f"{'_'.join(map(safe_lbl, kwargs['x']))}"
-            "_as_a_function_of_"
             f"{'_'.join(map(safe_lbl, kwargs['y']))}"
+            "_as_a_function_of_"
+            f"{'_'.join(map(safe_lbl, kwargs['x']))}"
             ".py"
         )
     )

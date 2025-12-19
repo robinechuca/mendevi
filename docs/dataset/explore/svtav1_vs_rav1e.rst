@@ -50,6 +50,9 @@ Reproduce
 
 .. code:: shell
 
-    mendevi prepare -p fhd park_joy.mp4
+    do
+        mendevi prepare $video -p sd
+        mendevi prepare $video -p fhd
+    done
     mendevi encode reference_park_joy_fhd.mp4 -c libsvtav1 -c librav1e -m vbr -e fast -e medium -e slow -r 1
     mendevi probe sample_* --no-vmaf
