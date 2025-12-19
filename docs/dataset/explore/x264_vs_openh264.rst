@@ -51,13 +51,18 @@ Compression efficiency for PSNR=35dB
 Conclusion
 ----------
 
-No conclusion yet!
+* The **main consumption factor is the resolution**, not the encoder.
+* At equal resolution and quality, ``libopenh264`` consistently consumes less energy than ``libx264``.
+* **``libx264`` has a large variance in energy consumption** depending on the preset and the video content. It is therefore much less predictable than ``libopenh264``.
 
 Reproduce
 ---------
 
 .. code:: shell
 
-    mendevi prepare -p fhd park_joy.mp4
+    for video in ctc/*.mkv; do
+        mendevi prepare $video -p sd
+        mendevi prepare $video -p fhd
+    done
     mendevi encode reference* -e fast -e medium -e slow -m cbr -m vbr -c libx264 -c libopenh264
     mendevi probe sample_* --psnr --ssim --vif --vmaf
