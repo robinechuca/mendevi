@@ -48,6 +48,16 @@ Gaming consomation as a function of bitrate
 .. image:: /_static/media/x264_vs_openh264_gaming_energy.svg
     :alt: Consomation as a function of bitrate
 
+Compression efficiency for PSNR=35dB
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code:: shell
+
+    mendevi plot '<x264_vs_openh264.db>' -x rate -y energy -c '(encoder, profile)' -m category -f '34<psnr<36'
+
+.. image:: /_static/media/x264_vs_openh264_efficiency.svg
+    :alt: Consomation as a function of bitrate for a psnr of 35dB
+
 Conclusion
 ----------
 
