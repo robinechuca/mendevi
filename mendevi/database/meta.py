@@ -90,6 +90,56 @@ ALL_EXTRACTORS = {
         "None if size is None or video_duration is None else 8.0 * size / video_duration",
         Scale.LOGARITHMIC,
     ),
+    "category": Extractor(
+        "3GPP TR 26.955, 5G Video Codec Characteristics",
+        (
+            "{\n"
+            '    "aov": "Gaming",\n'  # ; Key: S5-R01",\n'
+            '    "baolei_balloon": "Gaming",\n'  # ; Key: S5-R04",\n'
+            '    "baolei_man": "Gaming",\n'  # ; Key: S5-R02",\n'
+            '    "baolei_woman": "Gaming",\n'  # ; Key: S5-R03",\n'
+            '    "baolei_yard": "Gaming",\n'  # ; Key: S5-R05",\n'
+            '    "boat": "4K-TV",\n'  # ; Key: S5-R5",\n'
+            '    "bode_museum": "8K-TV",\n'  # ; Key: S3-R16",\n'
+            '    "brest_sedof": "4K-TV",\n'  # ; Key: S5-R5",\n'
+            '    "cosmos": "4K-TV",\n'  # ; Key: S5-R5",\n'
+            '    "cs_go": "Gaming",\n'  # ; Key: S5-R12",\n'
+            '    "elevator": "4K-TV",\n'  # ; Key: S5-R5",\n'
+            '    "fountain": "4K-TV",\n'  # ; Key: S5-R5",\n'
+            '    "graphics_mix_simple": "ScreenContent",\n'  # ; Key: S3-R09",\n'
+            '    "graphics_mix_transitions": "ScreenContent",\n'  # ; Key: S3-R13",\n'
+            '    "heroes_of_the_storm": "Gaming",\n'  # ; Key: S5-R08",\n'
+            '    "jianling_beach": "Gaming",\n'  # ; Key: S5-R07",\n'
+            '    "jianling_temple": "Gaming",\n'  # ; Key: S5-R06",\n'
+            '    "life_untouched": "4K-TV",\n'  # ; Key: S5-R5",\n'
+            '    "meridian": "4K-TV",\n'  # ; Key: S5-R5",\n'
+            '    "mine_craft": "Gaming",\n'  # ; Key: S5-R11",\n'
+            '    "mission_control": "ScreenContent",\n'  # ; Key: S3-R17",\n'
+            '    "mooving_text": "ScreenContent",\n'  # ; Key: S3-R01",\n'
+            '    "neon": "Messaging",\n'  # ; Key: S3-R16",\n'
+            '    "neptune_fountain_2": "8K-TV",\n'  # ; Key: S3-R16",\n'
+            '    "neptune_fountain_3": "8K-TV",\n'  # ; Key: S3-R16",\n'
+            '    "nocturne": "4K-TV",\n'  # ; Key: S5-R5",\n'
+            '    "oberbaum_spree": "8K-TV",\n'  # ; Key: S3-R16",\n'
+            '    "park_joy": "4K-TV",\n'  # ; Key: S5-R5",\n'
+            '    "project_cars": "Gaming",\n'  # ; Key: S5-R09",\n'
+            '    "quadriga_tree": "8K-TV",\n'  # ; Key: S3-R16",\n'
+            '    "rain_fruits": "4K-TV",\n'  # ; Key: S5-R5",\n'
+            '    "riverbank": "4K-TV",\n'  # ; Key: S5-R5",\n'
+            '    "skater": "Messaging",\n'  # ; Key: S3-R16",\n'
+            '    "soccer": "4K-TV",\n'  # ; Key: S5-R5",\n'
+            '    "sol_levante": "4K-TV",\n'  # ; Key: S5-R5",\n'
+            '    "sparks": "4K-TV",\n'  # ; Key: S5-R5",\n'
+            '    "star_craft": "Gaming",\n'  # ; Key: S5-R13",\n'
+            '    "subway_tree": "8K-TV",\n'  # ; Key: S3-R16",\n'
+            '    "text_mix_transition": "ScreenContent",\n'  # ; Key: S3-R05",\n'
+            '    "tiergarten_parkway": "8K-TV",\n'  # ; Key: S3-R16",\n'
+            '    "tunnel_flag": "4K-TV",\n'  # ; Key: S5-R5",\n'
+            '    "world_of_warcraft": "Gaming",\n'  # ; Key: S5-R10",\n'
+            "}.get(reference_video_name, reference_video_name)"
+        ),
+        Scale.DISCRETE,
+    ),
     "codec": Extractor(
         "Codec name",
         extract.extract_codec,

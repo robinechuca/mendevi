@@ -123,6 +123,7 @@ def main(database: str, **kwargs: dict) -> None:
                         t_dst_video.vid_id,
                         t_dst_video.vid_range,
                         t_dst_video.vid_size,
+                        t_dst_video.vid_width,
                         t_enc_encode.enc_effort,
                         t_enc_encode.enc_encoder,
                         t_enc_encode.enc_mode,
@@ -196,6 +197,7 @@ def main(database: str, **kwargs: dict) -> None:
                         NULL AS ref_vid_name,  -- bulshit
                         t_dst_video.vid_range,
                         t_dst_video.vid_size,
+                        t_dst_video.vid_width,
                         NULL AS enc_effort,  -- bulshit
                         NULL AS enc_encoder,  -- bulshit
                         NULL AS enc_mode,  -- bulshit
