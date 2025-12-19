@@ -28,24 +28,14 @@ Distortion as a function of bitrate
 .. image:: /_static/media/x264_vs_openh264_bdr.svg
     :alt: Distortion as a function of bitrate
 
-4K-TV consomation as a function of bitrate
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Consomation as a function of bitrate
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code:: shell
 
-    mendevi plot '<x264_vs_openh264.db>' -x rate -y energy -wx profile -c encoder -m effort -f "category=='4K-TV'"
+    mendevi plot '<x264_vs_openh264.db>' -x rate -y energy -wx category -wy profile -c encoder -m effort -f "category in {'4K-TV', 'Gaming'}"
 
-.. image:: /_static/media/x264_vs_openh264_4k_tv_energy.svg
-    :alt: Consomation as a function of bitrate
-
-Gaming consomation as a function of bitrate
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. code:: shell
-
-    mendevi plot '<x264_vs_openh264.db>' -x rate -y energy -wx profile -c encoder -m effort -f "category=='Gaming'"
-
-.. image:: /_static/media/x264_vs_openh264_gaming_energy.svg
+.. image:: /_static/media/x264_vs_openh264_energy.svg
     :alt: Consomation as a function of bitrate
 
 Compression efficiency for PSNR=35dB
