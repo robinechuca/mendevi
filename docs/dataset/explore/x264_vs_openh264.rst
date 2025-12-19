@@ -23,7 +23,21 @@ Distortion as a function of bitrate
 
 .. code:: shell
 
-    mendevi plot '<x264_vs_openh264.db>' -x rate -y psnr -y comp_ssim -wx category -c '(encoder, profile)' -m effort -f "not ref_name.isdigit()"
+    mendevi plot '<x264_vs_openh264.db>' -x rate -y psnr -y vmaf -wx category -c '(encoder, profile)' -m effort
 
 .. image:: /_static/media/x264_vs_openh264_bdr.svg
     :alt: Distortion as a function of bitrate
+
+Conclusion
+----------
+
+No conclusion yet!
+
+Reproduce
+---------
+
+.. code:: shell
+
+    mendevi prepare -p fhd park_joy.mp4
+    mendevi encode reference* -e fast -e medium -e slow -m cbr -m vbr -c libx264 -c libopenh264
+    mendevi probe sample_* --psnr --ssim --vif --vmaf
