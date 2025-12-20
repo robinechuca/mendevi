@@ -45,15 +45,25 @@ Compression efficiency for PSNR=35dB
 
     mendevi plot '<x264_vs_openh264.db>' -x rate -y energy -c '(encoder, profile)' -m category -f '34<psnr<36'
 
-.. image:: /_static/media/x264_vs_openh264_efficiency.svg
+.. image:: /_static/media/x264_vs_openh264_efficiency_psnr.svg
     :alt: Consomation as a function of bitrate for a psnr of 35dB
+
+Compression efficiency for rate=2Mb/s
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code:: shell
+
+    mendevi plot '<x264_vs_openh264.db>' -x rate -y energy -c '(encoder, profile)' -m category -f '1.8e6<rate<2.2e6'
+
+.. image:: /_static/media/x264_vs_openh264_efficiency_rate.svg
+    :alt: Consomation as a function of bitrate for a bitrate of 2Mb/s
 
 Conclusion
 ----------
 
 * The **main consumption factor is the resolution**, not the encoder.
 * At equal resolution and quality, ``libopenh264`` consistently consumes less energy than ``libx264``.
-* **``libx264`` has a large variance in energy consumption** depending on the preset and the video content. It is therefore much less predictable than ``libopenh264``.
+* **libx264 has a large variance in energy consumption** depending on the preset and the video content. It is therefore much less predictable than ``libopenh264``.
 
 Reproduce
 ---------

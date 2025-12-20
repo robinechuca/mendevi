@@ -853,6 +853,8 @@ Table t_dec_decode
 +--------------------+---------------+--------------------------------+
 | :ref:`dec_cmd`     | *TEXT*        | ffmpeg command used            |
 +--------------------+---------------+--------------------------------+
+| :ref:`dec_decoder` | *TINYTEXT*    | the decoder name               |
++--------------------+---------------+--------------------------------+
 | :ref:`dec_filter`  | *TEXT*        | additional video filter        |
 +--------------------+---------------+--------------------------------+
 | :ref:`dec_height`  | *SMALLINT*    | decoded height                 |
@@ -902,6 +904,13 @@ The ffmpeg command used for decoding:
 .. code:: shell
 
     ffmpeg -threads 1 -i vid.mp4 -vf format=rgb24 -f null /dev/null
+
+.. _dec_decoder:
+
+dec_decoder
+^^^^^^^^^^^
+
+The name of the decoder provided to ffmpeg. If nothing has been specified, this field takes the value ``null``.
 
 .. _dec_filter:
 

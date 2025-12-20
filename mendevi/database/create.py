@@ -125,6 +125,7 @@ def create_database(filename: str | bytes | pathlib.Path) -> None:
             dec_env_id INTEGER NOT NULL REFERENCES t_env_environment(env_id) ON DELETE CASCADE,
             dec_act_id INTEGER REFERENCES t_act_activity(act_id),
             dec_cmd TEXT,
+            dec_decoder TINYTEXT,
             dec_filter TEXT,
             dec_height SMALLINT CHECK(dec_height > 0),
             dec_pix_fmt TINYTEXT,

@@ -97,6 +97,7 @@ graph database {
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">dec_env_id</TD><TD ALIGN="LEFT">INTEGER</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">dec_act_id</TD><TD ALIGN="LEFT">INTEGER</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">dec_cmd</TD><TD ALIGN="LEFT">TEXT</TD></TR>
+        <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">dec_decoder</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">dec_filter</TD><TD ALIGN="LEFT">TEXT</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">dec_height</TD><TD ALIGN="LEFT">SMALLINT</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">dec_pix_fmt</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>
