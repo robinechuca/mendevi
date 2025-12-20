@@ -117,37 +117,6 @@ def _encode_h264_nvenc(**kwargs: dict) -> list[str]:
     ]
 
 
-@decorator_pix_fmt
-def _encode_libopenh264(**kwargs: dict) -> list[str]:
-    """Return the ffmpeg arguments."""
-    general = ["-c:v", "libopenh264"]
-    if kwargs["effort"] != "medium":
-        general = [
-            *general,
-            "-loopfilter", {"slow": "1", "fast": "0"}[kwargs["effort"]],
-            "-profile", {"slow": "high", "fast": "main"}[kwargs["effort"]],
-        ]
-    if kwargs["mode"] == "vbr":
-        # https://patchwork.ffmpeg.org/project/ffmpeg/patch/
-        # 1585926759-22569-1-git-send-email-linjie.fu@intel.com/
-        quantization = str(round(1.0 + kwargs["quality"]*50.0))  # [1, 51]
-        return [
-            *general,
-            "-qmin", quantization,
-            "-qmax", quantization,
-            "-rc_mode", "quality",
-        ]
-    rate = f"{quality_to_rate(kwargs)}k"
-    return [
-        *general,
-        "-b:v", rate,
-        "-minrate", rate,
-        "-maxrate", rate,
-        "-bufsize", rate,
-        "-rc_mode", "bitrate",
-    ]
-
-
 def _encode_vaapi(codec: str, **kwargs: dict) -> list[str]:
     """Return the ffmpeg arguments for the xxx_vaapi encoders."""
     # https://trac.ffmpeg.org/wiki/Hardware/VAAPI
@@ -220,6 +189,37 @@ def _encode_hevc_nvenc(**kwargs: dict) -> list[str]:
 def _encode_hevc_vaapi(**kwargs: dict) -> list[str]:
     """Return the ffmpeg arguments."""
     return _encode_vaapi("hevc", **kwargs)
+
+
+@decorator_pix_fmt
+def _encode_libopenh264(**kwargs: dict) -> list[str]:
+    """Return the ffmpeg arguments."""
+    general = ["-c:v", "libopenh264"]
+    if kwargs["effort"] != "medium":
+        general = [
+            *general,
+            "-loopfilter", {"slow": "1", "fast": "0"}[kwargs["effort"]],
+            "-profile", {"slow": "high", "fast": "main"}[kwargs["effort"]],
+        ]
+    if kwargs["mode"] == "vbr":
+        # https://patchwork.ffmpeg.org/project/ffmpeg/patch/
+        # 1585926759-22569-1-git-send-email-linjie.fu@intel.com/
+        quantization = str(round(1.0 + kwargs["quality"]*50.0))  # [1, 51]
+        return [
+            *general,
+            "-qmin", quantization,
+            "-qmax", quantization,
+            "-rc_mode", "quality",
+        ]
+    rate = f"{quality_to_rate(kwargs)}k"
+    return [
+        *general,
+        "-b:v", rate,
+        "-minrate", rate,
+        "-maxrate", rate,
+        "-bufsize", rate,
+        "-rc_mode", "bitrate",
+    ]
 
 
 @decorator_pix_fmt

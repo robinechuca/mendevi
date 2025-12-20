@@ -20,8 +20,24 @@ COLORS = [
     "#1b9e77",  # forest green
     "#d95f02",  # burnt orange
     "#7570b3",  # indigo
-    "#e7298a",   # magenta
+    "#e7298a",  # magenta
 ]
 FIGSIZE = (10.0, 8.0)  # (width, height)
-MARKERS = ["o", "x", "+", "^", "d", "s", "v", "*", "D"]  # list of dot shapes
+MARKERS = [
+    "o",
+    "x",
+    "+",
+    "^",
+    "d",
+    "s",
+    "v",
+    "*",
+    "D",
+    "H",
+    "p",
+    "<",
+    ">",
+    "1",
+    "2",
+]  # list of dot shapes
 MARKERSIZE = 4
