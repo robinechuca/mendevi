@@ -194,12 +194,16 @@ def _encode_hevc_vaapi(**kwargs: dict) -> list[str]:
 @decorator_pix_fmt
 def _encode_libopenh264(**kwargs: dict) -> list[str]:
     """Return the ffmpeg arguments."""
-    general = ["-c:v", "libopenh264"]
+    general = [
+        "-c:v", "libopenh264",
+        "-profile", {
+            "fast": "constrained_baseline", "medium": "main", "slow": "high",
+        }[kwargs["effort"]],
+    ]
     if kwargs["effort"] != "medium":
         general = [
             *general,
             "-loopfilter", {"slow": "1", "fast": "0"}[kwargs["effort"]],
-            "-profile", {"slow": "high", "fast": "main"}[kwargs["effort"]],
         ]
     if kwargs["mode"] == "vbr":
         # https://patchwork.ffmpeg.org/project/ffmpeg/patch/

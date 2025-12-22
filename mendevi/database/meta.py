@@ -242,7 +242,7 @@ ALL_EXTRACTORS = {
     ),
     "nbr_frames": Extractor(
         "The real number of frames of the video file",
-        "len(frames)",
+        "None if frames is None else len(frames)",
         Scale.LOGARITHMIC,
     ),
     "profile": Extractor(
@@ -545,7 +545,8 @@ def merge_extractors(
         hostname = extract.extract_hostname(raw)  # The machine name
         reject = not ("yeti" not in hostname)  # not ("yeti" not in hostname)
         if reject:
-            raise RejectError("this line must be filtered")
+            msg = "this line must be filtered"
+            raise RejectError(msg)
     <BLANKLINE>
         # extract data
         video_name = extract.extract_video_name(raw)  # Video basename
@@ -553,7 +554,7 @@ def merge_extractors(
         enc_scenario = f"cmd: {encode_cmd}, video_name: {video_name}, hostname: {hostname}"  # Un...
         frames = extract.extract_frames(raw)  # The metadata of each frame
         powers = extract.extract_powers(raw)  # The interval duration and the average power in ea...
-        nbr_frames = len(frames)  # The real number of frames of the video file
+        nbr_frames = None if frames is None else len(frames)  # The real number of frames of the ...
         energy = float((powers[0] * powers[1]).sum())  # Total energy consumption in Joules
         abaca = (hostname, nbr_frames, enc_scenario)  # alias
         foo = (abaca, energy)  # alias

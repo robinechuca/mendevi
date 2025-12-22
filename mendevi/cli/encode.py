@@ -234,10 +234,11 @@ def main(videos: tuple, database: str | None = None, **kwargs: dict) -> None:
     ]
 
     # retrieves the settings for videos that have already been transcoded
-    with sqlite3.connect(database) as sql_database, Printer("Search already done...") as prt:
-        sql_database.row_factory = sqlite3.Row
+    with sqlite3.connect(database) as conn, Printer("Search already done...") as prt:
+        conn.execute("PRAGMA journal_mode=WAL")  # reduce "database is locked"
+        conn.row_factory = sqlite3.Row
         done: dict[tuple, int] = {}
-        for row in sql_database.execute(
+        for row in conn.execute(
             "SELECT * FROM t_enc_encode WHERE enc_env_id=?", (env_id,),
         ):
             values = {

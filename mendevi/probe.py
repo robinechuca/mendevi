@@ -20,9 +20,10 @@ def _fill_vid_table(
 ) -> None:
     """Complete the table t_vid_video."""
     # get actual informations
-    with sqlite3.connect(database) as sql_database:
-        sql_database.row_factory = sqlite3.Row
-        cursor = sql_database.cursor()
+    with sqlite3.connect(database) as conn:
+        conn.execute("PRAGMA journal_mode=WAL")  # reduce "database is locked"
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
         prop = cursor.execute(
             "SELECT * FROM t_vid_video WHERE vid_id=?", (vid_id,),
         ).fetchone()
@@ -73,9 +74,10 @@ def _fill_vid_table(
     fields = list(fields)  # to frozen order for sql request
     with (
         Lock(str(database.with_name(".dblock")), lifetime=datetime.timedelta(seconds=600)),
-        sqlite3.connect(database) as sql_database,
+        sqlite3.connect(database) as conn,
     ):
-        cursor = sql_database.cursor()
+        conn.execute("PRAGMA journal_mode=WAL")  # reduce "database is locked"
+        cursor = conn.cursor()
         cursor.execute(
             "INSERT OR IGNORE INTO t_vid_video (vid_id) VALUES (?)", (vid_id,),
         )
@@ -141,9 +143,10 @@ def _fill_met_table(
 ) -> None:
     """Complete the table t_met_metric."""
     # get actual informations
-    with sqlite3.connect(database) as sql_database:
-        sql_database.row_factory = sqlite3.Row
-        cursor = sql_database.cursor()
+    with sqlite3.connect(database) as conn:
+        conn.execute("PRAGMA journal_mode=WAL")  # reduce "database is locked"
+        conn.row_factory = sqlite3.Row
+        cursor = conn.cursor()
         metrics = cursor.execute(
             "SELECT * FROM t_met_metric WHERE met_ref_vid_id=? AND met_dis_vid_id=?",
             (ref_id, dis_id),
@@ -186,9 +189,10 @@ def _fill_met_table(
     # update result
     with (
         Lock(str(database.with_name(".dblock")), lifetime=datetime.timedelta(seconds=600)),
-        sqlite3.connect(database) as sql_database,
+        sqlite3.connect(database) as conn,
     ):
-        cursor = sql_database.cursor()
+        conn.execute("PRAGMA journal_mode=WAL")  # reduce "database is locked"
+        cursor = conn.cursor()
         cursor.execute(
             "INSERT OR IGNORE INTO t_met_metric (met_ref_vid_id, met_dis_vid_id) VALUES (?, ?)",
             (ref_id, dis_id),
@@ -224,8 +228,9 @@ def probe_and_store(database: pathlib.Path, video: pathlib.Path, **kwargs: dict)
 
     # get the references videos for comparative comparisons
     references: dict[pathlib.Path, bytes] = kwargs["ref"].copy()
-    with sqlite3.connect(database) as sql_database:
-        cursor = sql_database.cursor()
+    with sqlite3.connect(database) as conn:
+        conn.execute("PRAGMA journal_mode=WAL")  # reduce "database is locked"
+        cursor = conn.cursor()
         for ref_name, ref_id in cursor.execute(
             """
             SELECT vid_name, enc_src_vid_id FROM t_enc_encode

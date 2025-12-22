@@ -102,10 +102,11 @@ def main(videos: tuple[str], database: str | None = None, **kwargs: dict) -> Non
     kwargs["dec_vid_id"]: dict[pathlib.Path, bytes] = compute_video_hash(videos)
 
     # retrieves the settings for videos that have already been decoded
-    with sqlite3.connect(database) as sql_database:
-        sql_database.row_factory = sqlite3.Row
+    with sqlite3.connect(database) as conn:
+        conn.execute("PRAGMA journal_mode=WAL")  # reduce "database is locked"
+        conn.row_factory = sqlite3.Row
         done: dict[tuple, int] = {}
-        for row in sql_database.execute(
+        for row in conn.execute(
             "SELECT * FROM t_dec_decode WHERE dec_env_id=?", (env_id,),
         ):
             values = (

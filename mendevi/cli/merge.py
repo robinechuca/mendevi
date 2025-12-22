@@ -67,6 +67,7 @@ def main(databases: tuple[str]) -> None:
         prt.print(f"destination: {dst} (just created)")
 
     with sqlite3.connect(dst) as conn_dst:
+        conn_dst.execute("PRAGMA journal_mode=WAL")  # reduce "database is locked"
         conn_dst.row_factory = sqlite3.Row
         cursor_dst = conn_dst.cursor()
         for database in all_databases:
@@ -74,6 +75,7 @@ def main(databases: tuple[str]) -> None:
                 Printer(f"Add {database.name} into {dst.name}...", color="cyan") as prt,
                 sqlite3.connect(database) as conn_src,
             ):
+                conn_src.execute("PRAGMA journal_mode=WAL")  # reduce "database is locked"
                 conn_src.row_factory = sqlite3.Row
                 cursor_src = conn_src.cursor()
 

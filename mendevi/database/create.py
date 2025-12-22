@@ -33,8 +33,9 @@ def create_database(filename: str | bytes | pathlib.Path) -> None:
     filename = pathlib.Path(filename).expanduser().resolve()
     assert not filename.exists(), f"the database has to be new, {filename} exists"
 
-    with sqlite3.connect(filename) as sql_database:
-        cursor = sql_database.cursor()
+    with sqlite3.connect(filename) as conn:
+        conn.execute("PRAGMA journal_mode=WAL")  # reduce "database is locked"
+        cursor = conn.cursor()
         cursor.execute("""CREATE TABLE IF NOT EXISTS t_act_activity (
             act_id INTEGER PRIMARY KEY AUTOINCREMENT,
 

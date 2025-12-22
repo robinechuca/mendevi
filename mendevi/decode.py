@@ -78,9 +78,10 @@ def decode_and_store(
 
     with (
         Lock(str(database.with_name(".dblock")), lifetime=datetime.timedelta(seconds=600)),
-        sqlite3.connect(database) as sql_database,
+        sqlite3.connect(database) as conn,
     ):
-        cursor = sql_database.cursor()
+        conn.execute("PRAGMA journal_mode=WAL")  # reduce "database is locked"
+        cursor = conn.cursor()
 
         # fill video table
         with contextlib.suppress(sqlite3.IntegrityError):

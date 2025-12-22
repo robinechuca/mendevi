@@ -83,10 +83,10 @@ def add_environment(database: sqlite3.Cursor | str | bytes | pathlib.Path) -> in
         assert is_sqlite(database), database
         with (
             Lock(str(database.with_name(".dblock")), lifetime=datetime.timedelta(seconds=1800)),
-            sqlite3.connect(database) as sql_database,
+            sqlite3.connect(database) as conn,
         ):
-            # sql_database.execute("PRAGMA journal_mode=WAL")
-            cursor = sql_database.cursor()
+            conn.execute("PRAGMA journal_mode=WAL")  # reduce "database is locked"
+            cursor = conn.cursor()
             key = add_environment(cursor)
             cursor.close()
             return key

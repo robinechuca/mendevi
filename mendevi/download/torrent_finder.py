@@ -78,7 +78,7 @@ def probe_online_torrent() -> dict[str, str]:
     --------
     >>> from mendevi.download.torrent_finder import probe_online_torrent
     >>> sorted(probe_online_torrent())
-    ['multithread.db.xz.torrent']
+    ['duration.db.xz.torrent', 'multithread.db.xz.torrent']
     >>>
 
     """
@@ -104,7 +104,7 @@ def probe_local_torrent() -> set[pathlib.Path]:
     --------
     >>> from mendevi.download.torrent_finder import probe_local_torrent
     >>> sorted(t.name for t in probe_local_torrent())
-    ['multithread.db.xz.torrent']
+    ['duration.db.xz.torrent', 'multithread.db.xz.torrent']
     >>>
 
     """
