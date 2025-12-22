@@ -21,7 +21,6 @@ def _fill_vid_table(
     """Complete the table t_vid_video."""
     # get actual informations
     with sqlite3.connect(database) as conn:
-        conn.execute("PRAGMA journal_mode=WAL")  # reduce "database is locked"
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         prop = cursor.execute(
@@ -76,7 +75,6 @@ def _fill_vid_table(
         Lock(str(database.with_name(".dblock")), lifetime=datetime.timedelta(seconds=600)),
         sqlite3.connect(database) as conn,
     ):
-        conn.execute("PRAGMA journal_mode=WAL")  # reduce "database is locked"
         cursor = conn.cursor()
         cursor.execute(
             "INSERT OR IGNORE INTO t_vid_video (vid_id) VALUES (?)", (vid_id,),
@@ -144,7 +142,6 @@ def _fill_met_table(
     """Complete the table t_met_metric."""
     # get actual informations
     with sqlite3.connect(database) as conn:
-        conn.execute("PRAGMA journal_mode=WAL")  # reduce "database is locked"
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         metrics = cursor.execute(
@@ -191,7 +188,6 @@ def _fill_met_table(
         Lock(str(database.with_name(".dblock")), lifetime=datetime.timedelta(seconds=600)),
         sqlite3.connect(database) as conn,
     ):
-        conn.execute("PRAGMA journal_mode=WAL")  # reduce "database is locked"
         cursor = conn.cursor()
         cursor.execute(
             "INSERT OR IGNORE INTO t_met_metric (met_ref_vid_id, met_dis_vid_id) VALUES (?, ?)",
@@ -229,7 +225,6 @@ def probe_and_store(database: pathlib.Path, video: pathlib.Path, **kwargs: dict)
     # get the references videos for comparative comparisons
     references: dict[pathlib.Path, bytes] = kwargs["ref"].copy()
     with sqlite3.connect(database) as conn:
-        conn.execute("PRAGMA journal_mode=WAL")  # reduce "database is locked"
         cursor = conn.cursor()
         for ref_name, ref_id in cursor.execute(
             """

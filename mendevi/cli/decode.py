@@ -103,7 +103,6 @@ def main(videos: tuple[str], database: str | None = None, **kwargs: dict) -> Non
 
     # retrieves the settings for videos that have already been decoded
     with sqlite3.connect(database) as conn:
-        conn.execute("PRAGMA journal_mode=WAL")  # reduce "database is locked"
         conn.row_factory = sqlite3.Row
         done: dict[tuple, int] = {}
         for row in conn.execute(

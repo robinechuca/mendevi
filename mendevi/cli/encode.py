@@ -235,7 +235,6 @@ def main(videos: tuple, database: str | None = None, **kwargs: dict) -> None:
 
     # retrieves the settings for videos that have already been transcoded
     with sqlite3.connect(database) as conn, Printer("Search already done...") as prt:
-        conn.execute("PRAGMA journal_mode=WAL")  # reduce "database is locked"
         conn.row_factory = sqlite3.Row
         done: dict[tuple, int] = {}
         for row in conn.execute(

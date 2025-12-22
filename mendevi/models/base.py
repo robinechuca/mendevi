@@ -157,7 +157,6 @@ class Model(abc.ABC):
             prt.print("perform SQL query")
             values = {label: [] for label in set(self._input_labels) | set(self._output_labels)}
             with sqlite3.connect(database) as conn:
-                conn.execute("PRAGMA journal_mode=WAL")  # reduce "database is locked"
                 conn.row_factory = sqlite3.Row
                 for raw in conn.execute(query):
                     for label, value in line_extractor(dict(raw)).items():

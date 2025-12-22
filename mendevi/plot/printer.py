@@ -536,7 +536,6 @@ def print_read_sql(**kwargs: dict) -> list[str]:
         '    """Extract the relevant values from the database."""',
         f"    values: dict[str, list] = {{{', '.join(f'{n!r}: []' for n in sorted(alias))}}}",
         '    with sqlite3.connect(database) as conn, Printer("Read database...") as prt:',
-        '        conn.execute("PRAGMA journal_mode=WAL")  # reduce "database is locked"',
         f'        (count,) = conn.execute("SELECT COUNT(*) FROM {table}").fetchone()',
         "        conn.row_factory = sqlite3.Row",
         "        for line in tqdm.tqdm(",

@@ -80,7 +80,6 @@ def decode_and_store(
         Lock(str(database.with_name(".dblock")), lifetime=datetime.timedelta(seconds=600)),
         sqlite3.connect(database) as conn,
     ):
-        conn.execute("PRAGMA journal_mode=WAL")  # reduce "database is locked"
         cursor = conn.cursor()
 
         # fill video table

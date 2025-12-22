@@ -16,7 +16,6 @@ def test_unicity_activity_from_env() -> None:
 
     # create 4 activities and a video
     with sqlite3.connect(database) as conn:
-        conn.execute("PRAGMA journal_mode=WAL")  # reduce "database is locked"
         for _ in range(4):
             conn.execute(
                 "INSERT INTO t_act_activity (act_start, act_duration) VALUES (?, ?)",
@@ -29,7 +28,6 @@ def test_unicity_activity_from_env() -> None:
 
     # insert encode and decode
     with sqlite3.connect(database) as conn:
-        conn.execute("PRAGMA journal_mode=WAL")  # reduce "database is locked"
         conn.execute(
             "INSERT INTO t_enc_encode (enc_dst_vid_id, enc_env_id) VALUES (?, ?)",
             ((0).to_bytes(16), 0),
@@ -41,7 +39,6 @@ def test_unicity_activity_from_env() -> None:
 
     # insert environment OK
     with sqlite3.connect(database) as conn:
-        conn.execute("PRAGMA journal_mode=WAL")  # reduce "database is locked"
         conn.execute(
             """
             INSERT INTO t_env_environment
@@ -64,7 +61,6 @@ def test_unicity_activity_from_env() -> None:
 
     # insert environment OK
     with sqlite3.connect(database) as conn:
-        conn.execute("PRAGMA journal_mode=WAL")  # reduce "database is locked"
         conn.execute(
             """
             INSERT INTO t_env_environment
@@ -76,7 +72,6 @@ def test_unicity_activity_from_env() -> None:
 
     # insert environment OK null env_idle_act_id
     with sqlite3.connect(database) as conn:
-        conn.execute("PRAGMA journal_mode=WAL")  # reduce "database is locked"
         conn.execute(
             """
             INSERT INTO t_env_environment
@@ -88,7 +83,6 @@ def test_unicity_activity_from_env() -> None:
 
     # insert environment OK null env_idle_act_id second time
     with sqlite3.connect(database) as conn:
-        conn.execute("PRAGMA journal_mode=WAL")  # reduce "database is locked"
         conn.execute(
             """
             INSERT INTO t_env_environment
