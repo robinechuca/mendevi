@@ -37,7 +37,7 @@ It also provides a detailed **dataset**.
 
 It manages the following parameters:
 
-#. It supports the ``libx264``, ``libx265``, ``libvpx-vp9``, ``libsvtav1``, ``librav1e`` and ``vvc`` cpu encoders.
+#. It supports the ``libx264``, ``libx265``, ``libvpx-vp9``, ``libaom-av1``, ``libsvtav1``, ``librav1e`` and ``vvc`` cpu encoders.
 #. It supports the ``h264_nvenc``, ``hevc_nvenc``, ``av1_nvenc`` and ``*_vaapi`` gpu encoders.
 #. Distortions are measured using the ``lpips``, ``psnr``, ``ssim`` and ``vmaf`` metrics.
 #. Complexity are measured using the ``rms_sobel`` and ``rms_time_diff`` metrics.

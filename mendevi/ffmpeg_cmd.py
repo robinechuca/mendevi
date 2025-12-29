@@ -229,6 +229,7 @@ def _encode_libopenh264(**kwargs: dict) -> list[str]:
             "fast": "constrained_baseline", "medium": "main", "slow": "high",
         }[kwargs["effort"]],
         "-threads", str(kwargs["threads"]), "-slices", str(kwargs["threads"]),
+        # "-slice_mode", "dyn",
     ]
     if kwargs["effort"] != "medium":
         general = [
