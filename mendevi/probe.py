@@ -16,17 +16,20 @@ from mendevi.utils import compute_video_hash
 
 
 def _fill_vid_table(
-    database: pathlib.Path, vid_id: bytes, video: pathlib.Path, **kwargs: dict,
-) -> None:
+    database: pathlib.Path,
+    vid_id: bytes,
+    video: pathlib.Path,
+    conn: sqlite3.Connection | None = None,
+    **kwargs: dict,
+) -> sqlite3.Connection | None:
     """Complete the table t_vid_video."""
     # get actual informations
-    with sqlite3.connect(f"file:{database}?mode=ro", uri=True, timeout=30) as conn:
+    if conn is None:
+        conn = sqlite3.connect(f"file:{database}?mode=ro", uri=True)
         conn.row_factory = sqlite3.Row
-        cursor = conn.cursor()
-        prop = cursor.execute(
-            "SELECT * FROM t_vid_video WHERE vid_id=?", (vid_id,),
-        ).fetchone()
-        conn.close()
+    prop = conn.execute(
+        "SELECT * FROM t_vid_video WHERE vid_id=?", (vid_id,),
+    ).fetchone()
     prop = {} if prop is None else dict(prop)
 
     # missing fields
@@ -49,7 +52,8 @@ def _fill_vid_table(
     }
     fields -= {k for k, v in prop.items() if v is not None}
     if not fields:
-        return
+        return conn
+    conn.close()
 
     # fill missing fields
     pad = max(map(len, fields)) - 4
@@ -87,6 +91,7 @@ def _fill_vid_table(
             ),
             [prop[k] for k in fields] + [vid_id],
         )
+    return None
 
 
 def _fill_vid_table_prop(field: str, prt: Printer, pad: int, video: pathlib.Path) -> object:
@@ -221,27 +226,28 @@ def probe_and_store(database: pathlib.Path, video: pathlib.Path, **kwargs: dict)
 
     vid_id: bytes = compute_video_hash(video)
 
-    _fill_vid_table(database, vid_id, video, **kwargs)
+    if (conn := _fill_vid_table(database, vid_id, video, conn=conn, **kwargs)) is None:
+        conn = sqlite3.connect(f"file:{database}?mode=ro", uri=True)
+        conn.row_factory = sqlite3.Row
 
     # get the references videos for comparative comparisons
     references: dict[pathlib.Path, bytes] = kwargs["ref"].copy()
-    with sqlite3.connect(database) as conn:
-        cursor = conn.cursor()
-        for ref_name, ref_id in cursor.execute(
-            """
-            SELECT vid_name, enc_src_vid_id FROM t_enc_encode
-            JOIN t_vid_video ON enc_src_vid_id=vid_id
-            WHERE enc_dst_vid_id=?
-            """,
-            (vid_id,),
-        ):
-            # try to find video full path
-            if (
-                ref := database.with_name(ref_name)).is_file() or (ref := video.with_name(ref_name)
-            ).is_file():
-                references[ref] = ref_id
-            else:
-                logging.getLogger(__name__).info("failed to find the reference video %s", ref)
+    for res in conn.execute(
+        """
+        SELECT vid_name, enc_src_vid_id FROM t_enc_encode
+        JOIN t_vid_video ON enc_src_vid_id=vid_id
+        WHERE enc_dst_vid_id=?
+        """,
+        (vid_id,),
+    ):
+        ref_name, ref_id = res["vid_name"], res["enc_src_vid_id"]
+        # try to find video full path
+        if (
+            ref := database.with_name(ref_name)).is_file() or (ref := video.with_name(ref_name)
+        ).is_file():
+            references[ref] = ref_id
+        else:
+            logging.getLogger(__name__).info("failed to find the reference video %s", ref)
     references = {ref: ref_id for ref, ref_id in references.items() if ref_id != vid_id}
 
     # perform the comparative metrics
