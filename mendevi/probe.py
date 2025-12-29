@@ -15,6 +15,14 @@ from mendevi.database.serialize import list_to_binary
 from mendevi.utils import compute_video_hash
 
 
+def open_ro(database: pathlib.Path, conn: sqlite3.Connection | None) -> sqlite3.Connection:
+    """Open a new conn if the previous one is not already opened."""
+    if conn is None:
+        conn = sqlite3.connect(f"file:{database}?mode=ro", uri=True, timeout=30)
+        conn.row_factory = sqlite3.Row
+    return conn
+
+
 def _fill_vid_table(
     database: pathlib.Path,
     vid_id: bytes,
@@ -24,9 +32,7 @@ def _fill_vid_table(
 ) -> sqlite3.Connection | None:
     """Complete the table t_vid_video."""
     # get actual informations
-    if conn is None:
-        conn = sqlite3.connect(f"file:{database}?mode=ro", uri=True)
-        conn.row_factory = sqlite3.Row
+    conn = open_ro(database, conn)
     prop = conn.execute(
         "SELECT * FROM t_vid_video WHERE vid_id=?", (vid_id,),
     ).fetchone()
@@ -148,9 +154,7 @@ def _fill_met_table(
 ) -> sqlite3.Connection | None:
     """Complete the table t_met_metric."""
     # get actual informations
-    if conn is None:
-        conn = sqlite3.connect(f"file:{database}?mode=ro", uri=True)
-        conn.row_factory = sqlite3.Row
+    conn = open_ro(database, conn)
     metrics = conn.execute(
         "SELECT * FROM t_met_metric WHERE met_ref_vid_id=? AND met_dis_vid_id=?",
         (ref_id, dis_id),
@@ -237,9 +241,8 @@ def probe_and_store(
 
     vid_id: bytes = compute_video_hash(video)
 
-    if (conn := _fill_vid_table(database, vid_id, video, conn=conn, **kwargs)) is None:
-        conn = sqlite3.connect(f"file:{database}?mode=ro", uri=True)
-        conn.row_factory = sqlite3.Row
+    conn = _fill_vid_table(database, vid_id, video, conn=conn, **kwargs)
+    conn = open_ro(database, conn)
 
     # get the references videos for comparative comparisons
     references: dict[pathlib.Path, bytes] = kwargs["ref"].copy()
