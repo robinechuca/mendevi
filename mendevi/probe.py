@@ -143,17 +143,18 @@ def _fill_met_table(
     ref_path: pathlib.Path,
     dis_id: bytes,
     dis_path: pathlib.Path,
+    conn: sqlite3.Connection | None = None,
     **kwargs: dict,
-) -> None:
+) -> sqlite3.Connection | None:
     """Complete the table t_met_metric."""
     # get actual informations
-    with sqlite3.connect(database) as conn:
+    if conn is None:
+        conn = sqlite3.connect(f"file:{database}?mode=ro", uri=True)
         conn.row_factory = sqlite3.Row
-        cursor = conn.cursor()
-        metrics = cursor.execute(
-            "SELECT * FROM t_met_metric WHERE met_ref_vid_id=? AND met_dis_vid_id=?",
-            (ref_id, dis_id),
-        ).fetchone()
+    metrics = cursor.execute(
+        "SELECT * FROM t_met_metric WHERE met_ref_vid_id=? AND met_dis_vid_id=?",
+        (ref_id, dis_id),
+    ).fetchone()
     metrics = {} if metrics is None else dict(metrics)
 
     # missing fields
@@ -167,7 +168,8 @@ def _fill_met_table(
     }
     fields -= {k for k, v in metrics.items() if v is not None}
     if not fields:
-        return
+        return conn
+    conn.close()
     fields = sorted(fields)  # to frozen order in sql request and for printing repetability
 
     # fill missing fields
@@ -206,6 +208,8 @@ def _fill_met_table(
             ),
             [metrics[k] for k in fields] + [ref_id, dis_id],
         )
+
+    return None
 
 
 def probe_and_store(
@@ -258,7 +262,6 @@ def probe_and_store(
     references = {ref: ref_id for ref, ref_id in references.items() if ref_id != vid_id}
 
     # perform the comparative metrics
-    print("references", references)
-    conn.close()
     for ref, ref_id in references.items():
-        _fill_met_table(database, ref_id, ref, vid_id, video, **kwargs)
+        conn = _fill_met_table(database, ref_id, ref, vid_id, video, conn=conn, **kwargs)
+    return conn
