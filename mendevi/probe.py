@@ -20,9 +20,8 @@ def _fill_vid_table(
 ) -> None:
     """Complete the table t_vid_video."""
     # get actual informations
-    with sqlite3.connect(
-        f"file:{database}?mode=ro", uri=True, timeout=30, factory=sqlite3.Row,
-    ) as conn:
+    with sqlite3.connect(f"file:{database}?mode=ro", uri=True, timeout=30) as conn:
+        conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
         prop = cursor.execute(
             "SELECT * FROM t_vid_video WHERE vid_id=?", (vid_id,),
