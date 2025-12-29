@@ -208,7 +208,12 @@ def _fill_met_table(
         )
 
 
-def probe_and_store(database: pathlib.Path, video: pathlib.Path, **kwargs: dict) -> None:
+def probe_and_store(
+    database: pathlib.Path,
+    video: pathlib.Path,
+    conn: sqlite3.Connection | None = None,
+    **kwargs: dict,
+) -> None:
     """Measure the properties of the video.
 
     Parameters
