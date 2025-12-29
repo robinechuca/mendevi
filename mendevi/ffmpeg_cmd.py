@@ -192,6 +192,35 @@ def _encode_hevc_vaapi(**kwargs: dict) -> list[str]:
 
 
 @decorator_pix_fmt
+def _encode_libaomav1(**kwargs: dict) -> list[str]:
+    """Return the ffmpeg arguments."""
+    # find smart tiles blocs
+    columns = math.ceil(math.sqrt(kwargs["threads"]))
+    rows = math.ceil(kwargs["threads"]/columns)
+    tiles = f"{columns}x{rows}"
+    general = [
+        "-c:v", "libaom-av1",
+        "-cpu-used", {"fast": "7", "medium": "4", "slow": "1"}[kwargs["effort"]],
+        "-tune", "ssim",
+        "-threads", str(kwargs["threads"]), "-row-mt", "1", "-tiles", tiles,
+        "-denoise-noise-level", "0",
+    ]
+    if kwargs["mode"] == "vbr":
+        return [
+            *general,
+            "-crf", str(round(kwargs["quality"]*63.0)),  # in [0, 63]
+        ]
+    rate = f"{quality_to_rate(kwargs)}k"
+    return [
+        *general,
+        "-b:v", rate,
+        "-minrate", rate,
+        "-maxrate", rate,
+        "-bufsize", rate,
+    ]
+
+
+@decorator_pix_fmt
 def _encode_libopenh264(**kwargs: dict) -> list[str]:
     """Return the ffmpeg arguments."""
     general = [
@@ -199,6 +228,7 @@ def _encode_libopenh264(**kwargs: dict) -> list[str]:
         "-profile", {
             "fast": "constrained_baseline", "medium": "main", "slow": "high",
         }[kwargs["effort"]],
+        "-threads", str(kwargs["threads"]), "-slices", str(kwargs["threads"]),
     ]
     if kwargs["effort"] != "medium":
         general = [
