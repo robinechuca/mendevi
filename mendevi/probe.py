@@ -151,7 +151,7 @@ def _fill_met_table(
     if conn is None:
         conn = sqlite3.connect(f"file:{database}?mode=ro", uri=True)
         conn.row_factory = sqlite3.Row
-    metrics = cursor.execute(
+    metrics = conn.execute(
         "SELECT * FROM t_met_metric WHERE met_ref_vid_id=? AND met_dis_vid_id=?",
         (ref_id, dis_id),
     ).fetchone()
