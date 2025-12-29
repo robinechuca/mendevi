@@ -213,7 +213,7 @@ def probe_and_store(
     video: pathlib.Path,
     conn: sqlite3.Connection | None = None,
     **kwargs: dict,
-) -> None:
+) -> sqlite3.Connection | None:
     """Measure the properties of the video.
 
     Parameters
@@ -222,6 +222,8 @@ def probe_and_store(
         The path of the existing database to be updated.
     video : pathlib.Path
         The source video file to be annalysed.
+    conn: sqlite3.Connection, optional
+        A read only database connection.
     **kwargs : dict
         All the metrics
 
@@ -256,5 +258,7 @@ def probe_and_store(
     references = {ref: ref_id for ref, ref_id in references.items() if ref_id != vid_id}
 
     # perform the comparative metrics
+    print("references", references)
+    conn.close()
     for ref, ref_id in references.items():
         _fill_met_table(database, ref_id, ref, vid_id, video, **kwargs)
