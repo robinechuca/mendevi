@@ -1,6 +1,5 @@
 """Perform the metrics and video properties measures."""
 
-import contextlib
 import datetime
 import logging
 import pathlib
@@ -16,26 +15,15 @@ from mendevi.database.serialize import list_to_binary
 from mendevi.utils import compute_video_hash
 
 
-@contextlib.contextmanager
-def db_cursor(database: pathlib.Path) -> sqlite3.Cursor:
-    """Limit the sqlite3.OperationalError: unable to open database file message."""
-    conn = sqlite3.connect(database, timeout=30)
-    try:
-        conn.row_factory = sqlite3.Row
-        yield conn.cursor()
-    finally:
-        conn.close()
-
-
 def _fill_vid_table(
     database: pathlib.Path, vid_id: bytes, video: pathlib.Path, **kwargs: dict,
 ) -> None:
     """Complete the table t_vid_video."""
     # get actual informations
-    # with sqlite3.connect(database) as conn:
-    #     conn.row_factory = sqlite3.Row
-    #     cursor = conn.cursor()
-    with db_cursor(database) as cursor:
+    with sqlite3.connect(
+        f"file:{database}?mode=ro", uri=True, timeout=30, factory=sqlite3.Row,
+    ) as conn:
+        cursor = conn.cursor()
         prop = cursor.execute(
             "SELECT * FROM t_vid_video WHERE vid_id=?", (vid_id,),
         ).fetchone()
