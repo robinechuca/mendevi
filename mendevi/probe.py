@@ -26,6 +26,7 @@ def _fill_vid_table(
         prop = cursor.execute(
             "SELECT * FROM t_vid_video WHERE vid_id=?", (vid_id,),
         ).fetchone()
+        conn.close()
     prop = {} if prop is None else dict(prop)
 
     # missing fields
