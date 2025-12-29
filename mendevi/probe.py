@@ -149,12 +149,11 @@ def _fill_met_table(
     ref_path: pathlib.Path,
     dis_id: bytes,
     dis_path: pathlib.Path,
-    conn: sqlite3.Connection | None = None,
     **kwargs: dict,
 ) -> sqlite3.Connection | None:
     """Complete the table t_met_metric."""
     # get actual informations
-    conn = open_ro(database, conn)
+    conn = open_ro(database, kwargs.pop("conn"))
     metrics = conn.execute(
         "SELECT * FROM t_met_metric WHERE met_ref_vid_id=? AND met_dis_vid_id=?",
         (ref_id, dis_id),

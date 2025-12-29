@@ -87,7 +87,7 @@ def main(videos: tuple[str], database: str | None = None, **kwargs: dict) -> Non
 
     # do the job
     random.shuffle(videos)  # heuristic to improve efficiency of multiple acces
-    conn = None
+    conn = None  # to avoid to many open/close connections (keep alive)
     for i, video in enumerate(sorted(kwargs["ref"]) + videos):
         with Printer(f"Probe {i+1}/{len(videos)+len(kwargs['ref'])}...", color="cyan") as prt:
             conn = probe_and_store(database, video, conn=conn, **kwargs)
