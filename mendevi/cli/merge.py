@@ -78,20 +78,42 @@ def main(databases: tuple[str]) -> None:
         for database in all_databases:
             with (
                 Printer(f"Add {database.name} into {dst.name}...", color="cyan") as prt,
-                sqlite3.connect(database) as conn_src,
+                sqlite3.connect(f"file:{database}?mode=ro", uri=True) as conn_src,
             ):
                 conn_src.row_factory = sqlite3.Row
                 cursor_src = conn_src.cursor()
 
+                # TODO: supprimer le bloc suivant.
+                ACT_IDS = {1}
+                VID_IDS = set()
+                for row_ in cursor_src.execute("SELECT enc_act_id, enc_src_vid_id, enc_dst_vid_id FROM t_enc_encode"):
+                    ACT_IDS.add(row_["enc_act_id"])
+                    VID_IDS.add(row_["enc_src_vid_id"])
+                    VID_IDS.add(row_["enc_dst_vid_id"])
+                print(f"il y a {len(ACT_IDS)} activity vs (39113)")
+                print(f"il y a {len(VID_IDS)} videos vs (24210)")
+
                 # t_vid_video
                 prt.print("table 't_vid_video'")
                 for row_ in cursor_src.execute("SELECT * FROM t_vid_video"):
+
+                    # TODO supprimer ca
+                    if row_["vid_id"] not in VID_IDS:
+                        print(f"suppression video {row_['vid_id']} ({row_['vid_name']})")
+                        continue
+
                     _insert_update(cursor_dst, row_, "t_vid_video", ("vid_id",))
 
                 # t_met_metric
                 prt.print("table 't_met_metric'")
                 for row_ in cursor_src.execute("SELECT * FROM t_met_metric"):
                     row = dict(row_)
+
+                    # TODO supprimer ca
+                    if row["met_ref_vid_id"] not in VID_IDS or row["met_dis_vid_id"] not in VID_IDS:
+                        print(f"suppression metric {row['met_id']}")
+                        continue
+
                     del row["met_id"]
                     _insert_update(
                         cursor_dst, row, "t_met_metric", ("met_ref_vid_id", "met_dis_vid_id"),
@@ -103,6 +125,12 @@ def main(databases: tuple[str]) -> None:
                 for row_ in cursor_src.execute("SELECT * FROM t_act_activity"):
                     row = dict(row_)
                     old = row.pop("act_id")
+
+                    # TODO supprimer ca
+                    if old not in ACT_IDS:
+                        print(f"act_id={old} pas dans encode...")
+                        continue
+
                     new = _insert_update(cursor_dst, row, "t_act_activity", ())["act_id"]
                     act_old_to_new[old] = new
 
