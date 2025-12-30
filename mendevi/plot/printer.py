@@ -535,7 +535,10 @@ def print_read_sql(**kwargs: dict) -> list[str]:
         "def read_sql(database: pathlib.Path) -> dict[str, list]:",
         '    """Extract the relevant values from the database."""',
         f"    values: dict[str, list] = {{{', '.join(f'{n!r}: []' for n in sorted(alias))}}}",
-        '    with sqlite3.connect(database) as conn, Printer("Read database...") as prt:',
+        (
+            '    with sqlite3.connect(f"file:{database}?mode=ro", uri=True) as conn, '
+            'Printer("Read database...") as prt:'
+        ),
         f'        (count,) = conn.execute("SELECT COUNT(*) FROM {table}").fetchone()',
         "        conn.row_factory = sqlite3.Row",
         "        for line in tqdm.tqdm(",
