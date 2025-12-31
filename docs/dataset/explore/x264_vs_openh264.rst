@@ -12,8 +12,8 @@ Download
 
     mendevi download x264_vs_openh264.db.xz.torrent
 
-* `x264_vs_openh264.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/x264_vs_openh264.json.xz?inline=false>`_ (0 Ko).
-* `x264_vs_openh264.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/x264_vs_openh264.db.xz.torrent?inline=false>`_ (0 Go).
+* `x264_vs_openh264.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/x264_vs_openh264.json.xz?inline=false>`_ (18 Mo).
+* `x264_vs_openh264.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/x264_vs_openh264.db.xz.torrent?inline=false>`_ (6.8 Go).
 
 Plots
 -----
@@ -72,8 +72,8 @@ Conclusion
 ----------
 
 * The **main consumption factor is the resolution**, not the encoder.
-* At equal resolution and quality, ``libopenh264`` consistently consumes less energy than ``libx264``.
-* **libx264 has a large variance in energy consumption** depending on the preset and the video content. It is therefore much less predictable than ``libopenh264``.
+* At equal resolution and quality, ``libopenh264`` consumes less energy than ``libx264``.
+* ``libx264`` **has a large variance in energy consumption** depending on the preset and the video content. It is therefore much less predictable than ``libopenh264``.
 
 Reproduce
 ---------
