@@ -75,6 +75,12 @@ Conclusion
 * At equal resolution and quality, ``libopenh264`` consumes less energy than ``libx264``.
 * ``libx264`` **has a large variance in energy consumption** depending on the preset and the video content. It is therefore much less predictable than ``libopenh264``.
 
+Ressources
+^^^^^^^^^^
+
+`this paper <https://iopscience.iop.org/article/10.1088/1757-899X/1172/1/012036/pdf>`_ (Performance comparison among popular
+implementations of H.264 encoders) compare the distortion of that codecs.
+
 Reproduce
 ---------
 

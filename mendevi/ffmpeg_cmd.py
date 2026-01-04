@@ -282,7 +282,7 @@ def _encode_libsvtav1(**kwargs: dict) -> list[str]:
     """Return the ffmpeg arguments."""
     def libsvtav1_lp(threads: int) -> int:
         """Convert threads in parralel level."""
-        # https://gitlab.com/AOMediaCodec/SVT-AV1/-/blob/master/Source/Lib/Globals/enc_handle.c#L598
+        # https://gitlab.com/AOMediaCodec/SVT-AV1/-/blob/master/Source/Lib/Globals/enc_handle.c#L613
         # lp=1 -> threads=1
         # lp=2 -> threads=2
         # lp=3 -> threads=8
