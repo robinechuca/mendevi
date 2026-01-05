@@ -91,5 +91,4 @@ def main(videos: tuple[str], database: str | None = None, **kwargs: dict) -> Non
     for i, video in enumerate(sorted(kwargs["ref"]) + videos):
         with Printer(f"Probe {i+1}/{len(videos)+len(kwargs['ref'])}...", color="cyan") as prt:
             conn = probe_and_store(database, video, conn=conn, **kwargs)
-            print("conn dans cli:", conn)
             prt.print_time()

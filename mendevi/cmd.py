@@ -21,6 +21,8 @@ class CmdFFMPEG:
         The input video path (readonly).
     encode : list[str]
         The encoder name and options after -c:v (read and write).
+    output : list[str]
+        The final arguments of the ffmpeg cmd (read and write).
 
     """
 
@@ -31,6 +33,7 @@ class CmdFFMPEG:
         decode: list[str] | str | None = None,
         vid_filter: str = "",
         encode: list[str] | str | None = None,
+        output: list[str] | str | None = None,
     ) -> None:
         """Initialise the ffmpeg cmd.
 
@@ -41,21 +44,26 @@ class CmdFFMPEG:
         general : list[str], str, optional
             The options immediately after ffmpeg and immediately before the decoder.
         decode : list[str], str, optional
-            The options between -c:v and -i.
+            The options between ``-c:v`` and ``-i``.
         vid_filter : str, optional
-            The filter string after -vf.
+            The filter string after ``-vf``.
         encode: list[str], str, optional
-            The encoder name and options after -c:v.
+            The encoder name and options after ``-c:v``.
+        output: list[str], str, default="-f null -"
+            The final arguments of the ffmpeg command, after the encoder description.
 
         """
+        # initialisation
         video = pathlib.Path(video).expanduser()
         self._video = video
-        self._general = self._decode = self._vid_filter = self._encode = None  # initialisation
+        self._general = self._decode = self._vid_filter = self._encode = self._output = None
 
-        self.general = general  # setter
+        # parse and check, using setter
+        self.general = general
         self.decode = decode
         self.vid_filter = vid_filter
         self.encode = encode
+        self.output = output
 
     @property
     def decode(self) -> list[str]:
@@ -95,6 +103,26 @@ class CmdFFMPEG:
                 self._encode = encode.copy()
             case _:
                 msg = f"'encode' has to be None, str or list, not {encode.__class__.__name__}"
+                raise TypeError(msg)
+
+    @property
+    def output(self) -> list[str]:
+        """Return the final arguments of the ffmpeg command, after the encoder."""
+        return self._output.copy()
+
+    @output.setter
+    def output(self, output: list[str] | str | None) -> None:
+        """Update the final arguments of the ffmpeg command, after the encoder."""
+        match output:
+            case None:
+                self._output = ["-f", "null", "-"]
+            case str():
+                self._output = shlex.split(output)
+            case list():
+                assert all(isinstance(cmd, str) for cmd in output), output
+                self._output = output.copy()
+            case _:
+                msg = f"'output' has to be None, str or list, not {output.__class__.__name__}"
                 raise TypeError(msg)
 
     @property
@@ -150,7 +178,7 @@ class CmdFFMPEG:
         if self._encode:
             yield "-c:v"
             yield from self._encode
-        yield from ("-f", "null", "-")
+        yield from self._output
 
     def __str__(self) -> str:
         """Return the full shell cmd.

@@ -92,6 +92,7 @@ To deserialize into an exploitable numpy array, please use the function :py:func
     To access all information, the programme may require root privileges.
     Or you must give the permission with ``sudo sysctl -w kernel.perf_event_paranoid=0``,
     otherwise, the sensor is not reachable.
+    To make it permanent, create the file ``/etc/sysctl.d/99-perf.conf`` with the content ``kernel.perf_event_paranoid = 0``.
 
 .. _act_wattmeter_dt:
 
