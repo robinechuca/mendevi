@@ -241,6 +241,7 @@ def probe_and_store(
     vid_id: bytes = compute_video_hash(video)
 
     conn = _fill_vid_table(database, vid_id, video, conn=conn, **kwargs)
+    print("conn dans probe:", conn)
     conn = open_ro(database, conn)
 
     # get the references videos for comparative comparisons
