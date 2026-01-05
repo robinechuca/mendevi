@@ -296,20 +296,7 @@ preparation
     "
     # add --enable-cuda-nvcc
     if command -v nvidia-smi &> /dev/null; then
-        CONFIG_FLAGS="
-            $CONFIG_FLAGS
-            --enable-cuda-nvcc --enable-ffnvcodec
-            --nvccflags=\"-gencode arch=compute_52,code=sm_52 \
-                          -gencode arch=compute_60,code=sm_60 \
-                          -gencode arch=compute_70,code=sm_70 \
-                          -gencode arch=compute_75,code=sm_75 \
-                          -gencode arch=compute_80,code=sm_80 \
-                          -gencode arch=compute_86,code=sm_86 \
-                          -gencode arch=compute_89,code=sm_89 \
-                          -gencode arch=compute_90,code=sm_90 \
-                          -gencode arch=compute_100,code=sm_100 \
-                          -O2"
-        "
+        CONFIG_FLAGS="$CONFIG_FLAGS --enable-cuda-nvcc --enable-ffnvcodec"
     fi
     # add --enable-amf
     if [ -d "/usr/local/include/AMF" ]; then

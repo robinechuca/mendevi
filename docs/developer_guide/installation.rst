@@ -383,7 +383,7 @@ If you have a NVIDIA GPU, please install CUDA then follow the `PyTorch installat
 
                 # install cuda
                 # sudo apt remove --purge 'nvidia-*' cuda* && sudo apt update && sudo apt autoremove
-                sudo apt install linux-headers-$(uname -r)
+                sudo apt install linux-headers-$(uname -r)  # or sudo apt install linux-headers-amd64
                 sudo apt install cuda-drivers-${DRIVER_BRANCH}
                 sudo dkms build -m nvidia -v ${AVAILABLE_NVIDIA_DRIVER_VERSION}
                 sudo dkms install -m nvidia -v ${AVAILABLE_NVIDIA_DRIVER_VERSION}
