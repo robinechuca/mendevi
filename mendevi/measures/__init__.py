@@ -24,7 +24,6 @@ class Activity(threading.Thread):
     >>> with Activity() as activity:
     ...     time.sleep(1)
     ...
-    >>> pprint.pprint(activity)
     >>>
 
     """

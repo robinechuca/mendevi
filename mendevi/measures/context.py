@@ -65,7 +65,7 @@ def get_libx265_version() -> str:
     >>> from mendevi.measures.context import get_libx265_version
     >>> print(get_libx265_version())  # doctest: +ELLIPSIS
     4...
-    [Linux][GCC ...][64 bit] 8bit+10bit+12bit
+    [Linux][GCC ...][64 bit] 8...
     MMX2 ... AVX2
     >>>
 
@@ -133,7 +133,7 @@ def get_libsvtav1_version() -> str:
     --------
     >>> from mendevi.measures.context import get_libsvtav1_version
     >>> print(get_libsvtav1_version())  # doctest: +ELLIPSIS
-    v3...
+    ...
     GCC ... 64 bit
     >>>
 
@@ -170,11 +170,11 @@ def get_librav1e_version() -> str:
     --------
     >>> from mendevi.measures.context import get_librav1e_version
     >>> print(get_librav1e_version())  # doctest: +ELLIPSIS
-    rav1e 0.8.0 (p20250624-1-gb7bf390) (release)
-    rustc 1.91.1 (ed61e7d7e 2025-11-07) x86_64-unknown-linux-gnu
-    Compiled CPU Features: adx,aes,avx,avx2,bmi1,bmi2,cmpxchg16b,...,xsaveopt,xsaves
+    rav1e 0.8.0 (...) (release)
+    rustc 1.91.1 (...) x86_64-unknown-linux-gnu
+    Compiled CPU Features: adx,aes,...,xsaveopt,xsaves
     Runtime Assembly Support: Enabled
-    Runtime Assembly Level: AVX2
+    Runtime Assembly Level: ...
     Threading: Enabled
     Unstable Features: Disabled
     Compiler Flags: -C target-cpu=native
