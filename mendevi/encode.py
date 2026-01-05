@@ -200,7 +200,7 @@ def encode_and_store(
         cursor = conn.cursor()
 
         # fill video table
-        with contextlib.suppress(sqlite3.IntegrityError):
+        with contextlib.suppress(sqlite3.IntegrityError):  # TODO: gerer mieu l'erreur
             cursor.execute(
                 "INSERT INTO t_vid_video (vid_id, vid_name) VALUES (?, ?)",
                 (kwargs["src_vid_id"], src.name),
