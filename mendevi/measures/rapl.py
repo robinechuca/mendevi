@@ -60,10 +60,10 @@ class RAPL:
             if os.geteuid() != 0:  # if not root
                 logging.getLogger(__name__).error("try with 'sudo %s'", sys.executable)
                 logging.getLogger(__name__).error(
-                    (
-                        "or give rights with 'sudo sysctl -w kernel.perf_event_paranoid=0',\n"
-                        "you can also write 'kernel.perf_event_paranoid = 0' in /etc/sysctl.d/99-perf.conf"
-                    ),
+                    "or give rights with 'sudo sysctl -w kernel.perf_event_paranoid=0'",
+                )
+                logging.getLogger(__name__).error(
+                    "or edit /etc/sysctl.d/99-perf.conf with 'kernel.perf_event_paranoid = 0'",
                 )
             self.lines.extend(self.process.stderr.readlines())
             if not no_fail:

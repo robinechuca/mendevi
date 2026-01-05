@@ -29,11 +29,7 @@ class CmdFFMPEG:
     def __init__(
         self,
         video: pathlib.Path | str,
-        general: list[str] | str | None = None,
-        decode: list[str] | str | None = None,
-        vid_filter: str = "",
-        encode: list[str] | str | None = None,
-        output: list[str] | str | None = None,
+        **kwargs: dict[str],
     ) -> None:
         """Initialise the ffmpeg cmd.
 
@@ -41,6 +37,8 @@ class CmdFFMPEG:
         ----------
         video : pathlike
             The input video path.
+        **kwargs: dict
+            See above.
         general : list[str], str, optional
             The options immediately after ffmpeg and immediately before the decoder.
         decode : list[str], str, optional
@@ -59,11 +57,11 @@ class CmdFFMPEG:
         self._general = self._decode = self._vid_filter = self._encode = self._output = None
 
         # parse and check, using setter
-        self.general = general
-        self.decode = decode
-        self.vid_filter = vid_filter
-        self.encode = encode
-        self.output = output
+        self.general = kwargs.get("general")
+        self.decode = kwargs.get("decode")
+        self.vid_filter = kwargs.get("vid_filter", "")
+        self.encode = kwargs.get("encode")
+        self.output = kwargs.get("output")
 
     @property
     def decode(self) -> list[str]:
