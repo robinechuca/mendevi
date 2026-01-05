@@ -21,9 +21,8 @@ Preparation
     mkdir -pv ~/{bin,ffmpeg_sources}
 
     # optimized compilation
-    export CFLAGS="-O2 -march=native -mtune=native -flto=auto"
+    export CFLAGS="-O2 -march=native -mtune=native"
     export CXXFLAGS="$CFLAGS"
-    export LDFLAGS="-flto=auto"
 
 Compilation & Installation
 --------------------------
@@ -39,7 +38,7 @@ libx264 and libopenh264
     git -C x264 pull 2> /dev/null || git clone --depth 1 https://code.videolan.org/videolan/x264.git
     cd x264
     PATH="$HOME/bin:$PATH" PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig" \
-        ./configure --prefix="$HOME/ffmpeg_build" --bindir="$HOME/bin" --enable-static --enable-pic --enable-lto --extra-cflags="$CFLAGS" --extra-ldflags="$LDFLAGS"
+        ./configure --prefix="$HOME/ffmpeg_build" --bindir="$HOME/bin" --enable-static --enable-pic --extra-cflags="$CFLAGS"
     PATH="$HOME/bin:$PATH" make
     make install
 
@@ -64,7 +63,7 @@ libx265
     wget -O x265.tar.bz2 https://bitbucket.org/multicoreware/x265_git/get/master.tar.bz2
     tar xjvf x265.tar.bz2
     cd multicoreware*/build/linux
-    PATH="$HOME/bin:$PATH" cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$HOME/ffmpeg_build" -DENABLE_SHARED=off -DCMAKE_C_FLAGS="$CFLAGS" -DCMAKE_CXX_FLAGS="$CXXFLAGS" -DCMAKE_EXE_LINKER_FLAGS="$LDFLAGS" ../../source
+    PATH="$HOME/bin:$PATH" cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$HOME/ffmpeg_build" -DENABLE_SHARED=off -DCMAKE_C_FLAGS="$CFLAGS" -DCMAKE_CXX_FLAGS="$CXXFLAGS" ../../source
     PATH="$HOME/bin:$PATH" make
     make install
 
@@ -77,8 +76,8 @@ libvpx
     cd ~/ffmpeg_sources
     git -C libvpx pull 2> /dev/null || git clone --depth 1 https://chromium.googlesource.com/webm/libvpx.git
     cd libvpx
-    PATH="$HOME/bin:$PATH" LDFLAGS="" ./configure --prefix="$HOME/ffmpeg_build" --disable-examples --disable-unit-tests --enable-vp9-highbitdepth --as=yasm --extra-cflags='-O2 -march=native -mtune=native' --extra-cxxflags='-O2 -march=native -mtune=native'
-    PATH="$HOME/bin:$PATH" CFLAGS="-O2 -march=native -mtune=native" CXXFLAGS=$CFLAGS LDFLAGS="" make
+    PATH="$HOME/bin:$PATH" ./configure --prefix="$HOME/ffmpeg_build" --disable-examples --disable-unit-tests --enable-vp9-highbitdepth --as=yasm --extra-cflags="$CFLAGS" --extra-cxxflags="$CXXFLAGS"
+    PATH="$HOME/bin:$PATH" make
     make install
 
 libdav1d, libsvtav1, libaom and librav1e
@@ -102,7 +101,7 @@ libdav1d, libsvtav1, libaom and librav1e
     git -C SVT-AV1 pull 2> /dev/null || git clone --depth 1 https://gitlab.com/AOMediaCodec/SVT-AV1.git
     mkdir -p SVT-AV1/build
     cd SVT-AV1/build
-    PATH="$HOME/bin:$PATH" cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$HOME/ffmpeg_build" -DCMAKE_BUILD_TYPE=Release -DBUILD_DEC=OFF -DBUILD_SHARED_LIBS=OFF -DCMAKE_C_FLAGS="$CFLAGS" -DCMAKE_CXX_FLAGS="$CXXFLAGS" -DCMAKE_EXE_LINKER_FLAGS="$LDFLAGS" ..
+    PATH="$HOME/bin:$PATH" cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$HOME/ffmpeg_build" -DCMAKE_BUILD_TYPE=Release -DBUILD_DEC=OFF -DBUILD_SHARED_LIBS=OFF -DCMAKE_C_FLAGS="$CFLAGS" -DCMAKE_CXX_FLAGS="$CXXFLAGS" ..
     PATH="$HOME/bin:$PATH" make
     make install
 
@@ -112,7 +111,7 @@ libdav1d, libsvtav1, libaom and librav1e
     git -C aom pull 2> /dev/null || git clone --depth 1 https://aomedia.googlesource.com/aom
     mkdir -p aom/build
     cd aom/build
-    PATH="$HOME/bin:$PATH" cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$HOME/ffmpeg_build" -DENABLE_TESTS=OFF -DENABLE_NASM=on -DCMAKE_C_FLAGS="$CFLAGS" -DCMAKE_CXX_FLAGS="$CXXFLAGS" -DCMAKE_EXE_LINKER_FLAGS="$LDFLAGS" ..
+    PATH="$HOME/bin:$PATH" cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$HOME/ffmpeg_build" -DENABLE_TESTS=OFF -DENABLE_NASM=on -DCMAKE_C_FLAGS="$CFLAGS" -DCMAKE_CXX_FLAGS="$CXXFLAGS" ..
     PATH="$HOME/bin:$PATH" make
     make install
 
@@ -128,9 +127,9 @@ libdav1d, libsvtav1, libaom and librav1e
     cd ~/ffmpeg_sources
     git -C rav1e pull 2> /dev/null || git clone --depth 1 https://github.com/xiph/rav1e.git
     cd rav1e
-    CFLAGS="-O2 -march=native -mtune=native" CXXFLAGS=$CFLAGS LDFLAGS="" RUSTFLAGS="-C target-cpu=native" cargo build --release
-    CFLAGS="-O2 -march=native -mtune=native" CXXFLAGS=$CFLAGS LDFLAGS="" cargo install cargo-c
-    CFLAGS="-O2 -march=native -mtune=native" CXXFLAGS=$CFLAGS LDFLAGS="" cargo cinstall --release \
+    RUSTFLAGS="-C target-cpu=native" cargo build --release
+    cargo install cargo-c
+    cargo cinstall --release \
         --prefix=$HOME/ffmpeg_build \
         --libdir=$HOME/ffmpeg_build/lib \
         --includedir=$HOME/ffmpeg_build/include
@@ -144,7 +143,7 @@ vvc
     cd ~/ffmpeg_sources
     git -C vvenc pull 2> /dev/null || git clone --depth 1 https://github.com/fraunhoferhhi/vvenc
     cd vvenc
-    PATH="$HOME/bin:$PATH" cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$HOME/ffmpeg_build" -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DCMAKE_C_FLAGS="$CFLAGS" -DCMAKE_CXX_FLAGS="$CXXFLAGS" -DCMAKE_EXE_LINKER_FLAGS="$LDFLAGS"
+    PATH="$HOME/bin:$PATH" cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$HOME/ffmpeg_build" -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DCMAKE_C_FLAGS="$CFLAGS" -DCMAKE_CXX_FLAGS="$CXXFLAGS"
     PATH="$HOME/bin:$PATH" make
     make install
 
@@ -310,9 +309,9 @@ compilation
 .. code:: shell
 
     # compilation and installation
-    CONFIG_COMPILE_FLAGS="$CONFIG_FLAGS --extra-cflags='-O2 -march=native -mtune=native' --extra-cxxflags='-O2 -march=native -mtune=native' --extra-ldflags=''"
-    CFLAGS="-O2 -march=native -mtune=native" CXXFLAGS=$CFLAGS LDFLAGS="" eval ./configure $CONFIG_COMPILE_FLAGS
-    CFLAGS="-O2 -march=native -mtune=native" CXXFLAGS=$CFLAGS LDFLAGS="" make && make install && hash -r
+    CONFIG_COMPILE_FLAGS="$CONFIG_FLAGS --extra-cflags='$CFLAGS' --extra-cxxflags='$CXXFLAGS'"
+    eval ./configure $CONFIG_COMPILE_FLAGS
+    make && make install && hash -r
 
     # linkage
     cp ~/ffmpeg_build/bin/x265 ~/bin
