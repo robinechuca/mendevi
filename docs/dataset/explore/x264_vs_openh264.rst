@@ -91,4 +91,4 @@ Reproduce
         mendevi prepare $video -p fhd
     done
     mendevi encode reference* -e fast -e medium -e slow -m cbr -m vbr -c libx264 -c libopenh264
-    mendevi probe sample_* --psnr --ssim --vif --vmaf
+    mendevi probe sample* --psnr --ssim --vif --vmaf

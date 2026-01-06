@@ -276,7 +276,7 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs: dict) -> l
     general, vid_filter, cmd.encode = ENCODERS_CMD[kwargs["encoder"]](**kwargs)
     cmd.general = cmd.general + general
     if vid_filter:
-        cmd.vid_filter = ",".join(cmd.vid_filter.split(",") + [vid_filter])
+        cmd.vid_filter = ",".join([*cmd.vid_filter.split(","), vid_filter])
     return list(cmd)
     # mount in RAM: mount -o mode=1777,nosuid,nodev -t tmpfs tmpfs /tmp
 

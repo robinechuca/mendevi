@@ -1,7 +1,6 @@
 """Test the ffmpeg encoding command on a stupid example."""
 
 import itertools
-import shlex
 import subprocess
 
 from mendevi.cmd import CmdFFMPEG
