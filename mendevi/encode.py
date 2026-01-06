@@ -19,6 +19,7 @@ import tqdm
 from context_verbose import Printer
 from flufl.lock import Lock
 
+from mendevi.cmd import CmdFFMPEG
 from mendevi.convert import get_convert_cmd
 from mendevi.database.serialize import list_to_binary, tensor_to_binary
 from mendevi.ffmpeg_cmd import (
