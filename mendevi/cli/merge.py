@@ -86,9 +86,6 @@ def main(databases: tuple[str]) -> None:
                 # t_vid_video
                 prt.print("table 't_vid_video'")
                 for row_ in cursor_src.execute("SELECT * FROM t_vid_video"):
-                    if row_["vid_name"].isdigit():
-                        print(row_["vid_name"])
-                        continue
                     _insert_update(cursor_dst, row_, "t_vid_video", ("vid_id",))
 
                 # t_met_metric
