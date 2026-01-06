@@ -132,7 +132,7 @@ def _fill_vid_table_prop(field: str, prt: Printer, pad: int, video: pathlib.Path
             prop = {
                 "vid_pix_fmt": cutcutcodec.get_pix_fmt,
                 "vid_range": cutcutcodec.get_range,
-                "vid_name": lambda p: p.stat().st_size,
+                "vid_name": lambda p: p.name,
                 "vid_eotf": lambda p: cutcutcodec.get_colorspace(p).transfer,
                 "vid_gamut": lambda p: cutcutcodec.get_colorspace(p).primaries,
                 "vid_codec": cutcutcodec.get_codec_video,
