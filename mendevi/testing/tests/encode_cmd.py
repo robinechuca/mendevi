@@ -4,7 +4,8 @@ import itertools
 import shlex
 import subprocess
 
-from mendevi.ffmpeg_cmd import (
+from mendevi.cmd import CmdFFMPEG
+from mendevi.encoder import (
     _encode_av1_nvenc,
     _encode_av1_vaapi,
     _encode_h264_nvenc,
@@ -23,13 +24,11 @@ from mendevi.ffmpeg_cmd import (
 )
 
 RESOLUTION = [256, 256]
-FFMPEG_CMD_READ = [
-    "ffmpeg", "-hide_banner",
+GENERAL = [
     "-f", "rawvideo",
     "-s", f"{RESOLUTION[1]}x{RESOLUTION[0]}",
     "-pix_fmt", "yuv420p",
     "-r", "24",
-    "-i", "/dev/urandom",
     "-to", "0.25",
 ]
 
@@ -39,7 +38,7 @@ def encode(encoder: str, cmd_creator: callable) -> None:
     for mode, quality, effort, pix_fmt in itertools.product(
         ["vbr", "cbr"], [0.33, 0.66], ["fast", "medium", "slow"], ["yuv420p", "yuv420p10le"],
     ):
-        cmd_middle = cmd_creator(
+        general, vid_filter, encode = cmd_creator(
             effort=effort,
             encoder=encoder,
             mode=mode,
@@ -48,11 +47,16 @@ def encode(encoder: str, cmd_creator: callable) -> None:
             resolution=RESOLUTION,
             threads=8,
         )
-        cmd = [*FFMPEG_CMD_READ, *cmd_middle, "-f", "null", "-"]
+        cmd = CmdFFMPEG(
+            video="/dev/urandom",
+            vid_filter=vid_filter,
+            encode=encode,
+        )
+        cmd.general = cmd.general + general + GENERAL
         try:
-            subprocess.run(cmd, check=True)
+            subprocess.run(list(cmd), check=True)
         except subprocess.CalledProcessError as err:
-            msg = " ".join(map(shlex.quote, cmd))
+            msg = f"failed to execute: {cmd}"
             raise RuntimeError(msg) from err
 
 

@@ -20,9 +20,9 @@ from context_verbose import Printer
 from flufl.lock import Lock
 
 from mendevi.cmd import CmdFFMPEG
-from mendevi.convert import get_convert_cmd
+from mendevi.convert import filter_best_order
 from mendevi.database.serialize import list_to_binary, tensor_to_binary
-from mendevi.ffmpeg_cmd import (
+from mendevi.encoder import (
     _encode_av1_nvenc,
     _encode_av1_vaapi,
     _encode_h264_nvenc,
@@ -265,35 +265,20 @@ def encode_and_store(
 
 def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs: dict) -> list[str]:
     """Return the ffmpeg encode cmd."""
-    # header
-    cmd: list[str] = ["ffmpeg", "-y", "-i", str(src)]
-
-    # filter
-    if (
-        filter_cmd := get_convert_cmd(
-            src,
-            additional_filter=kwargs["filter"],
-            fps=kwargs["fps"],
-            pix_fmt=kwargs["pix_fmt"],
-            resolution=kwargs["resolution"],
-        )
-    ):
-        cmd.extend(["-vf", filter_cmd])
-
-    # transcode
-    cmd.extend(ENCODERS_CMD[kwargs["encoder"]](**kwargs))
+    cmd = CmdFFMPEG(src, output=str(dst))
+    cmd.vid_filter = filter_best_order(
+        src,
+        additional_filter=kwargs["filter"],
+        fps=kwargs["fps"],
+        pix_fmt=kwargs["pix_fmt"],
+        resolution=kwargs["resolution"],
+    )
+    general, vid_filter, cmd.encode = ENCODERS_CMD[kwargs["encoder"]](**kwargs)
+    cmd.general = cmd.general + general
+    if vid_filter:
+        cmd.vid_filter = ",".join(cmd.vid_filter.split(",") + [vid_filter])
+    return list(cmd)
     # mount in RAM: mount -o mode=1777,nosuid,nodev -t tmpfs tmpfs /tmp
-    # # https://trac.ffmpeg.org/wiki/Encode/AV1#AMDAMFAV1
-    # # https://trac.ffmpeg.org/wiki/Hardware/AMF
-    # # https://github.com/GPUOpen-LibrariesAndSDKs/AMF/wiki/GPU%20and%20APU%20HW%20Features%20and%20Support
-    # case "h264_amf":  # for AMD GPU
-    #     raise NotImplementedError
-    # case "av1_amf":  # for AMD GPU
-    #     raise NotImplementedError
-
-    # final
-    cmd.append(str(dst))
-    return cmd
 
 
 def quality_to_rate(kwargs: dict[str]) -> int:

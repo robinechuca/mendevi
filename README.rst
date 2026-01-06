@@ -8,9 +8,9 @@
     :alt: [license GPL]
     :target: https://opensource.org/license/gpl-3-0
 
-.. image:: https://img.shields.io/badge/linting-pylint-green
-    :alt: [linting: pylint]
-    :target: https://github.com/pylint-dev/pylint
+.. image:: https://img.shields.io/badge/linting-ruff-green
+    :alt: [linting: ruff]
+    :target: https://docs.astral.sh/ruff
 
 .. image:: https://img.shields.io/badge/python-3.12%20%7C%203.13%20%7C%203.14-blue
     :alt: [versions]
@@ -37,7 +37,7 @@ It also provides a detailed **dataset**.
 
 It manages the following parameters:
 
-#. It supports the ``libx264``, ``libx265``, ``libvpx-vp9``, ``libaom-av1``, ``libsvtav1``, ``librav1e`` and ``vvc`` cpu encoders.
+#. It supports the ``libx264``, ``libopenh264``, ``libx265``, ``libvpx-vp9``, ``libaom-av1``, ``libsvtav1``, ``librav1e`` and ``vvc`` cpu encoders.
 #. It supports the ``h264_nvenc``, ``hevc_nvenc``, ``av1_nvenc`` and ``*_vaapi`` gpu encoders.
 #. Distortions are measured using the ``lpips``, ``psnr``, ``ssim`` and ``vmaf`` metrics.
 #. Complexity are measured using the ``rms_sobel`` and ``rms_time_diff`` metrics.
@@ -46,7 +46,7 @@ It manages the following parameters:
 #. Iterate over different ``effort``, ``encoder``, ``mode``, ``quality``, ``threads``, ``fps``, ``resolution`` and ``pix_fmt``.
 #. Energy measurements are catched with ``RAPL`` and an external wattmeter on ``grid'5000``.
 #. Get the ``cpu``, ``gpu``, ``ram`` and ``temperature`` activity.
-#. Get a full environment context, including harware and software version.
+#. Get a full environment context, including hardware and software version.
 #. It support the mode (constant bitrate) ``cbr`` and (constant quality) ``vbr``.
 
 

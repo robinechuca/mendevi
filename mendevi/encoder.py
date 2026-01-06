@@ -9,16 +9,19 @@ from mendevi.utils import best_profile
 
 
 def decorator_pix_fmt(func: callable) -> callable:
-    """Add a 8 bit pixel format conversion if required."""
+    """Add a 8 bit pixel format conversion if required.
+
+    Return general: None, vid_filter: str, cmd: list[str]
+    """
     @functools.wraps(func)
-    def decorated_func(**kwargs: dict) -> list:
+    def decorated_func(**kwargs: dict) -> tuple[list[str], str, list[str]]:
         cmd = func(**kwargs)
         if (
             kwargs["pix_fmt"] != "yuv420p"
             and not support_pix_fmt(kwargs["encoder"], kwargs["pix_fmt"])
         ):
-            cmd = ["-pix_fmt", "yuv420p", *cmd]
-        return cmd
+            return [], "format=yuv420p", cmd
+        return [], "", cmd
     return decorated_func
 
 
@@ -64,7 +67,7 @@ def support_pix_fmt(encoder: str, pix_fmt: str) -> bool:
 def _encode_av1_nvenc(**kwargs: dict) -> list[str]:
     """Return the ffmpeg arguments."""
     general = [
-        "-c:v", "av1_nvenc",
+        "av1_nvenc",
         "-gpu", "any",
         "-tune", "hq",
         "-preset", {"fast": "p2", "medium": "p4", "slow": "p6"}[kwargs["effort"]],
@@ -95,7 +98,7 @@ def _encode_av1_vaapi(**kwargs: dict) -> list[str]:
 def _encode_h264_nvenc(**kwargs: dict) -> list[str]:
     """Return the ffmpeg arguments."""
     general = [
-        "-c:v", "h264_nvenc",
+        "h264_nvenc",
         "-gpu", "any",
         "-tune", "hq",
         "-preset", {"fast": "p2", "medium": "p4", "slow": "p6"}[kwargs["effort"]],
@@ -117,7 +120,7 @@ def _encode_h264_nvenc(**kwargs: dict) -> list[str]:
     ]
 
 
-def _encode_vaapi(codec: str, **kwargs: dict) -> list[str]:
+def _encode_vaapi(codec: str, **kwargs: dict) -> tuple[list[str], str, list[str]]:
     """Return the ffmpeg arguments for the xxx_vaapi encoders."""
     # https://trac.ffmpeg.org/wiki/Hardware/VAAPI
     # https://www.ffmpeg.org/ffmpeg-codecs.html#VAAPI-encoders
@@ -131,21 +134,21 @@ def _encode_vaapi(codec: str, **kwargs: dict) -> list[str]:
         "medium": "3",
         "fast": "6",
     }[kwargs["effort"]]
+    device = ["-vaapi_device", "/dev/dri/renderD128"]
+    vid_filter = f"format={pix_fmt},hwupload"
     general = [
-        "-vaapi_device", "/dev/dri/renderD128",
-        "-vf", f"format={pix_fmt},hwupload",
-        "-c:v", f"{codec}_vaapi",
+        f"{codec}_vaapi",
         "-async_depth", str(kwargs["threads"]),
         "-compression_level", compression,
     ]
     if kwargs["mode"] == "vbr":
-        return [
+        return device, vid_filter, [
             *general,
             # "rc_mode", "CQP",  # very rare VBR support
             "-qp", str(round(1.0 + kwargs["quality"]*51.0)),  # [1, 52]
         ]
     rate = f"{quality_to_rate(kwargs)}k"
-    return [
+    return device, vid_filter, [
         *general,
         "-b:v", rate,
         "-minrate", rate,
@@ -164,7 +167,7 @@ def _encode_h264_vaapi(**kwargs: dict) -> list[str]:
 def _encode_hevc_nvenc(**kwargs: dict) -> list[str]:
     """Return the ffmpeg arguments."""
     general = [
-        "-c:v", "hevc_nvenc",
+        "hevc_nvenc",
         "-gpu", "any",
         "-tune", "hq",
         "-preset", {"fast": "p2", "medium": "p4", "slow": "p6"}[kwargs["effort"]],
@@ -199,7 +202,7 @@ def _encode_libaomav1(**kwargs: dict) -> list[str]:
     rows = math.ceil(kwargs["threads"]/columns)
     tiles = f"{columns}x{rows}"
     general = [
-        "-c:v", "libaom-av1",
+        "libaom-av1",
         "-cpu-used", {"fast": "7", "medium": "4", "slow": "1"}[kwargs["effort"]],
         "-tune", "ssim",
         "-threads", str(kwargs["threads"]), "-row-mt", "1", "-tiles", tiles,
@@ -224,7 +227,7 @@ def _encode_libaomav1(**kwargs: dict) -> list[str]:
 def _encode_libopenh264(**kwargs: dict) -> list[str]:
     """Return the ffmpeg arguments."""
     general = [
-        "-c:v", "libopenh264",
+        "libopenh264",
         "-profile", {
             "fast": "constrained_baseline", "medium": "main", "slow": "high",
         }[kwargs["effort"]],
@@ -267,7 +270,7 @@ def _encode_librav1e(**kwargs: dict) -> list[str]:
         rate = f"{quality_to_rate(kwargs)}k"
         quality = ["-b:v", rate, "-minrate", rate, "-maxrate", rate]
     return [
-        "-c:v", "librav1e",
+        "librav1e",
         *quality,
         # speed in 0, 10, default 6
         "-speed", {"slow": "2", "medium": "6", "fast": "9"}[kwargs["effort"]],
@@ -299,7 +302,7 @@ def _encode_libsvtav1(**kwargs: dict) -> list[str]:
 
     if kwargs["mode"] == "vbr":
         return [
-            "-c:v", "libsvtav1",
+            "libsvtav1",
             "-crf", str(round(kwargs["quality"]*63.0)),
             "-preset", {"slow": "4", "medium": "6", "fast": "8"}[kwargs["effort"]],
             # "-tune", "ssim",  # not same result as -svtav1-params tune=2
@@ -307,7 +310,7 @@ def _encode_libsvtav1(**kwargs: dict) -> list[str]:
         ]
     rate = f"{min(100_000, quality_to_rate(kwargs))}k"
     return [
-        "-c:v", "libsvtav1",
+        "libsvtav1",
         "-b:v", rate, "-minrate", rate, "-bufsize", rate,
         "-preset", {"slow": "4", "medium": "6", "fast": "8"}[kwargs["effort"]],
         "-tune", "ssim",  # -svtav1-params tune=2 not supported in cbr
@@ -327,7 +330,7 @@ def _encode_libvpx_vp9(**kwargs: dict) -> list[str]:
         rate = f"{quality_to_rate(kwargs)}k"
         quality = ["-b:v", rate, "-minrate", rate, "-maxrate", rate, "-lag-in-frames", "0"]
     return [
-        "-c:v", "libvpx-vp9",
+        "libvpx-vp9",
         *quality,
         # in [-16, 16]
         "-speed", {"slow": "-2", "medium": "1", "fast": "8"}[kwargs["effort"]],
@@ -351,7 +354,7 @@ def _encode_libx264(**kwargs: dict) -> list[str]:
             "-x264-params", "nal-hrd=cbr",
         ]
     return [  # https://ffmpeg.party/x264/
-        "-c:v", "libx264",
+        "libx264",
         *quality,
         "-preset", {"fast": "veryfast", "medium": "medium", "slow": "veryslow"}[kwargs["effort"]],
         "-tune", "ssim",
@@ -363,8 +366,8 @@ def _encode_libx264(**kwargs: dict) -> list[str]:
 def _encode_libx265(**kwargs: dict) -> list[str]:
     """Return the ffmpeg arguments."""
     if kwargs["mode"] == "vbr":
-        return [   # https://x265.readthedocs.io/en/master/cli.html
-            "-c:v", "libx265",
+        return [  # https://x265.readthedocs.io/en/master/cli.html
+            "libx265",
             "-crf", str(round(kwargs["quality"]*51.0, 1)),
             "-preset", kwargs["effort"],
             "-tune", "ssim",
@@ -376,8 +379,8 @@ def _encode_libx265(**kwargs: dict) -> list[str]:
             ),
         ]
     rate = quality_to_rate(kwargs)
-    return [   # https://x265.readthedocs.io/en/master/cli.html
-        "-c:v", "libx265",
+    return [  # https://x265.readthedocs.io/en/master/cli.html
+        "libx265",
         "-b:v", f"{rate}k",
         "-preset", {"fast": "veryfast", "medium": "medium", "slow": "veryslow"}[kwargs["effort"]],
         "-tune", "ssim",
@@ -407,7 +410,7 @@ def _encode_vvc(**kwargs: dict) -> list[str]:
         quality = ["-b:v", f"{rate}k", "-maxrate", f"{round(1.5*rate)+1}k"]
     bit = int(re.search(r"(?P<bit>\d+)le", kwargs["pix_fmt"] + "8le")["bit"])
     return [
-        "-c:v", "vvc",
+        "vvc",
         *quality,
         "-preset", kwargs["effort"],
         "-qpa", "1",

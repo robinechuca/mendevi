@@ -11,14 +11,14 @@ class CmdFFMPEG:
 
     Attributes
     ----------
-    decode : list[str]
-        The options between -c:v and -i (read and write).
-    vid_filter : str
-        The filter string after -vf (read and write).
     general : list[str]
         The options immediately after ffmpeg and immediately before the decoder (read and write).
+    decode : list[str]
+        The options between -c:v and -i (read and write).
     video : pathlib.Path
         The input video path (readonly).
+    vid_filter : str
+        The filter string after -vf (read and write).
     encode : list[str]
         The encoder name and options after -c:v (read and write).
     output : list[str]
@@ -126,7 +126,7 @@ class CmdFFMPEG:
     @property
     def vid_filter(self) -> str:
         """Return the filter string after -vf."""
-        return self._filter
+        return self._vid_filter
 
     @vid_filter.setter
     def vid_filter(self, vid_filter: str) -> None:

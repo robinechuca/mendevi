@@ -7,7 +7,7 @@ import re
 from mendevi.utils import get_pix_fmt, get_rate_video, get_resolution
 
 
-def get_convert_cmd(
+def filter_best_order(
     video: pathlib.Path | str,
     additional_filter: str,
     fps: fractions.Fraction | None,
@@ -39,11 +39,11 @@ def get_convert_cmd(
     --------
     >>> from fractions import Fraction
     >>> import cutcutcodec
-    >>> from mendevi.convert import get_convert_cmd
+    >>> from mendevi.convert import filter_best_order
     >>> media = cutcutcodec.utils.get_project_root() / "media" / "video" / "intro.webm"
-    >>> get_convert_cmd(media, additional_filter="", fps=None, pix_fmt=None, resolution=None)
+    >>> filter_best_order(media, additional_filter="", fps=None, pix_fmt=None, resolution=None)
     ''
-    >>> get_convert_cmd(
+    >>> filter_best_order(
     ...     media,
     ...     additional_filter="",
     ...     fps=Fraction(60000, 1001),
@@ -51,7 +51,7 @@ def get_convert_cmd(
     ...     resolution=(1080, 1920),
     ... )
     'scale=h=1080:w=1920:sws_flags=bicubic,format=yuv420p10le,fps=60000/1001'
-    >>> get_convert_cmd(
+    >>> filter_best_order(
     ...     media,
     ...     additional_filter="",
     ...     fps=Fraction(24000, 1001),
