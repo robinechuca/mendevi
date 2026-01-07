@@ -860,6 +860,8 @@ Table t_dec_decode
 +--------------------+---------------+--------------------------------+
 | :ref:`dec_height`  | *SMALLINT*    | decoded height                 |
 +--------------------+---------------+--------------------------------+
+| :ref:`dec_log`     | *LONGTEXT*    | the standard output of the cmd |
++--------------------+---------------+--------------------------------+
 | :ref:`dec_pix_fmt` | *TINYTEXT*    | decoded pixel format           |
 +--------------------+---------------+--------------------------------+
 | :ref:`dec_width`   | *SMALLINT*    | decoded width                  |
@@ -927,6 +929,13 @@ dec_height
 
 In order to adapt the size of the decoded images to the size of the terminal, the frames are resized on the fly. Here is the final height of the screen.
 
+.. _dec_log:
+
+dec_log
+^^^^^^^
+
+The plain utf-8 text of the standard output of the decoding cmd during execution.
+
 .. _dec_pix_fmt:
 
 dec_pix_fmt
@@ -974,6 +983,8 @@ Table t_enc_encode
 +-----------------------+---------------+--------------------------------+
 | :ref:`enc_height`     | *SMALLINT*    | the input frames height        |
 +-----------------------+---------------+--------------------------------+
+| :ref:`enc_log`        | *LONGTEXT*    | the standard output of the cmd |
++-----------------------+---------------+--------------------------------+
 | :ref:`env_mode`       | *TINYTEXT*    | constant or variable bitrate   |
 +-----------------------+---------------+--------------------------------+
 | :ref:`enc_pix_fmt`    | *TINYTEXT*    | the input pixel format         |
@@ -981,8 +992,6 @@ Table t_enc_encode
 | :ref:`enc_quality`    | *FLOAT*       | the encoding crf or qp         |
 +-----------------------+---------------+--------------------------------+
 | :ref:`enc_threads`    | *SMALLINT*    | the number of threads used     |
-+-----------------------+---------------+--------------------------------+
-| :ref:`enc_std`        | *LONGTEXT*    | the standard output of the cmd |
 +-----------------------+---------------+--------------------------------+
 | :ref:`enc_width`      | *SMALLINT*    | the input frames width         |
 +-----------------------+---------------+--------------------------------+
@@ -1078,6 +1087,13 @@ enc_mode
 
 Text that is ``cbr`` if the bit rate is constant (cbr mode), or ``vbr`` if it is variable (constant quality mode).
 
+.. _enc_log:
+
+enc_log
+^^^^^^^
+
+The plain utf-8 text of the standard output of the encoding cmd during execution.
+
 .. _enc_pix_fmt:
 
 enc_pix_fmt
@@ -1102,13 +1118,6 @@ enc_threads
 ^^^^^^^^^^^
 
 The number of threads that the encoder uses simultaneously. This is related to the CPU utilisation rate.
-
-.. _enc_std:
-
-enc_std
-^^^^^^^
-
-The plain utf-8 text of the standard output of en encoding cmd during execution.
 
 .. _enc_width:
 

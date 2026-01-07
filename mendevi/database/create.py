@@ -130,6 +130,7 @@ def create_database(filename: str | bytes | pathlib.Path) -> None:
             dec_decoder TINYTEXT,
             dec_filter TEXT,
             dec_height SMALLINT CHECK(dec_height > 0),
+            dec_log LONGTEXT,
             dec_pix_fmt TINYTEXT,
             dec_width SMALLINT CHECK(dec_width > 0)
         )""")
@@ -147,10 +148,10 @@ def create_database(filename: str | bytes | pathlib.Path) -> None:
             enc_filter TEXT,
             enc_fps FLOAT CHECK(enc_fps > 0.0),
             enc_height SMALLINT CHECK(enc_height > 0),
+            enc_log LONGTEXT,
             enc_mode TINYTEXT CHECK(enc_mode IN ('cbr', 'vbr')),
             enc_pix_fmt TINYTEXT,
             enc_quality FLOAT CHECK(enc_quality >= 0.0 AND enc_quality <= 1.0),
-            enc_std LONGTEXT,
             enc_threads SMALLINT CHECK(enc_threads >= 0),
             enc_width SMALLINT CHECK(enc_width > 0)
         )""")
