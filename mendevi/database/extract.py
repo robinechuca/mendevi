@@ -168,7 +168,7 @@ class SqlLinker:
             queries.append(sql)
         return queries
 
-    def __call__(self, func: callable) -> callable:
+    def __call__(self, func: typing.Callable) -> typing.Callable:
         """Decorate a function.
 
         Returns

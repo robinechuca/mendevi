@@ -15,7 +15,7 @@ from mendevi.database.complete import add_environment
 from mendevi.encode import encode_and_store
 from mendevi.utils import compute_video_hash, get_pix_fmt, get_rate_video, get_resolution
 
-from .parse import PixelParamType, ResolutionParamType, parse_videos_database
+from .parse import CallBackType, PixelParamType, ResolutionParamType, parse_videos_database
 
 if TYPE_CHECKING:
     import pathlib
@@ -99,9 +99,14 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
     assert isinstance(kwargs["filter"], tuple), kwargs["filter"].__class__.__name__
     assert all(isinstance(f, str) for f in kwargs["filter"]), kwargs["filter"]
     if kwargs["filter"]:
-        prt.print(f"filters   : {', '.join(map(str, kwargs['filter']))}")
+        prt.print(f"filters   : {', '.join(map(str, kwargs['filter'])) if kwargs['filter'] else 'no'}")
     else:
         kwargs["filter"] = (None,)
+
+    # callback
+    assert kwargs["callback"] is None or callable(kwargs["callback"])
+    if kwargs["callback"]:
+        prt.print(f"callback  : {kwargs['callback'].__name__}")
 
 
 @click.command()
@@ -171,6 +176,11 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
     multiple=True,
     help="The ffmpeg filter to apply before encoding.",
 )
+@click.option(
+    "--callback",
+    type=CallBackType(),
+    help="User defined function to adapt the cmd."
+)
 def main(videos: tuple, database: str | None = None, **kwargs: dict) -> None:
     """Measures activity during encoding.
 
@@ -218,6 +228,10 @@ def main(videos: tuple, database: str | None = None, **kwargs: dict) -> None:
     filter : str, optional
         A video ffmpeg filter (after -vf) which applies at the time of transcoding,
         more precisely between decoding and conversion. It is a kind of pre-conversion.
+    callback : str, optional
+        The name of the custom function to change the cmd, the signature must match:
+        def any(cmd: CmdFFMPEG, **kwargs) -> list[str] | str:
+            ...
 
     """
     with Printer("Parse configuration...") as prt:
@@ -268,6 +282,7 @@ def main(videos: tuple, database: str | None = None, **kwargs: dict) -> None:
         values["pix_fmt"] = values["pix_fmt"] or get_pix_fmt(values["video"])
         values["resolution"] = values["resolution"] or get_resolution(values["video"])
         values["src_vid_id"] = kwargs["src_vid_id"][values["video"]]
+        values["callback"] = kwargs["callback"]
         key = (values["src_vid_id"], *tuple(values[k] for k in keys))
         if done.get(key, 0) > values["repeat"]:
             continue

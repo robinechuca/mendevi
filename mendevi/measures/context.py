@@ -172,7 +172,7 @@ def get_librav1e_version() -> str:
     >>> print(get_librav1e_version())  # doctest: +ELLIPSIS
     rav1e 0.8.0 (...) (release)
     rustc 1.91.1 (...) x86_64-unknown-linux-gnu
-    Compiled CPU Features: adx,aes,...,xsaveopt,xsaves
+    Compiled CPU Features: ...
     Runtime Assembly Support: Enabled
     Runtime Assembly Level: ...
     Threading: Enabled

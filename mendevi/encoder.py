@@ -4,11 +4,12 @@ import functools
 import math
 import re
 import subprocess
+import typing
 
 from mendevi.utils import best_profile
 
 
-def decorator_pix_fmt(func: callable) -> callable:
+def decorator_pix_fmt(func: typing.Callable) -> typing.Callable:
     """Add a 8 bit pixel format conversion if required.
 
     Return general: None, vid_filter: str, cmd: list[str]

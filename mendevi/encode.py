@@ -35,7 +35,6 @@ from mendevi.encoder import (
     _encode_vp9_vaapi,
     _encode_vvc,
 )
-from mendevi.measures import Activity
 from mendevi.utils import best_profile, compute_video_hash, hash_to_signature
 
 ENCODERS_CMD = {
@@ -87,21 +86,26 @@ def encode(src: pathlib.Path, **kwargs: dict) -> tuple[pathlib.Path, str, str, d
 
     # get cmd
     cmd = get_transcode_cmd(src, dst, **kwargs)
+    if kwargs.get("callback") is None:
+        user_cmd = None
+    else:
+        user_cmd = kwargs["callback"](cmd, **kwargs)
+        if isinstance(user_cmd, str):
+            user_cmd = shlex.split(user_cmd)
+        assert isinstance(user_cmd, list), user_cmd.__class__.__name__
 
     # display
     prt_cmd = " ".join(
-        map(shlex.quote, [{str(src): "src.mp4", str(dst): "dst.mp4"}.get(c, c) for c in cmd]),
+        map(
+            shlex.quote,
+            [{str(src): "src.mp4", str(dst): "dst.mp4"}.get(c, c) for c in user_cmd or cmd],
+        ),
     )
     with Printer(prt_cmd, color="green") as prt:
         prt.print(f"input video: {src.name}")
 
         # transcode
-        with Activity() as activity:
-            try:
-                std = cmd.run()
-            except RuntimeError:
-                dst.unlink(missing_ok=True)
-                raise
+        std, activity = cmd.run(user_cmd)
 
         # print
         prt.print(f"avg cpu usage: {activity['ps_core']:.1f} %")

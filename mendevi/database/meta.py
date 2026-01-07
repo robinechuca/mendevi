@@ -382,7 +382,7 @@ ALIAS = {
 }
 
 
-def _import_extractor(code: list[str]) -> callable:
+def _import_extractor(code: list[str]) -> typing.Callable:
     """Import the function line_extractor."""
     code = [
         "from mendevi.utils import best_profile",

@@ -1,7 +1,10 @@
 """Parse and verify some user input."""
 
+import importlib
+import inspect
 import pathlib
 import re
+import typing
 
 import click
 import context_verbose
@@ -12,6 +15,37 @@ from mendevi.cst.labels import LABELS
 from mendevi.database.create import create_database, is_sqlite
 from mendevi.database.meta import extract_names
 from mendevi.utils import unfold_video_files
+
+
+class CallBackType(click.ParamType):
+    """Parse the callback function."""
+
+    name = "callback"
+
+    def convert(self, value: str, param: click.Option, ctx: click.Context) -> typing.Callable:
+        """Normalize pixel format."""
+        # extract clues
+        if (func_name := re.search(r"\.py\?(?P<func>[a-zA-Z_]\w*)$", value)) is not None:
+            func_name = func_name["func"]
+            value = value[:-len(func_name)-1]
+        path = pathlib.Path(value)
+        if not path.exists():
+            self.fail(f"{path!r} does not exists", param, ctx)
+
+        # import the user file
+        spec = importlib.util.spec_from_file_location(path.stem, path)
+        modulevar = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(modulevar)
+
+        # find the function
+        funcs = dict(inspect.getmembers(modulevar, inspect.isfunction))
+        if func_name is None:
+            if len(funcs) != 1:
+                self.fail(f"please specifiy the function to use {', '.join(sorted(funcs))}", param, ctx)
+            func_name = next(iter(funcs))
+        if func_name not in funcs:
+            self.fail(f"the func name {func_name!r} is not in {', '.join(sorted(funcs))}", param, ctx)
+        return funcs[func_name]
 
 
 class PixelParamType(click.ParamType):

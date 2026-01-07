@@ -2,13 +2,14 @@
 
 import functools
 import struct
+import typing
 
 import numpy as np
 
 VECT_DTYPE = np.float32
 
 
-def skip_none(func: callable) -> callable:
+def skip_none(func: typing.Callable) -> typing.Callable:
     """Allow skipping the process of None input."""
     @functools.wraps(func)
     def decorated_func(arg: object | None) -> object | None:

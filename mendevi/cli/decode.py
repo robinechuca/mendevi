@@ -12,7 +12,7 @@ from mendevi.database.complete import add_environment
 from mendevi.decode import decode_and_store
 from mendevi.utils import compute_video_hash, get_resolution
 
-from .parse import ResolutionParamType, parse_videos_database
+from .parse import CallBackType, ResolutionParamType, parse_videos_database
 
 if TYPE_CHECKING:
     import pathlib
@@ -38,7 +38,7 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
     else:
         kwargs["resolution"] = (None,)
 
-        # filter
+    # filter
     kwargs["filter"] = kwargs.get("filter", ())
     assert isinstance(kwargs["filter"], tuple), kwargs["filter"].__class__.__name__
     assert all(isinstance(f, str) for f in kwargs["filter"]), kwargs["filter"]
@@ -46,6 +46,11 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
         prt.print(f"filters   : {', '.join(map(str, kwargs['filter']))}")
     else:
         kwargs["filter"] = ("",)
+
+    # callback
+    assert kwargs["callback"] is None or callable(kwargs["callback"])
+    if kwargs["callback"]:
+        prt.print(f"callback  : {kwargs['callback'].__name__}")
 
 
 @click.command()
@@ -69,6 +74,11 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
     multiple=True,
     help="The ffmpeg filter to apply on fly.",
 )
+@click.option(
+    "--callback",
+    type=CallBackType(),
+    help="User defined function to adapt the cmd."
+)
 def main(videos: tuple[str], database: str | None = None, **kwargs: dict) -> None:
     """Measures activity during decoding.
 
@@ -91,6 +101,10 @@ def main(videos: tuple[str], database: str | None = None, **kwargs: dict) -> Non
     filter : str, optional
         The additional ffmpeg video filter (after the -vf command)
         to be applied immediately after decoding and before other conversions.
+    callback : str, optional
+        The name of the custom function to change the cmd, the signature must match:
+        def any(cmd: CmdFFMPEG, **kwargs) -> list[str] | str:
+            ...
 
     """
     with Printer("Parse configuration...") as prt:
@@ -127,6 +141,7 @@ def main(videos: tuple[str], database: str | None = None, **kwargs: dict) -> Non
         values["dec_vid_id"] = kwargs["dec_vid_id"][values["video"]]
         values["filter"] = values["filter"] or ""
         values["resolution"] = values["resolution"] or get_resolution(values["video"])
+        values["callback"] = kwargs["callback"]
         key = (values["dec_vid_id"], values["filter"], values["resolution"])
         if done.get(key, 0) > values["repeat"]:
             continue

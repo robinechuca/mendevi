@@ -9,6 +9,8 @@ import subprocess
 import cutcutcodec
 import tqdm
 
+from mendevi.measures import Activity
+
 
 class CmdFFMPEG:
     """Allow easy manipulation of a complete ffmpeg expression.
@@ -151,7 +153,7 @@ class CmdFFMPEG:
                 msg = f"'output' has to be None, str or list, not {output.__class__.__name__}"
                 raise TypeError(msg)
 
-    def run(self, cmd: list[str] | str | None = None) -> str:
+    def run(self, cmd: list[str] | str | None = None) -> tuple[str, dict[str]]:
         """Execute the command and return the stderr output.
 
         If a cmd is provided, it is used instead of self.
@@ -188,7 +190,7 @@ class CmdFFMPEG:
 
         # run command
         output: bytes = b""
-        with subprocess.Popen(cmd, stderr=subprocess.PIPE) as process:
+        with Activity() as activity, subprocess.Popen(cmd, stderr=subprocess.PIPE) as process:
             for line in read_lines(process.stderr):
                 if (
                     match := re.search(
@@ -202,11 +204,11 @@ class CmdFFMPEG:
                     )
                     load.total = None if load.total is None else max(load.total, elapsed)
                     load.update(elapsed-load.n)
-            load.close()
-            if process.returncode:
-                msg = f"failed to execute {cmd}:\n{output}"
-                raise RuntimeError(msg)
-        return output.decode("utf-8")
+        load.close()
+        if process.returncode:
+            msg = f"failed to execute {cmd}:\n{output}"
+            raise RuntimeError(msg)
+        return output.decode("utf-8"), activity
 
     @property
     def vid_filter(self) -> str:
