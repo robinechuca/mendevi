@@ -1,6 +1,7 @@
 """Provide simple tools."""
 
 import base64
+import contextlib
 import functools
 import hashlib
 import logging
@@ -9,6 +10,7 @@ import multiprocessing.pool
 import numbers
 import pathlib
 import re
+import shutil
 import typing
 from fractions import Fraction
 
@@ -98,6 +100,23 @@ def compute_video_hash(
                 unit="video",
             ))
     return _hash((videos, fast))[1]
+
+
+@contextlib.contextmanager
+def cp_shm(file: pathlib.Path) -> pathlib.Path:
+    """Copy the file into /dev/shm is there is enougth free space."""
+    assert isinstance(file, pathlib.Path), file.__class__.__name__
+    assert file.exists(), file
+    shm = pathlib.Path("/dev/shm")
+    file_ram = None
+    if shutil.disk_usage(shm).free > 2 * file.stat().st_size:
+        file_ram = shm / file.name
+        shutil.copy(file, file_ram)
+    try:
+        yield file_ram or file
+    finally:
+        if file_ram is not None:
+            file_ram.unlink()
 
 
 @functools.cache

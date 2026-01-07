@@ -35,7 +35,7 @@ from mendevi.encoder import (
     _encode_vp9_vaapi,
     _encode_vvc,
 )
-from mendevi.utils import best_profile, compute_video_hash, hash_to_signature
+from mendevi.utils import best_profile, compute_video_hash, cp_shm, hash_to_signature
 
 ENCODERS_CMD = {
     "av1_nvenc": _encode_av1_nvenc,
@@ -79,45 +79,50 @@ def encode(src: pathlib.Path, **kwargs: dict) -> tuple[pathlib.Path, str, str, d
 
     """
     assert isinstance(src, pathlib.Path), src.__class__.__name__
-    assert src.is_file(), src
 
-    # find tempfile name
-    dst = pathlib.Path(tempfile.gettempdir()) / f"{uuid.uuid4().hex}.mp4"
+    with cp_shm(src) as src_ram:  # copy input video into ram
 
-    # get cmd
-    cmd = get_transcode_cmd(src, dst, **kwargs)
-    if kwargs.get("callback") is None:
-        user_cmd = None
-    else:
-        user_cmd = kwargs["callback"](cmd, **kwargs)
-        if isinstance(user_cmd, str):
-            user_cmd = shlex.split(user_cmd)
-        assert isinstance(user_cmd, list), user_cmd.__class__.__name__
+        # find tempfile name
+        dst = (
+            src_ram.parent
+            if src_ram.parent == pathlib.Path("/dev/shm") else
+            pathlib.Path(tempfile.gettempdir())
+        ) / f"{uuid.uuid4().hex}.mp4"
 
-    # display
-    prt_cmd = " ".join(
-        map(
-            shlex.quote,
-            [{str(src): "src.mp4", str(dst): "dst.mp4"}.get(c, c) for c in user_cmd or cmd],
-        ),
-    )
-    with Printer(prt_cmd, color="green") as prt:
-        prt.print(f"input video: {src.name}")
+        # get cmd
+        cmd = get_transcode_cmd(src_ram, dst, **kwargs)
+        if kwargs.get("callback") is None:
+            user_cmd = None
+        else:
+            user_cmd = kwargs["callback"](cmd, **kwargs)
+            if isinstance(user_cmd, str):
+                user_cmd = shlex.split(user_cmd)
+            assert isinstance(user_cmd, list), user_cmd.__class__.__name__
 
-        # transcode
-        log, activity = cmd.run(user_cmd)
+        # display
+        prt_cmd = " ".join(
+            map(
+                shlex.quote,
+                [{str(src_ram): "src.mp4", str(dst): "dst.mp4"}.get(c, c) for c in user_cmd or cmd],
+            ),
+        )
+        with Printer(prt_cmd, color="green") as prt:
+            prt.print(f"input video: {src_ram}")
 
-        # print
-        prt.print(f"avg cpu usage: {activity['ps_core']:.1f} %")
-        prt.print(f"avg ram usage: {1e-9*np.mean(activity['ps_ram']):.2g} Go")
-        if "rapl_power" in activity:
-            prt.print(f"avg rapl power: {activity['rapl_power']:.2g} W")
-        if "wattmeter_power" in activity:
-            prt.print(f"avg wattmeter power: {activity['wattmeter_power']:.2g} W")
+            # transcode
+            log, activity = cmd.run(user_cmd)
 
-        # compute file hash
-        signature = hash_to_signature(compute_video_hash(dst, fast=False))
-        prt.print(f"output video: sample_{signature}.mp4")
+            # print
+            prt.print(f"avg cpu usage: {activity['ps_core']:.1f} %")
+            prt.print(f"avg ram usage: {1e-9*np.mean(activity['ps_ram']):.2g} Go")
+            if "rapl_power" in activity:
+                prt.print(f"avg rapl power: {activity['rapl_power']:.2g} W")
+            if "wattmeter_power" in activity:
+                prt.print(f"avg wattmeter power: {activity['wattmeter_power']:.2g} W")
+
+            # compute file hash
+            signature = hash_to_signature(compute_video_hash(dst, fast=False))
+            prt.print(f"output video: sample_{signature}.mp4")
 
     # move file
     final_dst = src.parent / f"sample_{signature}.mp4"
@@ -254,7 +259,6 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs: dict) -> C
     if vid_filter:
         cmd.vid_filter = ",".join([*cmd.vid_filter.split(","), vid_filter])
     return cmd
-    # mount in RAM: mount -o mode=1777,nosuid,nodev -t tmpfs tmpfs /tmp
 
 
 def quality_to_rate(kwargs: dict[str]) -> int:

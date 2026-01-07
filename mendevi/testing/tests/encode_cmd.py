@@ -1,7 +1,6 @@
 """Test the ffmpeg encoding command on a stupid example."""
 
 import itertools
-import subprocess
 import typing
 
 from mendevi.cmd import CmdFFMPEG
@@ -53,11 +52,7 @@ def encode(encoder: str, cmd_creator: typing.Callable) -> None:
             encode=encode,
         )
         cmd.general = cmd.general + general + GENERAL
-        try:
-            subprocess.run(list(cmd), check=True)
-        except subprocess.CalledProcessError as err:
-            msg = f"failed to execute: {cmd}"
-            raise RuntimeError(msg) from err
+        cmd.run()
 
 
 def test_encode_av1_nvenc() -> None:
