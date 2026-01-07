@@ -150,6 +150,7 @@ def create_database(filename: str | bytes | pathlib.Path) -> None:
             enc_mode TINYTEXT CHECK(enc_mode IN ('cbr', 'vbr')),
             enc_pix_fmt TINYTEXT,
             enc_quality FLOAT CHECK(enc_quality >= 0.0 AND enc_quality <= 1.0),
+            enc_std LONGTEXT,
             enc_threads SMALLINT CHECK(enc_threads >= 0),
             enc_width SMALLINT CHECK(enc_width > 0)
         )""")

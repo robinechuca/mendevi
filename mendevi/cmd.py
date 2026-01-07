@@ -1,7 +1,13 @@
 """Allow to handle ffmpeg command line."""
 
+import io
 import pathlib
+import re
 import shlex
+import subprocess
+
+import cutcutcodec
+import tqdm
 
 
 class CmdFFMPEG:
@@ -104,37 +110,6 @@ class CmdFFMPEG:
                 raise TypeError(msg)
 
     @property
-    def output(self) -> list[str]:
-        """Return the final arguments of the ffmpeg command, after the encoder."""
-        return self._output.copy()
-
-    @output.setter
-    def output(self, output: list[str] | str | None) -> None:
-        """Update the final arguments of the ffmpeg command, after the encoder."""
-        match output:
-            case None:
-                self._output = ["-f", "null", "-"]
-            case str():
-                self._output = shlex.split(output)
-            case list():
-                assert all(isinstance(cmd, str) for cmd in output), output
-                self._output = output.copy()
-            case _:
-                msg = f"'output' has to be None, str or list, not {output.__class__.__name__}"
-                raise TypeError(msg)
-
-    @property
-    def vid_filter(self) -> str:
-        """Return the filter string after -vf."""
-        return self._vid_filter
-
-    @vid_filter.setter
-    def vid_filter(self, vid_filter: str) -> None:
-        """Update the filter string after -vf."""
-        assert isinstance(vid_filter, str), vid_filter.__class__.__name__
-        self._vid_filter = vid_filter
-
-    @property
     def general(self) -> list[str]:
         """Return the options immediately after ffmpeg and immediately before the decoder."""
         if self._general is None:
@@ -155,6 +130,94 @@ class CmdFFMPEG:
             case _:
                 msg = f"'general' has to be None, str or list, not {general.__class__.__name__}"
                 raise TypeError(msg)
+
+    @property
+    def output(self) -> list[str]:
+        """Return the final arguments of the ffmpeg command, after the encoder."""
+        return self._output.copy()
+
+    @output.setter
+    def output(self, output: list[str] | str | None) -> None:
+        """Update the final arguments of the ffmpeg command, after the encoder."""
+        match output:
+            case None:
+                self._output = ["-f", "null", "-"]
+            case str():
+                self._output = shlex.split(output)
+            case list():
+                assert all(isinstance(cmd, str) for cmd in output), output
+                self._output = output.copy()
+            case _:
+                msg = f"'output' has to be None, str or list, not {output.__class__.__name__}"
+                raise TypeError(msg)
+
+    def run(self, cmd: list[str] | str | None = None) -> str:
+        """Execute the command and return the stderr output.
+
+        If a cmd is provided, it is used instead of self.
+        """
+        # verification
+        if cmd is None:
+            cmd = list(self)
+        elif isinstance(cmd, str):
+            cmd = shlex.split(cmd)
+        assert isinstance(cmd, list), cmd.__class__.__name__
+
+        # preparation of progress bar
+        try:
+            total = round(float(cutcutcodec.get_duration_video(self.video)), 2)
+        except cutcutcodec.core.exceptions.MissingStreamError:
+            total = None
+        load = tqdm.tqdm(
+            dynamic_ncols=True,
+            leave=False,
+            smoothing=1e-6,
+            total=total,
+            unit="s",
+        )
+
+        # utilitaries
+        def read_lines(stream: io.BufferedReader) -> bytes:
+            r"""Yield each line (separated by \n or \r)."""
+            line: bytes = b""
+            while buff := stream.read(64):
+                *prev, line = re.split(br"\n|\r", line + buff)
+                yield from prev
+            if line:
+                yield line
+
+        # run command
+        output: bytes = b""
+        with subprocess.Popen(cmd, stderr=subprocess.PIPE) as process:
+            for line in read_lines(process.stderr):
+                if (
+                    match := re.search(
+                        br"time=(?P<h>\d+):(?P<m>\d{1,2}):(?P<s>\d{1,2}\.\d*)", line,
+                    )
+                ) is None:
+                    output += line + b"\n"
+                else:
+                    elapsed = round(
+                        3600.0*float(match["h"]) + 60.0*float(match["m"]) + float(match["s"]), 2,
+                    )
+                    load.total = None if load.total is None else max(load.total, elapsed)
+                    load.update(elapsed-load.n)
+            load.close()
+            if process.returncode:
+                msg = f"failed to execute {cmd}:\n{output}"
+                raise RuntimeError(msg)
+        return output.decode("utf-8")
+
+    @property
+    def vid_filter(self) -> str:
+        """Return the filter string after -vf."""
+        return self._vid_filter
+
+    @vid_filter.setter
+    def vid_filter(self, vid_filter: str) -> None:
+        """Update the filter string after -vf."""
+        assert isinstance(vid_filter, str), vid_filter.__class__.__name__
+        self._vid_filter = vid_filter
 
     @property
     def video(self) -> pathlib.Path:

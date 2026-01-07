@@ -982,6 +982,8 @@ Table t_enc_encode
 +-----------------------+---------------+--------------------------------+
 | :ref:`enc_threads`    | *SMALLINT*    | the number of threads used     |
 +-----------------------+---------------+--------------------------------+
+| :ref:`enc_std`        | *LONGTEXT*    | the standard output of the cmd |
++-----------------------+---------------+--------------------------------+
 | :ref:`enc_width`      | *SMALLINT*    | the input frames width         |
 +-----------------------+---------------+--------------------------------+
 
@@ -1100,6 +1102,13 @@ enc_threads
 ^^^^^^^^^^^
 
 The number of threads that the encoder uses simultaneously. This is related to the CPU utilisation rate.
+
+.. _enc_std:
+
+enc_std
+^^^^^^^
+
+The plain utf-8 text of the standard output of en encoding cmd during execution.
 
 .. _enc_width:
 

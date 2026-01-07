@@ -123,6 +123,7 @@ graph database {
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">enc_mode</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">enc_pix_fmt</TD><TD ALIGN="LEFT">TINYTEXT</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">enc_quality</TD><TD ALIGN="LEFT">FLOAT</TD></TR>
+        <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">enc_std</TD><TD ALIGN="LEFT">LONGTEXT</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">enc_threads</TD><TD ALIGN="LEFT">SMALLINT</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">enc_width</TD><TD ALIGN="LEFT">SMALLINT</TD></TR>
       </TABLE>
