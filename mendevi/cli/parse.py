@@ -41,10 +41,14 @@ class CallBackType(click.ParamType):
         funcs = dict(inspect.getmembers(modulevar, inspect.isfunction))
         if func_name is None:
             if len(funcs) != 1:
-                self.fail(f"please specifiy the function to use {', '.join(sorted(funcs))}", param, ctx)
+                self.fail(
+                    f"please specifiy the function to use {', '.join(sorted(funcs))}", param, ctx,
+                )
             func_name = next(iter(funcs))
         if func_name not in funcs:
-            self.fail(f"the func name {func_name!r} is not in {', '.join(sorted(funcs))}", param, ctx)
+            self.fail(
+                f"the func name {func_name!r} is not in {', '.join(sorted(funcs))}", param, ctx,
+            )
         return funcs[func_name]
 
 

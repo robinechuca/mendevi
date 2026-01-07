@@ -2,6 +2,7 @@
 
 import itertools
 import subprocess
+import typing
 
 from mendevi.cmd import CmdFFMPEG
 from mendevi.encoder import (

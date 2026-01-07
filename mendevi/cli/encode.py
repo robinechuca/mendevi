@@ -2,6 +2,7 @@
 
 import fractions
 import hashlib
+import inspect
 import itertools
 import sqlite3
 from typing import TYPE_CHECKING
@@ -61,11 +62,12 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
     assert isinstance(kwargs["fps"], tuple), kwargs["fps"].__class__.__name__
     assert all(isinstance(f, fractions.Fraction) for f in kwargs["fps"]), kwargs["fps"]
     assert all(f > 0 for f in kwargs["fps"]), kwargs["fps"]
-    if kwargs["fps"]:
-        kwargs["fps"] = [f.limit_denominator(1001) for f in kwargs["fps"]]
-        prt.print(f"fps       : {', '.join(map(str, kwargs['fps']))}")
-    else:
-        kwargs["fps"] = (None,)
+    kwargs["fps"] = [f.limit_denominator(1001) for f in kwargs["fps"]] or (None,)
+    prt.print(
+        f"fps       : {
+            ', '.join(map(str, kwargs['fps'])) if kwargs['fps'] != (None,) else 'same as source'
+        }",
+    )
 
     # resolution
     assert isinstance(kwargs["resolution"], tuple), kwargs["resolution"].__class__.__name__
@@ -73,40 +75,48 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
         isinstance(r, tuple) and len(r) == 2 and all(isinstance(s, int) and s > 0 for s in r)
         for r in kwargs["resolution"]
     ), kwargs["resolution"]
-    if kwargs["resolution"]:
-        prt.print(f"resolution: {', '.join(f'w={w}:h={h}' for h, w in kwargs['resolution'])}")
-    else:
-        kwargs["resolution"] = (None,)
+    prt.print(
+        f"resolution: {
+            ', '.join(f'w={w}:h={h}' for h, w in kwargs['resolution'])
+            if kwargs['resolution'] else
+            'same as source'
+        }",
+    )
+    kwargs["resolution"] = kwargs["resolution"] or (None,)
 
     # pix_fmt
     assert isinstance(kwargs["pix_fmt"], tuple), kwargs["pix_fmt"].__class__.__name__
     assert all(isinstance(p, str) for p in kwargs["pix_fmt"]), kwargs["pix_fmt"]
-    if kwargs["pix_fmt"]:
-        prt.print(f"pix_fmt   : {', '.join(kwargs['pix_fmt'])}")
-    else:
-        kwargs["pix_fmt"] = (None,)
+    prt.print(
+        f"pix_fmt   : {', '.join(kwargs['pix_fmt']) if kwargs['pix_fmt'] else 'same as source'}",
+    )
+    kwargs["pix_fmt"] = kwargs["pix_fmt"] or (None,)
 
     # mode
     assert isinstance(kwargs["mode"], tuple), kwargs["mode"].__class__.__name__
     assert all(isinstance(p, str) and p in {"cbr", "vbr"} for p in kwargs["mode"]), kwargs["mode"]
     kwargs["mode"] = tuple(sorted(set(kwargs["mode"])))
     prt.print(
-        "br mode   : "
-        f"{' and '.join({'vbr': 'variable', 'cbr': 'constant'}[m] for m in kwargs['mode'])}",
+        f"br mode   : {
+            ' and '.join({'vbr': 'variable', 'cbr': 'constant'}[m] for m in kwargs['mode'])
+        }",
     )
 
     # filter
     assert isinstance(kwargs["filter"], tuple), kwargs["filter"].__class__.__name__
     assert all(isinstance(f, str) for f in kwargs["filter"]), kwargs["filter"]
-    if kwargs["filter"]:
-        prt.print(f"filters   : {', '.join(map(str, kwargs['filter'])) if kwargs['filter'] else 'no'}")
-    else:
-        kwargs["filter"] = (None,)
+    prt.print(
+        f"filters   : {', '.join(map(str, kwargs['filter'])) if kwargs['filter'] else 'no filter'}",
+    )
+    kwargs["filter"] =  kwargs["filter"] or (None,)
 
     # callback
     assert kwargs["callback"] is None or callable(kwargs["callback"])
     if kwargs["callback"]:
-        prt.print(f"callback  : {kwargs['callback'].__name__}")
+        prt.print(
+            f"callback  : function {kwargs['callback'].__name__!r} "
+            f"from {inspect.getfile(kwargs['callback'])!r}",
+        )
 
 
 @click.command()
@@ -179,7 +189,7 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
 @click.option(
     "--callback",
     type=CallBackType(),
-    help="User defined function to adapt the cmd."
+    help="User defined function to adapt the cmd.",
 )
 def main(videos: tuple, database: str | None = None, **kwargs: dict) -> None:
     """Measures activity during encoding.

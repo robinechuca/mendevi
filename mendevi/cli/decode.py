@@ -1,6 +1,7 @@
 """Perform decoding measures."""
 
 import hashlib
+import inspect
 import itertools
 import sqlite3
 from typing import TYPE_CHECKING
@@ -33,24 +34,31 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
         isinstance(r, tuple) and len(r) == 2 and all(isinstance(s, int) and s > 0 for s in r)
         for r in kwargs["resolution"]
     ), kwargs["resolution"]
-    if kwargs["resolution"]:
-        prt.print(f"resolution: {', '.join(f'w={w}:h={h}' for h, w in kwargs['resolution'])}")
-    else:
-        kwargs["resolution"] = (None,)
+    prt.print(
+        f"resolution: {
+            ', '.join(f'w={w}:h={h}' for h, w in kwargs['resolution'])
+            if kwargs['resolution'] else
+            'same as source'
+        }",
+    )
+    kwargs["resolution"] = kwargs["resolution"] or (None,)
 
     # filter
     kwargs["filter"] = kwargs.get("filter", ())
     assert isinstance(kwargs["filter"], tuple), kwargs["filter"].__class__.__name__
     assert all(isinstance(f, str) for f in kwargs["filter"]), kwargs["filter"]
-    if kwargs["filter"]:
-        prt.print(f"filters   : {', '.join(map(str, kwargs['filter']))}")
-    else:
-        kwargs["filter"] = ("",)
+    prt.print(
+        f"filters   : {', '.join(map(str, kwargs['filter'])) if kwargs['filter'] else 'no filter'}",
+    )
+    kwargs["filter"] =  kwargs["filter"] or (None,)
 
     # callback
     assert kwargs["callback"] is None or callable(kwargs["callback"])
     if kwargs["callback"]:
-        prt.print(f"callback  : {kwargs['callback'].__name__}")
+        prt.print(
+            f"callback  : function {kwargs['callback'].__name__!r} "
+            f"from {inspect.getfile(kwargs['callback'])!r}",
+        )
 
 
 @click.command()
@@ -77,7 +85,7 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
 @click.option(
     "--callback",
     type=CallBackType(),
-    help="User defined function to adapt the cmd."
+    help="User defined function to adapt the cmd.",
 )
 def main(videos: tuple[str], database: str | None = None, **kwargs: dict) -> None:
     """Measures activity during decoding.
