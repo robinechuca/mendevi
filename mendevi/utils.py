@@ -108,10 +108,11 @@ def cp_shm(file: pathlib.Path) -> pathlib.Path:
     assert isinstance(file, pathlib.Path), file.__class__.__name__
     assert file.exists(), file
     shm = pathlib.Path("/dev/shm")
-    if file.parts[:len(shm.parts)] == shm.parts:  # avoid copy to the same device
-        return file
     file_ram = None
-    if shutil.disk_usage(shm).free > 2 * file.stat().st_size:
+    if (
+        file.parts[:len(shm.parts)] != shm.parts  # avoid copy to the same device
+        and shutil.disk_usage(shm).free > 2 * file.stat().st_size
+    ):
         file_ram = shm / file.name
         shutil.copy(file, file_ram)
     try:
