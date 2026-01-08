@@ -52,6 +52,12 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
     )
     kwargs["filter"] =  kwargs["filter"] or (None,)
 
+    # familly
+    assert isinstance(kwargs["familly"], tuple), kwargs["familly"].__class__.__name__
+    assert all(isinstance(p, str) for p in kwargs["familly"]), kwargs["familly"]
+    assert all(p in {"cpu", "cuvid"} for p in kwargs["familly"]), kwargs["familly"]
+    prt.print(f"dec type  : {', '.join(kwargs['familly'])}")
+
     # callback
     assert kwargs["callback"] is None or callable(kwargs["callback"])
     if kwargs["callback"]:
@@ -83,6 +89,13 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
     help="The ffmpeg filter to apply on fly.",
 )
 @click.option(
+    "--familly",
+    type=click.Choice(["cpu", "cuvid"]),
+    default=["cpu"],
+    multiple=True,
+    help="The familly of decoders.",
+)
+@click.option(
     "--callback",
     type=CallBackType(),
     help="User defined function to adapt the cmd.",
@@ -109,6 +122,9 @@ def main(videos: tuple[str], database: str | None = None, **kwargs: dict) -> Non
     filter : str, optional
         The additional ffmpeg video filter (after the -vf command)
         to be applied immediately after decoding and before other conversions.
+    familly : tuple[str], default=("cpu",)
+        The nature of the decoder.
+        "cpu" is always working, and "cuvid" requires compatible nvidia gpu.
     callback : str, optional
         The name of the custom function to change the cmd, the signature must match:
         def any(cmd: CmdFFMPEG, **kwargs) -> list[str] | str:
@@ -140,11 +156,11 @@ def main(videos: tuple[str], database: str | None = None, **kwargs: dict) -> Non
 
     # iterate on all the parameters
     loops = sorted(
-        itertools.product(videos, kwargs["filter"], kwargs["resolution"]),
+        itertools.product(videos, kwargs["filter"], kwargs["resolution"], kwargs["familly"]),
         key=lambda t: hashlib.md5(str(t).encode("utf-8")).hexdigest(),  # repetable shuffle
     )
     for i, (repeat, values_) in enumerate(itertools.product(range(kwargs["repeat"]), loops)):
-        values = dict(zip(("video", "filter", "resolution"), values_, strict=True))
+        values = dict(zip(("video", "filter", "resolution", "familly"), values_, strict=True))
         values["repeat"] = repeat
         values["dec_vid_id"] = kwargs["dec_vid_id"][values["video"]]
         values["filter"] = values["filter"] or ""

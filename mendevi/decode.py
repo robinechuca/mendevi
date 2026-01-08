@@ -3,12 +3,12 @@
 import contextlib
 import datetime
 import functools
+import logging
 import pathlib
 import shlex
 import sqlite3
 import subprocess
 
-import cutcutcodec
 import numpy as np
 import orjson
 from context_verbose import Printer
@@ -237,6 +237,7 @@ def optimal_decode(codec: str, pix_fmt: str) -> list[str]:
         return True
 
     cmd = CmdFFMPEG(video=sample)
+    # general: -hwaccel cuda -hwaccel_output_format cuda
     match codec:
         case "av1":
             return ["av1_cuvid"] if test_cmd(cmd, ["av1_cuvid"]) else []

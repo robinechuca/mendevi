@@ -262,7 +262,7 @@ class CmdFFMPEG:
         --------
         >>> from mendevi.cmd import CmdFFMPEG
         >>> print(CmdFFMPEG(video="src.mp4"))
-        ffmpeg -y -loglevel verbose -i src.mp4 -f null -
+        ffmpeg -hide_banner -y -loglevel verbose -i src.mp4 -f null -
         >>>
 
         """
