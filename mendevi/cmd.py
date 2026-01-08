@@ -5,6 +5,7 @@ import pathlib
 import re
 import shlex
 import subprocess
+import typing
 
 import cutcutcodec
 import tqdm
@@ -71,6 +72,17 @@ class CmdFFMPEG:
         self.encode = kwargs.get("encode")
         self.output = kwargs.get("output")
 
+    def copy(self) -> typing.Self:
+        """Return an independant copy of self."""
+        return CmdFFMPEG(
+            video=self.video,
+            general=self.general,
+            decode=self.decode,
+            vid_filter=self.vid_filter,
+            encode=self.encode,
+            output=self.output,
+        )
+
     @property
     def decode(self) -> list[str]:
         """Return the options between -c:v and -i."""
@@ -115,7 +127,7 @@ class CmdFFMPEG:
     def general(self) -> list[str]:
         """Return the options immediately after ffmpeg and immediately before the decoder."""
         if self._general is None:
-            return ["-y", "-loglevel", "verbose"]
+            return ["-hide_banner", "-y", "-loglevel", "verbose"]
         return self._general.copy()
 
     @general.setter

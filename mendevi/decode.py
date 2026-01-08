@@ -2,16 +2,19 @@
 
 import contextlib
 import datetime
+import functools
 import pathlib
 import shlex
 import sqlite3
 import subprocess
 
+import cutcutcodec
 import numpy as np
 import orjson
 from context_verbose import Printer
 from flufl.lock import Lock
 
+from mendevi.cmd import CmdFFMPEG
 from mendevi.database.serialize import list_to_binary, tensor_to_binary
 from mendevi.measures import Activity
 from mendevi.utils import get_resolution
@@ -191,3 +194,52 @@ def get_decode_cmd(
     # j'ai fait sudo apt install libvpl-tools
     # sudo apt install intel-gpu-tools pour avoir intel_gpu_top
     return ["ffmpeg", "-threads", "1", "-i", str(video), "-vf", filters, "-f", "null", "-"]
+
+
+@functools.cache
+def optimal_decode(codec: str, pix_fmt: str) -> list[str]:
+    """Return the ffmpeg arguments to decode the video from an accelerated device."""
+    sample = f"/dev/shm/{codec}_{pix_fmt}.mp4"
+
+    # creation of test sample
+    cmd = CmdFFMPEG(
+        video="/dev/urandom",
+        general=[
+            "-y",
+            "-f", "rawvideo",
+            "-s", "256x256",
+            "-pix_fmt", pix_fmt,
+            "-r", "1",
+            "-to", "2",
+        ],
+        output=sample,
+    )
+    if (
+        encode := {
+            "av1": "libsvtav1",
+            "h264": "libx264",
+        }.get(codec)
+    ) is None:
+        logging.getLogger(__name__).warning("codec %s not supported, ignorded", codec)
+        return []
+    cmd.encode = encode
+    cmd.run()  # create the test file (never fail)
+
+    # test decoders
+    def test_cmd(cmd: CmdFFMPEG, decode: list[str]) -> bool:
+        """Return True if the cmd works."""
+        new_cmd = cmd.copy()
+        new_cmd.decode = decode
+        try:
+            new_cmd.run()
+        except RuntimeError:
+            return False
+        return True
+
+    cmd = CmdFFMPEG(video=sample)
+    match codec:
+        case "av1":
+            return ["av1_cuvid"] if test_cmd(cmd, ["av1_cuvid"]) else []
+        case "h264":
+            return ["h264_cuvid"] if test_cmd(cmd, ["h264_cuvid"]) else []
+    return []

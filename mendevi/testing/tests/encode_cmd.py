@@ -27,8 +27,8 @@ GENERAL = [
     "-f", "rawvideo",
     "-s", f"{RESOLUTION[1]}x{RESOLUTION[0]}",
     "-pix_fmt", "yuv420p",
-    "-r", "24",
-    "-to", "0.25",
+    "-r", "1",
+    "-to", "2",
 ]
 
 

@@ -10,6 +10,7 @@ import sqlite3
 import tempfile
 import uuid
 
+import cutcutcodec
 import numpy as np
 import orjson
 from context_verbose import Printer
@@ -18,6 +19,7 @@ from flufl.lock import Lock
 from mendevi.cmd import CmdFFMPEG
 from mendevi.convert import filter_best_order
 from mendevi.database.serialize import list_to_binary, tensor_to_binary
+from mendevi.decode import optimal_decode
 from mendevi.encoder import (
     _encode_av1_nvenc,
     _encode_av1_vaapi,
@@ -256,6 +258,7 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs: dict) -> C
     )
     general, vid_filter, cmd.encode = ENCODERS_CMD[kwargs["encoder"]](**kwargs)
     cmd.general = cmd.general + general
+    cmd.decode = optimal_decode(cutcutcodec.get_codec_video(src), cutcutcodec.get_pix_fmt(src))
     if vid_filter:
         cmd.vid_filter = ",".join([*cmd.vid_filter.split(","), vid_filter])
     return cmd
