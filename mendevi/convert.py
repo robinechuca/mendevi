@@ -67,7 +67,7 @@ def filter_best_order(
         assert fps > 0, fps
     if pix_fmt is not None:
         assert isinstance(pix_fmt, str), pix_fmt.__class__.__name__
-        assert re.fullmatch(r"yuv4[24][024]p(?:10le|12le)?", pix_fmt), pix_fmt
+        assert re.fullmatch(r"(?:rgb24)|(?:yuv4[24][024]p)(?:10le|12le)?", pix_fmt), pix_fmt
     if resolution is not None:
         assert isinstance(resolution, tuple), resolution.__class__.__name__
         assert len(resolution) == 2, resolution
@@ -84,9 +84,13 @@ def filter_best_order(
     # format (medium)
     if pix_fmt is not None and (src := get_pix_fmt(video)) != pix_fmt:
         match = re.search(r"yuv(?P<samp>\d{3})p(?P<bit>\d+)le", src + "8le")
-        bit_per_bloc_src = float(match["bit"]) * sum(map(int, match["samp"]))
+        bit_per_bloc_src = (
+            96.0 if match is None else float(match["bit"]) * sum(map(int, match["samp"]))
+        )
         match = re.search(r"yuv(?P<samp>\d{3})p(?P<bit>\d+)le", pix_fmt + "8le")
-        bit_per_bloc_dst = float(match["bit"]) * sum(map(int, match["samp"]))
+        bit_per_bloc_dst = (
+            96.0 if match is None else float(match["bit"]) * sum(map(int, match["samp"]))
+        )
         if bit_per_bloc_dst < bit_per_bloc_src:
             filters.insert(0, f"format={pix_fmt}")
         else:

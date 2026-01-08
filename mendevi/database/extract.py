@@ -286,6 +286,23 @@ def extract_decode_cmd(raw: dict[str]) -> str:
 
 
 @verif
+@SqlLinker("t_dec_decode.dec_decoder")
+def extract_decoder(raw: dict[str]) -> str:
+    """Return name of the decoder.
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+
+    """
+    if (decoder := raw["dec_decoder"]) is None:
+        return None
+    assert isinstance(decoder, str), decoder.__class__.__name__
+    return str(decoder)
+
+
+@verif
 @SqlLinker("t_enc_encode.enc_effort")
 def extract_effort(raw: dict[str]) -> str:
     """Return the effort provided as a parameter to the encoder.

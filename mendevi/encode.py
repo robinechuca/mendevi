@@ -2,6 +2,7 @@
 
 import contextlib
 import datetime
+import logging
 import math
 import pathlib
 import shlex
@@ -19,7 +20,7 @@ from flufl.lock import Lock
 from mendevi.cmd import CmdFFMPEG
 from mendevi.convert import filter_best_order
 from mendevi.database.serialize import list_to_binary, tensor_to_binary
-from mendevi.decode import optimal_decode
+from mendevi.decode import available_decoders
 from mendevi.encoder import (
     _encode_av1_nvenc,
     _encode_av1_vaapi,
@@ -258,7 +259,12 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs: dict) -> C
     )
     general, vid_filter, cmd.encode = ENCODERS_CMD[kwargs["encoder"]](**kwargs)
     cmd.general = cmd.general + general
-    cmd.decode = optimal_decode(cutcutcodec.get_codec_video(src), cutcutcodec.get_pix_fmt(src))
+    try:
+        _, cmd.decode = next(iter(
+            available_decoders(cutcutcodec.get_codec_video(src), cutcutcodec.get_pix_fmt(src)),
+        ))
+    except StopIteration:
+        logging.getLogger(__name__).info("no decoder found for %s", src)
     if vid_filter:
         cmd.vid_filter = ",".join([*cmd.vid_filter.split(","), vid_filter])
     return cmd

@@ -9,18 +9,20 @@ import shlex
 import sqlite3
 import subprocess
 
+import cutcutcodec
 import numpy as np
 import orjson
 from context_verbose import Printer
 from flufl.lock import Lock
 
 from mendevi.cmd import CmdFFMPEG
+from mendevi.convert import filter_best_order
 from mendevi.database.serialize import list_to_binary, tensor_to_binary
 from mendevi.measures import Activity
-from mendevi.utils import get_resolution
+from mendevi.utils import cp_shm, get_resolution
 
 
-def decode(vid: pathlib.Path, **kwargs: dict) -> tuple[str, dict[str]]:
+def decode(vid: pathlib.Path, **kwargs: dict) -> tuple[str, str | None, str, dict[str]]:
     """Decode an existing video.
 
     Parameters
@@ -38,22 +40,42 @@ def decode(vid: pathlib.Path, **kwargs: dict) -> tuple[str, dict[str]]:
         The computeur activity during the decoding process.
 
     """
-    cmd = get_decode_cmd(vid, kwargs.get("filter"), kwargs.get("resolution"))
-    prt_cmd = " ".join(map(shlex.quote, [{str(vid): "vid.mp4"}.get(c, c) for c in cmd]))
-    with Printer(prt_cmd, color="green") as prt:
-        prt.print(f"video: {vid.name}")
-        with Activity() as activity:
-            subprocess.run(cmd, check=True, capture_output=True)
+    assert isinstance(vid, pathlib.Path), vid.__class__.__name__
 
-        # print
-        prt.print(f"avg cpu usage: {activity['ps_core']:.1f} %")
-        prt.print(f"avg ram usage: {1e-9*np.mean(activity['ps_ram']):.2g} Go")
-        if "rapl_power" in activity:
-            prt.print(f"avg rapl power: {activity['rapl_power']:.2g} W")
-        if "wattmeter_power" in activity:
-            prt.print(f"avg wattmeter power: {activity['wattmeter_power']:.2g} W")
+    with cp_shm(vid) as vid_ram:  # copy input video into ram
 
-    return prt_cmd, activity
+        # get cmd
+        cmd = get_decode_cmd(
+            vid_ram, kwargs.get("filter"), kwargs.get("resolution"), kwargs.get("familly"),
+        )
+        if kwargs.get("callback") is None:
+            user_cmd = None
+        else:
+            user_cmd = kwargs["callback"](cmd, **kwargs)
+            if isinstance(user_cmd, str):
+                user_cmd = shlex.split(user_cmd)
+            assert isinstance(user_cmd, list), user_cmd.__class__.__name__
+
+        # display
+        prt_cmd = " ".join(
+            map(shlex.quote, [{str(vid_ram): "vid.mp4"}.get(c, c) for c in user_cmd or cmd]),
+        )
+        with Printer(prt_cmd, color="green") as prt:
+            prt.print(f"input video: {vid_ram}")
+
+            # decode
+            log, activity = cmd.run(user_cmd)
+
+            # print
+            prt.print(f"avg cpu usage: {activity['ps_core']:.1f} %")
+            prt.print(f"avg ram usage: {1e-9*np.mean(activity['ps_ram']):.2g} Go")
+            if "rapl_power" in activity:
+                prt.print(f"avg rapl power: {activity['rapl_power']:.2g} W")
+            if "wattmeter_power" in activity:
+                prt.print(f"avg wattmeter power: {activity['wattmeter_power']:.2g} W")
+
+    decoder = (cmd.decode + [None])[0]
+    return prt_cmd, decoder, log, activity
 
 
 def decode_and_store(
@@ -77,7 +99,7 @@ def decode_and_store(
 
     """
     # decode the video
-    cmd, activity = decode(vid, **kwargs)
+    cmd, decoder, log, activity = decode(vid, **kwargs)
 
     with (
         Lock(str(database.with_name(".dblock")), lifetime=datetime.timedelta(seconds=600)),
@@ -122,8 +144,10 @@ def decode_and_store(
         values = {
             "dec_act_id": act_id,
             "dec_cmd": cmd,
+            "dec_decoder": decoder,
             "dec_env_id": env_id,
             "dec_height": kwargs.get("resolution", (None, None))[0],
+            "dec_log": log,
             "dec_pix_fmt": "rgb24",
             "dec_vid_id": kwargs["dec_vid_id"],
             "dec_width": kwargs.get("resolution", (None, None))[1],
@@ -138,8 +162,9 @@ def decode_and_store(
 def get_decode_cmd(
     video: pathlib.Path,
     additional_filter: str,
-    resolution: tuple[int, int] | None,
-) -> list[str]:
+    resolution: tuple[int, int] | None = None,
+    familly: str | None = None,
+) -> CmdFFMPEG:
     """Return the ffmpeg decode cmd.
 
     Parameters
@@ -151,6 +176,8 @@ def get_decode_cmd(
         The additional video filter, (can be an empty string).
     resolution : tuple[int, int], optional
         The new (heigh, width) video shape.
+    familly : str, optional
+        If provided, force to use a specific decoder type.
 
     Returns
     -------
@@ -162,46 +189,41 @@ def get_decode_cmd(
     >>> import cutcutcodec
     >>> from mendevi.decode import get_decode_cmd
     >>> media = cutcutcodec.utils.get_project_root() / "media" / "video" / "intro.webm"
-    >>> get_decode_cmd(media, additional_filter="", resolution=None)  # doctest: +ELLIPSIS
+    >>> print(get_decode_cmd(media, additional_filter="", resolution=None))  # doctest: +ELLIPSIS
     ['ffmpeg', '-threads', '1', '-i', '.../intro.webm', '-vf', 'format=rgb24', '-f', 'null', '-']
-    >>> get_decode_cmd(media, additional_filter="", resolution=(480, 720))
+    >>> print(get_decode_cmd(media, additional_filter="", resolution=(480, 720)))
     [..., '-vf', 'scale=h=480:w=720:sws_flags=bicubic,format=rgb24', '-f', 'null', '-']
     >>>
 
     """
-    if resolution is not None:
-        assert isinstance(resolution, tuple), resolution.__class__.__name__
-        assert len(resolution) == 2, resolution
-        assert isinstance(resolution[0], int), resolution
-        assert isinstance(resolution[1], int), resolution
-        assert (resolution[0], resolution[1]) > (0, 0), resolution
-
-    filters: list[str] = []
-    if additional_filter:
-        filters.append(additional_filter)
-    if resolution is not None and get_resolution(video) != resolution:
-        filters.append(f"scale=h={resolution[0]}:w={resolution[1]}:sws_flags=bicubic")
-    filters.append("format=rgb24")  # to match monitor pixel conversion
-    filters = ",".join(filters)
-
-    # test with "ffmpeg -hwaccels", and see all decoders with "ffmpeg -decoders | grep cuvid"
-    # ffmpeg -vsync 0 -hwaccel cuda -hwaccel_output_format cuda -c:v h264_cuvid -i vid.mkv -f null -
-
-    # test if available with "ffmpeg -init_hw_device qsv=hw"
-    # test with "ffmpeg -hwaccels", and see all decoders with "ffmpeg -decoders | grep qsv"
-    # ffmpeg -hide_banner -hwaccel qsv -hwaccel_output_format qsv
-    # -c:v h264_qsv -i vid.mkv -vf hwdownload,format=nv12 -f null -
-    # j'ai fait sudo apt install libvpl-tools
-    # sudo apt install intel-gpu-tools pour avoir intel_gpu_top
-    return ["ffmpeg", "-threads", "1", "-i", str(video), "-vf", filters, "-f", "null", "-"]
+    cmd = CmdFFMPEG(video)
+    cmd.general = cmd.general + ["-threads", "1"]
+    cmd.vid_filter = filter_best_order(
+        video,
+        additional_filter=additional_filter,
+        fps=None,
+        pix_fmt="rgb24",
+        resolution=resolution,
+    )
+    if familly is not None:
+        for familly_, decoder in available_decoders(
+            cutcutcodec.get_codec_video(video), cutcutcodec.get_pix_fmt(video),
+        ):
+            if familly == familly_:
+                cmd.decode = decoder
+                break
+            else:
+                msg = f"impossible to find a {familly} decoder for {video}"
+                raise RuntimeError(msg)
+    return cmd
 
 
 @functools.cache
-def optimal_decode(codec: str, pix_fmt: str) -> list[str]:
-    """Return the ffmpeg arguments to decode the video from an accelerated device."""
-    sample = f"/dev/shm/{codec}_{pix_fmt}.mp4"
-
-    # creation of test sample
+def create_video_sample(codec: str, pix_fmt: str) -> pathlib.Path:
+    """Generate a small sample with the given codec and pixel format."""
+    sample = pathlib.Path("/dev/shm") / f"{codec}_{pix_fmt}.mp4"
+    if sample.exists():
+        return sample
     cmd = CmdFFMPEG(
         video="/dev/urandom",
         general=[
@@ -212,7 +234,7 @@ def optimal_decode(codec: str, pix_fmt: str) -> list[str]:
             "-r", "1",
             "-to", "2",
         ],
-        output=sample,
+        output=str(sample),
     )
     if (
         encode := {
@@ -220,27 +242,43 @@ def optimal_decode(codec: str, pix_fmt: str) -> list[str]:
             "h264": "libx264",
         }.get(codec)
     ) is None:
-        logging.getLogger(__name__).warning("codec %s not supported, ignorded", codec)
-        return []
+        msg = f"create a sample with the codec {codec} and pix_fmt {pix_fmt} is not supported"
+        raise ValueError(msg)
     cmd.encode = encode
     cmd.run()  # create the test file (never fail)
+    return sample
 
-    # test decoders
-    def test_cmd(cmd: CmdFFMPEG, decode: list[str]) -> bool:
-        """Return True if the cmd works."""
-        new_cmd = cmd.copy()
-        new_cmd.decode = decode
-        try:
-            new_cmd.run()
-        except RuntimeError:
-            return False
-        return True
 
-    cmd = CmdFFMPEG(video=sample)
+@functools.cache
+def test_decode_sample_encoder(sample: pathlib.Path, decoder: str) -> bool:
+    """Return True if ffmpeg can decode that video."""
+    cmd = CmdFFMPEG(video=sample, decode=decoder)
+    try:
+        cmd.run()
+    except RuntimeError:
+        return False
+    return True
+
+
+def available_decoders(codec: str, pix_fmt: str) -> tuple[str, str | None]:
+    """Yield the ffmpeg encoder to decode the video from an accelerated device."""
+    sample = create_video_sample(codec, pix_fmt)
+
     # general: -hwaccel cuda -hwaccel_output_format cuda
     match codec:
         case "av1":
-            return ["av1_cuvid"] if test_cmd(cmd, ["av1_cuvid"]) else []
+            candidates = [("cuvid", "av1_cuvid"), ("cpu", "libdav1d"), ("cpu", "libaom-av1")]
         case "h264":
-            return ["h264_cuvid"] if test_cmd(cmd, ["h264_cuvid"]) else []
-    return []
+            candidates = [("cuvid", "h264_cuvid"), ("cpu", "h264"), ("cpu", "libopenh264")]
+        case "hevc":
+            candidates = [("cuvid", "hevc_cuvid"), ("cpu", "hevc")]
+        case "vvc":
+            candidates = [("cuvid", "vvc_cuvid"), ("cpu", "vvc")]
+        case "vp9":
+            candidates = [("cuvid", "vp9_cuvid"), ("cpu", "libvpx-vp9"), ("cpu", "vp9")]
+        case _:
+            logging.getLogger(__name__).info("no decoder tested for the codec %s", codec)
+            candidates = []
+    for familly, decoder in candidates:
+        if test_decode_sample_encoder(sample, decoder):
+            yield familly, decoder

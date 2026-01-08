@@ -10,6 +10,7 @@ import click
 from context_verbose import Printer
 
 from mendevi.database.complete import add_environment
+from mendevi.database.meta import merge_extractors
 from mendevi.decode import decode_and_store
 from mendevi.utils import compute_video_hash, get_resolution
 
@@ -140,6 +141,7 @@ def main(videos: tuple[str], database: str | None = None, **kwargs: dict) -> Non
     kwargs["dec_vid_id"]: dict[pathlib.Path, bytes] = compute_video_hash(videos)
 
     # retrieves the settings for videos that have already been decoded
+    _, familly_extractor = merge_extractors({"decoder_familly"}, return_callable=True)
     with sqlite3.connect(database) as conn:
         conn.row_factory = sqlite3.Row
         done: dict[tuple, int] = {}
@@ -150,6 +152,7 @@ def main(videos: tuple[str], database: str | None = None, **kwargs: dict) -> Non
                 row["dec_vid_id"],
                 row["dec_filter"] or "",
                 (row["dec_height"], row["dec_width"]),
+                familly_extractor({"dec_decoder": row["dec_decoder"]})["decoder_familly"],
             )
             done[values] = done.get(values, 0) + 1
         prt.print(f"{sum(done.values())} video already decoded under these environment")
@@ -166,7 +169,7 @@ def main(videos: tuple[str], database: str | None = None, **kwargs: dict) -> Non
         values["filter"] = values["filter"] or ""
         values["resolution"] = values["resolution"] or get_resolution(values["video"])
         values["callback"] = kwargs["callback"]
-        key = (values["dec_vid_id"], values["filter"], values["resolution"])
+        key = (values["dec_vid_id"], values["filter"], values["resolution"], values["familly"])
         if done.get(key, 0) > values["repeat"]:
             continue
         with Printer(f"Decode {i+1}/{kwargs["repeat"]*len(loops)}...", color="cyan") as prt:
