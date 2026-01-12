@@ -48,6 +48,7 @@ It manages the following parameters:
 #. Get the ``cpu``, ``gpu``, ``ram`` and ``temperature`` activity.
 #. Get a full environment context, including hardware and software version.
 #. It support the mode (constant bitrate) ``cbr`` and (constant quality) ``vbr``.
+#. It take care to transfer files to RAM if possible to avoid biases related to storage space access.
 
 
 Pipeline
@@ -88,4 +89,4 @@ Alternatives
 #. The `MVCD database <https://github.com/cd-athena/MVCD>`_ also includes video encoding and decoding energy measurements.
 #. The `COCONUT database <https://github.com/cd-athena/COCONUT>`_ also includes video decoding measurements.
 #. The `SEED and VEED dataset <https://github.com/cd-athena/VEED-dataset>`_ offers a comprehensive LCA and GPU measurements.
-#. The `CTC videos <https://dash-large-files.akamaized.net/WAVE/3GPP/5GVideo/ReferenceSequences/>`_ are used for the tests.
+#. The `CTC videos <https://dash-large-files.akamaized.net/WAVE/3GPP/5GVideo/ReferenceSequences/>`_ and `Big Buck Bunny<https://media.xiph.org/BBB/>`_ are used for the tests.
