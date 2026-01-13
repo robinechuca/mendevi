@@ -104,7 +104,7 @@ def encode(src: pathlib.Path, **kwargs: dict) -> tuple[pathlib.Path, str, str, d
                 (
                     {
                         str(src_ram): str(src_ram.with_name("src.mp4")),
-                        str(dst): dst.with_name("dst.mp4"),
+                        str(dst): str(dst.with_name("dst.mp4")),
                     }.get(c, c)
                     for c in user_cmd or cmd
                 ),

@@ -202,7 +202,7 @@ ALL_EXTRACTORS = {
     ),
     "energy_per_frame": Extractor(
         "Average energy consumption per frame in Joules",
-        "energy / nbr_frames",
+        "None if energy is None or nbr_frames is None else energy / nbr_frames",
         Scale.LOGARITHMIC,
     ),
     "frames": Extractor(
