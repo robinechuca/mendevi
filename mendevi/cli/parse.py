@@ -2,6 +2,7 @@
 
 import importlib
 import inspect
+import math
 import pathlib
 import re
 import typing
@@ -50,6 +51,28 @@ class CallBackType(click.ParamType):
                 f"the func name {func_name!r} is not in {', '.join(sorted(funcs))}", param, ctx,
             )
         return funcs[func_name]
+
+
+class CopyRamType(click.ParamType):
+    """Parse the ram copy format."""
+
+    name = "ram"
+
+    def convert(self, value: str | float, param: click.Option, ctx: click.Context) -> float:
+        """Normalize pixel format."""
+        if isinstance(value, str):
+            value = value.lower()
+            if (converted := {"yes": 0.0, "no": math.inf}) is not None:
+                return converted
+            try:
+                value = float(value)
+            except ValueError as err:
+                self.fail(err, param, ctx)
+        if not isinstance(value, float):
+            self.fail(f"{value!r} has to be float", param, ctx)
+        if value < 0.0:
+            self.fail(f"{value!r} is not positive", param, ctx)
+        return value
 
 
 class PixelParamType(click.ParamType):

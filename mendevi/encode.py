@@ -8,7 +8,6 @@ import pathlib
 import shlex
 import shutil
 import sqlite3
-import tempfile
 import uuid
 
 import cutcutcodec

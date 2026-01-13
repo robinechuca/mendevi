@@ -7,7 +7,6 @@ import logging
 import pathlib
 import shlex
 import sqlite3
-import subprocess
 
 import cutcutcodec
 import numpy as np
@@ -18,8 +17,7 @@ from flufl.lock import Lock
 from mendevi.cmd import CmdFFMPEG
 from mendevi.convert import filter_best_order
 from mendevi.database.serialize import list_to_binary, tensor_to_binary
-from mendevi.measures import Activity
-from mendevi.utils import cp_shm, get_resolution
+from mendevi.utils import cp_shm
 
 
 def decode(vid: pathlib.Path, **kwargs: dict) -> tuple[str, str | None, str, dict[str]]:
@@ -75,7 +73,7 @@ def decode(vid: pathlib.Path, **kwargs: dict) -> tuple[str, str | None, str, dic
             if "wattmeter_power" in activity:
                 prt.print(f"avg wattmeter power: {activity['wattmeter_power']:.2g} W")
 
-    decoder = (cmd.decode + [None])[0]
+    decoder = [*cmd.decode, None][0]
     return prt_cmd, decoder, log, activity
 
 
@@ -198,7 +196,7 @@ def get_decode_cmd(
 
     """
     cmd = CmdFFMPEG(video)
-    cmd.general = cmd.general + ["-threads", "1"]
+    cmd.general = [*cmd.general, "-threads", "1"]
     cmd.vid_filter = filter_best_order(
         video,
         additional_filter=additional_filter,
@@ -213,9 +211,9 @@ def get_decode_cmd(
             if familly == familly_:
                 cmd.decode = decoder
                 break
-            else:
-                msg = f"impossible to find a {familly} decoder for {video}"
-                raise RuntimeError(msg)
+        else:
+            msg = f"impossible to find a {familly} decoder for {video}"
+            raise RuntimeError(msg)
     return cmd
 
 

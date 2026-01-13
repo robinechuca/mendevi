@@ -4,6 +4,7 @@ import fractions
 import hashlib
 import inspect
 import itertools
+import math
 import sqlite3
 from typing import TYPE_CHECKING
 
@@ -17,7 +18,11 @@ from mendevi.encode import encode_and_store
 from mendevi.utils import compute_video_hash, get_pix_fmt, get_rate_video, get_resolution
 
 from .parse import (
-    CallBackType, CopyRamType, PixelParamType, ResolutionParamType, parse_videos_database
+    CallBackType,
+    CopyRamType,
+    PixelParamType,
+    ResolutionParamType,
+    parse_videos_database,
 )
 
 if TYPE_CHECKING:
@@ -201,7 +206,7 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
     "--ram",
     type=CopyRamType(),
     default=2.0,
-    help="'yes', 'no' or threshold: To manage video copy in ramdisk or local disk."
+    help="'yes', 'no' or threshold: To manage video copy in ramdisk or local disk.",
 )
 def main(videos: tuple, database: str | None = None, **kwargs: dict) -> None:
     """Measures activity during encoding.

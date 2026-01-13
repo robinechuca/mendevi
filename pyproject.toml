@@ -30,12 +30,12 @@ readme = "README.rst"
 license = {file = "LICENSE"}
 keywords = [
   "av1",
-  "avc"
+  "avc",
   "consumption",
   "energy",
   "h264",
   "h265",
-  "hevc"
+  "hevc",
   "measure",
   "power",
   "psnr",

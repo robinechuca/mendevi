@@ -3,6 +3,7 @@
 import hashlib
 import inspect
 import itertools
+import math
 import sqlite3
 from typing import TYPE_CHECKING
 
@@ -14,7 +15,7 @@ from mendevi.database.meta import merge_extractors
 from mendevi.decode import decode_and_store
 from mendevi.utils import compute_video_hash, get_resolution
 
-from .parse import CallBackType, ResolutionParamType, parse_videos_database
+from .parse import CallBackType, CopyRamType, ResolutionParamType, parse_videos_database
 
 if TYPE_CHECKING:
     import pathlib
@@ -109,7 +110,7 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
     "--ram",
     type=CopyRamType(),
     default=2.0,
-    help="'yes', 'no' or threshold: To manage video copy in ramdisk or local disk."
+    help="'yes', 'no' or threshold: To manage video copy in ramdisk or local disk.",
 )
 def main(videos: tuple[str], database: str | None = None, **kwargs: dict) -> None:
     """Measures activity during decoding.
