@@ -67,6 +67,10 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
             f"from {inspect.getfile(kwargs['callback'])!r}",
         )
 
+    # ram
+    assert isinstance(kwargs["ram"], float), kwargs["ram"].__class__.__name__
+    prt.print(f"copy ram  : { {0.0: 'yes', math.inf: 'no'}.get(kwargs['ram'], kwargs['ram']) }")
+
 
 @click.command()
 @click.argument("videos", nargs=-1, type=click.Path())
@@ -101,6 +105,12 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
     type=CallBackType(),
     help="User defined function to adapt the cmd.",
 )
+@click.option(
+    "--ram",
+    type=CopyRamType(),
+    default=2.0,
+    help="'yes', 'no' or threshold: To manage video copy in ramdisk or local disk."
+)
 def main(videos: tuple[str], database: str | None = None, **kwargs: dict) -> None:
     """Measures activity during decoding.
 
@@ -130,6 +140,9 @@ def main(videos: tuple[str], database: str | None = None, **kwargs: dict) -> Non
         The name of the custom function to change the cmd, the signature must match:
         def any(cmd: CmdFFMPEG, **kwargs) -> list[str] | str:
             ...
+    ram : float
+        The threshold for deciding where to copy videos. Copy in /dev/shm if
+        ``available_ram_memory > ram * video_size``, otherwise, copy to the /tmp folder.
 
     """
     with Printer("Parse configuration...") as prt:
@@ -173,6 +186,6 @@ def main(videos: tuple[str], database: str | None = None, **kwargs: dict) -> Non
         if done.get(key, 0) > values["repeat"]:
             continue
         with Printer(f"Decode {i+1}/{kwargs["repeat"]*len(loops)}...", color="cyan") as prt:
-            decode_and_store(database, env_id, values.pop("video"), **values)
+            decode_and_store(database, env_id, values.pop("video"), ram=kwargs["ram"], **values)
             done[key] = done.get(key, 0) + 1
             prt.print_time()

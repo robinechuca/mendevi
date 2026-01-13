@@ -32,14 +32,14 @@ Useful links:
 Description
 ===========
 
-This module performs **energy** and **metrics** measurements on video, for encoding and decoding.
-It also provides a detailed **dataset**.
+This Python module performs **energy** and **metrics** measurements on video, for encoding and decoding.
+It also provides several detailed **dataset** and a visualisation tool that generates complex matplotlib figures.
 
 It manages the following parameters:
 
 #. It supports the ``libx264``, ``libopenh264``, ``libx265``, ``libvpx-vp9``, ``libaom-av1``, ``libsvtav1``, ``librav1e`` and ``vvc`` cpu encoders.
 #. It supports the ``h264_nvenc``, ``hevc_nvenc``, ``av1_nvenc`` and ``*_vaapi`` gpu encoders.
-#. Distortions are measured using the ``lpips``, ``psnr``, ``ssim`` and ``vmaf`` metrics.
+#. Distortions are measured using the ``lpips``, ``psnr``, ``ssim``, ``vif`` and ``vmaf`` metrics.
 #. Complexity are measured using the ``rms_sobel`` and ``rms_time_diff`` metrics.
 #. Encoding efforts are ``fast``, ``medium`` and ``slow``.
 #. It takes care about the colorspaces (``range``, ``transfer`` and ``primaries``).

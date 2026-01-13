@@ -30,11 +30,12 @@ readme = "README.rst"
 license = {file = "LICENSE"}
 keywords = [
   "av1",
+  "avc"
   "consumption",
   "energy",
   "h264",
   "h265",
-  "h266",
+  "hevc"
   "measure",
   "power",
   "psnr",
@@ -42,8 +43,10 @@ keywords = [
   "video decoding",
   "video encoding",
   "video",
+  "vif",
   "vmaf",
   "vp9",
+  "vvc",
   "wattmeter",
 ]
 classifiers = [  # all classifiers https://pypi.org/classifiers/

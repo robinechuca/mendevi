@@ -42,7 +42,7 @@ def decode(vid: pathlib.Path, **kwargs: dict) -> tuple[str, str | None, str, dic
     """
     assert isinstance(vid, pathlib.Path), vid.__class__.__name__
 
-    with cp_shm(vid) as vid_ram:  # copy input video into ram
+    with cp_shm(vid, threshold=kwargs["ram"]) as vid_ram:  # copy input video into ram
 
         # get cmd
         cmd = get_decode_cmd(
@@ -57,9 +57,10 @@ def decode(vid: pathlib.Path, **kwargs: dict) -> tuple[str, str | None, str, dic
             assert isinstance(user_cmd, list), user_cmd.__class__.__name__
 
         # display
-        prt_cmd = " ".join(
-            map(shlex.quote, [{str(vid_ram): "vid.mp4"}.get(c, c) for c in user_cmd or cmd]),
-        )
+        prt_cmd = " ".join(map(
+            shlex.quote,
+            ({str(vid_ram): str(vid_ram.with_name("vid.mp4"))}.get(c, c) for c in user_cmd or cmd),
+        ))
         with Printer(prt_cmd, color="green") as prt:
             prt.print(f"input video: {vid_ram}")
 

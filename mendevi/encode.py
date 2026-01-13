@@ -83,14 +83,10 @@ def encode(src: pathlib.Path, **kwargs: dict) -> tuple[pathlib.Path, str, str, d
     """
     assert isinstance(src, pathlib.Path), src.__class__.__name__
 
-    with cp_shm(src) as src_ram:  # copy input video into ram
+    with cp_shm(src, threshold=kwargs["ram"]) as src_ram:  # copy input video into ram
 
         # find tempfile name
-        dst = (
-            src_ram.parent
-            if src_ram.parent == pathlib.Path("/dev/shm") else
-            pathlib.Path(tempfile.gettempdir())
-        ) / f"{uuid.uuid4().hex}.mp4"
+        dst = src_ram.parent / f"{uuid.uuid4().hex}.mp4"
 
         # get cmd
         cmd = get_transcode_cmd(src_ram, dst, **kwargs)
@@ -106,7 +102,13 @@ def encode(src: pathlib.Path, **kwargs: dict) -> tuple[pathlib.Path, str, str, d
         prt_cmd = " ".join(
             map(
                 shlex.quote,
-                [{str(src_ram): "src.mp4", str(dst): "dst.mp4"}.get(c, c) for c in user_cmd or cmd],
+                (
+                    {
+                        str(src_ram): str(src_ram.with_name("src.mp4")),
+                        str(dst): dst.with_name("dst.mp4"),
+                    }.get(c, c)
+                    for c in user_cmd or cmd
+                ),
             ),
         )
         with Printer(prt_cmd, color="green") as prt:

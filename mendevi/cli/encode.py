@@ -16,7 +16,9 @@ from mendevi.database.complete import add_environment
 from mendevi.encode import encode_and_store
 from mendevi.utils import compute_video_hash, get_pix_fmt, get_rate_video, get_resolution
 
-from .parse import CallBackType, PixelParamType, ResolutionParamType, parse_videos_database
+from .parse import (
+    CallBackType, CopyRamType, PixelParamType, ResolutionParamType, parse_videos_database
+)
 
 if TYPE_CHECKING:
     import pathlib
@@ -118,6 +120,10 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
             f"from {inspect.getfile(kwargs['callback'])!r}",
         )
 
+    # ram
+    assert isinstance(kwargs["ram"], float), kwargs["ram"].__class__.__name__
+    prt.print(f"copy ram  : { {0.0: 'yes', math.inf: 'no'}.get(kwargs['ram'], kwargs['ram']) }")
+
 
 @click.command()
 @click.argument("videos", type=click.Path(), nargs=-1)
@@ -191,6 +197,12 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
     type=CallBackType(),
     help="User defined function to adapt the cmd.",
 )
+@click.option(
+    "--ram",
+    type=CopyRamType(),
+    default=2.0,
+    help="'yes', 'no' or threshold: To manage video copy in ramdisk or local disk."
+)
 def main(videos: tuple, database: str | None = None, **kwargs: dict) -> None:
     """Measures activity during encoding.
 
@@ -242,6 +254,9 @@ def main(videos: tuple, database: str | None = None, **kwargs: dict) -> None:
         The name of the custom function to change the cmd, the signature must match:
         def any(cmd: CmdFFMPEG, **kwargs) -> list[str] | str:
             ...
+    ram : float
+        The threshold for deciding where to copy videos. Copy in /dev/shm if
+        ``available_ram_memory > ram * video_size``, otherwise, copy to the /tmp folder.
 
     """
     with Printer("Parse configuration...") as prt:
@@ -297,6 +312,6 @@ def main(videos: tuple, database: str | None = None, **kwargs: dict) -> None:
         if done.get(key, 0) > values["repeat"]:
             continue
         with Printer(f"Encode {i+1}/{kwargs["repeat"]*len(loops)}...", color="cyan") as prt:
-            encode_and_store(database, env_id, values.pop("video"), **values)
+            encode_and_store(database, env_id, values.pop("video"), ram=kwargs["ram"], **values)
             done[key] = done.get(key, 0) + 1
             prt.print_time()

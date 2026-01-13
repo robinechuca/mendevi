@@ -11,6 +11,7 @@ import numbers
 import pathlib
 import re
 import shutil
+import tempfile
 import typing
 from fractions import Fraction
 
@@ -103,23 +104,27 @@ def compute_video_hash(
 
 
 @contextlib.contextmanager
-def cp_shm(file: pathlib.Path) -> pathlib.Path:
-    """Copy the file into /dev/shm is there is enougth free space."""
+def cp_shm(file: pathlib.Path, threshold: float) -> pathlib.Path:
+    """Copy the file into /dev/shm is there is enougth free space, otherwise in /tmp."""
     assert isinstance(file, pathlib.Path), file.__class__.__name__
     assert file.exists(), file
     shm = pathlib.Path("/dev/shm")
-    file_ram = None
+    tmp = pathlib.Path(tempfile.gettempdir())
+    file_copy = None
     if (
         file.parts[:len(shm.parts)] != shm.parts  # avoid copy to the same device
-        and shutil.disk_usage(shm).free > 2 * file.stat().st_size
+        and shutil.disk_usage(shm).free > threshold * file.stat().st_size
     ):
-        file_ram = shm / file.name
-        shutil.copy(file, file_ram)
+        file_copy = shm / file.name
+        shutil.copy(file, file_copy)
+    elif file.parts[:len(tmp.parts)] != tmp.parts:
+        file_copy = tmp / file.name
+        shutil.copy(file, file_copy)
     try:
-        yield file_ram or file
+        yield file_copy or file
     finally:
-        if file_ram is not None:
-            file_ram.unlink()
+        if file_copy is not None:
+            file_copy.unlink()
 
 
 @functools.cache
