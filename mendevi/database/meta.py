@@ -155,6 +155,11 @@ ALL_EXTRACTORS = {
         extract.extract_decode_cmd,
         Scale.DISCRETE,
     ),
+    "decode_ram": Extractor(
+        "Is the decoded video stored in RAM?",
+        '"yes" if "/dev/shm" in decode_cmd else "no"',
+        Scale.DISCRETE,
+    ),
     "decode_scenario": Extractor(
         "Unique string specific to the decoding scenario",
         'f"cmd: {decode_cmd}, hostname: {hostname}"',
@@ -178,6 +183,11 @@ ALL_EXTRACTORS = {
     "encode_cmd": Extractor(
         "The ffmpeg command used for encoding",
         extract.extract_encode_cmd,
+        Scale.DISCRETE,
+    ),
+    "encode_ram": Extractor(
+        "Is the encoded video stored in RAM?",
+        '"yes" if "/dev/shm" in encode_cmd else "no"',
         Scale.DISCRETE,
     ),
     "encode_scenario": Extractor(
