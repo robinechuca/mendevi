@@ -6,7 +6,7 @@ import sqlite3
 import click
 from context_verbose import Printer
 
-from mendevi.database.create import create_database
+from mendevi.database.create import ENV_UNIQUE, create_database
 
 from .parse import parse_videos_database
 
@@ -109,11 +109,12 @@ def main(databases: tuple[str]) -> None:
                 # t_env_environment
                 prt.print("table 't_env_environment'")
                 env_old_to_new: dict[int, int] = {}
+                env_unique = tuple(ENV_UNIQUE)
                 for row_ in cursor_src.execute("SELECT * FROM t_env_environment"):
                     row = dict(row_)
                     row["env_idle_act_id"] = act_old_to_new[row["env_idle_act_id"]]
                     old = row.pop("env_id")
-                    new = _insert_update(cursor_dst, row, "t_env_environment", ())["env_id"]
+                    new = _insert_update(cursor_dst, row, "t_env_environment", env_unique)["env_id"]
                     env_old_to_new[old] = new
 
                 # t_enc_encode
