@@ -36,7 +36,7 @@ def get_torrent(name: str) -> pathlib.Path:
     if (file := cachedir / name).exists():
         return file
 
-    # look on the local cloned mndevi git
+    # look on the local cloned mendevi git
     local = {p.name: p for p in probe_local_torrent()}
     if name in local:
         # copy in mendevi cachedir for transmission permission

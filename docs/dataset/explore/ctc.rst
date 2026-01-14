@@ -21,7 +21,7 @@ Reproduce
 .. code:: shell
 
     for video in ctc/*.mkv; do
-        for profile in sh hd fhd uhd4k; do
+        for profile in sd hd fhd uhd4k; do
             mendevi prepare $video -p $profile
         done
     done
