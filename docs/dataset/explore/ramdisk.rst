@@ -25,7 +25,7 @@ Reproduce
 
     mendevi encode -c libx264 -c libsvtav1 -e fast -e medium -t 8 -t 16 --ram yes -d ram_yes.db reference*
     mendevi encode -c libx264 -c libsvtav1 -e fast -e medium -t 8 -t 16 --ram no -d ram_no.db reference*
-    mendevi merge ram_yes.db ram_no.db && mv merge_ram_yes_ram_no.db ramdisk.db && rm ram_*
+    mendevi merge ram_yes.db ram_no.db && mv merge_ram_yes_ram_no.db ramdisk.db
 
     mendevi probe -d ramdisk.db reference*
     mendevi probe -d ramdisk.db sample* --no-psnr --no-ssim --no-vif --no-vmaf
