@@ -267,7 +267,7 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs: dict) -> C
     except StopIteration:
         logging.getLogger(__name__).info("no decoder found for %s", src)
     if vid_filter:
-        cmd.vid_filter = ",".join([*cmd.vid_filter.split(","), vid_filter])
+        cmd.vid_filter = (f"{cmd.vid_filter}," if cmd.vid_filter else "") + vid_filter
     return cmd
 
 
