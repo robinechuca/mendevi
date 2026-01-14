@@ -189,9 +189,9 @@ def get_decode_cmd(
     >>> from mendevi.decode import get_decode_cmd
     >>> media = cutcutcodec.utils.get_project_root() / "media" / "video" / "intro.webm"
     >>> print(get_decode_cmd(media, additional_filter="", resolution=None))  # doctest: +ELLIPSIS
-    ['ffmpeg', '-threads', '1', '-i', '.../intro.webm', '-vf', 'format=rgb24', '-f', 'null', '-']
+    ffmpeg -hide_banner -y -loglevel verbose -threads 1 -i /...intro.webm -vf format=rgb24 -f null -
     >>> print(get_decode_cmd(media, additional_filter="", resolution=(480, 720)))
-    [..., '-vf', 'scale=h=480:w=720:sws_flags=bicubic,format=rgb24', '-f', 'null', '-']
+    ffmpeg ... -i ...intro.webm -vf scale=h=480:w=720:sws_flags=bicubic,format=rgb24 -f null -
     >>>
 
     """

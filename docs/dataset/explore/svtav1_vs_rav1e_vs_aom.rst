@@ -28,6 +28,11 @@ Distortion as a function of bitrate
 .. image:: /_static/media/svtav1_vs_rav1e_vs_aom_bdr.svg
     :alt: Distortion as a function of bitrate
 
+
+.. code:: shell
+
+    mendevi plot '<svtav1_vs_rav1e_vs_aom.db>' -x rate -x energy -y psnr -c encoder -m effort -wy profile -f "ref_name=='park_joy'"
+
 Conclusion
 ----------
 

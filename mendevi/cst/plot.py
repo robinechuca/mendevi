@@ -3,8 +3,8 @@
 COLORS = [
     "#ef597b",  # bright pink
     "#29a2c6",  # cyan blue
-    "#ffcb18",  # vivid yellow
     "#73b66b",  # medium green
+    "#ffcb18",  # vivid yellow
     "#4e4f4b",  # dark gray
     "#a23e9a",  # purple
     "#f59331",  # orange
