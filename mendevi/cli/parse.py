@@ -62,7 +62,7 @@ class CopyRamType(click.ParamType):
         """Normalize pixel format."""
         if isinstance(value, str):
             value = value.lower()
-            if (converted := {"yes": 0.0, "no": math.inf}) is not None:
+            if (converted := {"yes": 0.0, "no": math.inf}.get(value)) is not None:
                 return converted
             try:
                 value = float(value)

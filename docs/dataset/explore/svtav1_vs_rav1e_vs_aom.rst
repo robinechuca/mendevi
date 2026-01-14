@@ -18,8 +18,10 @@ Download
 Plots
 -----
 
-Distortion as a function of bitrate
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Distortion and Consumption as a function of bitrate
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Overall trend for all measures:
 
 .. code:: shell
 
@@ -28,10 +30,15 @@ Distortion as a function of bitrate
 .. image:: /_static/media/svtav1_vs_rav1e_vs_aom_bdr.svg
     :alt: Distortion as a function of bitrate
 
+Result for a single video, including energy:
 
 .. code:: shell
 
     mendevi plot '<svtav1_vs_rav1e_vs_aom.db>' -x rate -x energy -y psnr -c encoder -m effort -wy profile -f "ref_name=='park_joy'"
+
+.. image:: /_static/media/svtav1_vs_rav1e_vs_aom_cut.svg
+    :alt: Link between distortion and energy for each encoder
+
 
 Conclusion
 ----------
