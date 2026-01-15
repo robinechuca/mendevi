@@ -41,4 +41,4 @@ Reproduce
         done
     done
     mendevi probe reference*
-    mendevi decode
+    mendevi decode reference*

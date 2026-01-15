@@ -85,6 +85,9 @@ JOIN: dict[str: dict[str, str]] = {  # join = JOIN[destination_table][source_tab
             "JOIN t_vid_video AS t_ref_video "
             "ON t_met_metric.met_ref_vid_id = t_ref_video.vid_id"
         ),
+        "t_vid_video": (
+            "JOIN t_vid_video AS t_ref_video ON t_vid_video.vid_id = t_ref_video.vid_id"
+        ),
     },
     "t_dst_video": {  # the transcoded video
         "t_enc_encode": (
@@ -98,6 +101,9 @@ JOIN: dict[str: dict[str, str]] = {  # join = JOIN[destination_table][source_tab
         "t_met_metric": (
             "JOIN t_vid_video AS t_dst_video "
             "ON t_met_metric.met_dis_vid_id = t_dst_video.vid_id"
+        ),
+        "t_vid_video": (
+            "JOIN t_vid_video AS t_dst_video ON t_vid_video.vid_id = t_dst_video.vid_id"
         ),
     },
 }

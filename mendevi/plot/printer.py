@@ -440,7 +440,7 @@ def print_main(**kwargs: dict) -> list[str]:
         "                    )",
         "            else:  # legends are different for each axe of that subfigure",
         "                for axe in axes:",
-        "                    axe.legend()",
+        "                    axe.legend(ncols=max(1, len(next(iter(labels)))//16))",
         "",
     ])
     keys = ["x", "y", "color", "marker", "window_x", "window_y", "error", "filter", "table"]
