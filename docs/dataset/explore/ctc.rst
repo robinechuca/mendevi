@@ -12,8 +12,8 @@ Download
 
     mendevi download ctc.db.xz.torrent
 
-* `ctc.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/ctc.json.xz?inline=false>`_ (0 Ko).
-* `ctc.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/ctc.db.xz.torrent?inline=false>`_ (0 Go).
+* `ctc.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/ctc.json.xz?inline=false>`_ (127 Ko).
+* `ctc.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/ctc.db.xz.torrent?inline=false>`_ (137 Mo).
 
 Statistical Properties
 ----------------------
