@@ -90,7 +90,7 @@ Reproduce
 
     for prim in bt601 bt709 bt2020
     do
-        for trans in linear gamma22 gamma28 smpte170m smpte2084
+        for trans in linear bt709 gamma22 gamma28 smpte170m smpte2084
         do
             mendevi prepare park_joy.mkv -p fhd --primaries $prim --transfer $trans --range tv
             mendevi prepare park_joy.mkv -p fhd --primaries $prim --transfer $trans --range pc

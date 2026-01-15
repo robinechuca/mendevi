@@ -36,6 +36,7 @@ Then, you can create it with (change the filename and the description):
         -t udp://exodus.desync.com:6969/announce \
         -t udp://explodie.org:6969/announce \
         -t udp://open.stealth.si:80/announce \
+        -t udp://opentracker.io:6969/announce \
         -t udp://tracker.cyberia.is:80/announce \
         -t udp://tracker.internetwarriors.net:1337/announce \
         -t udp://tracker.leechers-paradise.org:6969/announce \
