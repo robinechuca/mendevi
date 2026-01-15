@@ -170,7 +170,7 @@ ALL_EXTRACTORS = {
         extract.extract_decoder,
         Scale.DISCRETE,
     ),
-    "decoder_familly": Extractor(
+    "decoder_family": Extractor(
         "The type of decoder",
         '"cuvid" if str(decoder).endswith("_cuvid") else "cpu"',
         Scale.DISCRETE,
@@ -200,7 +200,7 @@ ALL_EXTRACTORS = {
         extract.extract_encoder,
         Scale.DISCRETE,
     ),
-    "encoder_familly": Extractor(
+    "encoder_family": Extractor(
         "The type of encoder",
         '"nvenc" if str(encoder).endswith("_nvenc") else "cpu"',
         Scale.DISCRETE,
@@ -379,11 +379,11 @@ ALIAS = {
     "dec_cmd": "decode_cmd",
     "dec_ram": "decode_ram",
     "dec_scenario": "decode_scenario",
-    "decoder_type": "decoder_familly",
+    "decoder_type": "decoder_family",
     "enc_cmd": "encode_cmd",
     "enc_ram": "encode_ram",
     "enc_scenario": "encode_scenario",
-    "encoder_type": "encoder_familly",
+    "encoder_type": "encoder_family",
     "eotf": "transfer",
     "name": "video_name",
     "nb_frames": "nbr_frames",

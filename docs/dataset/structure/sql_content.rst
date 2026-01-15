@@ -532,7 +532,7 @@ Table t_env_environment
 +-------------------------------+--------------+-------------------------------+
 | :ref:`env_pip_freeze`         | *MEDIUMTEXT* | all python packages version   |
 +-------------------------------+--------------+-------------------------------+
-| :ref:`env_processor`          | *TINYTEXT*   | the processos familly         |
+| :ref:`env_processor`          | *TINYTEXT*   | the processos family          |
 +-------------------------------+--------------+-------------------------------+
 | :ref:`env_python_compiler`    | *TINYTEXT*   | name of python compiler       |
 +-------------------------------+--------------+-------------------------------+
@@ -766,7 +766,7 @@ The list of the version of the python packages. The function :py:func:`mendevi.m
 env_processor
 ^^^^^^^^^^^^^
 
-The proccessor familly, given by ``platform.processor()``, from the function :py:func:`mendevi.measures.context.get_platform`.
+The proccessor family, given by ``platform.processor()``, from the function :py:func:`mendevi.measures.context.get_platform`.
 
 .. code:: text
 

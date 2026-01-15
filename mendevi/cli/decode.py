@@ -54,11 +54,11 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
     )
     kwargs["filter"] =  kwargs["filter"] or (None,)
 
-    # familly
-    assert isinstance(kwargs["familly"], tuple), kwargs["familly"].__class__.__name__
-    assert all(isinstance(p, str) for p in kwargs["familly"]), kwargs["familly"]
-    assert all(p in {"cpu", "cuvid"} for p in kwargs["familly"]), kwargs["familly"]
-    prt.print(f"dec type  : {', '.join(kwargs['familly'])}")
+    # family
+    assert isinstance(kwargs["family"], tuple), kwargs["family"].__class__.__name__
+    assert all(isinstance(p, str) for p in kwargs["family"]), kwargs["family"]
+    assert all(p in {"cpu", "cuvid"} for p in kwargs["family"]), kwargs["family"]
+    prt.print(f"dec type  : {', '.join(kwargs['family'])}")
 
     # callback
     assert kwargs["callback"] is None or callable(kwargs["callback"])
@@ -95,11 +95,11 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
     help="The ffmpeg filter to apply on fly.",
 )
 @click.option(
-    "--familly",
+    "--family",
     type=click.Choice(["cpu", "cuvid"]),
     default=["cpu"],
     multiple=True,
-    help="The familly of decoders.",
+    help="The family of decoders.",
 )
 @click.option(
     "--callback",
@@ -134,7 +134,7 @@ def main(videos: tuple[str], database: str | None = None, **kwargs: dict) -> Non
     filter : str, optional
         The additional ffmpeg video filter (after the -vf command)
         to be applied immediately after decoding and before other conversions.
-    familly : tuple[str], default=("cpu",)
+    family : tuple[str], default=("cpu",)
         The nature of the decoder.
         "cpu" is always working, and "cuvid" requires compatible nvidia gpu.
     callback : str, optional
@@ -155,7 +155,7 @@ def main(videos: tuple[str], database: str | None = None, **kwargs: dict) -> Non
     kwargs["dec_vid_id"]: dict[pathlib.Path, bytes] = compute_video_hash(videos)
 
     # retrieves the settings for videos that have already been decoded
-    _, familly_extractor = merge_extractors({"decoder_familly"}, return_callable=True)
+    _, family_extractor = merge_extractors({"decoder_family"}, return_callable=True)
     with sqlite3.connect(database) as conn:
         conn.row_factory = sqlite3.Row
         done: dict[tuple, int] = {}
@@ -166,24 +166,24 @@ def main(videos: tuple[str], database: str | None = None, **kwargs: dict) -> Non
                 row["dec_vid_id"],
                 row["dec_filter"] or "",
                 (row["dec_height"], row["dec_width"]),
-                familly_extractor({"dec_decoder": row["dec_decoder"]})["decoder_familly"],
+                family_extractor({"dec_decoder": row["dec_decoder"]})["decoder_family"],
             )
             done[values] = done.get(values, 0) + 1
         prt.print(f"{sum(done.values())} video already decoded under these environment")
 
     # iterate on all the parameters
     loops = sorted(
-        itertools.product(videos, kwargs["filter"], kwargs["resolution"], kwargs["familly"]),
+        itertools.product(videos, kwargs["filter"], kwargs["resolution"], kwargs["family"]),
         key=lambda t: hashlib.md5(str(t).encode("utf-8")).hexdigest(),  # repetable shuffle
     )
     for i, (repeat, values_) in enumerate(itertools.product(range(kwargs["repeat"]), loops)):
-        values = dict(zip(("video", "filter", "resolution", "familly"), values_, strict=True))
+        values = dict(zip(("video", "filter", "resolution", "family"), values_, strict=True))
         values["repeat"] = repeat
         values["dec_vid_id"] = kwargs["dec_vid_id"][values["video"]]
         values["filter"] = values["filter"] or ""
         values["resolution"] = values["resolution"] or get_resolution(values["video"])
         values["callback"] = kwargs["callback"]
-        key = (values["dec_vid_id"], values["filter"], values["resolution"], values["familly"])
+        key = (values["dec_vid_id"], values["filter"], values["resolution"], values["family"])
         if done.get(key, 0) > values["repeat"]:
             continue
         with Printer(f"Decode {i+1}/{kwargs["repeat"]*len(loops)}...", color="cyan") as prt:

@@ -44,7 +44,7 @@ def decode(vid: pathlib.Path, **kwargs: dict) -> tuple[str, str | None, str, dic
 
         # get cmd
         cmd = get_decode_cmd(
-            vid_ram, kwargs.get("filter"), kwargs.get("resolution"), kwargs.get("familly"),
+            vid_ram, kwargs.get("filter"), kwargs.get("resolution"), kwargs.get("family"),
         )
         if kwargs.get("callback") is None:
             user_cmd = None
@@ -162,7 +162,7 @@ def get_decode_cmd(
     video: pathlib.Path,
     additional_filter: str,
     resolution: tuple[int, int] | None = None,
-    familly: str | None = None,
+    family: str | None = None,
 ) -> CmdFFMPEG:
     """Return the ffmpeg decode cmd.
 
@@ -175,7 +175,7 @@ def get_decode_cmd(
         The additional video filter, (can be an empty string).
     resolution : tuple[int, int], optional
         The new (heigh, width) video shape.
-    familly : str, optional
+    family : str, optional
         If provided, force to use a specific decoder type.
 
     Returns
@@ -204,15 +204,15 @@ def get_decode_cmd(
         pix_fmt="rgb24",
         resolution=resolution,
     )
-    if familly is not None:
-        for familly_, decoder in available_decoders(
+    if family is not None:
+        for family_, decoder in available_decoders(
             cutcutcodec.get_codec_video(video), cutcutcodec.get_pix_fmt(video),
         ):
-            if familly == familly_:
+            if family == family_:
                 cmd.decode = decoder
                 break
         else:
-            msg = f"impossible to find a {familly} decoder for {video}"
+            msg = f"impossible to find a {family} decoder for {video}"
             raise RuntimeError(msg)
     return cmd
 
@@ -278,6 +278,6 @@ def available_decoders(codec: str, pix_fmt: str) -> tuple[str, str | None]:
         case _:
             logging.getLogger(__name__).info("no decoder tested for the codec %s", codec)
             candidates = []
-    for familly, decoder in candidates:
+    for family, decoder in candidates:
         if test_decode_sample_encoder(sample, decoder):
-            yield familly, decoder
+            yield family, decoder
