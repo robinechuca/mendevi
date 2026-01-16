@@ -534,3 +534,10 @@ You can compile the documentation yourself after :ref:`full_installation` by sim
 
     cd docs/ && make clean && make html && cd -
     firefox docs/build/html/index.html
+
+.. _testing
+
+Testing
+-------
+
+To run the unitary tests, just type ``mendvei test``.

@@ -46,10 +46,10 @@ class Model(abc.ABC):
             All sources for the model, the conference paper, the authors, etc.
         input_labels : list[str]
             The name of all input parameters.
-            The possibles values are :py:cst:`mendevi.plot.axis.Name`.
+            The possibles values are `mendevi.plot.axis.Name`.
         output_labels : list[str]
             The name of all output parameters.
-            The possibles values are :py:cst:`mendevi.plot.axis.Name`.
+            The possibles values are `mendevi.plot.axis.Name`.
         parameters : object, optional
             The learnable parameters for regressive models.
 

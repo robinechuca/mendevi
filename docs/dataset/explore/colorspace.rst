@@ -20,7 +20,7 @@ Pipeline
 
 This is the pipeline used for measurements:
 
-.. image:: https://mendevi.readthedocs.io/latest/_images/colorspace.svg
+.. image:: /_static/media/colorspace.svg
     :alt: Pipeline diagram
 
 Plots

@@ -985,7 +985,7 @@ Table t_enc_encode
 +-----------------------+---------------+--------------------------------+
 | :ref:`enc_log`        | *LONGTEXT*    | the standard output of the cmd |
 +-----------------------+---------------+--------------------------------+
-| :ref:`env_mode`       | *TINYTEXT*    | constant or variable bitrate   |
+| :ref:`enc_mode`       | *TINYTEXT*    | constant or variable bitrate   |
 +-----------------------+---------------+--------------------------------+
 | :ref:`enc_pix_fmt`    | *TINYTEXT*    | the input pixel format         |
 +-----------------------+---------------+--------------------------------+

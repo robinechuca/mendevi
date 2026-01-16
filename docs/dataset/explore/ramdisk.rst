@@ -29,5 +29,4 @@ Reproduce
     mendevi decode -r 5 --family cpu --ram no -d ram_no.db sample*
     mendevi merge ram_yes.db ram_no.db && mv merge_ram_yes_ram_no.db ramdisk.db
 
-    mendevi probe -d ramdisk.db reference*
-    mendevi probe -d ramdisk.db sample* --no-psnr --no-ssim --no-vif --no-vmaf
+    mendevi probe -d ramdisk.db --no-psnr --no-ssim --no-vif --no-vmaf reference* sample*
