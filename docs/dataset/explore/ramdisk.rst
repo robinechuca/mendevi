@@ -3,7 +3,7 @@
 RAM Disk Dataset
 ================
 
-Compare the performance of ffmpeg when video are read and written to **RAM**, and when they are read and written to the **hard drive**.
+Compare the performance of ffmpeg when videos are read and written to **RAM**, and when they are read and written to the **hard drive**.
 
 Download
 --------
@@ -12,8 +12,31 @@ Download
 
     mendevi download ramdisk.db.xz.torrent
 
-* `ramdisk.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/ramdisk.json.xz?inline=false>`_ (0 Ko).
-* `ramdisk.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/ramdisk.db.xz.torrent?inline=false>`_ (0 Go).
+* `ramdisk.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/ramdisk.json.xz?inline=false>`_ (481 Ko).
+* `ramdisk.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/ramdisk.db.xz.torrent?inline=false>`_ (289 Mo).
+
+Plots
+-----
+
+Effect on encoding
+^^^^^^^^^^^^^^^^^^
+
+.. code:: shell
+
+    mendevi plot '<ramdisk.db>' -x rate -y energy -c enc_ram -wx profile -e enc_scenario -s 'sharey="row"' 'sharey=False'
+
+.. image:: /_static/media/ramdisk_encode.svg
+    :alt: Variation of encoding energy depending of device.
+
+Effect on decoding
+^^^^^^^^^^^^^^^^^^
+
+.. code:: shell
+
+    mendevi plot '<ramdisk.db>' -x rate -y energy -c dec_ram -wx profile -e dec_scenario -s 'sharey="row"' 'sharey=False'
+
+.. image:: /_static/media/ramdisk_decode.svg
+    :alt: Variation of decoding energy depending of device.
 
 Reproduce
 ---------

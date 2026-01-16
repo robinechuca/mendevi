@@ -51,6 +51,10 @@ filter : str, optional
     that returns True to keep the data. For example: ``enc_duration > 10 and profile == "fhd"``.
 table : str, optional
     The main sql table juste after the FROM in SELECT.
+sub : tuple[tuple[str, str]], optional
+    This allows to substitute text in the generated python code, before calling it to draw the plot.
+    The provided parameters are pairs of regex expression 'pattern' and 'repl'.
+    It is given as argument to the function ``re.sub``.
 """
 
 
@@ -122,6 +126,12 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
         assert isinstance(kwargs["table"], str), kwargs["table"].__class__.__name__
         prt.print(f"table     : {kwargs['table']}")
 
+    # sub
+    kwargs["sub"] = kwargs.get("sub", ())
+    assert isinstance(kwargs["sub"], tuple), kwargs["sub"].__class__.__name__
+    assert all(isinstance(s, tuple) and len(s) == 2 for s in kwargs["sub"]), kwargs["sub"]
+    prt.print(f"code sub  : {' and '.join(f'{p} -> {r}' for p, r in kwargs['sub'])}")
+
 
 @click.command(help=DOCSTRING)
 @click.argument("database", type=click.Path())
@@ -181,6 +191,13 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
     "-t", "--table",
     type=str,
     help="Form the SQL query around this table.",
+)
+@click.option(
+    "-s", "--sub",
+    type=str,
+    nargs=2,
+    multiple=True,
+    help="Pair of regex expression 'pattern' and 'repl' to substitute in generated code.",
 )
 def main(database: str, **kwargs: dict) -> None:
     """See docstring at DOCSTRING."""

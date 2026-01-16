@@ -29,18 +29,24 @@ def printer(**kwargs: dict) -> str:
     # format code
     try:
         result = subprocess.run(
-            ["ruff", "format", "-"],
+            ["ruff", "format", "--line-length", "100", "-"],
             input=code.encode(),
             capture_output=True,
             check=True,
         )
-        return result.stdout.decode()
     except FileNotFoundError:
         logging.getLogger(__name__).warning(
             "Ruff is not installed, please install it (uv pip install ruff)",
         )
     except subprocess.CalledProcessError as err:
         logging.getLogger(__name__).warning("Ruff formatting failed: %s", err.stderr.decode())
+    else:
+        code = result.stdout.decode()
+
+    # substitution
+    for pattern, repl in kwargs["sub"]:
+        code = re.sub(pattern, repl, code)
+
     return code
 
 

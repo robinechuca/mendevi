@@ -285,7 +285,7 @@ def extract_decode_cmd(raw: dict[str]) -> str:
         The result line of select request.
 
     """
-    if (cmd := raw["enc_cmd"]) is None:
+    if (cmd := raw["dec_cmd"]) is None:
         return None
     vid = raw["vid_name"] or "vid.mp4"
     return cmd.replace("vid.mp4", vid)
