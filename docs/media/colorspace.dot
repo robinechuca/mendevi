@@ -1,0 +1,62 @@
+# dot -Tsvg colorspace.dot > colorspace.svg
+digraph colorspace {
+    rankdir=TB
+
+    # data
+    src [label="park_joy.mkv", shape=Mdiamond, style=filled, fillcolor="#73b66b"]
+    ref1 [label="reference_park_joy_fhd.mp4", shape=Mdiamond, style=filled, fillcolor="#73b66b"]
+    ref2 [label="reference_park_joy_{...}_fhd.mp4", shape=Mdiamond, style=filled, fillcolor="#73b66b"]
+    sam1 [label="sample_{...}.mp4", shape=Mdiamond, style=filled, fillcolor="#73b66b"]
+    sam2 [label="sample_{...}.mp4", shape=Mdiamond, style=filled, fillcolor="#73b66b"]
+    # sam3 [label="sample_{...}.mp4", shape=Mdiamond, style=filled, fillcolor="#73b66b"]
+    # sam4 [label="sample_{...}.mp4", shape=Mdiamond, style=filled, fillcolor="#73b66b"]
+
+    database [label="Database", shape=folder, style=filled, fillcolor="#73b66b"]
+
+    # parameters
+    p_primaries [label="Primaries", shape=note, style=filled, fillcolor=white]
+    p_transfer [label="Transfer", shape=note, style=filled, fillcolor=white]
+    p_range [label="Range", shape=note, style=filled, fillcolor=white]
+
+    # process
+    conv [label="Colorspace Convertion", style=filled, fillcolor=white]
+    rev_conv [label="Reverse Colorspace Convertion", style=filled, fillcolor=white]
+    comp1 [label="Direct\nCompare", style=filled, fillcolor=white]
+    comp2 [label="Same Colorspace\nCompare", style=filled, fillcolor=white]
+    # comp2 [label="Compare", style=filled, fillcolor=white]
+    # comp3 [label="Compare", style=filled, fillcolor=white]
+    # comp4 [label="Compare", style=filled, fillcolor=white]
+
+    # blocs
+    subgraph clus_reference {
+        cluster=true
+        label="References"
+        bgcolor="#29a2c6"
+        ref1 ref2
+    }
+    subgraph clus_sample {
+        cluster=true
+        label="Samples"
+        bgcolor="#ffcb18"
+        sam1 sam2
+    }
+    # parameters bloc
+    subgraph clus_param {
+        cluster=true
+        label="Parameters"
+        bgcolor="#ef597b"
+        p_primaries p_transfer p_range
+    }
+
+    # pipeline
+    src -> conv -> {ref1 ref2}
+    ref2 -> {sam1 sam2}
+    # ref2 -> {sam3 sam4}
+    {ref2 sam1 sam2} -> comp1
+    ref1 -> comp2
+    {sam1 sam2} -> rev_conv -> comp2
+    {comp1 comp2} -> database [style=dotted]
+
+    # arguments
+    {p_primaries p_transfer p_range} -> conv [arrowhead=none style=dashed]
+}

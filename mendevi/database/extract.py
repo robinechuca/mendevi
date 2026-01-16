@@ -587,7 +587,7 @@ def extract_reference_video_name(raw: dict[str]) -> str:
     if (vid_name := raw["ref_vid_name"]) is None:
         return None
     assert isinstance(vid_name, str), vid_name.__class__.__name__
-    return re.sub(fr"^reference_(\w+)_(?:{'|'.join(PROFILES)})\.\w+$", r"\1", vid_name)
+    return re.sub(fr"^reference_([\w.]+?)_(?:{'|'.join(PROFILES)})\.\w+$", r"\1", vid_name)
 
 
 @verif

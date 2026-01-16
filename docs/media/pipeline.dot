@@ -9,11 +9,11 @@ digraph pipeline {
 
     # parameters
     p_colorspace [label="Colorspace", shape=note, style=filled, fillcolor=white]
-    p_fps [label="fps", shape=note, style=filled, fillcolor=white]
+    p_fps [label="FPS", shape=note, style=filled, fillcolor=white]
     p_pxl [label="Pxl Format", shape=note, style=filled, fillcolor=white]
     p_resol [label="Resolution", shape=note, style=filled, fillcolor=white]
 
-    c_fps [label="fps", shape=note, style=filled, fillcolor=white]
+    c_fps [label="FPS", shape=note, style=filled, fillcolor=white]
     c_pxl [label="Pxl Format", shape=note, style=filled, fillcolor=white]
     c_resol [label="Resolution", shape=note, style=filled, fillcolor=white]
     c_filter [label="Filter", shape=note, style=filled, fillcolor=white]
@@ -50,16 +50,13 @@ digraph pipeline {
             cluster=true
             label="step: Encode"
             bgcolor="#29a2c6"
-            t_dec
-            t_convert
-            t_encode
+            t_dec t_convert t_encode
         }
         subgraph clus_decode {
             cluster=true
             label="step: Decode"
             bgcolor="#29a2c6"
-            decode
-            convert
+            decode convert
         }
         idle
     }
@@ -75,28 +72,19 @@ digraph pipeline {
         cluster=true
         label="Parameters"
         bgcolor="#ef597b"
-        p_colorspace
-        p_fps
-        p_pxl
-        p_resol
+        p_colorspace p_fps p_pxl p_resol
     }
     subgraph clus_param_convert {
         cluster=true
         label="Parameters"
         bgcolor="#ef597b"
-        c_fps
-        c_pxl
-        c_resol
-        c_filter
+        c_fps c_pxl c_resol c_filter
     }
     subgraph clus_param_encode {
         cluster=true
         label="Parameters"
         bgcolor="#ef597b"
-        effort
-        encoder
-        quality
-        threads
+        effort encoder quality threads
     }
 
     # pipeline

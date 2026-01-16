@@ -12,8 +12,16 @@ Download
 
     mendevi download colorspace.db.xz.torrent
 
-* `colorspace.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/colorspace.json.xz?inline=false>`_ (0 Mo).
-* `colorspace.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/colorspace.db.xz.torrent?inline=false>`_ (0 Go).
+* `colorspace.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/colorspace.json.xz?inline=false>`_ (846 Ko).
+* `colorspace.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/colorspace.db.xz.torrent?inline=false>`_ (551 Mo).
+
+Pipeline
+--------
+
+This is the pipeline used for measurements:
+
+.. image:: https://mendevi.readthedocs.io/latest/_images/colorspace.svg
+    :alt: Pipeline diagram
 
 Plots
 -----
