@@ -45,6 +45,16 @@ Distortion as a function of bitrate for several colorspaces
 .. image:: /_static/media/colorspace_bdr.svg
     :alt: Distortion as a function of bitrate
 
+Impact of EOTF on energy consumption
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code:: shell
+
+    mendevi plot '<colorspace.db>' -x rate -y energy -c eotf -m '(prim, range)' -wx encoder -s 'sharey="row"' 'sharey=False'
+
+.. image:: /_static/media/colorspace_energy.svg
+    :alt: Energy as a function of bitrate
+
 Lossless color transformation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
