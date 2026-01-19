@@ -136,7 +136,7 @@ ALL_EXTRACTORS = {
             '    "tiergarten_parkway": "8K-TV",\n'  # ; Key: S3-R16",\n'
             '    "tunnel_flag": "4K-TV",\n'  # ; Key: S5-R5",\n'
             '    "world_of_warcraft": "Gaming",\n'  # ; Key: S5-R10",\n'
-            "}.get(reference_video_name, reference_video_name)"
+            "}.get(reference_video_stem, reference_video_stem)"
         ),
         Scale.DISCRETE,
     ),
@@ -293,9 +293,9 @@ ALL_EXTRACTORS = {
         extract.extract_range,
         Scale.DISCRETE,
     ),
-    "reference_video_name": Extractor(
-        "Input video basename",
-        extract.extract_reference_video_name,
+    "reference_video_stem": Extractor(
+        "Input video compact stem",
+        extract.extract_reference_video_stem,
         Scale.DISCRETE,
     ),
     "rms_sobel": Extractor(
@@ -354,7 +354,7 @@ ALL_EXTRACTORS = {
         Scale.DISCRETE,
     ),
     "video_name": Extractor(
-        "Video basename",
+        "Full video basename",
         extract.extract_video_name,
         Scale.DISCRETE,
     ),
@@ -390,13 +390,12 @@ ALIAS = {
     "preset": "effort",
     "prim": "gamut",
     "primaries": "gamut",
-    "psnr_rev": "ssim_comp",
     "rate": "bitrate",
-    "ref_name": "reference_video_name",
-    "ref_vid_name": "reference_video_name",
-    "ref_video_name": "reference_video_name",
-    "reference_name": "reference_video_name",
-    "reference_vid_name": "reference_video_name",
+    "ref_stem": "reference_video_stem",
+    "ref_vid_stem": "reference_video_stem",
+    "ref_video_stem": "reference_video_stem",
+    "reference_stem": "reference_video_stem",
+    "reference_vid_stem": "reference_video_stem",
     "rev_ssim": "ssim_comp",
     "size": "video_size",
     "ssim_rev": "ssim_comp",

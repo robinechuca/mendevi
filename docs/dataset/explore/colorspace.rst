@@ -12,7 +12,7 @@ Download
 
     mendevi download colorspace.db.xz.torrent
 
-* `colorspace.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/colorspace.json.xz?inline=false>`_ (846 Ko).
+* `colorspace.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/colorspace.json.xz?inline=false>`_ (845 Ko).
 * `colorspace.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/colorspace.db.xz.torrent?inline=false>`_ (551 Mo).
 
 Pipeline
@@ -23,23 +23,24 @@ This is the pipeline used for measurements:
 .. image:: /_static/media/colorspace.svg
     :alt: Pipeline diagram
 
+1) The input video ``park_joy.mkv`` was losslessly transcoded with different colorspaces to form the set of reference videos ``reference_park_joy_*_fhd.mp4``, including the default ``reference_park_joy_fhd.mp4``.
+
+2) Each of the ``reference_park_joy_*`` videos was lossly encoded by varying several parameters but **without changing the colorspace**. These videos form the ``sample*`` collection.
+
 Plots
 -----
 
-1) The reference video ``park_joy`` was losslessly transcoded with different colorspaces to form the set of reference videos ``park_joy_*``.
-
-2) Each of the ``park_joy_*`` videos was lossly encoded by varying several parameters but **without changing the colorspace**. These videos form the ``sample*`` collection.
 
 Distortion as a function of bitrate for several colorspaces
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-* On the left, the sample videos are directly compared (without color conversion) to their lossless reference ``park_joy_*``.
+* On the left column, the sample videos are directly compared (without color conversion) to their lossless reference ``reference_park_joy_*_fhd.mp4``.
 
-* On the right, the sample videos are transformed back using the inverse color transformation and then, compared to the same reference ``park_joy``.
+* On the right column, the sample videos are transformed back using the inverse color transformation and then, compared to the same default reference ``reference_park_joy_fhd.mp4``.
 
 .. code:: shell
 
-    mendevi plot '<colorspace.db>' -x rate -y psnr -y ssim_comp -c eotf -m '(prim, range)' -wx 'name=="park_joy"' -f 'codec!="ffv1"'
+    mendevi plot '<colorspace.db>' -x rate -y psnr -y ssim_comp -c eotf -m '(prim, range)' -wx "ref_stem=='park_joy'" -f "not name.staartswith('ref')" -t t_met_metric
 
 .. image:: /_static/media/colorspace_bdr.svg
     :alt: Distortion as a function of bitrate

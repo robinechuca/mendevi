@@ -575,8 +575,8 @@ def extract_range(raw: dict[str]) -> str:
 
 @verif
 @SqlLinker("t_ref_video.vid_name AS ref_vid_name")
-def extract_reference_video_name(raw: dict[str]) -> str:
-    """Return the input video basename.
+def extract_reference_video_stem(raw: dict[str]) -> str:
+    """Return the input video compact stem.
 
     Parameters
     ----------
@@ -729,7 +729,7 @@ def extract_video_hash(raw: dict[str]) -> str:
 @verif
 @SqlLinker("t_vid_video.vid_name")
 def extract_video_name(raw: dict[str]) -> str:
-    """Return the video basename.
+    """Return the full video basename.
 
     Parameters
     ----------
