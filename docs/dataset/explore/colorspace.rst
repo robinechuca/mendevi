@@ -51,7 +51,7 @@ The reference videos ``park_joy_*`` are transformed back using the inverse color
 
 .. code:: shell
 
-    mendevi plot '<colorspace.db>' -x rate -y psnr -c eotf -m '(prim, range)' -f 'codec=="ffv1"'
+    mendevi plot '<colorspace.db>' -x rate -y psnr -c eotf -m '(prim, range)' -f "'reference' in name"
 
 .. image:: /_static/media/colorspace_bij.svg
     :alt: Lossless back colorspace transformation

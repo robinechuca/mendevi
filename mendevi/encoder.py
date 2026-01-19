@@ -336,7 +336,7 @@ def _encode_libvpx_vp9(**kwargs: dict) -> list[str]:
         # in [-16, 16]
         "-speed", {"slow": "-2", "medium": "1", "fast": "8"}[kwargs["effort"]],
         "-tune", "ssim",
-        "-row-mt", "0", "-threads", str(kwargs["threads"]),
+        "-row-mt", "1", "-threads", str(kwargs["threads"]),
     ]
 
 
