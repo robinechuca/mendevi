@@ -34,7 +34,7 @@ Result for a single video, including energy:
 
 .. code:: shell
 
-    mendevi plot '<x264_vs_openh264.db>' -x rate -x energy -y psnr -c encoder -m effort -wy profile -f "ref_name=='park_joy'"
+    mendevi plot '<x264_vs_openh264.db>' -x rate -x energy -y psnr -c encoder -m effort -wy profile -f "ref_stem=='park_joy'"
 
 .. image:: /_static/media/x264_vs_openh264_cut.svg
     :alt: Link between distortion and energy for each encoder

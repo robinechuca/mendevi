@@ -253,10 +253,10 @@ def probe_and_store(
         """,
         (vid_id,),
     ):
-        ref_name, ref_id = res["vid_name"], res["enc_src_vid_id"]
+        ref_stem, ref_id = res["vid_name"], res["enc_src_vid_id"]
         # try to find video full path
         if (
-            ref := database.with_name(ref_name)).is_file() or (ref := video.with_name(ref_name)
+            ref := database.with_name(ref_stem)).is_file() or (ref := video.with_name(ref_stem)
         ).is_file():
             references[ref] = ref_id
         else:

@@ -72,7 +72,7 @@ def main(database: str, **kwargs: dict) -> None:
         "psnr",
         "quality",
         "range",
-        "ref_name",
+        "ref_stem",
         "ssim",
         "threads",
         "video_duration",

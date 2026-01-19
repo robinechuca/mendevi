@@ -23,7 +23,7 @@ Encoding energy per frame as a function of the number of frames
 
 .. code:: shell
 
-    mendevi plot '<duration.db>' -x nbr_frames -y energy_per_frame -e ref_name -c '(encoder, effort)' -wy profile -wx hostname -t t_enc_encode
+    mendevi plot '<duration.db>' -x nbr_frames -y energy_per_frame -e ref_stem -c '(encoder, effort)' -wy profile -wx hostname -t t_enc_encode
 
 .. image:: /_static/media/duration_energy_frames_enc.svg
     :alt: Energy per frame as a function of the number of frames during encoding
@@ -33,7 +33,7 @@ Decoding energy per frame as a function of the number of frames
 
 .. code:: shell
 
-    mendevi plot '<duration.db>' -x nbr_frames -y energy_per_frame -e ref_name -c '(codec, effort)' -wy profile -wx hostname -t t_dec_decode
+    mendevi plot '<duration.db>' -x nbr_frames -y energy_per_frame -e ref_stem -c '(codec, effort)' -wy profile -wx hostname -t t_dec_decode
 
 .. image:: /_static/media/duration_energy_frames_dec.svg
     :alt: Energy per frame as a function of the number of frames during decoding
