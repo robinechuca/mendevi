@@ -40,7 +40,7 @@ Distortion as a function of bitrate for several colorspaces
 
 .. code:: shell
 
-    mendevi plot '<colorspace.db>' -x rate -y psnr -y ssim_comp -c eotf -m '(prim, range)' -wx "ref_stem=='park_joy'" -f "not name.staartswith('ref')" -t t_met_metric
+    mendevi plot '<colorspace.db>' -x rate -y psnr -y ssim_comp -c eotf -m '(prim, range)' -wx "ref_stem=='park_joy'" -f "not name.startswith('ref')" -t t_met_metric
 
 .. image:: /_static/media/colorspace_bdr.svg
     :alt: Distortion as a function of bitrate
