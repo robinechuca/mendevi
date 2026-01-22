@@ -57,6 +57,7 @@ def decompress(compressed_file: pathlib.Path) -> pathlib.Path:
                 dst.write(data)
                 load.total = max(load.total, load.n + len(data)*1e-6)
                 load.update(len(data)*1e-6)
+            load.update(load.total - load.n)
             prt.print_time()
 
     return decompressed_file
