@@ -56,6 +56,20 @@ The more cores used, the faster the encoding, and therefore the less significant
 Reproduce
 ---------
 
+Create the callback.py file and copy the following content into it:
+
+.. code:: python
+
+    """Helper for mendevi multithread database."""
+
+    from mendevi.cmd import CmdFFMPEG
+
+
+    def encode_several(cmd: CmdFFMPEG, **kwargs) -> list[str]:
+        """Transform a single encoding on n threads, to n encoding on 1 thread."""
+
+Then in a terminal, run:
+
 .. code:: shell
 
     for video in ctc/*.mkv; do
@@ -63,4 +77,5 @@ Reproduce
         mendevi prepare $video -p fhd
     done
     mendevi encode reference* -e fast -e medium -n2 -t1 -t2 -t3 -t4 -t5 -t6 -t7 -t8 -t9 -t10 -t11 -t12 -t13 -t14 -t15 -t16
+    mendevi encode reference* -e fast -e medium -n2 --callback callback.py -t1 -t2 -t3 -t4 -t5 -t6 -t7 -t8 -t9 -t10 -t11 -t12 -t13 -t14 -t15 -t16
     mendevi probe reference* sample*
