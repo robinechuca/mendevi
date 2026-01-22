@@ -23,7 +23,7 @@ Power as a function of the logical core usage
 
 .. code:: shell
 
-    mendevi plot '<multithread.db>' -x cores -y power -c '(profile, hostname)' -m encoder
+    mendevi plot '<multithread.db>' -x cores -y power -c '(profile, hostname)' -m encoder -e enc_scenario -s err=.err err=None
 
 .. image:: /_static/media/multithread_cores_power.svg
     :alt: Power as a function of the logical core usage
@@ -33,7 +33,7 @@ Logical core usage as a function of the provided number of threads
 
 .. code:: shell
 
-    mendevi plot '<multithread.db>' -x threads -y cores -wx encoder -wy profile -c effort -m quality -f '"aerial" in name'
+    mendevi plot '<multithread.db>' -x threads -y cores -wx encoder -wy profile -c effort -m quality -f "ref_stem=='park_joy'"
 
 .. image:: /_static/media/multithread_cores_threads.svg
     :alt: Logical core usage as a function of the provided number of threads
@@ -58,9 +58,9 @@ Reproduce
 
 .. code:: shell
 
-    mendevi prepare -p sd netflix_aerial.mp4
-    mendevi prepare -p fhd netflix_aerial.mp4
-
+    for video in ctc/*.mkv; do
+        mendevi prepare $video -p sd
+        mendevi prepare $video -p fhd
+    done
     mendevi encode reference* -e fast -e medium -n2 -t1 -t2 -t3 -t4 -t5 -t6 -t7 -t8 -t9 -t10 -t11 -t12 -t13 -t14 -t15 -t16
-
     mendevi probe reference* sample*

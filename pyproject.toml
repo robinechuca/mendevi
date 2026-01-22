@@ -75,7 +75,6 @@ doc = [
   "sphinxext-opengraph",  # for web page tags
 ]
 test = [
-  "enoslib",
   "pytest",
   "ruff",
 ]

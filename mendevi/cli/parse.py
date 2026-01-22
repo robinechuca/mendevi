@@ -138,7 +138,7 @@ def parse_expr(expr: str | None, prt: Printer, start_msg: str) -> None:
             )
         msg = (
             f"{', '.join(sorted(excess))} are not recognized variables.\n"
-            f"Do you mean {', '.join(sorted(LABELS, key=lambda lab: dist(lab, excess)))}?"
+            f"Do you mean {', '.join(sorted(LABELS, key=lambda lab: dist(lab, excess)))} ?"
         )
         raise ValueError(msg)
     prt.print(f"{start_msg}: {expr}")
