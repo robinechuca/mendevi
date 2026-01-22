@@ -62,11 +62,35 @@ Create the callback.py file and copy the following content into it:
 
     """Helper for mendevi multithread database."""
 
+    import pathlib
+    import shlex
+
     from mendevi.cmd import CmdFFMPEG
+    from mendevi.encode import get_transcode_cmd
 
 
-    def encode_several(cmd: CmdFFMPEG, **kwargs) -> list[str]:
+    def n_threads_to_multiple_encodings(cmd: CmdFFMPEG, **kwargs) -> str:
         """Transform a single encoding on n threads, to n encoding on 1 thread."""
+        # change the command for a single thread encoding
+        src, dst = cmd.video, pathlib.Path(cmd.output[0])  # input / output video file
+        loop = kwargs.pop("threads")  # number parallel encoding
+        cmd = get_transcode_cmd(src, dst, **kwargs, threads=1)
+
+        # duplicate the command n times, with different output
+        for file in dst.parent.iterdir():
+            if file.stem.startswith("bis_"):
+                file.unlink()
+        cmds = [cmd]
+        for i in range(1, loop):
+            new_cmd = cmd.copy()
+            new_cmd.output = [str((dst.parent / f"bis_{i}").with_suffix(dst.suffix))]
+            cmds.append(new_cmd)
+
+        # merge together
+        return f"parallel ::: {' '.join(shlex.quote(str(c)) for c in cmds)}"
+
+
+It requires the linux tool ``sudo apt install parallel``.
 
 Then in a terminal, run:
 

@@ -40,8 +40,17 @@ class CallBackType(click.ParamType):
 
         # find the function
         funcs = dict(inspect.getmembers(modulevar, inspect.isfunction))
+        def is_local(func: typing.Callable, path: pathlib.Path) -> bool:
+            """Return True if func is defined in the path file."""
+            try:
+                file = inspect.getfile(func)
+            except TypeError:  # got builtin_function_or_method
+                return False
+            return pathlib.Path(file).resolve() == path.resolve()
+        funcs = {name: func for name, func in funcs.items() if is_local(func, path)}
         if func_name is None:
             if len(funcs) != 1:
+                import ipdb; ipdb.set_trace()
                 self.fail(
                     f"please specifiy the function to use {', '.join(sorted(funcs))}", param, ctx,
                 )

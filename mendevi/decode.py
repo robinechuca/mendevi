@@ -49,7 +49,7 @@ def decode(vid: pathlib.Path, **kwargs: dict) -> tuple[str, str | None, str, dic
         if kwargs.get("callback") is None:
             user_cmd = None
         else:
-            user_cmd = kwargs["callback"](cmd, **kwargs)
+            user_cmd = kwargs["callback"](cmd, **kwargs.copy())  # copy for user safe
             if isinstance(user_cmd, str):
                 user_cmd = shlex.split(user_cmd)
             assert isinstance(user_cmd, list), user_cmd.__class__.__name__
