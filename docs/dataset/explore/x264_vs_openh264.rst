@@ -25,7 +25,7 @@ Overall trend for all measures:
 
 .. code:: shell
 
-    mendevi plot '<x264_vs_openh264.db>' -x rate -y psnr -y vmaf -wx category -c '(encoder, profile)' -m effort
+    mendevi plot x264_vs_openh264.db -x rate -y psnr -y vmaf -wx category -c '(encoder, profile)' -m effort
 
 .. image:: /_static/media/x264_vs_openh264_bdr.svg
     :alt: Distortion as a function of bitrate
@@ -34,7 +34,7 @@ Result for a single video, including energy:
 
 .. code:: shell
 
-    mendevi plot '<x264_vs_openh264.db>' -x rate -x energy -y psnr -c encoder -m effort -wy profile -f "ref_stem=='park_joy'"
+    mendevi plot x264_vs_openh264.db -x rate -x energy -y psnr -c encoder -m effort -wy profile -f "ref_stem=='park_joy'"
 
 .. image:: /_static/media/x264_vs_openh264_cut.svg
     :alt: Link between distortion and energy for each encoder
@@ -45,7 +45,7 @@ Compression efficiency for PSNR=35dB
 
 .. code:: shell
 
-    mendevi plot '<x264_vs_openh264.db>' -x rate -y energy -c '(encoder, profile)' -m category -f '34.5<psnr<35.5'
+    mendevi plot x264_vs_openh264.db -x rate -y energy -c '(encoder, profile)' -m category -f '34.5<psnr<35.5'
 
 .. image:: /_static/media/x264_vs_openh264_efficiency_psnr.svg
     :alt: Consumption as a function of bitrate for a psnr of 35dB
@@ -55,7 +55,7 @@ Compression efficiency for rate=2Mb/s
 
 .. code:: shell
 
-    mendevi plot '<x264_vs_openh264.db>' -x rate -y energy -c '(encoder, profile)' -m category -f '1.8e6<rate<2.2e6'
+    mendevi plot x264_vs_openh264.db -x rate -y energy -c '(encoder, profile)' -m category -f '1.8e6<rate<2.2e6'
 
 .. image:: /_static/media/x264_vs_openh264_efficiency_rate.svg
     :alt: Consumption as a function of bitrate for a bitrate of 2Mb/s
@@ -65,7 +65,7 @@ Compression efficiency for fixed energy
 
 .. code:: shell
 
-    mendevi plot '<x264_vs_openh264.db>' -x rate -y psnr -wx 'round(energy/nbr_frames, 1)' -c encoder -m '(profile, effort)' -f "0.29<energy/nbr_frames<0.31 or 2.45<energy/nbr_frames<2.55"
+    mendevi plot x264_vs_openh264.db -x rate -y psnr -wx 'round(energy/nbr_frames, 1)' -c encoder -m '(profile, effort)' -f "0.29<energy/nbr_frames<0.31 or 2.45<energy/nbr_frames<2.55"
 
 .. image:: /_static/media/x264_vs_openh264_efficiency_energy.svg
     :alt: Consumption as a function of bitrate for a fixed energy
@@ -92,5 +92,5 @@ Reproduce
         mendevi prepare $video -p sd
         mendevi prepare $video -p fhd
     done
-    mendevi encode reference* -e fast -e medium -e slow -m cbr -m vbr -c libx264 -c libopenh264
-    mendevi probe sample* --psnr --ssim --vif --vmaf
+    mendevi encode -e fast -e medium -e slow -m cbr -m vbr -c libx264 -c libopenh264 reference*
+    mendevi probe --psnr --ssim --vif --vmaf sample*

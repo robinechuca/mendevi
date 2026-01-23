@@ -25,7 +25,7 @@ Overall trend for all measures:
 
 .. code:: shell
 
-    mendevi plot '<svtav1_vs_rav1e_vs_aom.db>' -x rate -y psnr -y vmaf -wx category -c '(encoder, profile)' -m effort
+    mendevi plot svtav1_vs_rav1e_vs_aom.db -x rate -y psnr -y vmaf -wx category -c '(encoder, profile)' -m effort
 
 .. image:: /_static/media/svtav1_vs_rav1e_vs_aom_bdr.svg
     :alt: Distortion as a function of bitrate
@@ -34,7 +34,7 @@ Result for a single video, including energy:
 
 .. code:: shell
 
-    mendevi plot '<svtav1_vs_rav1e_vs_aom.db>' -x rate -x energy -y psnr -c encoder -m effort -wy profile -f "ref_stem=='park_joy'"
+    mendevi plot svtav1_vs_rav1e_vs_aom.db -x rate -x energy -y psnr -c encoder -m effort -wy profile -f "ref_stem=='park_joy'"
 
 .. image:: /_static/media/svtav1_vs_rav1e_vs_aom_cut.svg
     :alt: Link between distortion and energy for each encoder
@@ -56,5 +56,5 @@ Reproduce
         mendevi prepare $video -p sd
         mendevi prepare $video -p fhd
     done
-    mendevi encode reference* -e fast -e medium -e slow -m cbr -m vbr -c libsvtav1 -c librav1e -c libaom-av1
-    mendevi probe sample_* --psnr --ssim --vif --vmaf
+    mendevi encode -e fast -e medium -e slow -m cbr -m vbr -c libsvtav1 -c librav1e -c libaom-av1 reference*
+    mendevi probe --psnr --ssim --vif --vmaf sample_*

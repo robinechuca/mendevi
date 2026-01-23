@@ -25,7 +25,7 @@ To understand the nature of each test video. A similar plot has been made in `UH
 
 .. code:: shell
 
-    mendevi plot '<ctc.db>' -x rms_time_diff -y rms_sobel -c ref_stem -m profile
+    mendevi plot ctc.db -x rms_time_diff -y rms_sobel -c ref_stem -m profile
 
 .. image:: /_static/media/ctc_complexity.svg
     :alt: Energy per frame as a function of the number of frames during encoding

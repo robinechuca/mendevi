@@ -23,7 +23,7 @@ Encoding energy per frame as a function of the number of frames
 
 .. code:: shell
 
-    mendevi plot '<duration.db>' -x nbr_frames -y energy_per_frame -e ref_stem -c '(encoder, effort)' -wy profile -wx hostname -t t_enc_encode
+    mendevi plot duration.db -x nbr_frames -y energy_per_frame -e ref_stem -c '(encoder, effort)' -wy profile -wx hostname -t t_enc_encode
 
 .. image:: /_static/media/duration_energy_frames_enc.svg
     :alt: Energy per frame as a function of the number of frames during encoding
@@ -33,7 +33,7 @@ Decoding energy per frame as a function of the number of frames
 
 .. code:: shell
 
-    mendevi plot '<duration.db>' -x nbr_frames -y energy_per_frame -e ref_stem -c '(codec, effort)' -wy profile -wx hostname -t t_dec_decode
+    mendevi plot duration.db -x nbr_frames -y energy_per_frame -e ref_stem -c '(codec, effort)' -wy profile -wx hostname -t t_dec_decode
 
 .. image:: /_static/media/duration_energy_frames_dec.svg
     :alt: Energy per frame as a function of the number of frames during decoding
@@ -43,7 +43,7 @@ Bitrate as a function of the number of frame at constant quality
 
 .. code:: shell
 
-    mendevi plot '<duration.db>' -x nbr_frames -y rate -c encoder -m effort -wx quality -wy profile -f "mode == 'vbr'"
+    mendevi plot duration.db -x nbr_frames -y rate -c encoder -m effort -wx quality -wy profile -f "mode == 'vbr'"
 
 .. image:: /_static/media/duration_rate_frames.svg
     :alt: Energy per frame as a function of the number of frames
@@ -70,6 +70,6 @@ Next, perform the measurements
 
 .. code:: shell
 
-    mendevi encode reference* -r 10 -c libx264 -c libsvtav1 -e fast -e medium -m cbr -m vbr -n 2
-    mendevi probe reference* sample* --no-vmaf
-    mendevi decode sample* -r 10
+    mendevi encode -r10 -c libx264 -c libsvtav1 -e fast -e medium -m cbr -m vbr -n2 reference*
+    mendevi probe --no-vmaf reference* sample* 
+    mendevi decode -r10 sample*

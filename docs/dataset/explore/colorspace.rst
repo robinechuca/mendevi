@@ -40,7 +40,7 @@ Distortion as a function of bitrate for several colorspaces
 
 .. code:: shell
 
-    mendevi plot '<colorspace.db>' -x rate -y ssim_comp -c eotf -m '(prim, range)' -wx "ref_stem=='park_joy'" -f "not name.startswith('ref')" -t t_met_metric
+    mendevi plot colorspace.db -x rate -y ssim_comp -c eotf -m '(prim, range)' -wx "ref_stem=='park_joy'" -f "not name.startswith('ref')" -t t_met_metric
 
 .. image:: /_static/media/colorspace_bdr.svg
     :alt: Distortion as a function of bitrate
@@ -50,7 +50,7 @@ Impact of EOTF on energy consumption
 
 .. code:: shell
 
-    mendevi plot '<colorspace.db>' -x rate -y energy -c eotf -m '(prim, range)' -wx encoder -s 'sharey="row"' 'sharey=False'
+    mendevi plot colorspace.db -x rate -y energy -c eotf -m '(prim, range)' -wx encoder -s 'sharey="row"' 'sharey=False'
 
 .. image:: /_static/media/colorspace_energy.svg
     :alt: Energy as a function of bitrate
@@ -62,7 +62,7 @@ The reference videos ``park_joy_*`` are transformed back using the inverse color
 
 .. code:: shell
 
-    mendevi plot '<colorspace.db>' -x rate -y psnr -c eotf -m '(prim, range)' -f "'reference' in name"
+    mendevi plot colorspace.db -x rate -y psnr -c eotf -m '(prim, range)' -f "'reference' in name"
 
 .. image:: /_static/media/colorspace_bij.svg
     :alt: Lossless back colorspace transformation
