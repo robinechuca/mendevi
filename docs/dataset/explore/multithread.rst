@@ -87,7 +87,7 @@ Create the callback.py file and copy the following content into it:
             cmds.append(new_cmd)
 
         # merge together
-        return f"parallel ::: {' '.join(shlex.quote(str(c)) for c in cmds)}"
+        return f"parallel -j{loop} ::: {' '.join(shlex.quote(str(c)) for c in cmds)}"
 
 It requires the linux tool ``sudo apt install parallel``.
 
