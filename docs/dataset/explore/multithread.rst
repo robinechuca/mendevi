@@ -24,6 +24,7 @@ Power as a function of the logical core usage
 .. code:: shell
 
     mendevi plot multithread.db -x cores -y power -c '(profile, hostname)' -m encoder -e enc_scenario -s err=.err err=None
+    mendevi plot multithread.db -x cores -y power -c "(profile, enc_cmd.startswith('parallel'))" -m encoder -e enc_scenario -s err=.err err=None
 
 .. image:: /_static/media/multithread_cores_power.svg
     :alt: Power as a function of the logical core usage
@@ -56,7 +57,7 @@ The more cores used, the faster the encoding, and therefore the less significant
 Reproduce
 ---------
 
-Create the callback.py file and copy the following content into it:
+Create the file ``callback.py`` with the following content:
 
 .. code:: python
 
@@ -101,7 +102,7 @@ Then in a terminal, run:
     done
     
     mendevi encode -n2 -e fast -e medium -c libopenh264 -c librav1e -c libsvtav1 -c libvpx-vp9 -c libx264 -c libx265 -c vvc -t1 -t2 -t3 -t4 -t5 -t6 -t7 -t8 -t9 -t10 -t11 -t12 -t13 -t14 -t15 -t16 -d n_thread_1_vid.db reference*
-    mendevi encode -n2 --callback callback.py -e fast -e medium -c libopenh264 -c librav1e -c libsvtav1 -c libvpx-vp9 -c libx264 -c libx265 -c vvc -t1 -t2 -t3 -t4 -t5 -t6 -t7 -t8 -t9 -t10 -t11 -t12 -t13 -t14 -t15 -t16 -d 1_thread_n_vid.db reference*
+    mendevi encode -n2 -e fast -e medium -c libopenh264 -c librav1e -c libsvtav1 -c libvpx-vp9 -c libx264 -c libx265 -c vvc -t1 -t2 -t3 -t4 -t5 -t6 -t7 -t8 -t9 -t10 -t11 -t12 -t13 -t14 -t15 -t16 --callback callback.py -d 1_thread_n_vid.db reference*
     mendevi merge n_thread_1_vid.db 1_thread_n_vid.db && mv merge_n_thread_1_vid_1_thread_n_vid.db multithread.db
     
     mendevi probe -d multithread.db reference* sample*
