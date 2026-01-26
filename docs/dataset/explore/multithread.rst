@@ -23,8 +23,7 @@ Power as a function of the logical core usage
 
 .. code:: shell
 
-    mendevi plot multithread.db -x cores -y power -c '(profile, hostname)' -m encoder -e enc_scenario -s err=.err err=None
-    mendevi plot multithread.db -x cores -y power -c "(profile, enc_cmd.startswith('parallel'))" -m encoder -e enc_scenario -s err=.err err=None
+    mendevi plot multithread.db -x cores -y power -c "(profile, 'parallel' in enc_cmd)" -m encoder -e enc_scenario -s err=.err err=None
 
 .. image:: /_static/media/multithread_cores_power.svg
     :alt: Power as a function of the logical core usage
@@ -34,9 +33,43 @@ Logical core usage as a function of the provided number of threads
 
 .. code:: shell
 
-    mendevi plot multithread.db -x threads -y cores -wx encoder -wy profile -c effort -m quality -f "ref_stem=='park_joy'"
+    mendevi plot multithread.db -x threads -y cores -wx encoder -wy profile -c "('parallel' in enc_cmd, effort)" -m quality -f "ref_stem=='park_joy'"
 
 .. image:: /_static/media/multithread_cores_threads.svg
+    :alt: Logical core usage as a function of the provided number of threads
+
+Relative energy as a function of the logical core usage
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code:: shell
+
+    mendevi plot multithread.db -x cores -y act_duration -c "'parallel' in enc_cmd" -m encoder -e "(ref_stem, effort, profile, quality, hostname)"
+
+.. code:: python
+
+    for x_data, y_data in zip(xerr, yerr):
+        if len(x_data) < 2:
+            continue
+        if color_label:  # 1 thread, n video
+            # regression y = a*x + t0
+            m, t0 = np.polyfit(x_data, y_data, 1)
+            y_data = [y/(t0*x) for x, y in zip(x_data, y_data)]
+        else:  # n threads, 1 video
+            # regression y = t1 / x
+            t1 = sum(y/x for x, y in zip(x_data, y_data)) / sum(x**-2 for x in x_data)
+            y_data = [y/t1 for y in y_data]
+        axe.errorbar(
+            x_data,
+            y_data,
+            xerr=None,
+            yerr=None,
+            color=color,
+            fmt=marker,
+            capsize=3,
+            markersize=MARKERSIZE,
+        )
+
+.. image:: /_static/media/multithread_duration_cores.svg
     :alt: Logical core usage as a function of the provided number of threads
 
 Final energy as a function of the provided number of threads
