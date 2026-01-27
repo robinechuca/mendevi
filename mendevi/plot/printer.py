@@ -73,8 +73,8 @@ def print_error(**kwargs: dict) -> list[str]:
             "    yerr[err].append(y)",
             "xerr = [xerr[e] for e in errs]",
             "yerr = [yerr[e] for e in errs]",
-            "x_data, xerr = zip(*map(mean_std, xerr))",
-            "y_data, yerr = zip(*map(mean_std, yerr))",
+            "x_data, xerr = zip(*map(mean_std, xerr)) if xerr else ([], None)",
+            "y_data, yerr = zip(*map(mean_std, yerr)) if yerr else ([], None)",
             "",
         ]
     return [

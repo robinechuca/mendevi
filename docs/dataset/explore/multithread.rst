@@ -23,7 +23,7 @@ Power as a function of the logical core usage
 
 .. code:: shell
 
-    mendevi plot multithread.db -x cores -y power -c "(profile, 'parallel' in enc_cmd)" -m encoder -e enc_scenario -s err=.err err=None
+    mendevi plot multithread.db -x cores -y power -c "('parallel' in enc_cmd, profile)" -m encoder -e enc_scenario -s err=.err err=None
 
 .. image:: /_static/media/multithread_cores_power.svg
     :alt: Power as a function of the logical core usage
@@ -33,7 +33,11 @@ Logical core usage as a function of the provided number of threads
 
 .. code:: shell
 
-    mendevi plot multithread.db -x threads -y cores -wx encoder -wy profile -c "('parallel' in enc_cmd, effort)" -m quality -f "ref_stem=='park_joy'"
+    mendevi plot multithread.db \
+        -x threads -y cores -wx encoder -wy profile \
+        -c "('parallel' in enc_cmd, effort)" -m quality \
+        -f "ref_stem=='park_joy'" \
+        -s "(# create legend(.|\n)*?\n\n)" '\1    axe.plot([1, 16], [1, 16], "--", color="black")\n'
 
 .. image:: /_static/media/multithread_cores_threads.svg
     :alt: Logical core usage as a function of the provided number of threads
@@ -48,8 +52,9 @@ The figure cannot be generated directly. You must first create a template, which
     mendevi plot multithread.db \
         -x cores -y act_duration -c "'parallel' in enc_cmd" -m encoder \
         -e "(ref_stem, effort, profile, quality, hostname)" \
-        -s "supylabel\(.*\)" 'supylabel("Video encoding relative time gain")' \
-        -s "(# create legend(.|\n)*?\n\n)" '\1    cpu = np.linspace(1, 16, 100)\n    axe.plot(cpu, 1.0/cpu, "--", color="black")\n'
+        -s "supylabel\(.*\)" 'supylabel("Encoding relative time gain per video")' \
+        -s "(# create legend(.|\n)*?\n\n)" \
+           '\1    cpu = np.linspace(1, 16, 100)\n    axe.plot(cpu, 1.0/cpu, "--", color="black")\n'
 
 Then edit the function ``fill_axe`` of the just generated ``act_duration_as_a_function_of_cores.py`` file.
 To do this, replace all lines in the function after ``yerr = [yerr[e] for e in errs]`` with the following code:
@@ -85,38 +90,49 @@ Final energy as a function of the provided number of threads
 
 .. code:: shell
 
-    mendevi plot multithread.db -x threads -y energy -wx encoder -wy profile -c effort -m quality -e '(threads, name)'
+    mendevi plot multithread.db \
+        -x threads -y energy -wx encoder -wy profile \
+        -c "('parallel' in enc_cmd, effort)" -m quality \
+        -e '(threads, name)' \
+        -f "ref_stem=='park_joy'" \
+        -s "(x_data, \w+ = [\w\[\]]+, sub_values\[ylab\]\n)" \
+           '\1        if color[0]:  # case 1 thread, n videos\n            y_data = [y/x for x, y in zip(x_data, y_data)]'
 
 .. image:: /_static/media/multithread_energy_threads.svg
     :alt: Final energy as a function of the provided number of threads
 
-Loss of quality with PSNR
-^^^^^^^^^^^^^^^^^^^^^^^^^
+Impact of multithreading on distortion
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The figure cannot be generated directly. You must first create a template, which you can then modify.
 
 .. code:: shell
 
     mendevi plot multithread.db \
-        -x threads -y psnr -c encoder -m profile \
+        -x threads -y ssim -y rate -c encoder -m profile \
         -f "'parallel' not in enc_cmd" \
         -e "(ref_stem, effort, profile, quality, hostname)" \
-        -s "supylabel\(.*\)" 'supylabel("PSNR loss")'
+        -s 'supylabel\("' 'supylabel("Relative '
+
+Then edit the function ``fill_axe`` of the just generated ``psnr_rate_as_a_function_of_threads.py`` file.
+To do this, replace all lines in the function after ``yerr = [yerr[e] for e in errs]`` with the following code:
 
 .. code:: python
 
-        for x_data, y_data in zip(xerr, yerr):
-            if 1 not in x_data:
-                continue
-            psnr = y_data[x_data.index(1)]
-            y_data = [y - psnr for y in y_data]
-            axe.errorbar(
-                x_data,
-                y_data,
-                color=color,
-                alpha=0.5,
-                fmt=marker,
-                capsize=3,
-                markersize=MARKERSIZE,
-            )
+    for x_data, y_data in zip(xerr, yerr):
+        if 1 not in x_data:
+            continue
+        ref = y_data[x_data.index(1)]
+        y_data = [y/ref for y in y_data]
+        axe.errorbar(
+            x_data,
+            y_data,
+            color=color,
+            alpha=0.5,
+            fmt=marker,
+            capsize=3,
+            markersize=MARKERSIZE,
+        )
 
 .. image:: /_static/media/multithread_quality_loss.svg
     :alt: Logical core usage as a function of the provided number of threads
