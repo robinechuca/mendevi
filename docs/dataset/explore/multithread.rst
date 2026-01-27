@@ -45,7 +45,11 @@ The figure cannot be generated directly. You must first create a template, which
 
 .. code:: shell
 
-    mendevi plot multithread.db -x cores -y act_duration -c "'parallel' in enc_cmd" -m encoder -e "(ref_stem, effort, profile, quality, hostname)" -s "supylabel\(.*\)" 'supylabel("Video encoding relative time gain")' -s "(# create legend(.|\n)*?\n\n)" '\1    cpu = np.linspace(1, 16, 100)\n    axe.plot(cpu, 1.0/cpu, "--", color="black")\n'
+    mendevi plot multithread.db \
+        -x cores -y act_duration -c "'parallel' in enc_cmd" -m encoder \
+        -e "(ref_stem, effort, profile, quality, hostname)" \
+        -s "supylabel\(.*\)" 'supylabel("Video encoding relative time gain")' \
+        -s "(# create legend(.|\n)*?\n\n)" '\1    cpu = np.linspace(1, 16, 100)\n    axe.plot(cpu, 1.0/cpu, "--", color="black")\n'
 
 Then edit the function ``fill_axe`` of the just generated ``act_duration_as_a_function_of_cores.py`` file.
 To do this, replace all lines in the function after ``yerr = [yerr[e] for e in errs]`` with the following code:
@@ -85,6 +89,37 @@ Final energy as a function of the provided number of threads
 
 .. image:: /_static/media/multithread_energy_threads.svg
     :alt: Final energy as a function of the provided number of threads
+
+Loss of quality with PSNR
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code:: shell
+
+    mendevi plot multithread.db \
+        -x threads -y psnr -c encoder -m profile \
+        -f "'parallel' not in enc_cmd" \
+        -e "(ref_stem, effort, profile, quality, hostname)" \
+        -s "supylabel\(.*\)" 'supylabel("PSNR loss")'
+
+.. code:: python
+
+        for x_data, y_data in zip(xerr, yerr):
+            if 1 not in x_data:
+                continue
+            psnr = y_data[x_data.index(1)]
+            y_data = [y - psnr for y in y_data]
+            axe.errorbar(
+                x_data,
+                y_data,
+                color=color,
+                alpha=0.5,
+                fmt=marker,
+                capsize=3,
+                markersize=MARKERSIZE,
+            )
+
+.. image:: /_static/media/multithread_quality_loss.svg
+    :alt: Logical core usage as a function of the provided number of threads
 
 Conclusion
 ----------
