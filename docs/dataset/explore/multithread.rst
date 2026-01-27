@@ -41,33 +41,37 @@ Logical core usage as a function of the provided number of threads
 Relative energy as a function of the logical core usage
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+The figure cannot be generated directly. You must first create a template, which you can then modify.
+
 .. code:: shell
 
-    mendevi plot multithread.db -x cores -y act_duration -c "'parallel' in enc_cmd" -m encoder -e "(ref_stem, effort, profile, quality, hostname)"
+    mendevi plot multithread.db -x cores -y act_duration -c "'parallel' in enc_cmd" -m encoder -e "(ref_stem, effort, profile, quality, hostname)" -s "supylabel\(.*\)" 'supylabel("Video encoding relative time gain")' -s "(# create legend(.|\n)*?\n\n)" '\1    cpu = np.linspace(1, 16, 100)\n    axe.plot(cpu, 1.0/cpu, "--", color="black")\n'
+
+Then edit the function ``fill_axe`` of the just generated ``act_duration_as_a_function_of_cores.py`` file.
+To do this, replace all lines in the function after ``yerr = [yerr[e] for e in errs]`` with the following code:
 
 .. code:: python
 
     for x_data, y_data in zip(xerr, yerr):
         if len(x_data) < 2:
             continue
-        if color_label:  # 1 thread, n video
-            # regression y = a*x + t0
-            m, t0 = np.polyfit(x_data, y_data, 1)
+        if color_label:  # 1 thread, n videos (regression y = a*x + t0)
+            _, t0 = np.polyfit(x_data, y_data, 1)
             y_data = [y/(t0*x) for x, y in zip(x_data, y_data)]
-        else:  # n threads, 1 video
-            # regression y = t1 / x
+        else:  # n threads, 1 video (regression y = t1/x)
             t1 = sum(y/x for x, y in zip(x_data, y_data)) / sum(x**-2 for x in x_data)
             y_data = [y/t1 for y in y_data]
         axe.errorbar(
             x_data,
             y_data,
-            xerr=None,
-            yerr=None,
             color=color,
+            alpha=0.5,
             fmt=marker,
             capsize=3,
             markersize=MARKERSIZE,
         )
+
+Finally, simply run ``python act_duration_as_a_function_of_cores.py`` to generate the final figure.
 
 .. image:: /_static/media/multithread_duration_cores.svg
     :alt: Logical core usage as a function of the provided number of threads
