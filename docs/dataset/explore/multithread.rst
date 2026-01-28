@@ -62,11 +62,11 @@ To do this, replace all lines in the function after ``yerr = [yerr[e] for e in e
 .. code:: python
 
     for x_data, y_data in zip(xerr, yerr):
-        if len(x_data) < 2:
+        if len(x_data) < 3:
             continue
         if color_label:  # 1 thread, n videos (regression y = a*x + t0)
-            _, t0 = np.polyfit(x_data, y_data, 1)
-            y_data = [y/(t0*x) for x, y in zip(x_data, y_data)]
+            eff, t0 = np.polyfit(x_data, y_data, 1)
+            y_data = [y/((t0+eff)*x) for x, y in zip(x_data, y_data)]
         else:  # n threads, 1 video (regression y = t1/x)
             t1 = sum(y/x for x, y in zip(x_data, y_data)) / sum(x**-2 for x in x_data)
             y_data = [y/t1 for y in y_data]
