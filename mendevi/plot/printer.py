@@ -4,7 +4,9 @@ import datetime
 import itertools
 import logging
 import re
+import shlex
 import subprocess
+import sys
 
 from mendevi import __version__
 from mendevi.cst.plot import COLORS, FIGSIZE, MARKERS, MARKERSIZE
@@ -62,13 +64,14 @@ def print_entry() -> list[str]:
 
 def print_error(**kwargs: dict) -> list[str]:
     """Help for print_fill_axe."""
+    val_var = "sub_values" if kwargs["window_x"] or kwargs["window_y"] else "values"
     if kwargs["error"] is not None:
         return [
             "",
             "# compute error bar",
-            'errs = list(set(sub_values["error"]))  # list to frozen order',
+            f'errs = list(set({val_var}["error"]))  # list to frozen order',
             "xerr, yerr = {e: [] for e in errs}, {e: [] for e in errs}",
-            'for x, y, err in zip(x_data, y_data, sub_values["error"]):',
+            f'for x, y, err in zip(x_data, y_data, {val_var}["error"]):',
             "    xerr[err].append(x)",
             "    yerr[err].append(y)",
             "xerr = [xerr[e] for e in errs]",
@@ -450,6 +453,13 @@ def print_main(**kwargs: dict) -> list[str]:
         "",
     ])
     keys = ["x", "y", "color", "marker", "window_x", "window_y", "error", "filter", "table"]
+    args = sys.argv.copy()
+    while True:
+        try:
+            index = args.index("-s")
+        except ValueError:
+            break
+        del args[index:index+3]
     code.extend([
         "",
         "    # save the figure",
@@ -459,7 +469,7 @@ def print_main(**kwargs: dict) -> list[str]:
         '        "Rights": "Free lisence GLPv3",',
         '        "Contributor": ["Robin RICHARD (robinechuca)"],',
         f'        "Creator": "mendevi {__version__}",',
-        f'        "Description": "A plot with {", ".join(f"{k}={kwargs[k]}" for k in keys)}",',
+        f'        "Description": "{shlex.join(["mendevi", "plot", *args]).replace("\"", "\\\"")}",',
         f'        "Title": {kwargs["path"].stem!r},',
         "    }",
         "    plt.savefig(FIGNAME, format=FIGNAME.suffix[1:], transparent=False, metadata=metadata)",

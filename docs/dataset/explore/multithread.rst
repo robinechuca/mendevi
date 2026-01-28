@@ -101,6 +101,44 @@ Final energy as a function of the provided number of threads
 .. image:: /_static/media/multithread_energy_threads.svg
     :alt: Final energy as a function of the provided number of threads
 
+Relative gain in encoding videos simultaneously on a single thread, rather than encoding them sequentially on multiple threads
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The figure cannot be generated directly. You must first create a template, which you can then modify.
+
+.. code:: shell
+
+    mendevi plot multithread.db \
+        -x threads -y energy -c encoder \
+        -e "'parallel' in enc_cmd" -m "(threads, ref_stem, effort, profile, quality, hostname)" \
+        -s "for marker(.|\n)+?\)\n" ""
+
+Then edit the function ``fill_axe`` of the just generated ``energy_as_a_function_of_threads.py`` file.
+To do this, replace all lines in the function after ``x_data, y_data = sub_values[xlab], sub_values[ylab]`` with the following code:
+
+.. code:: python
+
+    energy_1 = [y for y, e in zip(y_data, sub_values["error"], strict=True) if e]
+    energy_2 = [y for y, e in zip(y_data, sub_values["error"], strict=True) if not e]
+    if not (energy_1 and energy_2):
+        continue
+    energy_1, energy_2 = np.mean(energy_1), np.mean(energy_2)
+    gain = 100.0 * (energy_1 - energy_2) / energy_1
+    axe.errorbar(
+        [x_data.pop()],
+        [gain],
+        color=color,
+        alpha=0.5,
+        fmt=MARKERS[0],
+        capsize=3,
+        markersize=MARKERSIZE,
+    )
+
+Finally, simply run ``python energy_as_a_function_of_threads.py`` to generate the final figure.
+
+.. image:: /_static/media/multithread_gain.svg
+    :alt: Logical core usage as a function of the provided number of threads
+
 Impact of multithreading on distortion
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
