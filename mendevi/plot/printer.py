@@ -64,7 +64,7 @@ def print_entry() -> list[str]:
 
 def print_error(**kwargs: dict) -> list[str]:
     """Help for print_fill_axe."""
-    val_var = "sub_values" if kwargs["window_x"] or kwargs["window_y"] else "values"
+    val_var = "sub_values" if kwargs["color"] or kwargs["marker"] else "values"
     if kwargs["error"] is not None:
         return [
             "",

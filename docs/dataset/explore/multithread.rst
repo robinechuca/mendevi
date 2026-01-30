@@ -37,7 +37,7 @@ Logical core usage as a function of the provided number of threads
         -x threads -y cores -wx encoder -wy profile \
         -c "('parallel' in enc_cmd, effort)" -m quality \
         -f "ref_stem=='park_joy'" \
-        -s "(# create legend(.|\n)*?\n\n)" '\1    axe.plot([1, 16], [1, 16], "--", color="black")\n'
+        -s "(# create legend(.|\n)*?\n\n)" '\1    axe.plot([1, 16], [1, 16], "--", color="black", label="identity")\n'
 
 .. image:: /_static/media/multithread_cores_threads.svg
     :alt: Logical core usage as a function of the provided number of threads
@@ -54,7 +54,7 @@ The figure cannot be generated directly. You must first create a template, which
         -e "(ref_stem, effort, profile, quality, hostname)" \
         -s "supylabel\(.*\)" 'supylabel("Encoding relative time gain per video")' \
         -s "(# create legend(.|\n)*?\n\n)" \
-           '\1    cpu = np.linspace(1, 16, 100)\n    axe.plot(cpu, 1.0/cpu, "--", color="black")\n'
+           '\1    cpu = np.linspace(1, 16, 100)\n    axe.plot(cpu, 1.0/cpu, "--", color="black", label="$\\frac{1}{c}$")\n'
 
 Then edit the function ``fill_axe`` of the just generated ``act_duration_as_a_function_of_cores.py`` file.
 To do this, replace all lines in the function after ``yerr = [yerr[e] for e in errs]`` with the following code:
@@ -111,6 +111,7 @@ The figure cannot be generated directly. You must first create a template, which
     mendevi plot multithread.db \
         -x threads -y energy -c encoder \
         -e "'parallel' in enc_cmd" -m "(threads, ref_stem, effort, profile, quality, hostname)" \
+        -s "supylabel\(.*\)" 'supylabel("Encoding relative energy gain per video")' \
         -s "for marker(.|\n)+?\)\n" ""
 
 Then edit the function ``fill_axe`` of the just generated ``energy_as_a_function_of_threads.py`` file.
