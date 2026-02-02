@@ -13,6 +13,8 @@ import numpy as np
 import requests
 
 GOOD_REQ_STATUS = 200
+EPS = 1e-8
+SIMP_TOL = 1e-5
 
 
 class G5kPower(threading.Thread):

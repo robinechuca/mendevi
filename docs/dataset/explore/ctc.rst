@@ -13,7 +13,7 @@ Download
     mendevi download ctc.db.xz.torrent
 
 * `ctc.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/ctc.json.xz?inline=false>`_ (127 Ko).
-* `ctc.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/ctc.db.xz.torrent?inline=false>`_ (137 Mo).
+* `ctc.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/ctc.db.xz.torrent?inline=false>`_ (144 Mo).
 
 Statistical Properties
 ----------------------
@@ -25,7 +25,7 @@ To understand the nature of each test video. A similar plot has been made in `UH
 
 .. code:: shell
 
-    mendevi plot ctc.db -x rms_time_diff -y rms_sobel -c ref_stem -m profile
+    mendevi plot ctc.db -x rms_time_diff -y rms_sobel -c ref_stem -m profile -s 'ref_stem=' ''
 
 .. image:: /_static/media/ctc_complexity.svg
     :alt: Energy per frame as a function of the number of frames during encoding
