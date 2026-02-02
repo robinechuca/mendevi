@@ -13,7 +13,7 @@ Download
     mendevi download ramdisk.db.xz.torrent
 
 * `ramdisk.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/ramdisk.json.xz?inline=false>`_ (481 Ko).
-* `ramdisk.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/ramdisk.db.xz.torrent?inline=false>`_ (289 Mo).
+* `ramdisk.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/ramdisk.db.xz.torrent?inline=false>`_ (305 Mo).
 
 Plots
 -----
@@ -37,6 +37,11 @@ Effect on decoding
 
 .. image:: /_static/media/ramdisk_decode.svg
     :alt: Variation of decoding energy depending of device.
+
+Conclusion
+----------
+
+The energy and time required to encode and decode a video **does not depend** on whether it is read and written from and to an SSD or in RAM.
 
 Reproduce
 ---------
