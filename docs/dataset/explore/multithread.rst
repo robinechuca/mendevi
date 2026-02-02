@@ -37,7 +37,9 @@ Logical core usage as a function of the provided number of threads
         -x threads -y cores -wx encoder -wy profile \
         -c "('parallel' in enc_cmd, effort)" -m quality \
         -f "ref_stem=='park_joy'" \
-        -s "(# create legend(.|\n)*?\n\n)" '\1    axe.plot([1, 16], [1, 16], "--", color="black", label="identity")\n'
+        -s "(# create legend(.|\n)*?\n\n)" '\1    axe.plot([1, 16], [1, 16], "--", color="black", label="identity")\n' \
+        -s "sharey=.*," 'sharey="all",' \
+        -s "set_title\(.*\)" 'set_title(f"{window_y_value} {window_x_value}")'
 
 .. image:: /_static/media/multithread_cores_threads.svg
     :alt: Logical core usage as a function of the provided number of threads
@@ -126,7 +128,7 @@ To do this, replace all lines in the function after ``x_data, y_data = sub_value
     energy_1, energy_2 = np.mean(energy_1), np.mean(energy_2)
     gain = 100.0 * (energy_1 - energy_2) / energy_1
     axe.errorbar(
-        [x_data.pop()],
+        [x_data[0]],
         [gain],
         color=color,
         alpha=0.5,
