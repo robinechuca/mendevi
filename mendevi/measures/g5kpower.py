@@ -1,4 +1,7 @@
-"""Integrates grid5000's power meter."""
+"""Integrates grid5000's power meter.
+
+Implementation based on https://www.grid5000.fr/w/Energy_consumption_monitoring_tutorial
+"""
 
 import datetime
 import logging
@@ -75,7 +78,7 @@ def g5kpower(
     >>> import platform, time
     >>> from mendevi.measures.g5kpower import g5kpower
     >>> try:
-    ...     power = g5kpower(platform.node(), time.time()-10.0, 10.0)
+    ...     power = g5kpower(platform.node(), time.time()-20.0, 10.0)
     ... except ValueError:
     ...     pass
     ...
@@ -83,7 +86,7 @@ def g5kpower(
 
     Notes
     -----
-    * Tested with `oarsub -I -p paradoxe -t deploy -t monitor='wattmetre_power_watt'`.
+    * Tested with `oarsub -I -p paradoxe -t deploy -t monitor='.*'`.
     * Power and time measurements are differental to increase the compressibility
       of the database containing this result.
     * Energy is estimated from the trapezoidal integral of instantaneous powers.
@@ -103,16 +106,17 @@ def g5kpower(
 
     def timestamp_to_str(timestamp: float) -> str:
         return datetime.datetime.fromtimestamp(
-            timestamp, tz=datetime.UTC,
+            timestamp, tz=None,  # tz=datetime.UTC gives a shifted hour
         ).strftime("%Y-%m-%dT%H:%M:%S.%f")
 
     # grid5000 api request
     url = (  # tz=datetime.UTC add a non supported +00:00 by the g5k api
         f"https://api.grid5000.fr/stable/sites/{hostname_fields['site']}/metrics?"
-        f"nodes={hostname_fields['node']}&metrics=wattmetre_power_watt"
+        f"nodes={hostname_fields['node']}&metrics=wattmetre_power_watt,bmc_node_power_watt"
         f"&start_time={timestamp_to_str(start)}"
         f"&end_time={timestamp_to_str(start+duration)}"
     )
+    # https://api.grid5000.fr/stable/sites/rennes/metrics?nodes=paradoxe-32&metrics=wattmetre_power_watt,bmc_node_power_watt&start_time=2026-02-02T08:47:51.889461&end_time=2026-02-02T08:48:01.889461
     auth = requests.auth.HTTPBasicAuth(login, password) if login and password else None
     try:
         req = requests.get(url, auth=auth, verify=True, timeout=60)
@@ -126,22 +130,43 @@ def g5kpower(
         msg = f"the request {url} gives an empty result"
         raise ValueError(msg)
 
-    # parse result
-    req = {datetime.datetime.fromisoformat(d["timestamp"]).timestamp(): d["value"] for d in req}
-    req = {t: v for t, v in req.items() if start <= t <= start + duration}
+    # parse result, req is formatted like that:
+    # [{"timestamp":"2025...:00+02:00","metric_id":"wattmetre_power_watt","value":6.0526315...,...},
+    #  {"timestamp":"2025...:00+02:00","metric_id":"wattmetre_power_watt","value":6.3324324324,...},
+    #  {"timestamp":"2025...:00.654002+02:00","metric_id":"bmc_node_power_watt","value":0,...},
+    #  {"timestamp":"2025...:00.654322+02:00","metric_id":"bmc_node_power_watt","value":0,...},
+    #  {"timestamp":"2025...:01+02:00","metric_id":"wattmetre_power_watt","value":6.0707317073,...},
+    #  {"timestamp":"2025...:01+02:00","metric_id":"wattmetre_power_watt","value":6.2390243902,...},
+    # ...
+    req = [
+        {
+            "timestamp": datetime.datetime.fromisoformat(data["timestamp"]).timestamp(),
+            "metric_id": data["metric_id"],
+            "value": data["value"],
+        }
+        for data in req
+    ]
+    req = {
+        "wattmetre_power_watt": {
+            d["timestamp"]: d["value"] for d in req if d["metric_id"] == "wattmetre_power_watt"
+        },
+        "bmc_node_power_watt": {
+            d["timestamp"]: d["value"] for d in req if d["metric_id"] == "bmc_node_power_watt"
+        },
+    }
+    req = req["wattmetre_power_watt"] or req["bmc_node_power_watt"]
     times, powers = zip(*req.items(), strict=False)
     times, powers = np.array(times, dtype=np.float64), np.array(powers, dtype=np.float64)
 
     # pad for accurate boundaries
     order = np.argsort(times)
     times, powers = times[order], powers[order]
-    times = np.concatenate([(start,), times, (start+duration,)])  # accurate boundaries
-    powers = np.pad(powers, (1, 1), mode="edge")
-
-    # differencial
-    power_dt = times[1:] - times[:-1]
+    times = times.clip(start, start+duration, out=times)  # if timestamp out of the bounds
+    times[0] = start  # if first timestamp > start
+    times = np.append(times, start+duration)
 
     # compute energy, trapeze integral of power
+    power_dt = times[1:] - times[:-1]
     energy = 0.5 * float(np.sum((powers[:-1] + powers[1:]) * power_dt))
 
     return {
