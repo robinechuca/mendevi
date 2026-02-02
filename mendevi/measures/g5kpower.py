@@ -162,8 +162,8 @@ def g5kpower(
     order = np.argsort(times)
     times, powers = times[order], powers[order]
     times = times.clip(start, start+duration, out=times)  # if timestamp out of the bounds
-    times[0] = start  # if first timestamp > start
-    times = np.append(times, start+duration)
+    times = np.concatenate([(start,), times, (start+duration,)])  # edge padding, cst interpolation
+    powers = np.concatenate([(powers[0],), powers, (powers[-1],)])
 
     # compute energy, trapeze integral of power
     power_dt = times[1:] - times[:-1]
@@ -172,6 +172,6 @@ def g5kpower(
     return {
         "dt": power_dt.tolist(),
         "energy": energy,
-        "power": energy / float(times[-1] - times[0]),
+        "power": energy / duration,
         "powers": powers.tolist(),
     }
