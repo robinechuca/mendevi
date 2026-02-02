@@ -50,9 +50,7 @@ def printer(**kwargs: dict) -> str:
         code = re.sub(pattern, repl, code)
 
     # injection of substitution-sensitive patterns
-    code = code.replace("{cmd}", shlex.join(sys.argv))
-
-    return code
+    return code.replace("{cmd}", shlex.join(sys.argv))
 
 
 def print_entry() -> list[str]:
@@ -459,7 +457,6 @@ def print_main(**kwargs: dict) -> list[str]:
         "                    axe.legend(ncols=max(1, len(next(iter(labels)))//16))",
         "",
     ])
-    keys = ["x", "y", "color", "marker", "window_x", "window_y", "error", "filter", "table"]
     args = sys.argv.copy()
     while True:
         try:
@@ -476,7 +473,7 @@ def print_main(**kwargs: dict) -> list[str]:
         '        "Rights": "Free lisence GLPv3",',
         '        "Contributor": ["Robin RICHARD (robinechuca)"],',
         f'        "Creator": "mendevi {__version__}",',
-        f'        "Description": "{shlex.join(["mendevi", "plot", *args]).replace("\"", "\\\"")}",',
+        f'        "Description": "{shlex.join(["mendevi", "plot", *args]).replace('"', '\\"')}",',
         f'        "Title": {kwargs["path"].stem!r},',
         "    }",
         "    plt.savefig(FIGNAME, format=FIGNAME.suffix[1:], transparent=False, metadata=metadata)",

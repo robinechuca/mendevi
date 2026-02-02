@@ -87,7 +87,7 @@ def g5kpower(
     Notes
     -----
     * Tested with `oarsub -I -p paradoxe -t deploy -t monitor='.*'`.
-    * Power and time measurements are differental to increase the compressibility
+    * Power and time measurements are incremental to increase the compressibility
       of the database containing this result.
     * Energy is estimated from the trapezoidal integral of instantaneous powers.
 
@@ -105,7 +105,7 @@ def g5kpower(
         raise ValueError(msg)
 
     def timestamp_to_str(timestamp: float) -> str:
-        return datetime.datetime.fromtimestamp(
+        return datetime.datetime.fromtimestamp(  # noqa: DTZ006
             timestamp, tz=None,  # tz=datetime.UTC gives a shifted hour
         ).strftime("%Y-%m-%dT%H:%M:%S.%f")
 

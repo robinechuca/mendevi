@@ -50,7 +50,6 @@ class CallBackType(click.ParamType):
         funcs = {name: func for name, func in funcs.items() if is_local(func, path)}
         if func_name is None:
             if len(funcs) != 1:
-                import ipdb; ipdb.set_trace()
                 self.fail(
                     f"please specifiy the function to use {', '.join(sorted(funcs))}", param, ctx,
                 )
