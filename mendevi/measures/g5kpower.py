@@ -121,7 +121,7 @@ def g5kpower(
     try:
         req = requests.get(url, auth=auth, verify=True, timeout=60)
     except requests.exceptions.SSLError as err:
-        logging.getLogger(__name__).warning(err)
+        logging.getLogger(__name__).info(err)
         req = requests.get(url, auth=auth, verify=False, timeout=60)
     if req.status_code != GOOD_REQ_STATUS:
         msg = f"the request {url} failed"

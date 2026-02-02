@@ -278,7 +278,10 @@ def main(videos: tuple, database: str | None = None, **kwargs: dict) -> None:
     ]
 
     # retrieves the settings for videos that have already been transcoded
-    with sqlite3.connect(database) as conn, Printer("Search already done...") as prt:
+    with (
+        sqlite3.connect(f"file:{database}?mode=ro", uri=True) as conn,
+        Printer("Search already done...") as prt,
+    ):
         conn.row_factory = sqlite3.Row
         done: dict[tuple, int] = {}
         for row in conn.execute(

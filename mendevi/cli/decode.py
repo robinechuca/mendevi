@@ -156,7 +156,7 @@ def main(videos: tuple[str], database: str | None = None, **kwargs: dict) -> Non
 
     # retrieves the settings for videos that have already been decoded
     _, family_extractor = merge_extractors({"decoder_family"}, return_callable=True)
-    with sqlite3.connect(database) as conn:
+    with sqlite3.connect(f"file:{database}?mode=ro", uri=True) as conn:
         conn.row_factory = sqlite3.Row
         done: dict[tuple, int] = {}
         for row in conn.execute(

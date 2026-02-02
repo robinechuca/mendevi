@@ -95,7 +95,7 @@ def main(database: str, **kwargs: dict) -> None:
             },
             return_callable=True,
         )
-        with sqlite3.connect(database) as conn:
+        with sqlite3.connect(f"file:{database}?mode=ro", uri=True) as conn:
             conn.row_factory = sqlite3.Row
             prt.print("read 'encode' and 'metric' extractor")
             # from mendevi.database.meta import get_extractor
