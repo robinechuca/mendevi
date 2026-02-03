@@ -15,6 +15,7 @@ import requests
 GOOD_REQ_STATUS = 200
 EPS = 1e-8
 SIMP_TOL = 1e-5
+MARGIN = 0.5  # request for thicker interval than requieres (in seconds)
 
 
 class G5kPower(threading.Thread):
@@ -115,8 +116,8 @@ def g5kpower(
     url = (  # tz=datetime.UTC add a non supported +00:00 by the g5k api
         f"https://api.grid5000.fr/stable/sites/{hostname_fields['site']}/metrics?"
         f"nodes={hostname_fields['node']}&metrics=wattmetre_power_watt,bmc_node_power_watt"
-        f"&start_time={timestamp_to_str(start)}"
-        f"&end_time={timestamp_to_str(start+duration)}"
+        f"&start_time={timestamp_to_str(start-MARGIN)}"
+        f"&end_time={timestamp_to_str(start+duration+MARGIN)}"
     )
     # https://api.grid5000.fr/stable/sites/rennes/metrics?nodes=paradoxe-32&metrics=wattmetre_power_watt,bmc_node_power_watt&start_time=2026-02-02T08:47:51.889461&end_time=2026-02-02T08:48:01.889461
     auth = requests.auth.HTTPBasicAuth(login, password) if login and password else None

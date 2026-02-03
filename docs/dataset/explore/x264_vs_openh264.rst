@@ -12,8 +12,8 @@ Download
 
     mendevi download x264_vs_openh264.db.xz.torrent
 
-* `x264_vs_openh264.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/x264_vs_openh264.json.xz?inline=false>`_ (18 Mo).
-* `x264_vs_openh264.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/x264_vs_openh264.db.xz.torrent?inline=false>`_ (6.8 Go).
+* `x264_vs_openh264.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/x264_vs_openh264.json.xz?inline=false>`_ (18.3 Mo).
+* `x264_vs_openh264.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/x264_vs_openh264.db.xz.torrent?inline=false>`_ (7.0 Go).
 
 Plots
 -----
@@ -65,7 +65,7 @@ Compression efficiency for fixed energy
 
 .. code:: shell
 
-    mendevi plot x264_vs_openh264.db -x rate -y psnr -wx 'round(energy/nbr_frames, 1)' -c encoder -m '(profile, effort)' -f "0.29<energy/nbr_frames<0.31 or 2.45<energy/nbr_frames<2.55"
+    mendevi plot x264_vs_openh264.db -x rate -y psnr -wx 'round(energy/nbr_frames, 1)' -c encoder -m '(profile, effort)' -f "0.58<energy/nbr_frames<0.62 or 3.95<energy/nbr_frames<4.05"
 
 .. image:: /_static/media/x264_vs_openh264_efficiency_energy.svg
     :alt: Consumption as a function of bitrate for a fixed energy
