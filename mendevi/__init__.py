@@ -5,4 +5,4 @@ from .measures.context import full_context as context
 
 __all__ = ["Activity", "context"]
 __author__ = "Robin RICHARD (robinechuca)"
-__version__ = "1.3.2"  # pep 440
+__version__ = "1.3.3"  # pep 440
