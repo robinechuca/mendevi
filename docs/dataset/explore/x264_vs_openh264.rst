@@ -55,7 +55,7 @@ Compression efficiency for rate=2Mb/s
 
 .. code:: shell
 
-    mendevi plot x264_vs_openh264.db -x rate -y energy -c '(encoder, profile)' -m category -f '1.8e6<rate<2.2e6'
+    mendevi plot x264_vs_openh264.db -x psnr -y energy -c '(encoder, profile)' -m category -f '1.8e6<rate<2.2e6'
 
 .. image:: /_static/media/x264_vs_openh264_efficiency_rate.svg
     :alt: Consumption as a function of bitrate for a bitrate of 2Mb/s
