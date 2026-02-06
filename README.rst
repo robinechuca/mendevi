@@ -48,7 +48,7 @@ It manages the following parameters:
 #. Get the ``cpu``, ``gpu``, ``ram`` and ``temperature`` activity.
 #. Get a full environment context, including hardware and software version.
 #. It support the mode (constant bitrate) ``cbr`` and (constant quality) ``vbr``.
-#. Ability to ``modify ffmpeg commands`` on the fly to perform specific tests.
+#. Ability to ``modify ffmpeg commands`` on the fly to perform specific tests, ginving your own defined callback function.
 #. It take care to ``transfer files to RAM`` if possible to avoid biases related to storage space access.
 #. Provides a guide to compile ffmpeg with all optimizations in order to ``compare encoders/decoders at their limits``.
 
