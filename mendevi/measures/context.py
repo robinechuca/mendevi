@@ -2,8 +2,10 @@
 
 import logging
 import os
+import pathlib
 import platform
 import re
+import shutil
 import subprocess
 
 import psutil
@@ -133,7 +135,7 @@ def get_libsvtav1_version() -> str:
     --------
     >>> from mendevi.measures.context import get_libsvtav1_version
     >>> print(get_libsvtav1_version())  # doctest: +ELLIPSIS
-    ...
+    v3.1.0...
     GCC ... 64 bit
     >>>
 
@@ -153,6 +155,21 @@ def get_libsvtav1_version() -> str:
         version = ""
     else:
         version = match["version"]
+    if re.search(r"^[0-9a-f]{4,}$", version):  # if only git commit version
+        folder = pathlib.Path("/dev/shm/svtav1")
+        shutil.rmtree(folder, ignore_errors=True)
+        subprocess.run(
+            ["git", "clone", "https://gitlab.com/AOMediaCodec/SVT-AV1.git", folder],
+            check=False,
+            capture_output=True,
+        )
+        version = subprocess.run(
+            ["git", "-C", folder, "describe", "--tags", version],
+            check=False,
+            capture_output=True,
+        ).stdout.decode().strip() or version
+        shutil.rmtree(folder, ignore_errors=True)
+
     # build
     if (match := re.search(r"SVT \[build\]\s*:\s*(?P<build>\S.*\S)\s*\n", out)) is None:
         logging.getLogger(__name__).warning("failed to find the libsvtav1 build info")

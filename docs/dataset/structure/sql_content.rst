@@ -630,7 +630,7 @@ The version of the libsvtav1 encoder and the version of the compiler for this li
 
 .. code:: text
 
-    v3.0.2-103-gc10214fa
+    v3.1.0-327-gf42da0a0
     GCC 14.2.0 64 bit
 
 .. _env_libvpx_vp9_version:
