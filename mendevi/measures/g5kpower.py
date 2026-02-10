@@ -12,10 +12,11 @@ import threading
 import numpy as np
 import requests
 
-GOOD_REQ_STATUS = 200
 EPS = 1e-8
-SIMP_TOL = 1e-5
+GOOD_REQ_STATUS = 200
 MARGIN = 0.5  # request for thicker interval than requieres (in seconds)
+PATTEREN_ISOTIME = r"^\d{2,4}-\d{1,2}-\d{1,2}\w\d\d:\d\d:(?P<sec>\d+\.\d*)(?:[+-]\d{1,2}:\d{1,2})?$"
+SIMP_TOL = 1e-5
 
 
 class G5kPower(threading.Thread):
@@ -141,9 +142,22 @@ def g5kpower(
     #  {"timestamp":"2025...:01+02:00","metric_id":"wattmetre_power_watt","value":6.0707317073,...},
     #  {"timestamp":"2025...:01+02:00","metric_id":"wattmetre_power_watt","value":6.2390243902,...},
     # ...
+
+    # 2026-03-02T15:16:17.6542165413521+/-01:00
+
+    def to_iso(date: str) -> str:
+        """Convert iso for retrocompatibility python < 3.11.
+
+        Set the norm: YYYY-MM-DD[*HH[:MM[:SS[.fff[fff]]]][+HH:MM[:SS[.ffffff]]]]
+        """
+        if (match := re.search(PATTEREN_ISOTIME, date)) is None:
+            logging.getLogger(__name__).error("failed to convert %s", date)
+            return date
+        return date.replace(match["sec"], f"{float(match['sec']):.6f}")
+
     req = [
         {
-            "timestamp": datetime.datetime.fromisoformat(data["timestamp"]).timestamp(),
+            "timestamp": datetime.datetime.fromisoformat(to_iso(data["timestamp"])).timestamp(),
             "metric_id": data["metric_id"],
             "value": data["value"],
         }

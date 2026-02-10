@@ -505,6 +505,12 @@ def get_extractor(name: str, *, safe: bool = False) -> Extractor:
     """
     assert isinstance(name, str), name.__class__.__name__
     assert isinstance(safe, bool), safe.__class__.__name__
+
+    # case log
+    if name.startswith("log_"):
+        raise NotImplementedError
+
+    # case direct
     if (extractor := ALL_EXTRACTORS.get(ALIAS.get(name, name), None)) is not None:
         return extractor
     if safe:
