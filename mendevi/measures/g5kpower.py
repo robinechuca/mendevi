@@ -143,8 +143,6 @@ def g5kpower(
     #  {"timestamp":"2025...:01+02:00","metric_id":"wattmetre_power_watt","value":6.2390243902,...},
     # ...
 
-    # 2026-03-02T15:16:17.6542165413521+/-01:00
-
     def to_iso(date: str) -> str:
         """Convert iso for retrocompatibility python < 3.11.
 
@@ -153,7 +151,7 @@ def g5kpower(
         if (match := re.search(PATTEREN_ISOTIME, date)) is None:
             logging.getLogger(__name__).error("failed to convert %s", date)
             return date
-        return date.replace(match["sec"], f"{float(match['sec']):.6f}")
+        return date.replace(match["sec"], f"{float(match['sec']):09.6f}")
 
     req = [
         {
