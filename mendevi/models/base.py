@@ -1,7 +1,6 @@
 """Unify all the models with a common sctucture."""
 
 import abc
-import contextlib
 import logging
 import numbers
 import pathlib
@@ -19,6 +18,9 @@ from mendevi.database.create import is_sqlite
 from mendevi.database.extract import SqlLinker
 from mendevi.database.meta import get_extractor, merge_extractors
 from mendevi.download.decapsulation import retrive_file
+
+
+EPS = torch.finfo(torch.float32).eps
 
 
 def to_torch(data: dict[str, list], dtype: torch.dtype = torch.float32) -> dict[str, torch.Tensor]:
@@ -85,12 +87,17 @@ def to_torch(data: dict[str, list], dtype: torch.dtype = torch.float32) -> dict[
                     num_classes=len(profiles),
                 ).to(dtype)
             case "hostname":
-                raise NotImplementedError
+                msg = "The one hot encoding for hostname is not defined."
+                raise NotImplementedError(msg)
             case _:
                 assert all(isinstance(v, numbers.Real) for v in values), values
                 out_data[name] = torch.asarray(values, dtype=dtype)[:, None]
     return out_data
 
+
+def from_torch(data: dict[str, torch.Tensor]) -> dict[str, list]:
+    """Back convertion from vectorized torch to python list, bijection of :py:func:`to_torch`."""
+    raise NotImplementedError
 
 
 class MetaModel(abc.ABCMeta):
@@ -100,7 +107,7 @@ class MetaModel(abc.ABCMeta):
     and https://github.com/python/cpython/blob/main/Lib/abc.py
     """
 
-    def __call__(cls, *args, **kwargs):
+    def __call__(cls, *args: tuple, **kwargs: dict) -> typing.ClassVar:
         """Relax abstraction constraints on interconnected methods."""
         # get implemented methods
         abstracts = {
@@ -122,9 +129,6 @@ class MetaModel(abc.ABCMeta):
                 f"{' '.join(f'{n!r}' for n in abstracts)}"
             )
         # cleaning
-        # for name in abstracts:  # this is a persistant inplace cleaning (skip)
-        #     with contextlib.suppress(AttributeError):
-        #         del getattr(cls, name, None).__isabstractmethod__
         cls.__abstractmethods__ = cls.__abstractmethods__ - frozenset(abstracts)
         return super().__call__(*args, **kwargs)
 
@@ -185,6 +189,7 @@ class Model(metaclass=MetaModel):
 
         # check parameters
         self._parameters = kwargs.get("parameters")
+        self._std_mean: dict = {}
 
         # check title
         if title is None:
@@ -202,36 +207,106 @@ class Model(metaclass=MetaModel):
         assert isinstance(sources, str), sources.__class__.__name__
         self._sources = sources
 
-    def _fit(self, values: dict[str]) -> typing.Never:
-        """Perform regression on parameters ``self.parameters``."""
+    def _fit(self, values: dict[str]) -> None:
+        """Performs data regression to find the model's hyperparameters.
+
+        Hyperparameters must be added to the ``self.parameters`` dictionary.
+
+        Parameters
+        ----------
+        values: dict[str, list]
+            For each input and output label (ie self.input_labels union self.output_labels),
+            associate the list of corresponding values.
+
+        Notes
+        -----
+        If the model contains hyperparameters,
+        it is essential that the child class redefines one of the methods
+        self._fit, self._fit_vect or self._fit_vect_norm.
+        """
+        # level 1
+        if (
+            self.__class__._fit_vect is not Model._fit_vect
+            or self.__class__._fit_vect_norm is not Model._fit_vect_norm
+        ):
+            self._fit_vect(to_torch(values))
+
+        # level 0
+        else:
+            raise NotImplementedError
+
+    def _fit_vect(self, values: dict[str, torch.Tensor]) -> None:
+        """Same functionality as ``self._fit``, but provide tensor rather than lists."""
+        # level 2
+        if self.__class__._fit_vect_norm is not Model._fit_vect_norm:
+            assert set(self._input_labels) | set(self._output_labels) == set(values)
+            self._std_mean = {
+                name: torch.std_mean(data, dim=0, keepdim=True)
+                for name, data in values.items()
+            }
+            self._fit_vect_norm(
+                {
+                    name: (data - self._std_mean[name][1]) / (self._std_mean[name][0] + EPS)
+                    for name, data in values.items()
+                }
+            )
+
+        # level 1
+        else:
+            raise NotImplementedError
+
+    def _fit_vect_norm(self, values: dict[str, torch.Tensor]) -> None:
+        """Same functionality as ``self._fit_vect``, but the tensors are centered and reduced."""
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _predict(self, values: dict[str, list]) -> dict[str]:
-        """Implement the heart of the model."""
+    def _predict(self, values: dict[str, list]) -> dict[str, list]:
+        """Performs model prediction.
+
+        Parameters
+        ----------
+        values: dict[str, list]
+            For each input label (ie self.input_labels), associate the list of corresponding values.
+
+        Returns
+        -------
+        output: dict[str, list]
+            For each ouput label (ie self.output_labels),
+            associate the list of corresponding predicted values.
+
+        Notes
+        -----
+        The child class must to redefines one of the methods
+        self._predict, self._predict_vect or self._predict_vect_norm.
+        """
         # level 1
-        if getattr(self._predict_vect, "__isabstractmethod__", False):
-            torch_values = to_torch(values)
-            return self._predict_vect(torch_values)
+        if (
+            self.__class__._predict_vect is not Model._predict_vect
+            or self.__class__._predict_vect_norm is not Model._predict_vect_norm
+        ):
+            return from_torch(self._predict_vect(to_torch(values)))
 
         # level 0
-        return NotImplementedError
+        raise NotImplementedError
 
     @abc.abstractmethod
-    def _predict_vect(self, values: dict[str, torch.Tensor]) -> dict[str]:
-        """Implement the heart of the model."""
+    def _predict_vect(self, values: dict[str, torch.Tensor]) -> dict[str, torch.Tensor]:
+        """Same as ``self._predict``, but provide and return tensor rather than lists."""
         # level 2
-        if getattr(self._predict_vect_norm, "__isabstractmethod__", False):
-            norm = {
-                f"__std_mean_{name}__": torch.std_mean(data, dim=0, keepdim=True)
-                for name, data in values.items()
+        if self.__class__._predict_vect_norm is not Model._predict_vect_norm:
+            assert set(self._input_labels) == set(values)
+            assert self._std_mean, "you must to call fit before predict"
+            norm_prediction = self._predict_vect_norm(
+                {
+                    name: (data - self._std_mean[name][1]) / (self._std_mean[name][0] + EPS)
+                    for name, data in values.items()
+                }
+            )
+            assert set(self._output_labels) == set(norm_prediction)
+            return {
+                norm_prediction[name] * (self._std_mean[name][1] + EPS) + self._std_mean[name][0]
+                for name in self._output_labels
             }
-            norm_values = {
-                name: (data - norm[f"__std_mean_{name}__"][1]) / norm[f"__std_mean_{name}__"][0]
-                for name, data in values.item()
-            }
-            prediction = self._predict_vect_norm(norm_values)
-            return {**prediction, **norm_values}
 
         # level 1
         raise NotImplementedError
@@ -330,7 +405,7 @@ class Model(metaclass=MetaModel):
     def parameters(self, new_params: torch.Tensor) -> None:
         """Update the parameters."""
         if self._parameters is not None and new_params.__class__ != self._parameters.__class__:
-            logging.getLogger(__name__).warning("chage the type of parameters")
+            logging.getLogger(__name__).warning("change the type of parameters")
         self._parameters = new_params
 
     def predict(self, *input_args: tuple, **input_kwargs: dict) -> dict[str]:
