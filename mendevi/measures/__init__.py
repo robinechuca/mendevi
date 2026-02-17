@@ -11,7 +11,7 @@ from .gpu import UsageGPU
 from .psutil import Usage
 from .rapl import RAPL
 
-G5K_API_WAIT = 5.0  # waiting time (in seconds) before the data from the grid5000 API becomes accessible
+G5K_API_WAIT = 5.0  # waiting time (in sec) before data from the grid5000 API becomes accessible
 
 
 class Activity(threading.Thread):

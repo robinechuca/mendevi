@@ -585,7 +585,7 @@ def merge_extractors(
             raise RejectError(msg)
     <BLANKLINE>
         # extract data
-        video_name = extract.extract_video_name(raw)  # Video basename
+        video_name = extract.extract_video_name(raw)  # Full video basename
         encode_cmd = extract.extract_encode_cmd(raw)  # The ffmpeg command used for encoding
         enc_scenario = f"cmd: {encode_cmd}, video_name: {video_name}, hostname: {hostname}"  # Un...
         frames = extract.extract_frames(raw)  # The metadata of each frame

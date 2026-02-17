@@ -1,7 +1,9 @@
 """Unify all the models with a common sctucture."""
 
 import abc
+import contextlib
 import logging
+import numbers
 import pathlib
 import sqlite3
 import typing
@@ -10,14 +12,124 @@ import numpy as np
 import torch
 from context_verbose import Printer
 
+from mendevi.cst.encoders import ENCODERS
 from mendevi.cst.labels import LABELS
+from mendevi.cst.profiles import PROFILES
 from mendevi.database.create import is_sqlite
 from mendevi.database.extract import SqlLinker
 from mendevi.database.meta import get_extractor, merge_extractors
 from mendevi.download.decapsulation import retrive_file
 
 
-class Model(abc.ABC):
+def to_torch(data: dict[str, list], dtype: torch.dtype = torch.float32) -> dict[str, torch.Tensor]:
+    """Convert the fields into a tensor compatible encoding.
+
+    Allows you to cast lists of numbers into floating point vectors.
+    Labels are encoded as one-hot.
+
+    Returns
+    -------
+    dict[str, torch.Tensor]
+        For each starting field, associate the torch matrix of size (n, k),
+        where n is the number of elements and k is the dimension.
+        k is 1 for lists of numbers and is the cardinality of the number of labels otherwise.
+
+    Examples
+    --------
+    >>> from pprint import pprint
+    >>> from mendevi.models.base import to_torch
+    >>> data = {
+    ...     "effort": ["fast", "medium", "slow"],
+    ...     "encoder": ["libx264", "libsvtav1"],
+    ...     "profile": ["sd", "hd", "fhd"],
+    ...     "scalar": [0.0, 1.0, 2.0],
+    ... }
+    >>> pprint(to_torch(data))
+    {'effort': tensor([[1., 0., 0.],
+            [0., 1., 0.],
+            [0., 0., 1.]]),
+     'encoder': tensor([[0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0.],
+            [0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0.]]),
+     'profile': tensor([[0., 0., 1., 0.],
+            [0., 1., 0., 0.],
+            [1., 0., 0., 0.]]),
+     'scalar': tensor([[0.],
+            [1.],
+            [2.]])}
+    >>>
+
+    """
+    assert isinstance(data, dict), data.__class__.__name__
+
+    out_data: dict[str, torch.Tensor] = {}
+    for name, values in data.items():
+        assert isinstance(values, list), values.__class__.__name__
+        match name:
+            case "effort":
+                out_data["effort"] = torch.nn.functional.one_hot(
+                    torch.asarray(
+                        [{"fast": 0, "medium": 1, "slow": 2}[e] for e in values], dtype=int,
+                    ),
+                    num_classes=3,
+                ).to(dtype)
+            case "encoder":
+                encoders = {e: i for i, e in enumerate(sorted(ENCODERS))}
+                out_data["encoder"] = torch.nn.functional.one_hot(
+                    torch.asarray([encoders[e] for e in values], dtype=int),
+                    num_classes=len(encoders),
+                ).to(dtype)
+            case "profile":
+                profiles = {e: i for i, e in enumerate(sorted(PROFILES))}
+                out_data["profile"] = torch.nn.functional.one_hot(
+                    torch.asarray([profiles[e] for e in values], dtype=int),
+                    num_classes=len(profiles),
+                ).to(dtype)
+            case "hostname":
+                raise NotImplementedError
+            case _:
+                assert all(isinstance(v, numbers.Real) for v in values), values
+                out_data[name] = torch.asarray(values, dtype=dtype)[:, None]
+    return out_data
+
+
+
+class MetaModel(abc.ABCMeta):
+    """Relax somes constraints on few methods.
+
+    see https://github.com/python/cpython/blob/main/Lib/_py_abc.py
+    and https://github.com/python/cpython/blob/main/Lib/abc.py
+    """
+
+    def __call__(cls, *args, **kwargs):
+        """Relax abstraction constraints on interconnected methods."""
+        # get implemented methods
+        abstracts = {
+            name: getattr(getattr(cls, name, None), "__isabstractmethod__", False)
+            for name in ("_predict", "_predict_vect", "_predict_vect_norm")
+        }
+        # verification
+        if not any(abstracts.values()):
+            msg = (
+                f"Can't instanciate abstract class {cls.__name__} "
+                "without an implementation for any of the abstract method "
+                f"{' '.join(f'{n!r}' for n in abstracts)}"
+            )
+            raise TypeError(msg)
+        if list(abstracts.values()).count(True) != 1:
+            msg = (
+                f"Can't instanciate abstract class {cls.__name__} "
+                "without more than one implementation of the abstract method "
+                f"{' '.join(f'{n!r}' for n in abstracts)}"
+            )
+        # cleaning
+        # for name in abstracts:  # this is a persistant inplace cleaning (skip)
+        #     with contextlib.suppress(AttributeError):
+        #         del getattr(cls, name, None).__isabstractmethod__
+        cls.__abstractmethods__ = cls.__abstractmethods__ - frozenset(abstracts)
+        return super().__call__(*args, **kwargs)
+
+
+class Model(metaclass=MetaModel):
     """Common structure to all models.
 
     Attributes
@@ -78,8 +190,8 @@ class Model(abc.ABC):
         if title is None:
             title = (
                 f"{'regressive ' if self._parameters is not None else ''}model "
-                f"to predict {', '.join(sorted(self._output))} "
-                f"from {', '.join(sorted(self._input))}"
+                f"to predict {', '.join(sorted(self._output_labels))} "
+                f"from {', '.join(sorted(self._input_labels))}"
             )
         else:
             assert isinstance(title, str), title.__class__.__name__
@@ -95,7 +207,37 @@ class Model(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _predict(self, values: dict[str]) -> dict[str]:
+    def _predict(self, values: dict[str, list]) -> dict[str]:
+        """Implement the heart of the model."""
+        # level 1
+        if getattr(self._predict_vect, "__isabstractmethod__", False):
+            torch_values = to_torch(values)
+            return self._predict_vect(torch_values)
+
+        # level 0
+        return NotImplementedError
+
+    @abc.abstractmethod
+    def _predict_vect(self, values: dict[str, torch.Tensor]) -> dict[str]:
+        """Implement the heart of the model."""
+        # level 2
+        if getattr(self._predict_vect_norm, "__isabstractmethod__", False):
+            norm = {
+                f"__std_mean_{name}__": torch.std_mean(data, dim=0, keepdim=True)
+                for name, data in values.items()
+            }
+            norm_values = {
+                name: (data - norm[f"__std_mean_{name}__"][1]) / norm[f"__std_mean_{name}__"][0]
+                for name, data in values.item()
+            }
+            prediction = self._predict_vect_norm(norm_values)
+            return {**prediction, **norm_values}
+
+        # level 1
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def _predict_vect_norm(self, values: dict[str, torch.Tensor]) -> dict[str]:
         """Implement the heart of the model."""
         raise NotImplementedError
 

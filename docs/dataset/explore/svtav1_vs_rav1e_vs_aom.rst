@@ -57,4 +57,4 @@ Reproduce
         mendevi prepare $video -p fhd
     done
     mendevi encode -e fast -e medium -e slow -m cbr -m vbr -c libsvtav1 -c librav1e -c libaom-av1 reference*
-    mendevi probe --psnr --ssim --vif --vmaf sample_*
+    mendevi probe --psnr --ssim --vif --vmaf sample*
