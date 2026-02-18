@@ -97,7 +97,16 @@ def to_torch(data: dict[str, list], dtype: torch.dtype = torch.float32) -> dict[
 
 def from_torch(data: dict[str, torch.Tensor]) -> dict[str, list]:
     """Back convertion from vectorized torch to python list, bijection of :py:func:`to_torch`."""
-    raise NotImplementedError
+    out_data: dict[str, list] = {}
+    for name, values in data.items():
+        assert isinstance(values, torch.Tensor), values.__class__.__name__
+        assert values.ndim == 2, values.shape
+        match name:
+            case "effort" | "encoder" | "profile" | "hostname":
+                raise NotImplementedError
+            case _:
+                out_data[name] = values.squeeze(1).tolist()
+    return out_data
 
 
 class MetaModel(abc.ABCMeta):
@@ -304,7 +313,9 @@ class Model(metaclass=MetaModel):
             )
             assert set(self._output_labels) == set(norm_prediction)
             return {
-                norm_prediction[name] * (self._std_mean[name][1] + EPS) + self._std_mean[name][0]
+                name: (
+                    norm_prediction[name] * (self._std_mean[name][0] + EPS) + self._std_mean[name][1]
+                )
                 for name in self._output_labels
             }
 
@@ -382,6 +393,14 @@ class Model(metaclass=MetaModel):
             # fit the model
             prt.print("fit the model")
             self._fit(values)
+
+            # evaluate the model error
+            with prt("Model accuracy:"):
+                prediction = to_torch(self._predict({l: values[l] for l in self._input_labels}))
+                validation = to_torch({l: values[l] for l in self._output_labels})
+                for atom_names in self._output_labels:
+                    std_err = ((prediction[atom_names] - validation[atom_names])**2).mean().sqrt()
+                    prt.print(f"std of {atom_names}: {std_err:.4g}")
 
             prt.print_time()
         return self

@@ -413,6 +413,7 @@ ALIAS = {
 def _import_extractor(code: list[str]) -> typing.Callable:
     """Import the function line_extractor."""
     code = [
+        "import math",
         "import re",
         "",
         "from mendevi.utils import best_profile",
@@ -469,6 +470,7 @@ def extract_names(expr: str) -> set[str]:
     >>>
 
     """
+    MODULES: set[str] = {"re", "math"}
     try:
         nodes = list(ast.walk(ast.parse(expr, mode="exec")))
     except SyntaxError as err:
@@ -482,7 +484,7 @@ def extract_names(expr: str) -> set[str]:
         n_.id
         for n in nodes if isinstance(n, ast.Call) and not isinstance(n.func, ast.Attribute)
         for n_ in ast.walk(n.func) if isinstance(n_, ast.Name)
-    }
+    } | MODULES
     candidates = {n.id for n in nodes if isinstance(n, ast.Name)}
     return set(candidates - reject)  # set usefull for empty case
 
@@ -508,7 +510,12 @@ def get_extractor(name: str, *, safe: bool = False) -> Extractor:
 
     # case log
     if name.startswith("log_"):
-        raise NotImplementedError
+        extractor = get_extractor(name[4:], safe=safe)
+        return Extractor(
+            f"Log 10 of {extractor.legend.lower()}",
+            f"math.log10({name[4:]})",
+            Scale.LINEAR,
+        )
 
     # case direct
     if (extractor := ALL_EXTRACTORS.get(ALIAS.get(name, name), None)) is not None:
