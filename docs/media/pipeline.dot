@@ -22,6 +22,7 @@ digraph pipeline {
     encoder [label="Encoder", shape=note, style=filled, fillcolor=white]
     quality [label="Quality", shape=note, style=filled, fillcolor=white]
     threads [label="Threads", shape=note, style=filled, fillcolor=white]
+    mode_ [label="Mode", shape=note, style=filled, fillcolor=white]
 
     database [label="Database", shape=folder, style=filled, fillcolor="#73b66b"]
 
@@ -84,7 +85,7 @@ digraph pipeline {
         cluster=true
         label="Parameters"
         bgcolor="#ef597b"
-        effort encoder quality threads
+        effort encoder quality threads mode_
     }
 
     # pipeline
@@ -95,6 +96,6 @@ digraph pipeline {
     # arguments
     {p_colorspace, p_fps, p_pxl, p_resol} -> prepare [arrowhead=none, style=dashed]
     {c_fps, c_pxl, c_resol, c_filter} -> t_convert [arrowhead=none, style=dashed]
-    {effort, encoder, quality, threads} -> t_encode [arrowhead=none, style=dashed]
+    {effort, encoder, quality, threads, mode_} -> t_encode [arrowhead=none, style=dashed]
     {c_resol} -> convert [arrowhead=none, style=dashed]
 }
