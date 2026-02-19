@@ -24,23 +24,25 @@ def get_ffmpeg_version() -> str:
      'built with gcc ...\n'
      'configuration: --prefix=.../ffmpeg_build '
      '--pkg-config-flags=--static '
-     '--extra-cflags=-I/home/rrichard/ffmpeg_build/include '
-     "--extra-ldflags=-L/home/rrichard/ffmpeg_build/lib --extra-libs='-lpthread "
-     "-lm' --ld=g++ --bindir=/home/rrichard/bin --enable-chromaprint "
+     '--extra-cflags=-I.../ffmpeg_build/include '
+     "--extra-ldflags=-L.../ffmpeg_build/lib --extra-libs='-lpthread "
+     "-lm' --ld=g++ --bindir=.../bin --enable-chromaprint "
      '--enable-frei0r --enable-gpl --enable-ladspa --enable-libaom --enable-libass '
      '--enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio '
      '--enable-libdav1d --enable-libdrm --enable-libfdk-aac --enable-libflite '
      '--enable-libfontconfig --enable-libfreetype --enable-libfribidi '
      '--enable-libgme --enable-libgsm --enable-libharfbuzz --enable-libmp3lame '
-     '--enable-libopenmpt --enable-libopus --enable-libpulse --enable-librav1e '
-     '--enable-librubberband --enable-librubberband --enable-libshine '
-     '--enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libsvtav1 '
-     '--enable-libtheora --enable-libtwolame --enable-libvidstab '
-     '--enable-libvo-amrwbenc --enable-libvorbis --enable-libvpl --enable-libvpx '
-     '--enable-libvvenc --enable-libwebp --enable-libx264 --enable-libx265 '
-     '--enable-libxml2 --enable-libxvid --enable-libzimg --enable-libzvbi '
-     '--enable-nonfree --enable-opengl --enable-openssl --enable-vaapi '
-     '--enable-version3\n'
+     '--enable-libopenh264 --enable-libopenmpt --enable-libopus --enable-libpulse '
+     '--enable-librav1e --enable-librubberband --enable-librubberband '
+     '--enable-libshine --enable-libsnappy --enable-libsoxr --enable-libspeex '
+     '--enable-libsvtav1 --enable-libtheora --enable-libtwolame '
+     '--enable-libvidstab --enable-libvo-amrwbenc --enable-libvorbis '
+     '--enable-libvpx --enable-libvvenc --enable-libwebp --enable-libx264 '
+     '--enable-libx265 --enable-libxml2 --enable-libxvid --enable-libzimg '
+     '--enable-libzvbi --enable-nonfree --enable-opengl --enable-openssl '
+     '--enable-vaapi --enable-version3 --enable-libvpl --disable-libmfx '
+     "--extra-cflags='-O2 -march=native -mtune=native' --extra-cxxflags='-O2 "
+     "-march=native -mtune=native'\n"
      'libavutil ...\n'
      'libavcodec ...\n'
      'libavformat ...\n'
@@ -188,7 +190,7 @@ def get_librav1e_version() -> str:
     >>> from mendevi.measures.context import get_librav1e_version
     >>> print(get_librav1e_version())  # doctest: +ELLIPSIS
     rav1e 0.8.0 (...) (release)
-    rustc 1.91.1 (...) x86_64-unknown-linux-gnu
+    rustc ... (...) x86_64-unknown-linux-gnu
     Compiled CPU Features: ...
     Runtime Assembly Support: Enabled
     Runtime Assembly Level: ...
@@ -214,8 +216,8 @@ def get_vvc_version() -> str:
     Examples
     --------
     >>> from mendevi.measures.context import get_vvc_version
-    >>> print(get_vvc_version())
-    1.13.1
+    >>> print(get_vvc_version())  # doctest: +ELLIPSIS
+    1.14...
     >>>
 
     """
@@ -277,7 +279,6 @@ def get_pip_freeze() -> str:
     >>> print(get_pip_freeze())  # doctest: +ELLIPSIS
     accessible-pygments==...
     ...
-    wheel==...
     >>>
 
     """

@@ -113,3 +113,8 @@ ignore = [
 
 [tool.ruff.lint.pylint]
 allow-magic-value-types = ["int", "str", "bytes"]
+
+[tool.pytest.ini_options]
+markers = [
+  "slow: mark test as slow"
+]

@@ -25,9 +25,9 @@ class PowerCores(Model):
     Examples
     --------
     >>> from mendevi.models.power_cores import PowerCores
-    >>> model = PowerCores()
-    >>> model.fit("<multithread.db>")
+    >>> model = PowerCores().fit("<multithread.db>")
     >>> model.predict(["paradoxe-32.rennes.grid5000.fr"], [0.0])
+    {'power': [247.53499079469898]}
     >>>
 
     """

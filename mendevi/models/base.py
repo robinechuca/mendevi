@@ -118,7 +118,7 @@ def from_torch(data: dict[str, torch.Tensor]) -> dict[str, list]:
 
 
 class MetaModel(abc.ABCMeta):
-    """Relax somes constraints on few methods.
+    """Relax somes+ constraints on few methods.
 
     see https://github.com/python/cpython/blob/main/Lib/_py_abc.py
     and https://github.com/python/cpython/blob/main/Lib/abc.py
@@ -133,22 +133,23 @@ class MetaModel(abc.ABCMeta):
             # get implemented methods
             abstracts = {
                 name: getattr(getattr(cls, name, None), "__isabstractmethod__", False)
-                for name in ("_predict", "_predict_vect", "_predict_vect_norm")
+                for name in group
             }
             # verification
-            if not any(abstracts.values()):
+            if all(abstracts.values()):
                 msg = (
                     f"Can't instanciate abstract class {cls.__name__} "
                     "without an implementation for any of the abstract method "
                     f"{' '.join(f'{n!r}' for n in abstracts)}"
                 )
                 raise TypeError(msg)
-            if list(abstracts.values()).count(True) != 1:
+            if list(abstracts.values()).count(False) != 1:
                 msg = (
                     f"Can't instanciate abstract class {cls.__name__} "
                     "without more than one implementation of the abstract method "
                     f"{' '.join(f'{n!r}' for n in group)}"
                 )
+                raise TypeError(msg)
             # cleaning
             cls.__abstractmethods__ = cls.__abstractmethods__ - frozenset(group)
         return super().__call__(*args, **kwargs)

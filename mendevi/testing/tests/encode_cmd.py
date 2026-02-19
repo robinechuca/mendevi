@@ -1,7 +1,10 @@
 """Test the ffmpeg encoding command on a stupid example."""
 
 import itertools
+import pathlib
 import typing
+
+import pytest
 
 from mendevi.cmd import CmdFFMPEG
 from mendevi.encoder import (
@@ -55,76 +58,95 @@ def encode(encoder: str, cmd_creator: typing.Callable) -> None:
         cmd.run()
 
 
+@pytest.mark.slow
 def test_encode_av1_nvenc() -> None:
     """Perform the ffmpeg encoding test on av1_nvenc."""
     encode("av1_nvenc", _encode_av1_nvenc)
 
 
+@pytest.mark.skipif(pathlib.Path("/dev/dri/renderD128").exists(), reason="requires intel vaapi")
+@pytest.mark.slow
 def test_encode_av1_vaapi() -> None:
     """Perform the ffmpeg encoding test on av1_vaapi."""
     encode("av1_vaapi", _encode_av1_vaapi)
 
 
+@pytest.mark.slow
 def test_encode_h264_nvenc() -> None:
     """Perform the ffmpeg encoding test on h264_nvenc."""
     encode("h264_nvenc", _encode_h264_nvenc)
 
 
+@pytest.mark.skipif(pathlib.Path("/dev/dri/renderD128").exists(), reason="requires intel vaapi")
+@pytest.mark.slow
 def test_encode_h264_vaapi() -> None:
     """Perform the ffmpeg encoding test on h264_vaapi."""
     encode("h264_vaapi", _encode_h264_vaapi)
 
 
+@pytest.mark.slow
 def test_encode_hevc_nvenc() -> None:
     """Perform the ffmpeg encoding test on hevc_nvenc."""
     encode("hevc_nvenc", _encode_hevc_nvenc)
 
 
+@pytest.mark.skipif(pathlib.Path("/dev/dri/renderD128").exists(), reason="requires intel vaapi")
+@pytest.mark.slow
 def test_encode_hevc_vaapi() -> None:
     """Perform the ffmpeg encoding test on hevc_vaapi."""
     encode("hevc_vaapi", _encode_hevc_vaapi)
 
 
+@pytest.mark.slow
 def test_encode_libaomav1() -> None:
     """Perform the ffmpeg encoding test on libaom-av1."""
     encode("libaom-av1", _encode_libaomav1)
 
 
+@pytest.mark.slow
 def test_encode_libopenh264() -> None:
     """Perform the ffmpeg encoding test on libopenh264."""
     encode("libopenh264", _encode_libopenh264)
 
 
+@pytest.mark.slow
 def test_encode_librav1e() -> None:
     """Perform the ffmpeg encoding test on librav1e."""
     encode("librav1e", _encode_librav1e)
 
 
+@pytest.mark.slow
 def test_encode_libsvtav1() -> None:
     """Perform the ffmpeg encoding test on libsvtav1."""
     encode("libsvtav1", _encode_libsvtav1)
 
 
+@pytest.mark.slow
 def test_encode_libvpx_vp9() -> None:
     """Perform the ffmpeg encoding test on libvpx-vp9."""
     encode("libvpx-vp9", _encode_libvpx_vp9)
 
 
+@pytest.mark.slow
 def test_encode_libx264() -> None:
     """Perform the ffmpeg encoding test on libx264."""
     encode("libx264", _encode_libx264)
 
 
+@pytest.mark.slow
 def test_encode_libx265() -> None:
     """Perform the ffmpeg encoding test on libx265."""
     encode("libx265", _encode_libx265)
 
 
+@pytest.mark.skipif(pathlib.Path("/dev/dri/renderD128").exists(), reason="requires intel vaapi")
+@pytest.mark.slow
 def test_encode_vp9_vaapi() -> None:
     """Perform the ffmpeg encoding test on vp9_vaapi."""
     encode("vp9_vaapi", _encode_vp9_vaapi)
 
 
+@pytest.mark.slow
 def test_encode_vvc() -> None:
     """Perform the ffmpeg encoding test on vvc."""
     encode("vvc", _encode_vvc)

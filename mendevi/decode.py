@@ -239,10 +239,13 @@ def create_video_sample(codec: str, pix_fmt: str) -> pathlib.Path:
         encode := {
             "av1": "libsvtav1",
             "h264": "libx264",
+            "hevc": "libx265",
+            "vp9": "libvpx-vp9",
+            "vvc": "vvc",
         }.get(codec)
     ) is None:
-        msg = f"create a sample with the codec {codec} and pix_fmt {pix_fmt} is not supported"
-        raise ValueError(msg)
+        msg = f"create a sample with the codec {codec} is not yet supported"
+        raise NotImplementedError(msg)
     cmd.encode = encode
     cmd.run()  # create the test file (never fail)
     return sample
