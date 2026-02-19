@@ -11,7 +11,7 @@ maintainers = [
 ]
 dependencies = [  # https://packaging.python.org/en/latest/specifications/dependency-specifiers/#dependency-specifiers
   "click",
-  "context_verbose",
+  "context_verbose >= 2.2.3",
   "cutcutcodec",
   "flufl.lock",
   "levenshtein",

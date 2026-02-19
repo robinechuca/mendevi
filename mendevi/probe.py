@@ -66,7 +66,11 @@ def _fill_vid_table(
     with Printer(f"Get properties of {video.name}...", color="green") as prt:
         # basic fields
         for field in fields - {"vid_rms_sobel", "vid_rms_time_diff", "vid_uvq"}:
-            prop[field] = _fill_vid_table_prop(field, prt, pad, video)
+            try:
+                prop[field] = _fill_vid_table_prop(field, prt, pad, video)
+            except cutcutcodec.core.exceptions.MissingInformation as err:
+                logging.getLogger(__name__).warning(err)
+                prop[field] = None
 
         # metric fields
         new_metrics = cutcutcodec.video_metrics(

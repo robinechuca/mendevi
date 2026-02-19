@@ -161,15 +161,17 @@ def encode_and_store(
     Examples
     --------
     >>> import pathlib, tempfile
+    >>> import cutcutcodec
     >>> from mendevi.database.complete import add_environment
     >>> from mendevi.database.create import create_database
     >>> from mendevi.encode import encode_and_store
-    >>> src = pathlib.Path("/data/dataset/video/despacito.mp4")
+    >>> src = cutcutcodec.utils.get_project_root() / "media" / "video" / "intro.webm"
     >>> create_database(database := pathlib.Path(tempfile.mktemp(suffix=".sqlite")))
     >>> env_id = add_environment(database)
     >>> encode_and_store(
     ...     database, env_id, src,
-    ...     encoder="libx264", profile="sd", effort="fast", quality=0.5, threads=8
+    ...     encoder="libx264", profile="sd", effort="fast", quality=0.5, threads=8,
+    ...     ram=True, filter="", fps=24.0,
     ... )
     >>> database.unlink()
     >>>

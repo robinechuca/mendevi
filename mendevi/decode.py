@@ -249,7 +249,7 @@ def create_video_sample(codec: str, pix_fmt: str) -> pathlib.Path:
 
 
 @functools.cache
-def test_decode_sample_encoder(sample: pathlib.Path, decoder: str) -> bool:
+def try_decode_sample_encoder(sample: pathlib.Path, decoder: str) -> bool:
     """Return True if ffmpeg can decode that video."""
     cmd = CmdFFMPEG(video=sample, decode=decoder)
     try:
@@ -279,5 +279,5 @@ def available_decoders(codec: str, pix_fmt: str) -> tuple[str, str | None]:
             logging.getLogger(__name__).info("no decoder tested for the codec %s", codec)
             candidates = []
     for family, decoder in candidates:
-        if test_decode_sample_encoder(sample, decoder):
+        if try_decode_sample_encoder(sample, decoder):
             yield family, decoder

@@ -85,6 +85,11 @@ ALL_EXTRACTORS = {
         extract.extract_act_duration,
         Scale.LINEAR,
     ),
+    "act_duration_per_frame": Extractor(
+        "Average video processing activity duration per frame in seconds",
+        "None if act_duration is None or nbr_frames is None else 8.0 * act_duration / nbr_frames",
+        Scale.LOGARITHMIC,
+    ),
     "bitrate": Extractor(
         r"Video bitrate in $bit.s^{-1}$",
         "None if size is None or video_duration is None else 8.0 * size / video_duration",
@@ -470,7 +475,7 @@ def extract_names(expr: str) -> set[str]:
     >>>
 
     """
-    MODULES: set[str] = {"re", "math"}
+    modules: set[str] = {"re", "math"}
     try:
         nodes = list(ast.walk(ast.parse(expr, mode="exec")))
     except SyntaxError as err:
@@ -484,7 +489,7 @@ def extract_names(expr: str) -> set[str]:
         n_.id
         for n in nodes if isinstance(n, ast.Call) and not isinstance(n.func, ast.Attribute)
         for n_ in ast.walk(n.func) if isinstance(n_, ast.Name)
-    } | MODULES
+    } | modules
     candidates = {n.id for n in nodes if isinstance(n, ast.Name)}
     return set(candidates - reject)  # set usefull for empty case
 

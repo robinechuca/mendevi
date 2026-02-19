@@ -4,7 +4,9 @@ import abc
 import logging
 import numbers
 import pathlib
+import re
 import sqlite3
+import tempfile
 import typing
 
 import numpy as np
@@ -14,11 +16,12 @@ from context_verbose import Printer
 from mendevi.cst.encoders import ENCODERS
 from mendevi.cst.labels import LABELS
 from mendevi.cst.profiles import PROFILES
-from mendevi.database.create import is_sqlite
+from mendevi.database.create import create_database, is_sqlite
 from mendevi.database.extract import SqlLinker
 from mendevi.database.meta import get_extractor, merge_extractors
 from mendevi.download.decapsulation import retrive_file
-
+from mendevi.probe import probe_and_store
+from mendevi.utils import compute_video_hash
 
 EPS = torch.finfo(torch.float32).eps
 
@@ -86,6 +89,11 @@ def to_torch(data: dict[str, list], dtype: torch.dtype = torch.float32) -> dict[
                     torch.asarray([profiles[e] for e in values], dtype=int),
                     num_classes=len(profiles),
                 ).to(dtype)
+            case "mode":
+                out_data["mode"] = torch.nn.functional.one_hot(
+                    torch.asarray([{"cbr": 0, "vbr": 1}[e] for e in values], dtype=int),
+                    num_classes=2,
+                ).to(dtype)
             case "hostname":
                 msg = "The one hot encoding for hostname is not defined."
                 raise NotImplementedError(msg)
@@ -102,7 +110,7 @@ def from_torch(data: dict[str, torch.Tensor]) -> dict[str, list]:
         assert isinstance(values, torch.Tensor), values.__class__.__name__
         assert values.ndim == 2, values.shape
         match name:
-            case "effort" | "encoder" | "profile" | "hostname":
+            case "effort" | "encoder" | "profile" | "mode" | "hostname":
                 raise NotImplementedError
             case _:
                 out_data[name] = values.squeeze(1).tolist()
@@ -118,27 +126,31 @@ class MetaModel(abc.ABCMeta):
 
     def __call__(cls, *args: tuple, **kwargs: dict) -> typing.ClassVar:
         """Relax abstraction constraints on interconnected methods."""
-        # get implemented methods
-        abstracts = {
-            name: getattr(getattr(cls, name, None), "__isabstractmethod__", False)
-            for name in ("_predict", "_predict_vect", "_predict_vect_norm")
-        }
-        # verification
-        if not any(abstracts.values()):
-            msg = (
-                f"Can't instanciate abstract class {cls.__name__} "
-                "without an implementation for any of the abstract method "
-                f"{' '.join(f'{n!r}' for n in abstracts)}"
-            )
-            raise TypeError(msg)
-        if list(abstracts.values()).count(True) != 1:
-            msg = (
-                f"Can't instanciate abstract class {cls.__name__} "
-                "without more than one implementation of the abstract method "
-                f"{' '.join(f'{n!r}' for n in abstracts)}"
-            )
-        # cleaning
-        cls.__abstractmethods__ = cls.__abstractmethods__ - frozenset(abstracts)
+        for group in [
+            ("_predict", "_predict_vect", "_predict_vect_norm"),
+            ("_fit", "_fit_vect", "_fit_vect_norm"),
+        ]:
+            # get implemented methods
+            abstracts = {
+                name: getattr(getattr(cls, name, None), "__isabstractmethod__", False)
+                for name in ("_predict", "_predict_vect", "_predict_vect_norm")
+            }
+            # verification
+            if not any(abstracts.values()):
+                msg = (
+                    f"Can't instanciate abstract class {cls.__name__} "
+                    "without an implementation for any of the abstract method "
+                    f"{' '.join(f'{n!r}' for n in abstracts)}"
+                )
+                raise TypeError(msg)
+            if list(abstracts.values()).count(True) != 1:
+                msg = (
+                    f"Can't instanciate abstract class {cls.__name__} "
+                    "without more than one implementation of the abstract method "
+                    f"{' '.join(f'{n!r}' for n in group)}"
+                )
+            # cleaning
+            cls.__abstractmethods__ = cls.__abstractmethods__ - frozenset(group)
         return super().__call__(*args, **kwargs)
 
 
@@ -155,6 +167,9 @@ class Model(metaclass=MetaModel):
         The name of all input parameters (readonly).
     output_labels : list[str]
         The name of all output parameters (readonly).
+    accuracy : dict[str, float]
+        For each output label, associate the standard deviation of the associated average error.
+        This dictionary is constructed when the .fit method is called (readonly).
 
     """
 
@@ -199,6 +214,7 @@ class Model(metaclass=MetaModel):
         # check parameters
         self._parameters = kwargs.get("parameters")
         self._std_mean: dict = {}
+        self._accuracy: dict | None = None
 
         # check title
         if title is None:
@@ -216,8 +232,9 @@ class Model(metaclass=MetaModel):
         assert isinstance(sources, str), sources.__class__.__name__
         self._sources = sources
 
+    @abc.abstractmethod
     def _fit(self, values: dict[str]) -> None:
-        """Performs data regression to find the model's hyperparameters.
+        """Perform data regression to find the model's hyperparameters.
 
         Hyperparameters must be added to the ``self.parameters`` dictionary.
 
@@ -232,11 +249,12 @@ class Model(metaclass=MetaModel):
         If the model contains hyperparameters,
         it is essential that the child class redefines one of the methods
         self._fit, self._fit_vect or self._fit_vect_norm.
+
         """
         # level 1
         if (
-            self.__class__._fit_vect is not Model._fit_vect
-            or self.__class__._fit_vect_norm is not Model._fit_vect_norm
+            self.__class__._fit_vect is not Model._fit_vect  # noqa: SLF001
+            or self.__class__._fit_vect_norm is not Model._fit_vect_norm  # noqa: SLF001
         ):
             self._fit_vect(to_torch(values))
 
@@ -244,33 +262,39 @@ class Model(metaclass=MetaModel):
         else:
             raise NotImplementedError
 
+    @abc.abstractmethod
     def _fit_vect(self, values: dict[str, torch.Tensor]) -> None:
-        """Same functionality as ``self._fit``, but provide tensor rather than lists."""
+        """Do the same as ``self._fit``, but provide tensor rather than lists."""
         # level 2
-        if self.__class__._fit_vect_norm is not Model._fit_vect_norm:
+        if self.__class__._fit_vect_norm is not Model._fit_vect_norm:  # noqa: SLF001
             assert set(self._input_labels) | set(self._output_labels) == set(values)
             self._std_mean = {
-                name: torch.std_mean(data, dim=0, keepdim=True)
+                name: (
+                    torch.std_mean(data, dim=0, keepdim=True)
+                    if data.shape[1] == 1 else
+                    (1.0, 0.0)  # do nothing for onehot encoding
+                )
                 for name, data in values.items()
             }
             self._fit_vect_norm(
                 {
                     name: (data - self._std_mean[name][1]) / (self._std_mean[name][0] + EPS)
                     for name, data in values.items()
-                }
+                },
             )
 
         # level 1
         else:
             raise NotImplementedError
 
+    @abc.abstractmethod
     def _fit_vect_norm(self, values: dict[str, torch.Tensor]) -> None:
-        """Same functionality as ``self._fit_vect``, but the tensors are centered and reduced."""
+        """Do the same as ``self._fit_vect``, but the tensors are centered and reduced."""
         raise NotImplementedError
 
     @abc.abstractmethod
     def _predict(self, values: dict[str, list]) -> dict[str, list]:
-        """Performs model prediction.
+        """Perform model prediction.
 
         Parameters
         ----------
@@ -287,11 +311,12 @@ class Model(metaclass=MetaModel):
         -----
         The child class must to redefines one of the methods
         self._predict, self._predict_vect or self._predict_vect_norm.
+
         """
         # level 1
         if (
-            self.__class__._predict_vect is not Model._predict_vect
-            or self.__class__._predict_vect_norm is not Model._predict_vect_norm
+            self.__class__._predict_vect is not Model._predict_vect  # noqa: SLF001
+            or self.__class__._predict_vect_norm is not Model._predict_vect_norm  # noqa: SLF001
         ):
             return from_torch(self._predict_vect(to_torch(values)))
 
@@ -300,21 +325,21 @@ class Model(metaclass=MetaModel):
 
     @abc.abstractmethod
     def _predict_vect(self, values: dict[str, torch.Tensor]) -> dict[str, torch.Tensor]:
-        """Same as ``self._predict``, but provide and return tensor rather than lists."""
+        """Do the same as ``self._predict``, but provide and return tensor rather than lists."""
         # level 2
-        if self.__class__._predict_vect_norm is not Model._predict_vect_norm:
-            assert set(self._input_labels) == set(values)
+        if self.__class__._predict_vect_norm is not Model._predict_vect_norm:  # noqa: SLF001
+            assert set(values).issubset(set(self._input_labels)), (values, self._input_labels)
             assert self._std_mean, "you must to call fit before predict"
             norm_prediction = self._predict_vect_norm(
                 {
                     name: (data - self._std_mean[name][1]) / (self._std_mean[name][0] + EPS)
                     for name, data in values.items()
-                }
+                },
             )
             assert set(self._output_labels) == set(norm_prediction)
             return {
                 name: (
-                    norm_prediction[name] * (self._std_mean[name][0] + EPS) + self._std_mean[name][1]
+                    norm_prediction[name] * (self._std_mean[name][0]+EPS) + self._std_mean[name][1]
                 )
                 for name in self._output_labels
             }
@@ -328,6 +353,14 @@ class Model(metaclass=MetaModel):
         raise NotImplementedError
 
     @property
+    def accuracy(self) -> dict[str, float]:
+        """Return the error std for each output label."""
+        if self._accuracy is None:
+            msg = "you must call the .fit method before you can know the accuracy of the model"
+            return RuntimeError(msg)
+        return self._accuracy.copy()  # copy for readonly
+
+    @property
     def cite(self) -> str:
         """Return the bibtex citation."""
         raise NotImplementedError
@@ -337,8 +370,9 @@ class Model(metaclass=MetaModel):
         database: pathlib.Path | str,
         select: str | None = None,
         query: str | None = None,
+        table: str | None = None,
     ) -> typing.Self:
-        """Fit the trainable hyper parameters of the models.
+        """Fit the trainable hyper parameters of the model.
 
         Parameters
         ----------
@@ -349,6 +383,9 @@ class Model(metaclass=MetaModel):
         query : str, optional
             If provided, use this sql query to perform the request,
             otherwise (default) attemps to guess the query.
+        table : str, optional
+            The main sql table juste after the FROM in SELECT.
+            It helps to choose the write query when there is several candidates.
 
         Return
         ------
@@ -362,20 +399,32 @@ class Model(metaclass=MetaModel):
             assert is_sqlite(database), f"{database} is not a valid SQL database"
 
             # get sql query
-            prt.print("get SQL query")
+            prt.print("get SQL extractor")
             atom_names, line_extractor = merge_extractors(
                 set(self._input_labels) | set(self._output_labels),
                 select=select,
                 return_callable=True,
             )
             if query is None:
+                # search all SQL queries
                 select = {s for lbl in atom_names for s in get_extractor(lbl).func.select}
                 if len(queries := SqlLinker(*select).sql) == 0:
                     msg = "fail to create the SQL query, please provide it yourself"
                     raise RuntimeError(msg)
+
+                # select good query
+                if table is not None:
+                    queries = {re.search(r"FROM\s+(?P<tab>\w+)", q)["tab"]: q for q in queries}
+                    if table not in queries:
+                        msg = f"possible queries from {', '.join(queries)}, not {table}"
+                        raise ValueError(msg)
+                    queries = [queries[table]]
+
+                # warning
                 if len(queries) > 1:
                     logging.getLogger(__name__).warning(
-                        "several request founded %s, please select it yourself", queries,
+                        "several request founded %s, please provide the table or the request",
+                        queries,
                     )
                 query = queries.pop(0)
             else:
@@ -384,7 +433,7 @@ class Model(metaclass=MetaModel):
             # perform sql request
             prt.print("perform SQL query")
             values = {label: [] for label in set(self._input_labels) | set(self._output_labels)}
-            with sqlite3.connect(database) as conn:
+            with sqlite3.connect(f"file:{database}?mode=ro", uri=True) as conn:
                 conn.row_factory = sqlite3.Row
                 for raw in conn.execute(query):
                     for label, value in line_extractor(dict(raw)).items():
@@ -396,10 +445,15 @@ class Model(metaclass=MetaModel):
 
             # evaluate the model error
             with prt("Model accuracy:"):
-                prediction = to_torch(self._predict({l: values[l] for l in self._input_labels}))
-                validation = to_torch({l: values[l] for l in self._output_labels})
-                for atom_names in self._output_labels:
-                    std_err = ((prediction[atom_names] - validation[atom_names])**2).mean().sqrt()
+                prediction = to_torch(
+                    self._predict({lbl: values[lbl] for lbl in self._input_labels}),
+                )
+                validation = to_torch({lbl: values[lbl] for lbl in self._output_labels})
+                self._accuracy = {
+                    name: float(((prediction[name] - validation[name])**2).mean().sqrt())
+                    for name in self._output_labels
+                }
+                for atom_names, std_err in self._accuracy.items():
                     prt.print(f"std of {atom_names}: {std_err:.4g}")
 
             prt.print_time()
@@ -455,23 +509,27 @@ class Model(metaclass=MetaModel):
                 if name in values:
                     msg = f"argument {name} given twice"
                     raise ValueError(msg)
-                if name not in self._input:
+                if name not in self._input_labels:
                     msg = f"only {self._input_labels} arguments excpected, not {name}"
                     raise ValueError(msg)
                 values[name] = arg
 
-            # cast args
+            # cast args to list
             prt.print("cast args")
             for name, arg in values.copy().items():
                 match arg:
-                    case float():
-                        values[name] = torch.asarray(arg, dtype=torch.float32)
-                    case np.ndarray():
-                        values[name] = torch.from_numpy(arg)
-                    case list():
-                        if all(isinstance(item, float) for item in arg):
-                            values[name] = torch.asarray(arg, dtype=torch.float32)
+                    case numbers.Real() | str():
+                        values[name] = [arg]
+                    case np.ndarray() | torch.Tensor():
+                        values[name] = arg.tolist()
+                    case tuple():
+                        values[name] = list(arg)
                 prt.print(f"{name} = {values[name]!s:.80}")
+
+            # duplicate singloton args
+            prt.print("duplicate args")
+            size = max(map(len, values.values()))
+            values = {name: arg * size if len(arg) == 1 else arg for name, arg in values.items()}
 
             # predict
             prt.print("predict")
@@ -484,3 +542,63 @@ class Model(metaclass=MetaModel):
 
             prt.print_time()
         return prediction
+
+    def predict_from_video(
+        self, video: pathlib.Path | str, *args: tuple, **kwargs: dict,
+    ) -> dict[str]:
+        """Simplify the predict method by automatically extracting parameters from the video.
+
+        Parameters
+        ----------
+        video : pathlike
+            The path to the video whose behavior we want to ``predict``.
+        *args, **kwargs, optional
+            The other arguments are passed to the prdict method.
+
+        Returns
+        -------
+        prediction : dict[str]
+            The value returned by the ``predict`` method.
+
+        """
+        # To avoid redundancy, and thus be able to use the rest of the API,
+        # the decision was made to call the probe function on the video
+        # rather than extracting the parameters manually.
+        # We therefore create a small temporary database
+        # that allows us to reuse the other main functions of mendevi to serve this purpose.
+
+        video = pathlib.Path(video).expanduser()
+        assert video.exists(), video
+
+        # 1) creation of the database
+        database = pathlib.Path(tempfile.gettempdir()) / "model.db"
+        if not database.exists():
+            create_database(database)
+
+        # 2) find the parameters for probe
+        atom_names, _ = merge_extractors(set(self._input_labels), return_callable=False)
+        probe_kwargs = {
+            "rms_sobel": "rms_sobel" in atom_names,
+            "rms_time_diff": "rms_time_diff" in atom_names,
+            "uvq": "uvq" in atom_names,
+            "ref": {},  # for comparative metrics
+        }
+
+        # 3) call probe
+        if (conn := probe_and_store(database, video, **probe_kwargs)) is not None:
+            conn.close()
+
+        # 4) extract fields from SQL database
+        vid_id: bytes = compute_video_hash(video)
+        with sqlite3.connect(f"file:{database}?mode=ro", uri=True) as conn:
+            conn.row_factory = sqlite3.Row
+            vid_fields = {
+                info["name"][4:] for info in conn.execute("PRAGMA table_info(t_vid_video)")
+            } - {"id"}
+            input_labels = {lbl for lbl in self._input_labels if any(lbl in f for f in vid_fields)}
+            _, line_extractor = merge_extractors(input_labels, return_callable=True)
+            raw = conn.execute("SELECT * FROM t_vid_video WHERE vid_id = ?", (vid_id,)).fetchone()
+            vid_kwargs = line_extractor(dict(raw))
+
+        # 5) call the classical prediction
+        return self.predict(*args, **kwargs, **vid_kwargs)

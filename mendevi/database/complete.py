@@ -32,12 +32,23 @@ def get_idle(duration: float = 60.0) -> dict:
 
     Examples
     --------
+    >>> from pprint import pprint
     >>> from mendevi.database.complete import get_idle
-    >>> idle = get_idle(duration=1.0)  # doctest: +ELLIPSIS
-    Measure IDLE during 1.0 seconds...
-    █ avg cpu usage: ... %
-    █ avg ram usage: ... Go
-    █ avg rapl power: ... W
+    >>> idle = get_idle(duration=1.0)
+    >>> pprint(idle)  # doctest: +ELLIPSIS
+    {'duration': 1.0...,
+     'ps_core': ...,
+     'ps_cores': [[...],
+                  ...
+                  [...]],
+     'ps_dt': [...],
+     'ps_ram': [...],
+     'ps_temp': {...},
+     'rapl_dt': [...],
+     'rapl_energy': ...,
+     'rapl_power': ...,
+     'rapl_powers': [...],
+     'start': ...}
     >>>
 
     """
