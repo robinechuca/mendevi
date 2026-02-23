@@ -421,6 +421,7 @@ def _import_extractor(code: list[str]) -> typing.Callable:
         "import math",
         "import re",
         "",
+        "from mendevi.exceptions import RejectError",
         "from mendevi.utils import best_profile",
         "import mendevi.database.extract as extract",
         "",
@@ -432,7 +433,7 @@ def _import_extractor(code: list[str]) -> typing.Callable:
     spec = importlib.util.spec_from_file_location(path.stem, path)
     modulevar = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(modulevar)
-    path.unlink()
+    # path.unlink()  # TODO uncoment for production
     return modulevar.line_extractor
 
 
@@ -518,7 +519,7 @@ def get_extractor(name: str, *, safe: bool = False) -> Extractor:
         extractor = get_extractor(name[4:], safe=safe)
         return Extractor(
             f"Log 10 of {extractor.legend.lower()}",
-            f"math.log10({name[4:]})",
+            f"None if {name[4:]} is None else math.log10({name[4:]})",
             Scale.LINEAR,
         )
 

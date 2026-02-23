@@ -20,6 +20,7 @@ from mendevi.database.create import create_database, is_sqlite
 from mendevi.database.extract import SqlLinker
 from mendevi.database.meta import get_extractor, merge_extractors
 from mendevi.download.decapsulation import retrive_file
+from mendevi.exceptions import RejectError
 from mendevi.probe import probe_and_store
 from mendevi.utils import compute_video_hash
 
@@ -366,6 +367,67 @@ class Model(metaclass=MetaModel):
         """Return the bibtex citation."""
         raise NotImplementedError
 
+    def extract_video_props(self, video: pathlib.Path | str) -> dict[str]:
+        """Excerpt from the video, useful settings for the model.
+
+        Parameters
+        ----------
+        video : pathlike
+            The path to the video whose behavior we want to ``predict``.
+
+        Returns
+        -------
+        properties : dict[str]
+            For relevant input labels,
+            associate the corresponding properties of the video provided as a parameter.
+
+        """
+        # To avoid redundancy, and thus be able to use the rest of the API,
+        # the decision was made to call the probe function on the video
+        # rather than extracting the parameters manually.
+        # We therefore create a small temporary database
+        # that allows us to reuse the other main functions of mendevi to serve this purpose.
+
+        video = pathlib.Path(video).expanduser()
+        assert video.exists(), video
+
+        # 1) creation of the database
+        database = pathlib.Path(tempfile.gettempdir()) / "model.db"
+        if not database.exists():
+            create_database(database)
+
+        # 2) find the parameters for probe
+        atom_names, _ = merge_extractors(set(self._input_labels), return_callable=False)
+        probe_kwargs = {
+            "rms_sobel": "rms_sobel" in atom_names,
+            "rms_time_diff": "rms_time_diff" in atom_names,
+            "uvq": "uvq" in atom_names,
+            "ref": {},  # required by probe_and_store (for comparative metrics)
+        }
+
+        # 3) call probe
+        if (conn := probe_and_store(database, video, **probe_kwargs)) is not None:
+            conn.close()
+
+        # 4) select lthe labels deducible from probe
+        # to verify that a value can be extracted from probe,
+        # we check whether the code that extracts it only calls on the t_vid_video table.
+        input_labels = {
+            lbl for lbl in self._input_labels if all(  # return also True if empty -> ok
+                select.split(".")[0] == "t_vid_video"
+                for atom_lbl in merge_extractors({lbl})[0]
+                for select in getattr(get_extractor(lbl, safe=True).func, "select", [])
+            )
+        }
+
+        # 5) extract fields from SQL database
+        vid_id: bytes = compute_video_hash(video)
+        _, line_extractor = merge_extractors(input_labels, return_callable=True)
+        with sqlite3.connect(f"file:{database}?mode=ro", uri=True) as conn:
+            conn.row_factory = sqlite3.Row
+            raw = conn.execute("SELECT * FROM t_vid_video WHERE vid_id = ?", (vid_id,)).fetchone()
+            return line_extractor(dict(raw))
+
     def fit(
         self,
         database: pathlib.Path | str,
@@ -437,8 +499,11 @@ class Model(metaclass=MetaModel):
             with sqlite3.connect(f"file:{database}?mode=ro", uri=True) as conn:
                 conn.row_factory = sqlite3.Row
                 for raw in conn.execute(query):
-                    for label, value in line_extractor(dict(raw)).items():
-                        values[label].append(value)
+                    try:
+                        for label, value in line_extractor(dict(raw)).items():
+                            values[label].append(value)
+                    except RejectError:
+                        pass
 
             # fit the model
             prt.print("fit the model")
@@ -464,6 +529,10 @@ class Model(metaclass=MetaModel):
     def input_labels(self) -> list[str]:
         """Return the name of all input parameters."""
         return self._input_labels.copy()
+
+    def is_fit(self) -> bool:
+        """Return True if the method `fit` has been succesfully called."""
+        return self._accuracy is not None
 
     @property
     def output_labels(self) -> list[str]:
@@ -516,21 +585,10 @@ class Model(metaclass=MetaModel):
                 values[name] = arg
 
             # cast args to list
-            prt.print("cast args")
-            for name, arg in values.copy().items():
-                match arg:
-                    case numbers.Real() | str():
-                        values[name] = [arg]
-                    case np.ndarray() | torch.Tensor():
-                        values[name] = arg.tolist()
-                    case tuple():
-                        values[name] = list(arg)
+            prt.print("vectorize args")
+            values = self.vect_kwargs(values)
+            for name, arg in values.items():
                 prt.print(f"{name} = {values[name]!s:.80}")
-
-            # duplicate singloton args
-            prt.print("duplicate args")
-            size = max(map(len, values.values()))
-            values = {name: arg * size if len(arg) == 1 else arg for name, arg in values.items()}
 
             # predict
             prt.print("predict")
@@ -552,9 +610,11 @@ class Model(metaclass=MetaModel):
         Parameters
         ----------
         video : pathlike
-            The path to the video whose behavior we want to ``predict``.
+            Transmitted to self.extract_video_props.
         *args, **kwargs, optional
             The other arguments are passed to the prdict method.
+            Accept a list of arguments for vectorization.
+            Single values are duplicated in a list of the same length as the longest one.
 
         Returns
         -------
@@ -562,44 +622,25 @@ class Model(metaclass=MetaModel):
             The value returned by the ``predict`` method.
 
         """
-        # To avoid redundancy, and thus be able to use the rest of the API,
-        # the decision was made to call the probe function on the video
-        # rather than extracting the parameters manually.
-        # We therefore create a small temporary database
-        # that allows us to reuse the other main functions of mendevi to serve this purpose.
-
-        video = pathlib.Path(video).expanduser()
-        assert video.exists(), video
-
-        # 1) creation of the database
-        database = pathlib.Path(tempfile.gettempdir()) / "model.db"
-        if not database.exists():
-            create_database(database)
-
-        # 2) find the parameters for probe
-        atom_names, _ = merge_extractors(set(self._input_labels), return_callable=False)
-        probe_kwargs = {
-            "rms_sobel": "rms_sobel" in atom_names,
-            "rms_time_diff": "rms_time_diff" in atom_names,
-            "uvq": "uvq" in atom_names,
-            "ref": {},  # for comparative metrics
-        }
-
-        # 3) call probe
-        if (conn := probe_and_store(database, video, **probe_kwargs)) is not None:
-            conn.close()
-
-        # 4) extract fields from SQL database
-        vid_id: bytes = compute_video_hash(video)
-        with sqlite3.connect(f"file:{database}?mode=ro", uri=True) as conn:
-            conn.row_factory = sqlite3.Row
-            vid_fields = {
-                info["name"][4:] for info in conn.execute("PRAGMA table_info(t_vid_video)")
-            } - {"id"}
-            input_labels = {lbl for lbl in self._input_labels if any(lbl in f for f in vid_fields)}
-            _, line_extractor = merge_extractors(input_labels, return_callable=True)
-            raw = conn.execute("SELECT * FROM t_vid_video WHERE vid_id = ?", (vid_id,)).fetchone()
-            vid_kwargs = line_extractor(dict(raw))
-
-        # 5) call the classical prediction
+        vid_kwargs = self.extract_video_props(video)
         return self.predict(*args, **kwargs, **vid_kwargs)
+
+    @staticmethod
+    def vectorize_kwargs(kwargs: dict[str]) -> dict[str]:
+        """Help for predict method."""
+        assert isinstance(kwargs, dict); kwargs.__class__.__name__
+        vect_kwargs: dict[str] = kwargs.copy()
+
+        # cast args to list
+        for name, arg in kwargs.items():
+            match arg:
+                case numbers.Real() | str():
+                    vect_kwargs[name] = [arg]
+                case np.ndarray() | torch.Tensor():
+                    vect_kwargs[name] = arg.tolist()
+                case tuple():
+                    vect_kwargs[name] = list(arg)
+
+        # duplicate singloton args
+        size = max(map(len, vect_kwargs.values()), default=1)
+        return {name: arg * size if len(arg) == 1 else arg for name, arg in vect_kwargs.items()}

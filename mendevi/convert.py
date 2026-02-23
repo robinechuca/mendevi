@@ -40,11 +40,11 @@ def filter_best_order(
     >>> from fractions import Fraction
     >>> import cutcutcodec
     >>> from mendevi.convert import filter_best_order
-    >>> media = cutcutcodec.utils.get_project_root() / "media" / "video" / "intro.webm"
-    >>> filter_best_order(media, additional_filter="", fps=None, pix_fmt=None, resolution=None)
+    >>> video = cutcutcodec.utils.get_project_root() / "media" / "video" / "intro.webm"
+    >>> filter_best_order(video, additional_filter="", fps=None, pix_fmt=None, resolution=None)
     ''
     >>> filter_best_order(
-    ...     media,
+    ...     video,
     ...     additional_filter="",
     ...     fps=Fraction(60000, 1001),
     ...     pix_fmt="yuv420p10le",
@@ -52,7 +52,7 @@ def filter_best_order(
     ... )
     'scale=h=1080:w=1920:sws_flags=bicubic,format=yuv420p10le,fps=60000/1001'
     >>> filter_best_order(
-    ...     media,
+    ...     video,
     ...     additional_filter="",
     ...     fps=Fraction(24000, 1001),
     ...     pix_fmt="yuv420p",

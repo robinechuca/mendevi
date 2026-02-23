@@ -14,9 +14,9 @@ class EncodeLinear(Model):
     >>> import cutcutcodec
     >>> from mendevi.models.linear_regression import EncodeLinear
     >>> model = EncodeLinear().fit("x264_vs_openh264.db", table="t_enc_encode")
-    >>> media = cutcutcodec.utils.get_project_root() / "media" / "video" / "intro.webm"
+    >>> video = cutcutcodec.utils.get_project_root() / "media" / "video" / "intro.webm"
     >>> pred = model.predict_from_video(
-    ...     media, effort="medium", encoder="libx264", quality=0.5, threads=8, mode="vbr",
+    ...     video, effort="medium", encoder="libx264", quality=0.5, threads=8, mode="vbr",
     ... )
     >>> pprint.pprint(pred)
     {'log_act_duration_per_frame': [-0.9902404546737671],
@@ -42,12 +42,13 @@ class EncodeLinear(Model):
                 "effort",
                 "encoder",
                 "height",
+                "mode",
+                "profile",
                 "quality",
                 "rms_sobel",
                 "rms_time_diff",
                 "threads",
                 "width",
-                "mode",
             ],
             output_labels=[
                 "log_act_duration_per_frame",

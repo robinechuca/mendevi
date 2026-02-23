@@ -13,6 +13,7 @@ import numpy as np
 from context_verbose import Printer
 
 from mendevi.cst.encoders import ENCODERS
+from mendevi.cst.threads import THREADS
 from mendevi.database.complete import add_environment
 from mendevi.encode import encode_and_store
 from mendevi.utils import compute_video_hash, get_pix_fmt, get_rate_video, get_resolution
@@ -162,7 +163,7 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
 @click.option(
     "-t", "--threads",
     type=int,
-    default=[8],
+    default=[THREADS],
     multiple=True,
     help="The number of threads used by encoders.",
 )
