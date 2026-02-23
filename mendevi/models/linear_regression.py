@@ -43,7 +43,6 @@ class EncodeLinear(Model):
                 "encoder",
                 "height",
                 "mode",
-                "profile",
                 "quality",
                 "rms_sobel",
                 "rms_time_diff",
@@ -63,6 +62,7 @@ class EncodeLinear(Model):
     def _fit_vect_norm(self, values: dict[str, torch.Tensor]) -> None:
         """Perform a linear regression on the centered and reduced values."""
         obs = torch.cat([values[lbl] for lbl in self.input_labels], dim=1)
+        obs = torch.cat([torch.ones((len(obs), 1), dtype=obs.dtype, device=obs.device), obs], dim=1)
         self.parameters = {
             response: torch.linalg.pinv(obs.mT @ obs, hermitian=True) @ obs.mT @ values[response]
             for response in self.output_labels
@@ -70,4 +70,5 @@ class EncodeLinear(Model):
 
     def _predict_vect_norm(self, values: dict[str, torch.Tensor]) -> dict[str, torch.Tensor]:
         obs = torch.cat([values[lbl] for lbl in self.input_labels], dim=1)
+        obs = torch.cat([torch.ones((len(obs), 1), dtype=obs.dtype, device=obs.device), obs], dim=1)
         return {name: obs @ beta for name, beta in self.parameters.items()}

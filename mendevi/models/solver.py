@@ -1,7 +1,10 @@
 """Use a model to solve an optimization problem."""
 
-import functools
+import itertools
+import pathlib
 import typing
+
+from context_verbose import Printer
 
 from mendevi.cst.encoders import ENCODERS
 from mendevi.cst.profiles import PROFILES
@@ -33,12 +36,13 @@ class Solver:
     >>> model = EncodeLinear().fit("x264_vs_openh264.db", table="t_enc_encode")
     >>> solver = Solver(model, lambda **kwd: kwd["log_energy_per_frame"] + (kwd["psnr"] - 40)**2)
     >>> video = cutcutcodec.utils.get_project_root() / "media" / "video" / "intro.webm"
-    >>> solver.solve(video)
+    >>> values, loss = solver.solve(video)
     >>>
+
     """
 
     def __init__(
-        self, model: Model, loss: typing.Callable, grid: dict[str, list] | None = None
+        self, model: Model, loss: typing.Callable, grid: dict[str, list] | None = None,
     ) -> None:
         """Prepare the solver.
 
@@ -73,8 +77,8 @@ class Solver:
             elif label in DEFAULT_GRID:
                 self._grid[label] = DEFAULT_GRID[label]
 
-    def solve(self, video: pathlib.Path | str | None = None, **kwargs):
-        """Tests all combinations.
+    def solve(self, video: pathlib.Path | str | None = None, **kwargs: dict[str]) -> dict:
+        """Test all combinations as a cartesian product.
 
         Parameters
         ----------
@@ -82,9 +86,41 @@ class Solver:
             Use this to extract the missing parameters.
         **kwargs : dict, optional
             Use to define or redefine certain input parameters to be explored.
+            Explore the cartesian product of all the values.
+
+        Returns
+        -------
+        values : dict[str, list]
+            Associate the list of provided and predicted values with each label, input and output.
+        loss : list[float]
+            The value of the stroke function for each point.
+            This list is sorted in ascending order.
+
         """
-        if video is not None:
-            kwargs = {**self._model.extract_video_props(video), **kwargs}
-        kwargs = {**self._grid, **kwargs}
-        kwargs = self._model.vectorize_kwargs(kwargs)
-        import ipdb; ipdb.set_trace()
+        with Printer("Solve...", color="pink"):
+            # preparation of cartesian product of input parameters
+            if video is not None:
+                kwargs = {**self._model.extract_video_props(video), **kwargs}
+            kwargs = self._model.vectorize_kwargs({**self._grid, **kwargs}, _skip_duplication=True)
+            keys = sorted(kwargs)  # for repetability
+            values = dict(
+                zip(
+                    keys,
+                    zip(*itertools.product(*(kwargs[k] for k in keys)), strict=True),
+                    strict=True,
+                ),
+            )
+            # predictions
+            values |= self._model.predict(**values)
+            keys = sorted(values)
+            # compute loss
+            loss = [
+                self._loss(**dict(zip(keys, p, strict=True)))
+                for p in zip(*(values[k] for k in keys), strict=True)
+            ]
+            # sort
+            idx = sorted(range(len(loss)), key=loss.__getitem__)
+            values = {k: [v[i] for i in idx] for k, v in values.items()}
+            loss = [loss[i] for i in idx]
+
+        return values, loss

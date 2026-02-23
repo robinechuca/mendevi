@@ -414,7 +414,7 @@ class Model(metaclass=MetaModel):
         # we check whether the code that extracts it only calls on the t_vid_video table.
         input_labels = {
             lbl for lbl in self._input_labels if all(  # return also True if empty -> ok
-                select.split(".")[0] == "t_vid_video"
+                select.split(".")[0] in {"t_vid_video", "t_src_video", "t_dst_video"}
                 for atom_lbl in merge_extractors({lbl})[0]
                 for select in getattr(get_extractor(lbl, safe=True).func, "select", [])
             )
@@ -586,9 +586,9 @@ class Model(metaclass=MetaModel):
 
             # cast args to list
             prt.print("vectorize args")
-            values = self.vect_kwargs(values)
+            values = self.vectorize_kwargs(values)
             for name, arg in values.items():
-                prt.print(f"{name} = {values[name]!s:.80}")
+                prt.print(f"{name} = {arg!s:.80}")
 
             # predict
             prt.print("predict")
@@ -626,9 +626,10 @@ class Model(metaclass=MetaModel):
         return self.predict(*args, **kwargs, **vid_kwargs)
 
     @staticmethod
-    def vectorize_kwargs(kwargs: dict[str]) -> dict[str]:
+    def vectorize_kwargs(kwargs: dict[str], *, _skip_duplication: bool = False) -> dict[str]:
         """Help for predict method."""
-        assert isinstance(kwargs, dict); kwargs.__class__.__name__
+        assert isinstance(kwargs, dict), kwargs.__class__.__name__
+        assert isinstance(_skip_duplication, bool), _skip_duplication.__class__.__name__
         vect_kwargs: dict[str] = kwargs.copy()
 
         # cast args to list
@@ -638,9 +639,11 @@ class Model(metaclass=MetaModel):
                     vect_kwargs[name] = [arg]
                 case np.ndarray() | torch.Tensor():
                     vect_kwargs[name] = arg.tolist()
-                case tuple():
+                case tuple() | set():
                     vect_kwargs[name] = list(arg)
 
         # duplicate singloton args
+        if _skip_duplication:
+            return vect_kwargs
         size = max(map(len, vect_kwargs.values()), default=1)
         return {name: arg * size if len(arg) == 1 else arg for name, arg in vect_kwargs.items()}

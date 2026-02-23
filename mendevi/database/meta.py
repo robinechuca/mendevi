@@ -433,7 +433,7 @@ def _import_extractor(code: list[str]) -> typing.Callable:
     spec = importlib.util.spec_from_file_location(path.stem, path)
     modulevar = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(modulevar)
-    # path.unlink()  # TODO uncoment for production
+    path.unlink()
     return modulevar.line_extractor
 
 
