@@ -28,7 +28,7 @@ def filter_best_order(
     pix_fmt : str, optional
         The new pixel format, it has to match the regex ``yuv4[24][024]p(?:10le|12le)?``.
     resolution : tuple[int, int], optional
-        The new (heigh, width) video shape.
+        The new (height, width) video shape.
 
     Returns
     -------

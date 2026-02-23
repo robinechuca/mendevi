@@ -19,12 +19,12 @@ class EncodeLinear(Model):
     ...     video, effort="medium", encoder="libx264", quality=0.5, threads=8, mode="vbr",
     ... )
     >>> pprint.pprint(pred)
-    {'log_act_duration_per_frame': [-0.9902404546737671],
-     'log_energy_per_frame': [0.5947314500808716],
+    {'log_act_duration_per_frame': [-0.9902405142784119],
+     'log_energy_per_frame': [0.594731330871582],
      'log_rate': [6.39665412902832],
-     'psnr': [37.500999450683594],
+     'psnr': [37.50100326538086],
      'ssim': [0.8862448334693909],
-     'vmaf': [82.45337677001953]}
+     'vmaf': [82.4533920288086]}
     >>>
 
     """

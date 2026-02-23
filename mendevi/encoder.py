@@ -229,7 +229,7 @@ def _encode_libopenh264(**kwargs: dict) -> list[str]:
     """Return the ffmpeg arguments."""
     general = [
         "libopenh264",
-        "-profile", {
+        "-profile:v", {
             "fast": "constrained_baseline", "medium": "main", "slow": "high",
         }[kwargs["effort"]],
         "-threads", str(kwargs["threads"]), "-slices", str(kwargs["threads"]),

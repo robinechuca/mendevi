@@ -2,13 +2,17 @@
 
 import itertools
 import pathlib
+import tempfile
 import typing
 
 from context_verbose import Printer
 
+from mendevi.cmd import CmdFFMPEG
 from mendevi.cst.encoders import ENCODERS
 from mendevi.cst.profiles import PROFILES
 from mendevi.cst.threads import THREADS
+from mendevi.encode import get_transcode_cmd
+from mendevi.utils import get_pix_fmt
 
 from .base import Model
 
@@ -34,7 +38,7 @@ class Solver:
     >>> from mendevi.models import Solver
     >>> from mendevi.models.linear_regression import EncodeLinear
     >>> model = EncodeLinear().fit("x264_vs_openh264.db", table="t_enc_encode")
-    >>> solver = Solver(model, lambda **kwd: kwd["log_energy_per_frame"] + (kwd["psnr"] - 40)**2)
+    >>> solver = Solver(model, lambda **kwd: kwd["log_energy_per_frame"] + (kwd["psnr"]-30)**2)
     >>> video = cutcutcodec.utils.get_project_root() / "media" / "video" / "intro.webm"
     >>> values, loss = solver.solve(video)
     >>>
@@ -77,7 +81,41 @@ class Solver:
             elif label in DEFAULT_GRID:
                 self._grid[label] = DEFAULT_GRID[label]
 
-    def solve(self, video: pathlib.Path | str | None = None, **kwargs: dict[str]) -> dict:
+    @staticmethod
+    def _enc_cmd(video: pathlib.Path, values: dict[str, list]) -> CmdFFMPEG | None:
+        """To each point, return the ffmpeg encode command."""
+        keys = list(values)
+        if not {"encoder", "mode", "quality"}.issubset(keys) or video is None:
+            return  # reject not encoding cases
+
+        dst = pathlib.Path(tempfile.gettempdir()) / f"{video.stem}_optimal.mp4"
+        for point_tuple in zip(*(values[k] for k in values), strict=True):
+            point = dict(zip(keys, point_tuple, strict=True))
+            kwargs = {
+                "encoder": point["encoder"],
+                "mode": point["mode"],
+                "quality": point["quality"],
+                "effort": point.get("effort", "medium"),
+                "threads": point.get("threads", THREADS),
+                "filter": point.get("filter"),
+                "fps": point.get("fps"),
+                "resolution": point.get(
+                    "resolution",
+                    (
+                        (point["height"], point["width"])
+                        if "height" in point and "width" in point else
+                        None
+                    ),
+                ),
+                "pix_fmt": point.get("pix_fmt", get_pix_fmt(video)),
+            }
+            cmd = get_transcode_cmd(video, dst, **kwargs)
+            cmd.output = ["-map", "0:v:0", *cmd.output]
+            yield cmd
+
+    def solve(
+        self, video: pathlib.Path | str | None = None, **kwargs: dict[str],
+    ) -> tuple[dict[str, list], list[float]]:
         """Test all combinations as a cartesian product.
 
         Parameters
@@ -97,7 +135,8 @@ class Solver:
             This list is sorted in ascending order.
 
         """
-        with Printer("Solve...", color="pink"):
+        with Printer("Solve...", color="pink") as prt:
+
             # preparation of cartesian product of input parameters
             if video is not None:
                 kwargs = {**self._model.extract_video_props(video), **kwargs}
@@ -110,17 +149,39 @@ class Solver:
                     strict=True,
                 ),
             )
+
             # predictions
             values |= self._model.predict(**values)
             keys = sorted(values)
+
             # compute loss
             loss = [
                 self._loss(**dict(zip(keys, p, strict=True)))
                 for p in zip(*(values[k] for k in keys), strict=True)
             ]
+
             # sort
             idx = sorted(range(len(loss)), key=loss.__getitem__)
             values = {k: [v[i] for i in idx] for k, v in values.items()}
             loss = [loss[i] for i in idx]
+
+            # display
+            with Printer(f"Result for loss = {loss[0]:#.4g}:", color="green"):
+                lbl_len = max(map(len, values))
+                for lbl in sorted(keys):
+                    std = ""
+                    if lbl in self._model.accuracy:
+                        std = f" \u00B1 {self._model.accuracy[lbl]:#.4g}{std}"
+                    if isinstance(values[lbl][0], float):
+                        prt.print(f"{lbl:<{lbl_len}}: {values[lbl][0]:#.4g}{std}")
+                    else:
+                        prt.print(f"{lbl:<{lbl_len}}: {values[lbl][0]}{std}")
+            try:
+                cmd = next(iter(self._enc_cmd(video, values)))
+            except StopIteration:
+                pass
+            else:
+                prt.print(cmd)
+                prt.print(f"mendevi probe {cmd.output[-1]:!r} -r {video:!r} -d /tmp/solver.db")
 
         return values, loss
