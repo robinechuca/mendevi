@@ -5,6 +5,41 @@ Duration Dataset
 
 Allows you to see the impact of video length on compression and energy consumption.
 
+.. list-table:: The parameters of this database
+    :header-rows: 1
+    :width: 0.95
+
+    * - Name
+      - Value
+      - Description (link)
+    * - video
+      - :math:`100` slices
+      - `Big Buck Bunny <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/video/bbb.mp4.torrent?inline=false>`_
+    * - profile
+      - ``sd``, ``fhd``
+      - `video resolution and more <https://gitlab.inria.fr/rrichard/mendevi/-/blob/main/mendevi/cst/profiles.py>`_
+    * - encoder
+      - ``libx264``, ``libsvtav1``
+      - :ref:`enc_encoder`
+    * - quality
+      - :math:`\left\{\frac{k}{3} \mid k \in [1,2] \right\}`
+      - :ref:`enc_quality`
+    * - effort
+      - ``fast``, ``medium``
+      - :ref:`enc_effort`
+    * - mode
+      - ``cbr``, ``vbr``
+      - :ref:`enc_mode`
+    * - thread
+      - :math:`\left\{ 8 \right\}`
+      - :ref:`enc_threads`
+    * - repeat
+      - :math:`10`
+      - total repetitions
+    * - host
+      - ``paradoxe-32``, ``yeti-2``
+      - :ref:`env_hostname`
+
 Download
 --------
 
@@ -71,5 +106,5 @@ Next, perform the measurements
 .. code:: shell
 
     mendevi encode -r10 -c libx264 -c libsvtav1 -e fast -e medium -m cbr -m vbr -n2 reference*
-    mendevi probe --no-vmaf reference* sample* 
+    mendevi probe --no-vmaf reference* sample*
     mendevi decode -r10 sample*
