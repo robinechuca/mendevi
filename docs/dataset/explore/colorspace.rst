@@ -5,6 +5,49 @@ Colorspace Dataset
 
 Allows you to see the impact of the color space on compression.
 
+.. list-table:: The parameters of this database
+    :header-rows: 1
+
+    * - Name
+      - Value
+      - Description (link)
+    * - video
+      - ``park_joy``
+      - `ctc <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/video/ctc.torrent?inline=false>`_
+    * - profile
+      - ``fhd``
+      - `video resolution <https://gitlab.inria.fr/rrichard/mendevi/-/blob/main/mendevi/cst/profiles.py>`_
+    * - primaries
+      - ``bt601``, ``bt709``, ``bt2020``
+      - :ref:`vid_gamut` (in profile)
+    * - transfer
+      - ``linear``, ``bt1361``, ``gamma22``, ``gamma28``, ``smpte2084``
+      - :ref:`vid_eotf` (in profile)
+    * - range
+      - ``tv``, ``pc``
+      - :ref:`vid_range` (in profile)
+    * - encoder
+      - ``libx264``, ``libsvtav1``
+      - :ref:`enc_encoder`
+    * - quality
+      - :math:`\left\{\frac{k}{17} \mid k \in [1,16] \right\}`
+      - :ref:`enc_quality`
+    * - effort
+      - ``medium``
+      - :ref:`enc_effort`
+    * - mode
+      - ``vbr``
+      - :ref:`enc_mode`
+    * - thread
+      - :math:`\left\{ 8 \right\}`
+      - :ref:`enc_threads`
+    * - repeat
+      - :math:`2` times
+      - total repetitions
+    * - host
+      - ``paradoxe-32``
+      - :ref:`env_hostname`
+
 Download
 --------
 
@@ -29,7 +72,6 @@ This is the pipeline used for measurements:
 
 Plots
 -----
-
 
 Distortion as a function of bitrate for several colorspaces
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -109,7 +151,7 @@ Reproduce
 
     for prim in bt601 bt709 bt2020
     do
-        for trans in linear bt709 gamma22 gamma28 smpte170m smpte2084
+        for trans in linear bt1361 gamma22 gamma28 smpte2084
         do
             mendevi prepare park_joy.mkv -p fhd --primaries $prim --transfer $trans --range tv
             mendevi prepare park_joy.mkv -p fhd --primaries $prim --transfer $trans --range pc

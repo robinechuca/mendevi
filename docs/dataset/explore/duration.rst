@@ -7,7 +7,6 @@ Allows you to see the impact of video length on compression and energy consumpti
 
 .. list-table:: The parameters of this database
     :header-rows: 1
-    :width: 0.95
 
     * - Name
       - Value
@@ -34,7 +33,7 @@ Allows you to see the impact of video length on compression and energy consumpti
       - :math:`\left\{ 8 \right\}`
       - :ref:`enc_threads`
     * - repeat
-      - :math:`10`
+      - :math:`10` times
       - total repetitions
     * - host
       - ``paradoxe-32``, ``yeti-2``
