@@ -48,6 +48,10 @@ It allows to perform an "experimental analysis of the impact of multi-threading 
       - ``1 thread n videos``, ``n threads 1 video``
       - multithreading scenario
       - :math:`2`
+    * - ram
+      - ``yes``
+      - hard-disk or ram-disk
+      - :math:`1`
     * - host
       - ``paradoxe-28``
       - :ref:`env_hostname`

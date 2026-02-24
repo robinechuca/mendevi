@@ -5,6 +5,58 @@ RAM Disk Dataset
 
 Compare the performance of ffmpeg when videos are read and written to **RAM**, and when they are read and written to the **hard drive**.
 
+.. list-table:: The parameters of this database
+    :header-rows: 1
+
+    * - Name
+      - Value
+      - Description (link)
+      - Total
+    * - video
+      - ``park_joy``
+      - `ctc <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/video/ctc.torrent?inline=false>`_
+      - :math:`1`
+    * - profile
+      - ``sd``, ``fhd``
+      - `video resolution and more <https://gitlab.inria.fr/rrichard/mendevi/-/blob/main/mendevi/cst/profiles.py>`_
+      - :math:`2`
+    * - encoder
+      - ``libsvtav1``, ``libx264``
+      - :ref:`enc_encoder`
+      - :math:`2`
+    * - quality
+      - :math:`\left\{\frac{k}{17} \mid k \in [1,16] \right\}`
+      - :ref:`enc_quality`
+      - :math:`16`
+    * - effort
+      - ``fast``, ``medium``
+      - :ref:`enc_effort`
+      - :math:`2`
+    * - mode
+      - ``vbr``
+      - :ref:`enc_mode`
+      - :math:`1`
+    * - thread
+      - :math:`\left\{ 8 \right\}`
+      - :ref:`enc_threads`
+      - :math:`1`
+    * - repeat
+      - :math:`5` times
+      - total repetitions
+      - :math:`5`
+    * - ram
+      - ``yes``, ``no``
+      - hard-disk or ram-disk
+      - :math:`2`
+    * - host
+      - ``paradoxe-26``
+      - :ref:`env_hostname`
+      - :math:`2`
+    * - **total**
+      - :math:`\prod`
+      - total number of points
+      - :math:`2560`
+
 Download
 --------
 
