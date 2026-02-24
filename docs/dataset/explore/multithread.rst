@@ -5,6 +5,58 @@ Multithread Dataset
 
 It allows to perform an "experimental analysis of the impact of multi-threading on video encoding energy consumption".
 
+.. list-table:: The parameters of this database
+    :header-rows: 1
+
+    * - Name
+      - Value
+      - Description (link)
+      - Total
+    * - video
+      - ``aov``, ``fountain``, ``neon``, ``soccer``, ``baolei_balloon``, ``graphics_mix_simple``, ``neptune_fountain_2``, ``sol_levante``, ``baolei_man``, ``graphics_mix_transitions``, ``neptune_fountain_3``, ``sparks``, ``baolei_woman``, ``heroes_of_the_storm``, ``nocturne``, ``star_craft``, ``baolei_yard``, ``jianling_beach``, ``oberbaum_spree``, ``subway_tree``, ``boat``, ``jianling_temple``, ``park_joy``, ``text_mix_transition``, ``bode_museum``, ``life_untouched``, ``project_cars``, ``tiergarten_parkway``, ``brest_sedof``, ``meridian``, ``quadriga_tree``, ``tunnel_flag``, ``cosmos``, ``mine_craft``, ``rain_fruits``, ``world_of_warcraft``, ``cs_go``, ``mission_control``, ``riverbank``, ``elevator``, ``mooving_text skater``
+      - `ctc <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/video/ctc.torrent?inline=false>`_
+      - :math:`41`
+    * - profile
+      - ``sd``, ``fhd``
+      - `video resolution and more <https://gitlab.inria.fr/rrichard/mendevi/-/blob/main/mendevi/cst/profiles.py>`_
+      - :math:`2`
+    * - encoder
+      - ``libopenh264``, ``librav1e``, ``libsvtav1``, ``libvpx-vp9``, ``libx264``, ``libx265``, ``vvc``
+      - :ref:`enc_encoder`
+      - :math:`6`
+    * - quality
+      - :math:`\left\{\frac{k}{3} \mid k \in [1,2] \right\}`
+      - :ref:`enc_quality`
+      - :math:`2`
+    * - effort
+      - ``fast``, ``medium``
+      - :ref:`enc_effort`
+      - :math:`2`
+    * - mode
+      - ``vbr``
+      - :ref:`enc_mode`
+      - :math:`1`
+    * - thread
+      - :math:`\left\{k \mid k \in [1,16] \right\}`
+      - :ref:`enc_threads`
+      - :math:`16`
+    * - repeat
+      - :math:`2` times
+      - total repetitions
+      - :math:`2`
+    * - callback
+      - ``1 thread n videos``, ``n threads 1 video``
+      - multithreading scenario
+      - :math:`2`
+    * - host
+      - ``paradoxe-28``
+      - :ref:`env_hostname`
+      - :math:`1`
+    * - **total**
+      - :math:`\prod`
+      - total number of points
+      - :math:`125952`
+
 Download
 --------
 
@@ -229,9 +281,9 @@ Then in a terminal, run:
         mendevi prepare $video -p sd
         mendevi prepare $video -p fhd
     done
-    
+
     mendevi encode -n2 -e fast -e medium -c libopenh264 -c librav1e -c libsvtav1 -c libvpx-vp9 -c libx264 -c libx265 -c vvc -t1 -t2 -t3 -t4 -t5 -t6 -t7 -t8 -t9 -t10 -t11 -t12 -t13 -t14 -t15 -t16 -d n_thread_1_vid.db reference*
     mendevi encode -n2 -e fast -e medium -c libopenh264 -c librav1e -c libsvtav1 -c libvpx-vp9 -c libx264 -c libx265 -c vvc -t1 -t2 -t3 -t4 -t5 -t6 -t7 -t8 -t9 -t10 -t11 -t12 -t13 -t14 -t15 -t16 --callback callback.py -d 1_thread_n_vid.db reference*
     mendevi merge n_thread_1_vid.db 1_thread_n_vid.db && mv merge_n_thread_1_vid_1_thread_n_vid.db multithread.db
-    
+
     mendevi probe -d multithread.db reference* sample*

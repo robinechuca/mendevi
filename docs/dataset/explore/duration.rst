@@ -11,33 +11,47 @@ Allows you to see the impact of video length on compression and energy consumpti
     * - Name
       - Value
       - Description (link)
+      - Total
     * - video
       - :math:`100` slices
       - `Big Buck Bunny <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/video/bbb.mp4.torrent?inline=false>`_
+      - :math:`100`
     * - profile
       - ``sd``, ``fhd``
       - `video resolution and more <https://gitlab.inria.fr/rrichard/mendevi/-/blob/main/mendevi/cst/profiles.py>`_
+      - :math:`2`
     * - encoder
-      - ``libx264``, ``libsvtav1``
+      - ``libsvtav1``, ``libx264``
       - :ref:`enc_encoder`
+      - :math:`2`
     * - quality
       - :math:`\left\{\frac{k}{3} \mid k \in [1,2] \right\}`
       - :ref:`enc_quality`
+      - :math:`2`
     * - effort
       - ``fast``, ``medium``
       - :ref:`enc_effort`
+      - :math:`2`
     * - mode
       - ``cbr``, ``vbr``
       - :ref:`enc_mode`
+      - :math:`2`
     * - thread
       - :math:`\left\{ 8 \right\}`
       - :ref:`enc_threads`
+      - :math:`1`
     * - repeat
       - :math:`10` times
       - total repetitions
+      - :math:`10`
     * - host
       - ``paradoxe-32``, ``yeti-2``
       - :ref:`env_hostname`
+      - :math:`2`
+    * - **total**
+      - :math:`\prod`
+      - total number of points
+      - :math:`27054`
 
 Download
 --------

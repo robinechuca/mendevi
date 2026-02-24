@@ -11,42 +11,59 @@ Allows you to see the impact of the color space on compression.
     * - Name
       - Value
       - Description (link)
+      - Total
     * - video
       - ``park_joy``
       - `ctc <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/video/ctc.torrent?inline=false>`_
+      - :math:`1`
     * - profile
       - ``fhd``
       - `video resolution <https://gitlab.inria.fr/rrichard/mendevi/-/blob/main/mendevi/cst/profiles.py>`_
+      - :math:`1`
     * - primaries
       - ``bt601``, ``bt709``, ``bt2020``
       - :ref:`vid_gamut` (in profile)
+      - :math:`3`
     * - transfer
       - ``linear``, ``bt1361``, ``gamma22``, ``gamma28``, ``smpte2084``
       - :ref:`vid_eotf` (in profile)
+      - :math:`5`
     * - range
       - ``tv``, ``pc``
       - :ref:`vid_range` (in profile)
+      - :math:`2`
     * - encoder
-      - ``libx264``, ``libsvtav1``
+      - ``libsvtav1``, ``libx264``
       - :ref:`enc_encoder`
+      - :math:`2`
     * - quality
       - :math:`\left\{\frac{k}{17} \mid k \in [1,16] \right\}`
       - :ref:`enc_quality`
+      - :math:`16`
     * - effort
       - ``medium``
       - :ref:`enc_effort`
+      - :math:`1`
     * - mode
       - ``vbr``
       - :ref:`enc_mode`
+      - :math:`1`
     * - thread
       - :math:`\left\{ 8 \right\}`
       - :ref:`enc_threads`
+      - :math:`1`
     * - repeat
       - :math:`2` times
       - total repetitions
+      - :math:`2`
     * - host
       - ``paradoxe-32``
       - :ref:`env_hostname`
+      - :math:`1`
+    * - **total**
+      - :math:`\prod`
+      - total number of points
+      - :math:`1920`
 
 Download
 --------
