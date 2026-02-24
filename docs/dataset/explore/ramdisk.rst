@@ -44,9 +44,9 @@ Compare the performance of ffmpeg when videos are read and written to **RAM**, a
       - :math:`5` times
       - total repetitions
       - :math:`5`
-    * - ram
+    * - ramdisk
       - ``yes``, ``no``
-      - hard-disk or ram-disk
+      - shm in :ref:`enc_cmd`
       - :math:`2`
     * - host
       - ``paradoxe-26``

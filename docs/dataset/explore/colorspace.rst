@@ -56,9 +56,9 @@ Allows you to see the impact of the color space on compression.
       - :math:`2` times
       - total repetitions
       - :math:`2`
-    * - ram
+    * - ramdisk
       - ``no``
-      - hard-disk or ram-disk
+      - shm in :ref:`enc_cmd`
       - :math:`1`
     * - host
       - ``paradoxe-32``

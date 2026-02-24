@@ -44,9 +44,9 @@ Allows you to see the impact of video length on compression and energy consumpti
       - :math:`10` times
       - total repetitions
       - :math:`10`
-    * - ram
+    * - ramdisk
       - ``no``
-      - hard-disk or ram-disk
+      - shm in :ref:`enc_cmd`
       - :math:`1`
     * - host
       - ``paradoxe-32``, ``yeti-2``

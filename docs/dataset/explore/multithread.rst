@@ -13,9 +13,9 @@ It allows to perform an "experimental analysis of the impact of multi-threading 
       - Description (link)
       - Total
     * - video
-      - ``aov``, ``fountain``, ``neon``, ``soccer``, ``baolei_balloon``, ``graphics_mix_simple``, ``neptune_fountain_2``, ``sol_levante``, ``baolei_man``, ``graphics_mix_transitions``, ``neptune_fountain_3``, ``sparks``, ``baolei_woman``, ``heroes_of_the_storm``, ``nocturne``, ``star_craft``, ``baolei_yard``, ``jianling_beach``, ``oberbaum_spree``, ``subway_tree``, ``boat``, ``jianling_temple``, ``park_joy``, ``text_mix_transition``, ``bode_museum``, ``life_untouched``, ``project_cars``, ``tiergarten_parkway``, ``brest_sedof``, ``meridian``, ``quadriga_tree``, ``tunnel_flag``, ``cosmos``, ``mine_craft``, ``rain_fruits``, ``world_of_warcraft``, ``cs_go``, ``mission_control``, ``riverbank``, ``elevator``, ``mooving_text skater``
+      - ``aov``, ``baolei_balloon``, ``baolei_man``, ``baolei_woman``, ``baolei_yard``, ``boat``, ``bode_museum``, ``brest_sedof``, ``cosmos``, ``cs_go``, ``elevator``, ``fountain``, ``graphics_mix_simple``, ``graphics_mix_transitions``, ``heroes_of_the_storm``, ``jianling_beach``, ``jianling_temple``, ``life_untouched``, ``meridian``, ``mine_craft``, ``mission_control``, ``mooving_text``, ``neon``, ``neptune_fountain_2``, ``neptune_fountain_3``, ``nocturne``, ``oberbaum_spree``, ``park_joy``, ``project_cars``, ``quadriga_tree``, ``rain_fruits``, ``riverbank``, ``skater``, ``soccer``, ``sol_levante``, ``sparks``, ``star_craft``, ``subway_tree``, ``text_mix_transition``, ``tiergarten_parkway``, ``tunnel_flag world_of_warcraft``
       - `ctc <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/video/ctc.torrent?inline=false>`_
-      - :math:`41`
+      - :math:`42`
     * - profile
       - ``sd``, ``fhd``
       - `video resolution and more <https://gitlab.inria.fr/rrichard/mendevi/-/blob/main/mendevi/cst/profiles.py>`_
@@ -48,9 +48,9 @@ It allows to perform an "experimental analysis of the impact of multi-threading 
       - ``1 thread n videos``, ``n threads 1 video``
       - multithreading scenario
       - :math:`2`
-    * - ram
+    * - ramdisk
       - ``yes``
-      - hard-disk or ram-disk
+      - shm in :ref:`enc_cmd`
       - :math:`1`
     * - host
       - ``paradoxe-28``
@@ -59,7 +59,7 @@ It allows to perform an "experimental analysis of the impact of multi-threading 
     * - **total**
       - :math:`\prod`
       - total number of points
-      - :math:`125952`
+      - :math:`129024`
 
 Download
 --------

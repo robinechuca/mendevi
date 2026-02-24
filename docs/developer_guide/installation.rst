@@ -506,7 +506,7 @@ To install the lastest development version from `GitLab <https://gitlab.inria.fr
     mendevi test  # to test if the installation is ok
 .. pip uninstall typing_extensions to debug attribute '__default__' of 'typing.ParamSpec' objects is not writable
 
-You can now also compile documentation locally :ref:`documentation` and run the benchmark :ref:`testing` (after the previous step).
+You can now also compile documentation locally :ref:`documentation`.
 
 .. _auto_completion:
 
