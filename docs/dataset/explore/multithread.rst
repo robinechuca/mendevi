@@ -173,7 +173,7 @@ The figure cannot be generated directly. You must first create a template, which
     mendevi plot multithread.db \
         -x threads -y energy -c encoder \
         -e "'parallel' in enc_cmd" -m "(threads, ref_stem, effort, profile, quality, hostname)" \
-        -s "supylabel\(.*\)" 'supylabel("Encoding relative energy gain per video")' \
+        -s "supylabel\(.*\)" 'supylabel("$E_{inter} / E_{intra}$")' \
         -s "for marker(.|\n)+?\)\n" ""
 
 Then edit the function ``fill_axe`` of the just generated ``energy_as_a_function_of_threads.py`` file.
@@ -181,14 +181,14 @@ To do this, replace all lines in the function after ``x_data, y_data = sub_value
 
 .. code:: python
 
-    energy_1 = [y for y, e in zip(y_data, sub_values["error"], strict=True) if e]
-    energy_2 = [y for y, e in zip(y_data, sub_values["error"], strict=True) if not e]
-    if not (energy_1 and energy_2):
+    energy_inter = [y for y, e in zip(y_data, sub_values["error"], strict=True) if e]
+    energy_intra = [y for y, e in zip(y_data, sub_values["error"], strict=True) if not e]
+    if not (energy_inter and energy_intra):
         continue
-    energy_1, energy_2 = np.mean(energy_1), np.mean(energy_2)
-    gain = 100.0 * (energy_1 - energy_2) / energy_1
+    energy_inter, energy_intra = np.mean(energy_inter), np.mean(energy_intra)
+    gain = energy_inter / energy_intra
     axe.errorbar(
-        [x_data[0]],
+        [x_data.pop()],
         [gain],
         color=color,
         alpha=0.5,

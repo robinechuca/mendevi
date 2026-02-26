@@ -81,4 +81,3 @@ Reproduce
       reference*
     mendevi decode -r2 reference*
     mendevi probe --psnr --ssim --vif --vmaf --lpips-alex sample*
-
