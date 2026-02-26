@@ -21,9 +21,9 @@ Corresponds to a random subsampling of a highly varied set of encoding scenarios
       - `video resolution and more <https://gitlab.inria.fr/rrichard/mendevi/-/blob/main/mendevi/cst/profiles.py>`_
       - :math:`4`
     * - encoder
-      - ``av1_nvenc``, ``h264_nvenc``, ``hevc_nvenc``, ``libaom-av1``, ``libopenh264``, ``librav1e``, ``libsvtav1``, ``libvpx-vp9``, ``libx264``, ``libx265``, ``vvc``
+      - ``av1_nvenc``, ``h264_nvenc``, ``hevc_nvenc``, ``libaom-av1``, ``libsvtav1``, ``libvpx-vp9``, ``libx264``, ``libx265``, ``vvc``
       - :ref:`enc_encoder`
-      - :math:`11`
+      - :math:`9`
     * - quality
       - :math:`\left\{\frac{k}{25} \mid k \in [1,24] \right\}`
       - :ref:`enc_quality`
@@ -59,4 +59,26 @@ Corresponds to a random subsampling of a highly varied set of encoding scenarios
     * - **total**
       - :math:`\prod`
       - total number of points
-      - :math:`n`
+      - :math:`1306368`
+
+
+Reproduce
+---------
+
+.. code:: shell
+
+    for video in ctc/*.mkv; do
+        for profile in sd hd fhd uhd4k; do
+          mendevi prepare $video -p $profile
+        done
+    done
+    mendevi encode -r1 \
+      -n 24 \
+      -e fast -e medium -e slow \
+      -m cbr -m vbr \
+      -c av1_nvenc -c h264_nvenc -c hevc_nvenc -c libaom-av1 -c libsvtav1 -c libvpx-vp9 -c libx264 -c libx265 -c vvc \
+      -t 4 -t 8 \
+      reference*
+    mendevi decode -r2 reference*
+    mendevi probe --psnr --ssim --vif --vmaf --lpips-alex sample*
+

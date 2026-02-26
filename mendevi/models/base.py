@@ -399,11 +399,9 @@ class Model(metaclass=MetaModel):
         # 2) find the parameters for probe
         atom_names, _ = merge_extractors(set(self._input_labels), return_callable=False)
         probe_kwargs = {
-            "rms_sobel": "rms_sobel" in atom_names,
-            "rms_time_diff": "rms_time_diff" in atom_names,
-            "uvq": "uvq" in atom_names,
-            "ref": {},  # required by probe_and_store (for comparative metrics)
-        }
+            metric: metric in atom_names
+            for metric in ("rms_sobel", "rms_time_diff", "uvq")
+        } | {"ref": {}}  # required by probe_and_store (for comparative metrics)
 
         # 3) call probe
         if (conn := probe_and_store(database, video, **probe_kwargs)) is not None:
