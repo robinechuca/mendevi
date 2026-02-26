@@ -128,13 +128,17 @@ On the other hand, libsvtav1 curiously consumes about 20% less when using the sm
 
     mendevi plot colorspace.db -x rate -y energy -c eotf -m '(prim, range)' -wx encoder -s 'sharey="row"' 'sharey=False'
 
-.. image:: /_static/media/colorspace_energy.svg
+.. image:: /_static/media/colorspace_energy_rate.svg
     :alt: Energy as a function of bitrate
+
+In the graph below, all videos are compared to the same reference video ``reference_park_joy_fhd.mp4``, i.e., in the same absolute color space.
 
 .. code:: shell
 
-    mendevi plot colorspace.db -x ssim_comp -y energy -c eotf -m '(prim, range)' -wx encoder -f "ref_stem!='park_joy'" -s 'sharey="row"' 'sharey=False'
+    mendevi plot colorspace.db -x ssim_comp -y energy -c eotf -m '(prim, range)' -wx encoder -f "ref_stem=='park_joy'" -s 'sharey="row"' 'sharey=False' -t t_met_metric
 
+.. image:: /_static/media/colorspace_energy_quality.svg
+    :alt: Energy as a function of bitrate
 
 Lossless color transformation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

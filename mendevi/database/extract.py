@@ -30,6 +30,7 @@ JOIN: dict[str: dict[str, str]] = {  # join = JOIN[destination_table][source_tab
             "ON t_dec_decode.dec_vid_id = t_enc_encode_single_dst_vid_id.enc_dst_vid_id\n"
             "JOIN t_enc_encode ON t_enc_encode.enc_id = t_enc_encode_single_dst_vid_id.enc_id_min"
         ),
+        "t_met_metric": "JOIN t_enc_encode ON t_act_activity.act_id = t_enc_encode.enc_act_id",
     },
     "t_dec_decode": {
         "t_enc_encode": (
@@ -57,6 +58,19 @@ JOIN: dict[str: dict[str, str]] = {  # join = JOIN[destination_table][source_tab
     "t_act_activity": {
         "t_dec_decode": "JOIN t_act_activity ON t_dec_decode.dec_act_id = t_act_activity.act_id",
         "t_enc_encode": "JOIN t_act_activity ON t_enc_encode.enc_act_id = t_act_activity.act_id",
+        # "t_met_metric": (  # via t_dec_decode
+        #     "JOIN t_dec_decode ON t_act_activity.act_id = t_dec_decode.dec_act_id "
+        #     "JOIN t_met_metric ON t_dec_decode.dec_vid_id = t_met_metric.met_dis_vid_id"
+        # ),
+        # "t_met_metric": (  # via t_enc_encode, link on the encoded video
+        #     "JOIN t_enc_encode ON t_act_activity.act_id = t_enc_encode.enc_act_id "
+        #     "JOIN t_met_metric ON t_enc_encode.enc_dst_vid_id = t_met_metric.met_dis_vid_id"
+        # ),
+        "t_met_metric": (
+            "JOIN t_vid_video AS t_dis_video ON t_met_metric.met_dis_vid_id = t_dis_video.vid_id "
+            "JOIN t_enc_encode AS t_met_encode ON t_dis_video.vid_id = t_met_encode.enc_dst_vid_id "
+            "JOIN t_act_activity ON t_met_encode.enc_act_id = t_act_activity.act_id"
+        )
     },
     "t_idle": {
         "t_env_environment": (
@@ -107,6 +121,10 @@ JOIN: dict[str: dict[str, str]] = {  # join = JOIN[destination_table][source_tab
         ),
     },
 }
+# JOIN["t_act_activity"]["t_met_metric"] = (
+#     f"{JOIN['t_enc_encode']['t_met_metric']}\n"
+#     f"{JOIN['t_act_activity']['t_enc_encode']}"
+# )
 # JOIN["t_ref_video"]["t_dec_decode"] = (  # and example of path
 #     f"{JOIN['t_enc_encode']['t_dec_decode']}\n"
 #     f"{JOIN['t_ref_video']['t_enc_encode']}"
