@@ -21,9 +21,9 @@ Corresponds to a random subsampling of a highly varied set of encoding scenarios
       - `video resolution and more <https://gitlab.inria.fr/rrichard/mendevi/-/blob/main/mendevi/cst/profiles.py>`_
       - :math:`4`
     * - encoder
-      - ``av1_nvenc``, ``h264_nvenc``, ``hevc_nvenc``, ``libaom-av1``, ``libsvtav1``, ``libvpx-vp9``, ``libx264``, ``libx265``, ``vvc``
+      - ``av1_nvenc``, ``h264_nvenc``, ``hevc_nvenc``, ``libaom-av1``, ``libsvtav1``, ``libx264``, ``libx265``, ``vvc``
       - :ref:`enc_encoder`
-      - :math:`9`
+      - :math:`8`
     * - quality
       - :math:`\left\{\frac{k}{25} \mid k \in [1,24] \right\}`
       - :ref:`enc_quality`
@@ -33,9 +33,9 @@ Corresponds to a random subsampling of a highly varied set of encoding scenarios
       - :ref:`enc_effort`
       - :math:`3`
     * - mode
-      - ``cbr``, ``vbr``
+      - ``vbr``
       - :ref:`enc_mode`
-      - :math:`2`
+      - :math:`1`
     * - thread
       - :math:`\left\{ 8 \right\}`
       - :ref:`enc_threads`
@@ -49,7 +49,7 @@ Corresponds to a random subsampling of a highly varied set of encoding scenarios
       - shm in :ref:`enc_cmd`
       - :math:`1`
     * - host
-      - ``paradoxe``, ``yeti``, ``abacus26``
+      - ``paradoxe``, ``yeti``, ``abacus26``, ``pc-intel``
       - :ref:`env_hostname`
       - :math:`3`
     * - metrics
@@ -59,8 +59,7 @@ Corresponds to a random subsampling of a highly varied set of encoding scenarios
     * - **total**
       - :math:`\prod`
       - total number of points
-      - :math:`653184`
-
+      - :math:`387072`
 
 Reproduce
 ---------

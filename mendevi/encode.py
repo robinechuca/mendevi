@@ -270,7 +270,7 @@ def quality_to_rate(kwargs: dict[str]) -> int:
     assert 0.0 <= quality <= 1.0, quality
     match (profile := best_profile(*kwargs["resolution"])):
         case "sd":
-            mini, maxi = 400, 2100
+            mini, maxi = 400, 2100  # kbit/s
         case "hd":
             mini, maxi = 1500, 6000
         case "fhd":
