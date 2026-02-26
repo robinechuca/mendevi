@@ -52,6 +52,10 @@ Allows you to see the impact of video length on compression and energy consumpti
       - ``paradoxe-32``, ``yeti-2``
       - :ref:`env_hostname`
       - :math:`2`
+    * - metrics
+      - ``psnr``, ``ssim``
+      - :ref:`t_met_metric`
+      -
     * - **total**
       - :math:`\prod`
       - total number of points

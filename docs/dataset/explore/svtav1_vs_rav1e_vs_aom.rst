@@ -52,6 +52,10 @@ Compare the **libsvtav1**, **librav1e** and **libaom-av1** encoders.
       - ``paradoxe-32``
       - :ref:`env_hostname`
       - :math:`1`
+    * - metrics
+      - ``psnr``, ``ssim``, ``vif``, ``vmaf``
+      - :ref:`t_met_metric`
+      -
     * - **total**
       - :math:`\prod`
       - total number of points

@@ -51,7 +51,11 @@ Compare the performance of ffmpeg when videos are read and written to **RAM**, a
     * - host
       - ``paradoxe-26``
       - :ref:`env_hostname`
-      - :math:`2`
+      - :math:`1`
+    * - metrics
+      -
+      - :ref:`t_met_metric`
+      -
     * - **total**
       - :math:`\prod`
       - total number of points

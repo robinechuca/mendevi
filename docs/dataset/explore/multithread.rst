@@ -56,6 +56,10 @@ It allows to perform an "experimental analysis of the impact of multi-threading 
       - ``paradoxe-28``
       - :ref:`env_hostname`
       - :math:`1`
+    * - metrics
+      - ``psnr``, ``ssim``
+      - :ref:`t_met_metric`
+      -
     * - **total**
       - :math:`\prod`
       - total number of points
