@@ -5,6 +5,12 @@ Colorspace Dataset
 
 Allows you to see the impact of the color space on compression.
 
+
+.. note::
+
+    Pourquoi ``mendevi plot colorspace.db -x rate -y psnr -c eotf -m '(prim, range)' -wx "ref_stem=='park_joy'" -f "not name.startswith('ref')" -t t_met_metric`` Les petites crois sont au dessus? Pourquoi smtpe2084 consome moins d'energie pour av1?
+
+
 .. list-table:: The parameters of this database
     :header-rows: 1
 
@@ -107,7 +113,7 @@ Distortion as a function of bitrate for several colorspaces
 
 .. code:: shell
 
-    mendevi plot colorspace.db -x rate -y ssim_comp -c eotf -m '(prim, range)' -wx "ref_stem=='park_joy'" -f "not name.startswith('ref')" -t t_met_metric
+    mendevi plot colorspace.db -x rate -y ssim_comp -c eotf -m '(prim, range)' -wx "ref_stem=='park_joy'" -wy codec -f "not name.startswith('ref')" -t t_met_metric
 
 .. image:: /_static/media/colorspace_bdr.svg
     :alt: Distortion as a function of bitrate
@@ -115,12 +121,20 @@ Distortion as a function of bitrate for several colorspaces
 Impact of EOTF on energy consumption
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Regardless of the encoder used, **the energy does not depend on the primary colors or the range**.
+On the other hand, libsvtav1 curiously consumes about 20% less when using the smpte2084 transfer function!
+
 .. code:: shell
 
     mendevi plot colorspace.db -x rate -y energy -c eotf -m '(prim, range)' -wx encoder -s 'sharey="row"' 'sharey=False'
 
 .. image:: /_static/media/colorspace_energy.svg
     :alt: Energy as a function of bitrate
+
+.. code:: shell
+
+    mendevi plot colorspace.db -x ssim_comp -y energy -c eotf -m '(prim, range)' -wx encoder -f "ref_stem!='park_joy'" -s 'sharey="row"' 'sharey=False'
+
 
 Lossless color transformation
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -174,14 +188,11 @@ Reproduce
 
 .. code:: shell
 
-    for prim in bt601 bt709 bt2020
-    do
-        for trans in linear bt1361 gamma22 gamma28 smpte2084
-        do
+    for prim in bt601 bt709 bt2020; do
+        for trans in linear bt1361 gamma22 gamma28 smpte2084; do
             mendevi prepare park_joy.mkv -p fhd --primaries $prim --transfer $trans --range tv
             mendevi prepare park_joy.mkv -p fhd --primaries $prim --transfer $trans --range pc
         done
     done
-
     mendevi encode -c libx264 -c libsvtav1 reference*
     mendevi probe --ref reference_park_joy_fhd.mp4 reference* sample*

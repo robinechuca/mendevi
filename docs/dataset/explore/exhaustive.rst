@@ -37,9 +37,9 @@ Corresponds to a random subsampling of a highly varied set of encoding scenarios
       - :ref:`enc_mode`
       - :math:`2`
     * - thread
-      - :math:`\left\{ 4, 8 \right\}`
+      - :math:`\left\{ 8 \right\}`
       - :ref:`enc_threads`
-      - :math:`2`
+      - :math:`1`
     * - repeat
       - :math:`1` times
       - total repetitions
@@ -59,7 +59,7 @@ Corresponds to a random subsampling of a highly varied set of encoding scenarios
     * - **total**
       - :math:`\prod`
       - total number of points
-      - :math:`1306368`
+      - :math:`653184`
 
 
 Reproduce

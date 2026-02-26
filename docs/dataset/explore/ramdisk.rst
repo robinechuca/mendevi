@@ -5,6 +5,10 @@ RAM Disk Dataset
 
 Compare the performance of ffmpeg when videos are read and written to **RAM**, and when they are read and written to the **hard drive**.
 
+.. notes::
+
+  Tracer l'historgame des differences.
+
 .. list-table:: The parameters of this database
     :header-rows: 1
 

@@ -83,7 +83,7 @@ Power as a function of the logical core usage
 
 .. code:: shell
 
-    mendevi plot multithread.db -x cores -y power -c "('parallel' in enc_cmd, profile)" -m encoder -e enc_scenario -s err=.err err=None
+    mendevi plot multithread.db -x cores -y power -c "('parallel' in enc_cmd, profile)" -m encoder -e enc_scenario -f "act_duration > 30" -s err=.err err=None
 
 .. image:: /_static/media/multithread_cores_power.svg
     :alt: Power as a function of the logical core usage
