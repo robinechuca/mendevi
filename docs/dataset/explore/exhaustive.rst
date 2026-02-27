@@ -74,9 +74,7 @@ Reproduce
     mendevi encode -r1 \
       -n 24 \
       -e fast -e medium -e slow \
-      -m cbr -m vbr \
       -c av1_nvenc -c h264_nvenc -c hevc_nvenc -c libaom-av1 -c libsvtav1 -c libvpx-vp9 -c libx264 -c libx265 -c vvc \
-      -t 4 -t 8 \
       reference*
     mendevi decode -r2 reference*
     mendevi probe --psnr --ssim --vif --vmaf --lpips-alex sample*

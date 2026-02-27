@@ -120,7 +120,9 @@ def g5kpower(
         f"&start_time={timestamp_to_str(start-MARGIN)}"
         f"&end_time={timestamp_to_str(start+duration+MARGIN)}"
     )
-    # https://api.grid5000.fr/stable/sites/rennes/metrics?nodes=paradoxe-32&metrics=wattmetre_power_watt,bmc_node_power_watt&start_time=2026-02-02T08:47:51.889461&end_time=2026-02-02T08:48:01.889461
+    # https://api.grid5000.fr/stable/sites/rennes/metrics?nodes=paradoxe-32
+    # &metrics=wattmetre_power_watt,bmc_node_power_watt
+    # &start_time=2026-02-02T08:47:51.889461&end_time=2026-02-02T08:57:51.889461
     auth = requests.auth.HTTPBasicAuth(login, password) if login and password else None
     try:
         req = requests.get(url, auth=auth, verify=True, timeout=60)

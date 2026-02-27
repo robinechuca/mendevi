@@ -70,7 +70,7 @@ JOIN: dict[str: dict[str, str]] = {  # join = JOIN[destination_table][source_tab
             "JOIN t_vid_video AS t_dis_video ON t_met_metric.met_dis_vid_id = t_dis_video.vid_id "
             "JOIN t_enc_encode AS t_met_encode ON t_dis_video.vid_id = t_met_encode.enc_dst_vid_id "
             "JOIN t_act_activity ON t_met_encode.enc_act_id = t_act_activity.act_id"
-        )
+        ),
     },
     "t_idle": {
         "t_env_environment": (
