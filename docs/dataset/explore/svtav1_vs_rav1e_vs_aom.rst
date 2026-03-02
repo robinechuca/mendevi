@@ -68,7 +68,7 @@ Download
 
     mendevi download svtav1_vs_rav1e_vs_aom.db.xz.torrent
 
-* `svtav1_vs_rav1e_vs_aom.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/svtav1_vs_rav1e_vs_aom.json.xz?inline=false>`_ (2.9 Mo).
+* `svtav1_vs_rav1e_vs_aom.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/svtav1_vs_rav1e_vs_aom.json.xz?inline=false>`_ (6.3 Mo).
 * `svtav1_vs_rav1e_vs_aom.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/svtav1_vs_rav1e_vs_aom.db.xz.torrent?inline=false>`_ (0 Go).
 
 Plots
@@ -108,9 +108,11 @@ Reproduce
 
 .. code:: shell
 
+    mkdir av1
     for video in ctc/*.mkv; do
-        mendevi prepare $video -p sd
-        mendevi prepare $video -p fhd
+        mendevi prepare $video -o av1 -p sd
+        mendevi prepare $video -o av1 -p fhd
     done
+    cd av1
     mendevi encode -e fast -e medium -e slow -m cbr -m vbr -c libsvtav1 -c librav1e -c libaom-av1 reference*
-    mendevi probe --psnr --ssim --vif --vmaf sample*
+    mendevi probe --psnr --ssim --vif --vmaf reference* sample*

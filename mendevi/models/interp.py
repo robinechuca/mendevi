@@ -8,7 +8,10 @@ BUFF_SIZE = 100_000_000  # 100 Mo
 
 
 class Nearest(Model):
-    """Base class for nearest neighbor interpolation."""
+    """Base class for nearest neighbor interpolation.
+
+    Interpolation is only performed on continuous values.
+    """
 
     def _fit_vect_norm(self, values: dict[str, torch.Tensor]) -> None:
         """Vectorize and save all points."""
@@ -29,7 +32,7 @@ class Nearest(Model):
             onehot: continuous[onehots == idx, :]
             for onehot, idx in onehot_to_idx.items()
         }
-        output: dict[tuple[int, ...], dict[str, torch.Tensor]] = {
+        onehot_to_output: dict[tuple[int, ...], dict[str, torch.Tensor]] = {
             onehot: {lbl: values[lbl][onehots == idx, :] for lbl in self.output_labels}
             for onehot, idx in onehot_to_idx.items()
         }
@@ -37,7 +40,7 @@ class Nearest(Model):
             "onehot_lbls": onehot_lbls,  # list[str] the ordered onehot input names
             "continuous_lbls": continuous_lbls,  # list[str] the ordered coninuous input names
             "onehot_to_continuous": onehot_to_continuous,  # continuous input subclusters
-            "output": output,
+            "output": oonehot_to_utput,
         }
 
     def _predict_vect_norm(self, values: dict[str, torch.Tensor]) -> dict[str, torch.Tensor]:
