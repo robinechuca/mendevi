@@ -2,40 +2,44 @@
 # dot -Tsvg pipeline.dot > pipeline.svg
 digraph pipeline {
     rankdir=LR
+    compound=true
 
     # data
-    src [label="Input\nvideo file", shape=Mdiamond, style=filled, fillcolor="#73b66b"]
-    ref [label="Reference\nvideo file", shape=Mdiamond, style=filled, fillcolor="#73b66b"]
-    dst [label="Encoded\nvideo file", shape=Mdiamond, style=filled, fillcolor="#73b66b"]
+    src [label="Input\nvideo file" shape=Mdiamond style=filled fillcolor="#73b66b"]
+    ref [label="Reference\nvideo file" shape=Mdiamond style=filled fillcolor="#73b66b"]
+    dst [label="Sample\nvideo file" shape=Mdiamond style=filled fillcolor="#73b66b"]
 
     # parameters
-    p_colorspace [label="Colorspace", shape=note, style=filled, fillcolor=white]
-    p_fps [label="FPS", shape=note, style=filled, fillcolor=white]
-    p_pxl [label="Pxl Format", shape=note, style=filled, fillcolor=white]
-    p_resol [label="Resolution", shape=note, style=filled, fillcolor=white]
+    p_colorspace [label="Colorspace" shape=note style=filled fillcolor=white]
+    p_fps [label="FPS" shape=note style=filled fillcolor=white]
+    p_pxl [label="Pxl Format" shape=note style=filled fillcolor=white]
+    p_resol [label="Resolution" shape=note style=filled fillcolor=white]
 
-    c_fps [label="FPS", shape=note, style=filled, fillcolor=white]
-    c_pxl [label="Pxl Format", shape=note, style=filled, fillcolor=white]
-    c_resol [label="Resolution", shape=note, style=filled, fillcolor=white]
-    c_filter [label="Filter", shape=note, style=filled, fillcolor=white]
+    c_fps [label="FPS" shape=note style=filled fillcolor=white]
+    c_pxl [label="Pxl Format" shape=note style=filled fillcolor=white]
+    c_resol [label="Resolution" shape=note style=filled fillcolor=white]
+    c_filter [label="Filter" shape=note style=filled fillcolor=white]
 
-    effort [label="Effort", shape=note, style=filled, fillcolor=white]
-    encoder [label="Encoder", shape=note, style=filled, fillcolor=white]
-    quality [label="Quality", shape=note, style=filled, fillcolor=white]
-    threads [label="Threads", shape=note, style=filled, fillcolor=white]
-    mode_ [label="Mode", shape=note, style=filled, fillcolor=white]
+    effort [label="Effort" shape=note style=filled fillcolor=white]
+    encoder [label="Encoder" shape=note style=filled fillcolor=white]
+    quality [label="Quality" shape=note style=filled fillcolor=white]
+    thread [label="Thread" shape=note style=filled fillcolor=white]
+    mode_ [label="Mode" shape=note style=filled fillcolor=white]
 
-    database [label="Database", shape=folder, style=filled, fillcolor="#73b66b"]
+    callback [label="Callback" shape=note style=filled fillcolor=white]
+    repeat [label="Repeat" shape=note style=filled fillcolor=white]
+
+    database [label="Database" shape=folder style=filled fillcolor="#73b66b"]
 
     # process
-    prepare [label="Transcode", style=filled, fillcolor=white]
-    t_dec [label="Decode", style=filled, fillcolor=white]
-    t_convert [label="Convert", style=filled, fillcolor=white]
-    t_encode [label="Encode", style=filled, fillcolor=white]
-    decode [label="Decode", style=filled, fillcolor=white]
-    convert [label="Convert", style=filled, fillcolor=white]
-    probe [label="Probe", style=filled, fillcolor=white]
-    idle [label="IDLE", style=filled, fillcolor=white]
+    prepare [label="Transcode" style=filled fillcolor=white]
+    t_dec [label="Decode" style=filled fillcolor=white]
+    t_convert [label="Convert" style=filled fillcolor=white]
+    t_encode [label="Encode" style=filled fillcolor=white]
+    decode [label="Decode" style=filled fillcolor=white]
+    convert [label="Convert" style=filled fillcolor=white]
+    probe [label="Probe" style=filled fillcolor=white]
+    idle [label="IDLE" style=filled fillcolor=white]
 
     # blocs
     subgraph clus_prepare {
@@ -86,17 +90,28 @@ digraph pipeline {
         cluster=true
         label="Parameters"
         bgcolor="#ef597b"
-        effort encoder quality threads mode_
+        effort encoder quality thread mode_
+    }
+    subgraph clus_param_callback {
+        cluster=true
+        label="Parameters"
+        bgcolor="#ef597b"
+        callback repeat
     }
 
     # pipeline
     src -> prepare -> ref -> t_dec -> t_convert -> t_encode -> dst -> {decode, probe}
     decode -> convert
-    {idle, t_encode, convert, probe} -> database [style=dotted] # minlen=2
+    idle -> database [style=dotted]
+    t_encode -> database [ltail=clus_encode style=dotted]
+    convert -> database [ltail=clus_decode style=dotted]
+    probe -> database [ltail=clus_probe style=dotted]
 
     # arguments
-    {p_colorspace, p_fps, p_pxl, p_resol} -> prepare [arrowhead=none, style=dashed]
-    {c_fps, c_pxl, c_resol, c_filter} -> t_convert [arrowhead=none, style=dashed]
-    {effort, encoder, quality, threads, mode_} -> t_encode [arrowhead=none, style=dashed]
-    {c_resol} -> convert [arrowhead=none, style=dashed]
+    {p_colorspace p_fps p_pxl p_resol} -> prepare [lhead=clus_prepare arrowhead=none style=dashed]
+    {c_fps c_pxl c_resol c_filter} -> t_convert [arrowhead=none style=dashed]
+    {effort encoder quality thread, mode_} -> t_encode [arrowhead=none style=dashed]
+    {callback repeat} -> t_dec [lhead=clus_encode arrowhead=none style=dashed]
+    {callback repeat} -> decode [lhead=clus_decode arrowhead=none style=dashed]
+    {c_resol} -> convert [arrowhead=none style=dashed]
 }
