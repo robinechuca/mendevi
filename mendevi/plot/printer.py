@@ -50,7 +50,7 @@ def printer(**kwargs: dict) -> str:
         code = re.sub(pattern, repl, code)
 
     # injection of substitution-sensitive patterns
-    return code.replace("{cmd}", shlex.join(sys.argv))
+    return code.replace("{cmd}", repr(shlex.join(sys.argv)))
 
 
 def print_entry() -> list[str]:

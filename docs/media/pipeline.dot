@@ -1,3 +1,4 @@
+# dot -Tpdf pipeline.dot -o /tmp/pipeline.pdf && pdfcrop /tmp/pipeline.pdf pipeline.pdf
 # dot -Tsvg pipeline.dot > pipeline.svg
 digraph pipeline {
     rankdir=LR

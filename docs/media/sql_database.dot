@@ -1,3 +1,4 @@
+# dot -Tpdf sql_database.dot -o /tmp/sql_database.pdf && pdfcrop /tmp/sql_database.pdf sql_database.pdf
 # dot -Tsvg sql_database.dot > sql_database.svg
 graph database {
   node [shape=plaintext]

@@ -116,7 +116,7 @@ The figure cannot be generated directly. You must first create a template, which
         -e "(ref_stem, effort, profile, quality, hostname)" \
         -s "supylabel\(.*\)" 'supylabel("Encoding relative time gain per video")' \
         -s "(# create legend(.|\n)*?\n\n)" \
-           '\1    cpu = np.linspace(1, 16, 100)\n    axe.plot(cpu, 1.0/cpu, "--", color="black", label="$\\frac{1}{c}$", zorder=3)\n'
+           '\1    cpu = np.linspace(1, 16, 100)\n    axe.plot(cpu, 1.0/cpu, "--", color="black", label="$\\\\frac{1}{c}$", zorder=3)\n'
 
 Then edit the function ``fill_axe`` of the just generated ``act_duration_as_a_function_of_cores.py`` file.
 To do this, replace all lines in the function after ``yerr = [yerr[e] for e in errs]`` with the following code:
@@ -174,7 +174,8 @@ The figure cannot be generated directly. You must first create a template, which
         -x threads -y energy -c encoder \
         -e "'parallel' in enc_cmd" -m "(threads, ref_stem, effort, profile, quality, hostname)" \
         -s "supylabel\(.*\)" 'supylabel("$E_{inter} / E_{intra}$")' \
-        -s "for marker(.|\n)+?\)\n" ""
+        -s "for marker(.|\n)+?\)\n" "" \
+        -s "yscale\(.*\)" 'yscale("linear")'
 
 Then edit the function ``fill_axe`` of the just generated ``energy_as_a_function_of_threads.py`` file.
 To do this, replace all lines in the function after ``x_data, y_data = sub_values[xlab], sub_values[ylab]`` with the following code:

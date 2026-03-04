@@ -1,3 +1,4 @@
+# dot -Tpdf colorspace.dot -o /tmp/colorspace.pdf && pdfcrop /tmp/colorspace.pdf colorspace.pdf
 # dot -Tsvg colorspace.dot > colorspace.svg
 digraph colorspace {
     rankdir=TB
