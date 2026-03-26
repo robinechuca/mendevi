@@ -40,7 +40,7 @@ class Nearest(Model):
             "onehot_lbls": onehot_lbls,  # list[str] the ordered onehot input names
             "continuous_lbls": continuous_lbls,  # list[str] the ordered coninuous input names
             "onehot_to_continuous": onehot_to_continuous,  # continuous input subclusters
-            "output": oonehot_to_utput,
+            "output": onehot_to_output,
         }
 
     def _predict_vect_norm(self, values: dict[str, torch.Tensor]) -> dict[str, torch.Tensor]:
@@ -58,11 +58,15 @@ class Nearest(Model):
             for onehot, continuous in zip(
                 map(
                     tuple,
-                    (torch.cat([values[lbl] for lbl in self.parameters["onehot_lbls"]], dim=1) + 0.5)
+                    (
+                        torch.cat([values[lbl] for lbl in self.parameters["onehot_lbls"]], dim=1)
+                        + 0.5
+                    )
                     .to(dtype=int)  # values are assumed to be approximately {0.0, 1.0}
                     .tolist(),
                 ),
                 torch.cat([values[lbl] for lbl in self.parameters["continuous_lbls"]], dim=1),
+                strict=True,
             )
         ]
         return {

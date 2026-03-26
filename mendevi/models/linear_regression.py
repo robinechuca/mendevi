@@ -46,7 +46,9 @@ class LinearContinuous(Model):
             for onehot, idx in onehot_to_idx.items()
         }
         onehot_to_obs = {
-            onehot: torch.cat([torch.ones((len(obs), 1), dtype=obs.dtype, device=obs.device), obs], dim=1)
+            onehot: torch.cat(
+                [torch.ones((len(obs), 1), dtype=obs.dtype, device=obs.device), obs], dim=1,
+            )
             for onehot, obs in onehot_to_obs.items()
         }
         onehot_to_output: dict[tuple[int, ...], dict[str, torch.Tensor]] = {
@@ -55,8 +57,12 @@ class LinearContinuous(Model):
         }
 
         linear_weight: dict[tuple[int, ...], dict[str, torch.Tensor]] = {
-            onehot: {  # TODO, ajouter un biais (des 1) a obs
-                lbl: torch.linalg.pinv(obs.mT @ obs, hermitian=True) @ obs.mT @ onehot_to_output[onehot][lbl]
+            onehot: {
+                lbl: (
+                    torch.linalg.pinv(obs.mT @ obs, hermitian=True)
+                    @ obs.mT
+                    @ onehot_to_output[onehot][lbl]
+                )
                 for lbl in self.output_labels
             }
             for onehot, obs in onehot_to_obs.items()
@@ -82,11 +88,15 @@ class LinearContinuous(Model):
             for onehot, obs in zip(
                 map(
                     tuple,
-                    (torch.cat([values[lbl] for lbl in self.parameters["onehot_lbls"]], dim=1) + 0.5)
+                    (
+                        torch.cat([values[lbl] for lbl in self.parameters["onehot_lbls"]], dim=1)
+                        + 0.5
+                    )
                     .to(dtype=int)  # values are assumed to be approximately {0.0, 1.0}
                     .tolist(),
                 ),
                 all_obs,
+                strict=True,
             )
         ]
         return {

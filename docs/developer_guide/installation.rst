@@ -540,4 +540,4 @@ You can compile the documentation yourself after :ref:`full_installation` by sim
 Testing
 -------
 
-To run the unitary tests, just type ``mendvei test``.
+To run the unitary tests, just type ``mendevi test``.

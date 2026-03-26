@@ -2,6 +2,7 @@
 
 import itertools
 import pathlib
+import shlex
 import tempfile
 import typing
 
@@ -38,9 +39,9 @@ class Solver:
     >>> from mendevi.models import Solver
     >>> from mendevi.models.linear_regression import EncodeLinear
     >>> model = EncodeLinear().fit("x264_vs_openh264.db", table="t_enc_encode")
-    >>> solver = Solver(model, lambda **kwd: kwd["log_energy_per_frame"] + (kwd["psnr"]-30)**2)
+    >>> solver = Solver(model, lambda **kwd: kwd["log_energy_per_frame"] + (kwd["psnr"]-35)**2)
     >>> video = cutcutcodec.utils.get_project_root() / "media" / "video" / "intro.webm"
-    >>> values, loss = solver.solve(video)
+    >>> values, loss = solver.solve(video, encoder=["libopenh264", "libx264"])
     >>>
 
     """
@@ -176,12 +177,23 @@ class Solver:
                         prt.print(f"{lbl:<{lbl_len}}: {values[lbl][0]:#.4g}{std}")
                     else:
                         prt.print(f"{lbl:<{lbl_len}}: {values[lbl][0]}{std}")
+                    # case log
+                    if lbl.startswith("log_"):
+                        maxi = 10.0**(values[lbl][0] + self._model.accuracy[lbl])
+                        mini = 10.0**(values[lbl][0] - self._model.accuracy[lbl])
+                        mean = 10.0**values[lbl][0]
+                        prt.print(
+                            f"{lbl[4:]:<{lbl_len}}: {mean:#.4g} in [{mini:#.4g}, {maxi:#.4g}]",
+                        )
             try:
                 cmd = next(iter(self._enc_cmd(video, values)))
             except StopIteration:
                 pass
             else:
                 prt.print(cmd)
-                prt.print(f"mendevi probe {cmd.output[-1]:!r} -r {video:!r} -d /tmp/solver.db")
+                prt.print(
+                    f"mendevi probe {shlex.quote(str(cmd.output[-1]))} "
+                    f"-r {shlex.quote(str(video))} -d /tmp/solver.db",
+                )
 
         return values, loss

@@ -59,7 +59,7 @@ Compare the **libsvtav1**, **librav1e** and **libaom-av1** encoders.
     * - **total**
       - :math:`\prod`
       - total number of points
-      - :math:`48384`
+      - :math:`9197/48384`
 
 Download
 --------
@@ -68,8 +68,8 @@ Download
 
     mendevi download svtav1_vs_rav1e_vs_aom.db.xz.torrent
 
-* `svtav1_vs_rav1e_vs_aom.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/svtav1_vs_rav1e_vs_aom.json.xz?inline=false>`_ (6.3 Mo).
-* `svtav1_vs_rav1e_vs_aom.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/svtav1_vs_rav1e_vs_aom.db.xz.torrent?inline=false>`_ (0 Go).
+* `svtav1_vs_rav1e_vs_aom.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/svtav1_vs_rav1e_vs_aom.json.xz?inline=false>`_ (6.9 Mo).
+* `svtav1_vs_rav1e_vs_aom.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/svtav1_vs_rav1e_vs_aom.db.xz.torrent?inline=false>`_ (24.9 Go).
 
 Plots
 -----

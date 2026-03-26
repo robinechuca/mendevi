@@ -585,8 +585,8 @@ class Model(metaclass=MetaModel):
             # cast args to list
             prt.print("vectorize args")
             values = self.vectorize_kwargs(values)
-            for name, arg in values.items():
-                prt.print(f"{name} = {arg!s:.80}")
+            # for name, arg in values.items():
+            #     prt.print(f"{name} = {arg!s:.80}")
 
             # predict
             prt.print("predict")
