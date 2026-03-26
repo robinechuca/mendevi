@@ -524,7 +524,7 @@ def get_extractor(name: str, *, safe: bool = False) -> Extractor:
         )
 
     # case direct
-    if (extractor := ALL_EXTRACTORS.get(ALIAS.get(name, name), None)) is not None:
+    if (extractor := ALL_EXTRACTORS.get(ALIAS.get(name, name))) is not None:
         return extractor
     if safe:
         return Extractor(name, name, Scale.LINEAR)
