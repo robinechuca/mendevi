@@ -5,6 +5,7 @@ import datetime
 import functools
 import logging
 import pathlib
+import re
 import shlex
 import sqlite3
 
@@ -209,7 +210,10 @@ def get_decode_cmd(
             cutcutcodec.get_codec_video(video), cutcutcodec.get_pix_fmt(video),
         ):
             if family == family_:
-                cmd.decode = decoder
+                if family == "vaapi":
+                    cmd.general = [*cmd.general, "-hwaccel", "vaapi"]
+                else:
+                    cmd.decode = decoder
                 break
         else:
             msg = f"impossible to find a {family} decoder for {video}"
@@ -251,14 +255,26 @@ def create_video_sample(codec: str, pix_fmt: str) -> pathlib.Path:
     return sample
 
 
-@functools.cache
+# @functools.cache
 def try_decode_sample_encoder(sample: pathlib.Path, decoder: str) -> bool:
     """Return True if ffmpeg can decode that video."""
-    cmd = CmdFFMPEG(video=sample, decode=decoder)
+    cmd = (
+        CmdFFMPEG(general=["-loglevel", "verbose", "-hwaccel", "vaapi"], video=sample)
+        if decoder == "vaapi" else
+        CmdFFMPEG(decode=decoder, video=sample)
+    )
     try:
-        cmd.run()
+        out, _ = cmd.run()
     except RuntimeError:
         return False
+    if decoder == "vaapi":
+        if not (pix_fmts := set(re.findall(r"pix_?fmt\s?:\s?(\w+)", out))):
+            msg = (
+                "failed to detect the pixel format used by the decoder, "
+                "maybe the ffmpeg api has changed, please adapt the regex"
+            )
+            raise ValueError(msg)
+        return any(p in pix_fmts for p in ("vaapi", "nv12", "p010"))
     return True
 
 
@@ -269,15 +285,15 @@ def available_decoders(codec: str, pix_fmt: str) -> tuple[str, str | None]:
     # general: -hwaccel cuda -hwaccel_output_format cuda
     match codec:
         case "av1":
-            candidates = [("cuvid", "av1_cuvid"), ("cpu", "libdav1d"), ("cpu", "libaom-av1")]
+            candidates = [("cuvid", "av1_cuvid"), ("vaapi", "vaapi"), ("cpu", "libdav1d"), ("cpu", "libaom-av1")]
         case "h264":
-            candidates = [("cuvid", "h264_cuvid"), ("cpu", "h264"), ("cpu", "libopenh264")]
+            candidates = [("cuvid", "h264_cuvid"), ("vaapi", "vaapi"), ("cpu", "h264"), ("cpu", "libopenh264")]
         case "hevc":
-            candidates = [("cuvid", "hevc_cuvid"), ("cpu", "hevc")]
+            candidates = [("cuvid", "hevc_cuvid"), ("vaapi", "vaapi"), ("cpu", "hevc")]
         case "vvc":
-            candidates = [("cuvid", "vvc_cuvid"), ("cpu", "vvc")]
+            candidates = [("cuvid", "vvc_cuvid"), ("vaapi", "vaapi"), ("cpu", "vvc")]
         case "vp9":
-            candidates = [("cuvid", "vp9_cuvid"), ("cpu", "libvpx-vp9"), ("cpu", "vp9")]
+            candidates = [("cuvid", "vp9_cuvid"), ("vaapi", "vaapi"), ("cpu", "libvpx-vp9"), ("cpu", "vp9")]
         case _:
             logging.getLogger(__name__).info("no decoder tested for the codec %s", codec)
             candidates = []

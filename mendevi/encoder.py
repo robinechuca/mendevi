@@ -63,6 +63,8 @@ def support_pix_fmt(encoder: str, pix_fmt: str) -> bool:
     res: str = subprocess.run(cmd, check=True, capture_output=True).stdout.decode()
     return re.search(fr"\s{pix_fmt}\s", res) is not None
 
+def test_supproted??
+
 
 @decorator_pix_fmt
 def _encode_av1_nvenc(**kwargs: dict) -> list[str]:

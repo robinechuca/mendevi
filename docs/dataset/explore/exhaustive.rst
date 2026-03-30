@@ -21,7 +21,7 @@ Corresponds to a random subsampling of a highly varied set of encoding scenarios
       - `video resolution and more <https://gitlab.inria.fr/rrichard/mendevi/-/blob/main/mendevi/cst/profiles.py>`_
       - :math:`4`
     * - encoder
-      - ``av1_nvenc``, ``h264_nvenc``, ``hevc_nvenc``, ``libaom-av1``, ``libsvtav1``, ``libx264``, ``libx265``, ``vvc``
+      - ``libx264``, ``h264_vaapi``, ``h264_nvenc``, ``libx265``, ``hevc_nvenc``, ``vvc``, ``libaom-av1``, ``libsvtav1``, ``av1_nvenc``
       - :ref:`enc_encoder`
       - :math:`8`
     * - quality
@@ -59,7 +59,7 @@ Corresponds to a random subsampling of a highly varied set of encoding scenarios
     * - **total**
       - :math:`\prod`
       - total number of points
-      - :math:`387072`
+      - :math:`435456`
 
 Reproduce
 ---------
