@@ -255,7 +255,7 @@ def create_video_sample(codec: str, pix_fmt: str) -> pathlib.Path:
     return sample
 
 
-# @functools.cache
+@functools.cache
 def try_decode_sample_encoder(sample: pathlib.Path, decoder: str) -> bool:
     """Return True if ffmpeg can decode that video."""
     cmd = (
