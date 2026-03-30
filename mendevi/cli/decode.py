@@ -57,7 +57,7 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
     # family
     assert isinstance(kwargs["family"], tuple), kwargs["family"].__class__.__name__
     assert all(isinstance(p, str) for p in kwargs["family"]), kwargs["family"]
-    assert all(p in {"cpu", "cuvid"} for p in kwargs["family"]), kwargs["family"]
+    assert all(p in {"cpu", "vaapi", "cuvid"} for p in kwargs["family"]), kwargs["family"]
     prt.print(f"dec type  : {', '.join(kwargs['family'])}")
 
     # callback
