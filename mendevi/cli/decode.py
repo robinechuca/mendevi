@@ -96,7 +96,7 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
 )
 @click.option(
     "--family",
-    type=click.Choice(["cpu", "cuvid"]),
+    type=click.Choice(["cpu", "vaapi", "cuvid"]),
     default=["cpu"],
     multiple=True,
     help="The family of decoders.",

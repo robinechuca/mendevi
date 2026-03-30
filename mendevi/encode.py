@@ -245,11 +245,15 @@ def get_transcode_cmd(src: pathlib.Path, dst: pathlib.Path, **kwargs: dict) -> C
     general, vid_filter, cmd.encode = ENCODERS_CMD[kwargs["encoder"]](**kwargs)
     cmd.general = cmd.general + general
     try:
-        _, cmd.decode = next(iter(
+        family, decoder = next(iter(
             available_decoders(cutcutcodec.get_codec_video(src), cutcutcodec.get_pix_fmt(src)),
         ))
     except StopIteration:
         logging.getLogger(__name__).info("no decoder found for %s", src)
+    if family == "vaapi":
+        cmd.general = [*cmd.general, "-hwaccel", "vaapi"]
+    else:
+        cmd.decode = decoder
     if vid_filter:
         cmd.vid_filter = (f"{cmd.vid_filter}," if cmd.vid_filter else "") + vid_filter
     return cmd
