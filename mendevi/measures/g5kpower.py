@@ -12,9 +12,8 @@ import threading
 import numpy as np
 import requests
 
-EPS = 1e-8
 GOOD_REQ_STATUS = 200
-MARGIN = 0.5  # request for thicker interval than requieres (in seconds)
+MARGIN = 0.6  # request for thicker interval than requieres (in seconds)
 PATTEREN_ISOTIME = r"^\d{2,4}-\d{1,2}-\d{1,2}\w\d\d:\d\d:(?P<sec>\d+\.\d*)(?:[+-]\d{1,2}:\d{1,2})?$"
 SIMP_TOL = 1e-5
 

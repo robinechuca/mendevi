@@ -55,7 +55,7 @@ def main(database: str, **kwargs: dict) -> None:
             output = pathlib.Path(output).expanduser()
             if output.is_dir():
                 output = output / f"{database.stem}.json"
-        prt.print(f"json file : {output}")
+        prt.print(f"json file: {output}")
 
     # read database
     content = {}

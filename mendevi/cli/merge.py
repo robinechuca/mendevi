@@ -45,7 +45,8 @@ def _insert_update(
 
 @click.command()
 @click.argument("databases", type=click.Path(), nargs=-1)
-def main(databases: tuple[str]) -> None:
+@click.option("-o", "--output", type=click.Path(), help="The output sql database path.")
+def main(databases: tuple[str], **kwargs: dict) -> None:
     """Merge several SQL databases together.
 
     \b
@@ -59,6 +60,12 @@ def main(databases: tuple[str]) -> None:
     ----------
     databases : list[pathlike]
         All databases to be merged.
+    **kwargs: dict
+        Please refer to the detailed arguments below.
+    output : pathlike, optional
+        The destination sql database path.
+        By default, the file is created in the same folder than the SQL database.
+        The new name starts with the prefix "merge_".
 
     """
     with Printer("Parse configuration...") as prt:
@@ -68,7 +75,13 @@ def main(databases: tuple[str]) -> None:
             _, database = parse_videos_database(prt, (), database_, _quiet=True)
             all_databases.append(database)
             prt.print(f"database {i+1:>2}: {database}")
-        dst = pathlib.Path(f"merge_{'_'.join(d.stem for d in all_databases)}.db")
+
+        if (dst := kwargs.get("output")) is None:
+            dst = pathlib.Path(f"merge_{'_'.join(d.stem for d in all_databases)}.db")
+        else:
+            dst = pathlib.Path(dst).expanduser()
+            if dst.is_dir():
+                dst = dst / f"merge_{'_'.join(d.stem for d in all_databases)}.db"
         create_database(dst)
         prt.print(f"destination: {dst} (just created)")
 

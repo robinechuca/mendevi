@@ -16,7 +16,7 @@ from mendevi.measures.g5kpower import g5kpower
 
 from .parse import parse_videos_database
 
-INTERVAL = 60  # time between 2 database acces
+INTERVAL = 60  # time in seconds between 2 database flush
 
 
 def get_power(hostname: str, start: float, duration: float, **kwargs: dict) -> tuple[bytes, bytes]:
