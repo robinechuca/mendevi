@@ -368,7 +368,7 @@ If you have a NVIDIA GPU, please install CUDA then follow the `PyTorch installat
                 # add nvidia driver depos
                 if ! apt-cache show cuda-drivers >/dev/null 2>&1; then
                     echo "try to add the official nvidia depos"
-                    wget https://developer.download.nvidia.com/compute/cuda/repos/debian12/x86_64/cuda-keyring_1.1-1_all.deb
+                    wget https://developer.download.nvidia.com/compute/cuda/repos/debian13/x86_64/cuda-keyring_1.1-1_all.deb
                     sudo dpkg -i cuda-keyring_1.1-1_all.deb
                     sudo rm cuda-keyring_1.1-1_all.deb
                     sudo apt update
