@@ -40,7 +40,7 @@ It manages the following parameters:
 #. It supports the ``libx264``, ``libopenh264``, ``libx265``, ``libvpx-vp9``, ``libaom-av1``, ``libsvtav1``, ``librav1e`` and ``vvc`` cpu encoders.
 #. It supports the ``h264_nvenc``, ``hevc_nvenc``, ``av1_nvenc`` and ``*_vaapi`` gpu encoders.
 #. Distortions are measured using the ``lpips``, ``psnr``, ``ssim``, ``vif`` and ``vmaf`` metrics.
-#. Complexity are measured using the ``rms_sobel`` and ``rms_time_diff`` metrics.
+#. Complexity are measured using the ``rms_sobel``, ``rms_time_diff``, ``spatial_dct`` and ``temporal_dct`` metrics.
 #. Encoding efforts are ``fast``, ``medium`` and ``slow``.
 #. It takes care about the colorspaces (``range``, ``transfer`` and ``primaries``).
 #. Iterate over different ``effort``, ``encoder``, ``mode``, ``quality``, ``threads``, ``fps``, ``resolution`` and ``pix_fmt``.

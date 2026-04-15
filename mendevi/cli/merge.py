@@ -43,6 +43,27 @@ def _insert_update(
     return dict(out)
 
 
+def _parse(databases: tuple[str], **kwargs: dict) -> tuple[list[pathlib.Path], pathlib.Path]:
+    """Help for main."""
+    with Printer("Parse configuration...") as prt:
+        assert isinstance(databases, (tuple, list, set, frozenset)), databases.__class__.__name__
+        all_databases: list[pathlib.Path] = []
+        for i, database_ in enumerate(databases):
+            _, database = parse_videos_database(prt, (), database_, _quiet=True)
+            all_databases.append(database)
+            prt.print(f"database {i+1:>2}: {database}")
+
+        if (dst := kwargs.get("output")) is None:
+            dst = pathlib.Path(f"merge_{'_'.join(d.stem for d in all_databases)}.db")
+        else:
+            dst = pathlib.Path(dst).expanduser()
+            if dst.is_dir():
+                dst = dst / f"merge_{'_'.join(d.stem for d in all_databases)}.db"
+        create_database(dst)
+        prt.print(f"destination: {dst} (just created)")
+    return all_databases, dst
+
+
 @click.command()
 @click.argument("databases", type=click.Path(), nargs=-1)
 @click.option("-o", "--output", type=click.Path(), help="The output sql database path.")
@@ -68,23 +89,7 @@ def main(databases: tuple[str], **kwargs: dict) -> None:
         The new name starts with the prefix "merge_".
 
     """
-    with Printer("Parse configuration...") as prt:
-        assert isinstance(databases, (tuple, list, set, frozenset)), databases.__class__.__name__
-        all_databases: list[pathlib.Path] = []
-        for i, database_ in enumerate(databases):
-            _, database = parse_videos_database(prt, (), database_, _quiet=True)
-            all_databases.append(database)
-            prt.print(f"database {i+1:>2}: {database}")
-
-        if (dst := kwargs.get("output")) is None:
-            dst = pathlib.Path(f"merge_{'_'.join(d.stem for d in all_databases)}.db")
-        else:
-            dst = pathlib.Path(dst).expanduser()
-            if dst.is_dir():
-                dst = dst / f"merge_{'_'.join(d.stem for d in all_databases)}.db"
-        create_database(dst)
-        prt.print(f"destination: {dst} (just created)")
-
+    all_databases, dst = _parse(databases, **kwargs)
     with sqlite3.connect(dst) as conn_dst:
         conn_dst.row_factory = sqlite3.Row
         cursor_dst = conn_dst.cursor()

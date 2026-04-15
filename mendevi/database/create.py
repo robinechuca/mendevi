@@ -74,6 +74,8 @@ def create_database(filename: str | bytes | pathlib.Path) -> None:
             /* NON COMPARATIVE METRICS */
             vid_rms_sobel LONGBLOB,
             vid_rms_time_diff LONGBLOB,
+            vid_spatial_dct LONGBLOB,
+            vid_temporal_dct LONGBLOB,
             vid_uvq LONGBLOB
         )""")
         cursor.execute("""CREATE TABLE IF NOT EXISTS t_met_metric (

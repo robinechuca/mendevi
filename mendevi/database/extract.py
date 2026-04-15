@@ -641,6 +641,22 @@ def extract_rms_time_diff(raw: dict[str]) -> str:
 
 
 @verif
+@SqlLinker("t_vid_video.vid_spatial_dct")
+def extract_spatial_dct(raw: dict[str]) -> str:
+    """Return the spacial dct complexity.
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+
+    """
+    if (comp := raw["vid_spatial_dct"]) is None:
+        return None
+    return float(np.nanmean(binary_to_list(comp)))
+
+
+@verif
 @SqlLinker("t_met_metric.met_ssim")
 def extract_ssim(raw: dict[str]) -> float:
     """Return the Structural Similarity (SSIM).
@@ -676,6 +692,22 @@ def extract_temp(raw: dict[str]) -> float:
     integral = (avg_temp * act_ps_dt).sum()
     average = integral / (act_ps_dt.sum() * len(act_ps_temp))
     return float(average)
+
+
+@verif
+@SqlLinker("t_vid_video.vid_temporal_dct")
+def extract_temporal_dct(raw: dict[str]) -> str:
+    """Return the temporal dct complexity.
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+
+    """
+    if (comp := raw["vid_temporal_dct"]) is None:
+        return None
+    return float(np.nanmean(binary_to_list(comp)))
 
 
 @verif

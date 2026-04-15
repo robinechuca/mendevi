@@ -318,6 +318,11 @@ ALL_EXTRACTORS = {
         "(height, width)",
         Scale.DISCRETE,
     ),
+    "spatial_dct": Extractor(
+        "Spacial DCT complexity",
+        extract.extract_spatial_dct,
+        Scale.LINEAR,
+    ),
     "ssim": Extractor(
         "Structural Similarity (SSIM)",
         extract.extract_ssim,
@@ -331,6 +336,11 @@ ALL_EXTRACTORS = {
     "temp": Extractor(
         "Average temperature in C",
         extract.extract_temp,
+        Scale.LINEAR,
+    ),
+    "temporal_dct": Extractor(
+        "Temporal DCT complexity",
+        extract.extract_temporal_dct,
         Scale.LINEAR,
     ),
     "threads": Extractor(

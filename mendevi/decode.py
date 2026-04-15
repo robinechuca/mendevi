@@ -285,15 +285,27 @@ def available_decoders(codec: str, pix_fmt: str) -> tuple[str, str | None]:
     # general: -hwaccel cuda -hwaccel_output_format cuda
     match codec:
         case "av1":
-            candidates = [("cuvid", "av1_cuvid"), ("vaapi", "vaapi"), ("cpu", "libdav1d"), ("cpu", "libaom-av1")]
+            candidates = [
+                ("cuvid", "av1_cuvid"),
+                ("vaapi", "vaapi"),
+                ("cpu", "libdav1d"),
+                ("cpu", "libaom-av1"),
+            ]
         case "h264":
-            candidates = [("cuvid", "h264_cuvid"), ("vaapi", "vaapi"), ("cpu", "h264"), ("cpu", "libopenh264")]
+            candidates = [
+                ("cuvid", "h264_cuvid"),
+                ("vaapi", "vaapi"),
+                ("cpu", "h264"),
+                ("cpu", "libopenh264"),
+            ]
         case "hevc":
             candidates = [("cuvid", "hevc_cuvid"), ("vaapi", "vaapi"), ("cpu", "hevc")]
         case "vvc":
             candidates = [("cuvid", "vvc_cuvid"), ("vaapi", "vaapi"), ("cpu", "vvc")]
         case "vp9":
-            candidates = [("cuvid", "vp9_cuvid"), ("vaapi", "vaapi"), ("cpu", "libvpx-vp9"), ("cpu", "vp9")]
+            candidates = [
+                ("cuvid", "vp9_cuvid"), ("vaapi", "vaapi"), ("cpu", "libvpx-vp9"), ("cpu", "vp9"),
+            ]
         case _:
             logging.getLogger(__name__).info("no decoder tested for the codec %s", codec)
             candidates = []

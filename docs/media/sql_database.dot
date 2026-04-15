@@ -41,6 +41,8 @@ graph database {
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">vid_width</TD><TD ALIGN="LEFT">SMALLINT</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">vid_rms_sobel</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">vid_rms_time_diff</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
+        <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">vid_spatial_dct</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
+        <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">vid_temporal_dct</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">vid_uvq</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
       </TABLE>
     >

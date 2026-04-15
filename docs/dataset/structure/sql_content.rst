@@ -206,9 +206,13 @@ Table t_vid_video
 +--------------------------+----------------+---------------------------------+
 | :ref:`vid_width`         | *SMALLINT*     | video width in pixels           |
 +--------------------------+----------------+---------------------------------+
-| :ref:`vid_rms_sobel`     | *LONGLONGBLOB* | UVQ metric values               |
+| :ref:`vid_rms_sobel`     | *LONGLONGBLOB* | spatial sobel rms metric values |
 +--------------------------+----------------+---------------------------------+
-| :ref:`vid_rms_time_diff` | *LONGLONGBLOB* | UVQ metric values               |
+| :ref:`vid_rms_time_diff` | *LONGLONGBLOB* | temporal rms metric values      |
++--------------------------+----------------+---------------------------------+
+| :ref:`vid_spatial_dct`   | *LONGLONGBLOB* | spatial dct metric values       |
++--------------------------+----------------+---------------------------------+
+| :ref:`vid_temporal_dct`  | *LONGLONGBLOB* | temporal dct metric values      |
 +--------------------------+----------------+---------------------------------+
 | :ref:`vid_uvq`           | *LONGLONGBLOB* | UVQ metric values               |
 +--------------------------+----------------+---------------------------------+
@@ -386,6 +390,24 @@ vid_rms_time_diff
 
 The serialised list of the temporal root means square time difference.
 Catched by ``cutcutcodec.video_metrics(video, rms_time_diff=True)["rms_time_diff"]``.
+To deserialize into an exploitable numpy array, please use the function :py:func:`mendevi.database.serialize.binary_to_list`.
+
+.. _vid_spatial_dct:
+
+vid_spatial_dct
+^^^^^^^^^^^^^^^
+
+The serialised list of the spacial dct based complexity.
+Catched by ``cutcutcodec.video_metrics(video, spatial_dct=True)["spatial_dct"]``.
+To deserialize into an exploitable numpy array, please use the function :py:func:`mendevi.database.serialize.binary_to_list`.
+
+.. _vid_temporal_dct:
+
+vid_temporal_dct
+^^^^^^^^^^^^^^^
+
+The serialised list of the temporal dct based complexity.
+Catched by ``cutcutcodec.video_metrics(video, temporal_dct=True)["temporal_dct"]``.
 To deserialize into an exploitable numpy array, please use the function :py:func:`mendevi.database.serialize.binary_to_list`.
 
 .. _vid_uvq:

@@ -54,6 +54,8 @@ def _fill_vid_table(
         "vid_width",
         *(("vid_rms_sobel",) if kwargs["rms_sobel"] else ()),
         *(("vid_rms_time_diff",) if kwargs["rms_time_diff"] else ()),
+        *(("vid_spatial_dct",) if kwargs["spatial_dct"] else ()),
+        *(("vid_temporal_dct",) if kwargs["temporal_dct"] else ()),
         *(("vid_uvq",) if kwargs["uvq"] else ()),
     }
     fields -= {k for k, v in prop.items() if v is not None}
@@ -65,7 +67,13 @@ def _fill_vid_table(
     pad = max(map(len, fields)) - 4
     with Printer(f"Get properties of {video.name}...", color="green") as prt:
         # basic fields
-        for field in fields - {"vid_rms_sobel", "vid_rms_time_diff", "vid_uvq"}:
+        for field in fields - {
+            "vid_rms_sobel",
+            "vid_rms_time_diff",
+            "vid_spatial_dct",
+            "vid_temporal_dct",
+            "vid_uvq",
+        }:
             try:
                 prop[field] = _fill_vid_table_prop(field, prt, pad, video)
             except cutcutcodec.core.exceptions.MissingInformation as err:
@@ -77,6 +85,8 @@ def _fill_vid_table(
             video,
             rms_sobel="vid_rms_sobel" in fields,
             rms_time_diff="vid_rms_time_diff" in fields,
+            spatial_dct="vid_spatial_dct" in fields,
+            temporal_dct="vid_temporal_dct" in fields,
             uvq="vid_uvq" in fields,
         )
         for metric in sorted(new_metrics):

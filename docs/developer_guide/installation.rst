@@ -391,6 +391,10 @@ If you have a NVIDIA GPU, please install CUDA then follow the `PyTorch installat
                 echo "to verify the installation, re-execute the code block"
             fi
 
+            # wget https://us.download.nvidia.com/tesla/580.126.20/NVIDIA-Linux-x86_64-580.126.20.run
+            # chmod +x NVIDIA-Linux-x86_64-580.126.20.run
+            # ./NVIDIA-Linux-x86_64-580.126.20.run
+
         Install cuda context (without the driver)
 
         .. code:: shell
