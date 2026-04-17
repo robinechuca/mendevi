@@ -53,7 +53,7 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
 @click.option("--psnr/--no-psnr", default=True, help="Compute the PSNR or not.")
 @click.option("--rms-sobel/--no-rms-sobel", default=True, help="Compute the C_sob or not.")
 @click.option("--rms-time-diff/--no-rms-time-diff", default=True, help="Compute the C_td or not.")
-@click.option("--spacial-dct/--no-spacial-dct", default=True, help="Compute the C_dct or not.")
+@click.option("--spatial-dct/--no-spatial-dct", default=True, help="Compute the C_dct or not.")
 @click.option("--ssim/--no-ssim", default=True, help="Compute the SSIM or not.")
 @click.option("--temporal-dct/--no-temporal-dct", default=True, help="Compute the H_dct or not.")
 @click.option("--uvq/--no-uvq", default=False, help="Compute the UVQ or not.")

@@ -327,7 +327,10 @@ class Model(metaclass=MetaModel):
 
     @abc.abstractmethod
     def _predict_vect(self, values: dict[str, torch.Tensor]) -> dict[str, torch.Tensor]:
-        """Do the same as ``self._predict``, but provide and return tensor rather than lists."""
+        """Do the same as ``self._predict``, but provide and return tensor rather than lists.
+
+        Input and output tensors for scalar fields are column vectors, of shape (n, 1).
+        """
         # level 2
         if self.__class__._predict_vect_norm is not Model._predict_vect_norm:  # noqa: SLF001
             assert set(values).issubset(set(self._input_labels)), (values, self._input_labels)
@@ -400,7 +403,7 @@ class Model(metaclass=MetaModel):
         atom_names, _ = merge_extractors(set(self._input_labels), return_callable=False)
         probe_kwargs = {
             metric: metric in atom_names
-            for metric in ("rms_sobel", "rms_time_diff", "uvq")
+            for metric in ("rms_sobel", "rms_time_diff", "spatial_dct", "temporal_dct", "uvq")
         } | {"ref": {}}  # required by probe_and_store (for comparative metrics)
 
         # 3) call probe

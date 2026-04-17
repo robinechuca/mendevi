@@ -611,7 +611,7 @@ def extract_reference_video_stem(raw: dict[str]) -> str:
 @verif
 @SqlLinker("t_vid_video.vid_rms_sobel")
 def extract_rms_sobel(raw: dict[str]) -> str:
-    """Return the spacial root mean square sobel gradient complexity.
+    """Return the spatial root mean square sobel gradient complexity.
 
     Parameters
     ----------
@@ -643,7 +643,7 @@ def extract_rms_time_diff(raw: dict[str]) -> str:
 @verif
 @SqlLinker("t_vid_video.vid_spatial_dct")
 def extract_spatial_dct(raw: dict[str]) -> str:
-    """Return the spacial dct complexity.
+    """Return the spatial dct complexity.
 
     Parameters
     ----------

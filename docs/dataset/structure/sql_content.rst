@@ -379,7 +379,7 @@ The width of the video in pixels, after being decoded.
 vid_rms_sobel
 ^^^^^^^^^^^^^
 
-The serialised list of the spacial root means square sobel complexity.
+The serialised list of the spatial root means square sobel complexity.
 Catched by ``cutcutcodec.video_metrics(video, rms_sobel=True)["rms_sobel"]``.
 To deserialize into an exploitable numpy array, please use the function :py:func:`mendevi.database.serialize.binary_to_list`.
 
@@ -397,7 +397,7 @@ To deserialize into an exploitable numpy array, please use the function :py:func
 vid_spatial_dct
 ^^^^^^^^^^^^^^^
 
-The serialised list of the spacial dct based complexity.
+The serialised list of the spatial dct based complexity.
 Catched by ``cutcutcodec.video_metrics(video, spatial_dct=True)["spatial_dct"]``.
 To deserialize into an exploitable numpy array, please use the function :py:func:`mendevi.database.serialize.binary_to_list`.
 

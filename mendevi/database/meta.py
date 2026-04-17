@@ -304,7 +304,7 @@ ALL_EXTRACTORS = {
         Scale.DISCRETE,
     ),
     "rms_sobel": Extractor(
-        "Spacial root mean square sobel gradient complexity",
+        "Spatial root mean square sobel gradient complexity",
         extract.extract_rms_sobel,
         Scale.LINEAR,
     ),
@@ -319,7 +319,7 @@ ALL_EXTRACTORS = {
         Scale.DISCRETE,
     ),
     "spatial_dct": Extractor(
-        "Spacial DCT complexity",
+        "Spatial DCT complexity",
         extract.extract_spatial_dct,
         Scale.LINEAR,
     ),

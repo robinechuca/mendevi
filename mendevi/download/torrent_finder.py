@@ -84,6 +84,7 @@ def probe_online_torrent() -> dict[str, str]:
      'duration.db.xz.torrent',
      'multithread.db.xz.torrent',
      'ramdisk.db.xz.torrent',
+     'svtav1_vs_rav1e_vs_aom.db.xz.torrent',
      'x264_vs_openh264.db.xz.torrent']
     >>>
 
@@ -116,6 +117,7 @@ def probe_local_torrent() -> set[pathlib.Path]:
      'duration.db.xz.torrent',
      'multithread.db.xz.torrent',
      'ramdisk.db.xz.torrent',
+     'svtav1_vs_rav1e_vs_aom.db.xz.torrent',
      'x264_vs_openh264.db.xz.torrent']
     >>>
 
