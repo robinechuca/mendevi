@@ -357,6 +357,14 @@ If you have a NVIDIA GPU, please install CUDA then follow the `PyTorch installat
 
             **Do not install "cuda-toolkit"**, witch is conflicual with the official drivers.
 
+        Prerequisite: This block can be executed multiple times
+
+        .. code:: shell
+
+            sudo apt install linux-headers-$(uname -r)
+            sudo dkms autoinstall
+            sudo modprobe nvidia
+
         .. code:: shell
 
             if dpkg -l | grep -q nvidia-driver; then

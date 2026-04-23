@@ -5,6 +5,8 @@ It commes from the paper:
 """
 
 import torch
+from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.gaussian_process.kernels import RBF, WhiteKernel
 
 from .base import Model
 
@@ -12,34 +14,33 @@ from .base import Model
 class GPR(Model):
     """Gaussian process regression on continuous parameters."""
 
-    def _fit_vect_norm(self, values: dict[str, torch.Tensor]) -> None:
+    def _fit_vect_norm(self, values: dict[str, torch.Tensor]) -> object:
         """Perform a linear regression on the centered and reduced values."""
         # voir https://management-datascience.org/articles/24197/
 
-        MAX_SAMPLES = 4196
-        obs = torch.cat([values[lbl][:MAX_SAMPLES] for lbl in self.input_labels], dim=1)
-        target = torch.cat([values[lbl][:MAX_SAMPLES] for lbl in self.output_labels], dim=1)
+        max_samples = 4196
+        obs = torch.cat([values[lbl][:max_samples] for lbl in self.input_labels], dim=1)
+        target = torch.cat([values[lbl][:max_samples] for lbl in self.output_labels], dim=1)
 
-        from sklearn.gaussian_process import GaussianProcessRegressor
-        from sklearn.gaussian_process.kernels import RBF, ConstantKernel, WhiteKernel
-        # kernel = ConstantKernel(1.0) * RBF(length_scale=0.5) + WhiteKernel(noise_level=0.1)
         kernel = RBF(length_scale=0.2) + WhiteKernel(noise_level=0.1)
         gp = GaussianProcessRegressor(
             kernel=kernel,
             alpha=0.0,  # bruit déjà dans le kernel
             n_restarts_optimizer=10,  # éviter les minima locaux
-            # normalize_y=True
+            normalize_y=False,
         )
         gp.fit(obs.numpy(force=True), target.numpy(force=True))
 
-        self.parameters = gp
+        return gp
 
-    def _predict_vect_norm(self, values: dict[str, torch.Tensor]) -> dict[str, torch.Tensor]:
+    def _predict_vect_norm(
+        self, values: dict[str, torch.Tensor], parameters: object,
+    ) -> dict[str, torch.Tensor]:
         obs = torch.cat([values[lbl] for lbl in self.input_labels], dim=1)
         pred = torch.from_numpy(
-            self.parameters.predict(obs.numpy(force=True))
+            parameters.predict(obs.numpy(force=True)),
         ).to(dtype=obs.dtype, device=obs.device)
-        return {lbl: pred_[:, None] for lbl, pred_ in zip(self.output_labels, pred.mT)}
+        return {lbl: pred_[:, None] for lbl, pred_ in zip(self.output_labels, pred.mT, strict=True)}
 
 
 class EncodeGPR(GPR):

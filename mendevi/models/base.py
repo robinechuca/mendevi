@@ -18,7 +18,7 @@ from mendevi.cst.labels import LABELS
 from mendevi.cst.profiles import PROFILES
 from mendevi.database.create import create_database, is_sqlite
 from mendevi.database.extract import SqlLinker
-from mendevi.database.meta import get_extractor, merge_extractors
+from mendevi.database.meta import Scale, get_extractor, merge_extractors
 from mendevi.download.decapsulation import retrive_file
 from mendevi.exceptions import RejectError
 from mendevi.probe import probe_and_store
@@ -163,10 +163,14 @@ class Model(metaclass=MetaModel):
     ----------
     cite : str
         The latex bibtext model citation.
-    parameters : torch.Tensor | None
-        The trainable parameters of the model (read and write).
+    parameters : tuple[tuple[str], dict[tuple, object]] | None
+        The fitted parameters of the trainable model (readonly).
+    aggregation : list[str]
+        The labels that divide clusterers (readonly).
     input_labels : list[str]
         The name of all input parameters (readonly).
+    input_labels_aggreg : list[str]
+        The subset of `input_label` that does not contain the aggregation values (readonly).
     output_labels : list[str]
         The name of all output parameters (readonly).
     accuracy : dict[str, float]
@@ -192,8 +196,11 @@ class Model(metaclass=MetaModel):
         output_labels : list[str]
             The name of all output parameters.
             The possibles values are `mendevi.plot.axis.Name`.
-        parameters : object, optional
-            The learnable parameters for regressive models.
+        aggregation : list[str]
+            Specifies the list of parameters that the model will not interpolate.
+            By default, this list consists of the subset of discrete parameters from `input_labels`.
+            For example, if you provide an empty list,
+            a single instance of the model will be trained on all parameters.
 
         """
         assert set(kwargs).issubset({"sources", "input_labels", "output_labels", "parameters"})
@@ -213,10 +220,24 @@ class Model(metaclass=MetaModel):
         assert all(isinstance(lab, str) and lab in LABELS for lab in output_labels), output_labels
         self._output_labels = output_labels
 
+        # check or define aggregation
+        self._aggreg: list[str] = kwargs.get("aggregation")
+        if self._aggreg is None:
+            self._aggreg = [
+                lbl for lbl in input_labels
+                if get_extractor(lbl, safe=False).scale == Scale.DISCRETE
+            ]
+        else:
+            assert hasattr(self._aggreg, "__iter__"), self._aggreg
+            self._aggreg = list(self._aggreg)
+            assert all(isinstance(lbl, str) for lbl in self._aggreg), self._aggreg
+            assert all(lbl in input_labels for lbl in self._aggreg), self._aggreg
+        self._aggreg_ctx: tuple[object] | None = None  # currently processing key
+
         # check parameters
-        self._parameters = kwargs.get("parameters")
-        self._std_mean: dict = {}
-        self._accuracy: dict | None = None
+        self._parameters: dict[tuple, object] = {}
+        self._std_mean: dict[tuple, dict[str, list[float]]] = {}
+        self._accuracy: dict[tuple, dict[str, float]] = {}
 
         # check title
         if title is None:
@@ -235,7 +256,7 @@ class Model(metaclass=MetaModel):
         self._sources = sources
 
     @abc.abstractmethod
-    def _fit(self, values: dict[str]) -> None:
+    def _fit(self, values: dict[str]) -> object:
         """Perform data regression to find the model's hyperparameters.
 
         Hyperparameters must be added to the ``self.parameters`` dictionary.
@@ -245,6 +266,11 @@ class Model(metaclass=MetaModel):
         values: dict[str, list]
             For each input and output label (ie self.input_labels union self.output_labels),
             associate the list of corresponding values.
+
+        Returns
+        -------
+        parameters
+            The fitted parameters of the model.
 
         Notes
         -----
@@ -258,19 +284,20 @@ class Model(metaclass=MetaModel):
             self.__class__._fit_vect is not Model._fit_vect  # noqa: SLF001
             or self.__class__._fit_vect_norm is not Model._fit_vect_norm  # noqa: SLF001
         ):
-            self._fit_vect(to_torch(values))
+            return self._fit_vect(to_torch(values))
 
         # level 0
-        else:
-            raise NotImplementedError
+        raise NotImplementedError
 
     @abc.abstractmethod
-    def _fit_vect(self, values: dict[str, torch.Tensor]) -> None:
+    def _fit_vect(self, values: dict[str, torch.Tensor]) -> object:
         """Do the same as ``self._fit``, but provide tensor rather than lists."""
         # level 2
         if self.__class__._fit_vect_norm is not Model._fit_vect_norm:  # noqa: SLF001
-            assert set(self._input_labels) | set(self._output_labels) == set(values)
-            self._std_mean = {
+            assert (
+                (set(self._input_labels) | set(self._output_labels)) - set(self._aggreg)
+            ) == set(values)
+            self._std_mean[self._aggreg_ctx] = {
                 name: (
                     torch.std_mean(data, dim=0, keepdim=True)
                     if data.shape[1] == 1 else
@@ -278,30 +305,34 @@ class Model(metaclass=MetaModel):
                 )
                 for name, data in values.items()
             }
-            self._fit_vect_norm(
+            return self._fit_vect_norm(
                 {
-                    name: (data - self._std_mean[name][1]) / (self._std_mean[name][0] + EPS)
+                    name: (
+                        (data - self._std_mean[self._aggreg_ctx][name][1])
+                        / (self._std_mean[self._aggreg_ctx][name][0] + EPS)
+                    )
                     for name, data in values.items()
                 },
             )
 
         # level 1
-        else:
-            raise NotImplementedError
+        raise NotImplementedError
 
     @abc.abstractmethod
-    def _fit_vect_norm(self, values: dict[str, torch.Tensor]) -> None:
+    def _fit_vect_norm(self, values: dict[str, torch.Tensor]) -> object:
         """Do the same as ``self._fit_vect``, but the tensors are centered and reduced."""
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _predict(self, values: dict[str, list]) -> dict[str, list]:
+    def _predict(self, values: dict[str, list], parameters: object) -> dict[str, list]:
         """Perform model prediction.
 
         Parameters
         ----------
-        values: dict[str, list]
-            For each input label (ie self.input_labels), associate the list of corresponding values.
+        values : dict[str, list]
+            For each non aggregated input label, associate the list of corresponding values.
+        parameters : object
+            The model's hyperparameters, returned by the `_fit` method.
 
         Returns
         -------
@@ -320,13 +351,15 @@ class Model(metaclass=MetaModel):
             self.__class__._predict_vect is not Model._predict_vect  # noqa: SLF001
             or self.__class__._predict_vect_norm is not Model._predict_vect_norm  # noqa: SLF001
         ):
-            return from_torch(self._predict_vect(to_torch(values)))
+            return from_torch(self._predict_vect(to_torch(values), parameters))
 
         # level 0
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _predict_vect(self, values: dict[str, torch.Tensor]) -> dict[str, torch.Tensor]:
+    def _predict_vect(
+        self, values: dict[str, torch.Tensor], parameters: object,
+    ) -> dict[str, torch.Tensor]:
         """Do the same as ``self._predict``, but provide and return tensor rather than lists.
 
         Input and output tensors for scalar fields are column vectors, of shape (n, 1).
@@ -337,14 +370,19 @@ class Model(metaclass=MetaModel):
             assert self._std_mean, "you must to call fit before predict"
             norm_prediction = self._predict_vect_norm(
                 {
-                    name: (data - self._std_mean[name][1]) / (self._std_mean[name][0] + EPS)
+                    name: (
+                        (data - self._std_mean[self._aggreg_ctx][name][1])
+                        / (self._std_mean[self._aggreg_ctx][name][0] + EPS)
+                    )
                     for name, data in values.items()
                 },
+                parameters,
             )
             assert set(self._output_labels) == set(norm_prediction)
             return {
                 name: (
-                    norm_prediction[name] * (self._std_mean[name][0]+EPS) + self._std_mean[name][1]
+                    norm_prediction[name] * (self._std_mean[self._aggreg_ctx][name][0]+EPS)
+                    + self._std_mean[self._aggreg_ctx][name][1]
                 )
                 for name in self._output_labels
             }
@@ -353,9 +391,49 @@ class Model(metaclass=MetaModel):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _predict_vect_norm(self, values: dict[str, torch.Tensor]) -> dict[str]:
+    def _predict_vect_norm(
+        self, values: dict[str, torch.Tensor], parameters: object,
+    ) -> dict[str]:
         """Implement the heart of the model."""
         raise NotImplementedError
+
+    def _split_values(self, values: dict[str, list]) -> dict[tuple, dict[str, list]]:
+        """Split data into several clusters, according to self._aggreg.
+
+        Parameters
+        ----------
+        values : dict[str, list]
+            For each variable name, associate the vector of values.
+
+        Returns
+        -------
+        clusters : dict[tuple, dict[str]]
+            Each "cluster key", defined by self._aggreg,
+            is associated with a cluster consisting of a subset of continuous "values" variables.
+
+        """
+        # 1) preparation
+        continuous_lbls = list(set(values) - set(self._aggreg))  # list to frozen order
+        aggreg_len: int = len(self._aggreg)
+        clusters: dict[tuple, dict[str]] = {}
+
+        # 2) assign each value to the correct cluster
+        for all_data in zip(*(values[k] for k in (*self._aggreg, *continuous_lbls)), strict=True):
+            discreet, continuous = all_data[:aggreg_len], all_data[aggreg_len:]
+            clusters[discreet] = clusters.get(discreet, [])
+            # the final dictionary isn't being built right away because it's expensive
+            # for now, we'll make do with a simple list of tuple
+            clusters[discreet].append(continuous)
+
+        # 3) merges the data from each cluster into a dictionary
+        return {  # conversion list[tuple[object]]] -> dict[str, list[object]]]
+            discreet_key: {
+                k: list(v) for k, v in zip(
+                    continuous_lbls, zip(*continuous_list_tuple, strict=True), strict=True,
+                )
+            }
+            for discreet_key, continuous_list_tuple in clusters.items()
+        }
 
     @property
     def accuracy(self) -> dict[str, float]:
@@ -364,6 +442,11 @@ class Model(metaclass=MetaModel):
             msg = "you must call the .fit method before you can know the accuracy of the model"
             return RuntimeError(msg)
         return self._accuracy.copy()  # copy for readonly
+
+    @property
+    def aggregation(self) -> list[str]:
+        """Return the labels that divide clusterers."""
+        return self._aggreg.copy()
 
     @property
     def cite(self) -> str:
@@ -507,23 +590,36 @@ class Model(metaclass=MetaModel):
                         pass
 
             # fit the model
-            prt.print("fit the model")
-            self._fit(values)
+            for clus_key, clus_values in self._split_values(values).items():
+                msg = ", ".join(f"{lbl}={v}" for lbl, v in zip(self._aggreg, clus_key, strict=True))
+                with Printer(f"Fit on cluster {msg}..."):
+                    prt.print(
+                        "this cluster contains "
+                        f"{len(next(iter(clus_values.values())))} "
+                        "observations",
+                    )
+                    self._aggreg_ctx = clus_key
+                    self._parameters[clus_key] = self._fit(clus_values)
+                    prt.print_time()
 
-            # evaluate the model error
-            with prt("Model accuracy:"):
-                prediction = to_torch(
-                    self._predict({lbl: values[lbl] for lbl in self._input_labels}),
-                )
-                validation = to_torch({lbl: values[lbl] for lbl in self._output_labels})
-                self._accuracy = {
-                    name: float(((prediction[name] - validation[name])**2).mean().sqrt())
-                    for name in self._output_labels
-                }
-                for atom_names, std_err in self._accuracy.items():
-                    prt.print(f"std of {atom_names}: {std_err:.4g}")
+                    # # evaluate the model accuracy
+                    # prediction = to_torch(
+                    #     self._predict(
+                    #         {lbl: clus_values[lbl] for lbl in self.input_labels_aggreg},
+                    #         self._parameters[clus_key],
+                    #     ),
+                    # )
+                    # validation = to_torch({lbl: clus_values[lbl] for lbl in self._output_labels})
+                    # self._accuracy[clus_key] = {
+                    #     name: float(((prediction[name] - validation[name])**2).mean().sqrt())
+                    #     for name in self._output_labels
+                    # }
+                    # for atom_names, std_err in self._accuracy[clus_key].items():
+                    #     prt.print(f"std of {atom_names}: {std_err:.4g}")
 
+            self._aggreg_ctx = None
             prt.print_time()
+
         return self
 
     @property
@@ -531,28 +627,22 @@ class Model(metaclass=MetaModel):
         """Return the name of all input parameters."""
         return self._input_labels.copy()
 
+    @property
+    def input_labels_aggreg(self) -> list[str]:
+        """Return the subset of `input_label` that does not contain the aggregation values."""
+        aggreg_set = set(self._aggreg)
+        return [lbl for lbl in self._input_labels if lbl not in aggreg_set]
+
     def is_fit(self) -> bool:
         """Return True if the method `fit` has been succesfully called."""
-        return self._accuracy is not None
+        return bool(self._parameters)
 
     @property
     def output_labels(self) -> list[str]:
         """Return the name of all output parameters."""
         return self._output_labels.copy()
 
-    @property
-    def parameters(self) -> torch.Tensor or None:
-        """Return the trainable parameters of the model."""
-        return self._parameters
-
-    @parameters.setter
-    def parameters(self, new_params: torch.Tensor) -> None:
-        """Update the parameters."""
-        if self._parameters is not None and new_params.__class__ != self._parameters.__class__:
-            logging.getLogger(__name__).warning("change the type of parameters")
-        self._parameters = new_params
-
-    def predict(self, *input_args: tuple, **input_kwargs: dict) -> dict[str]:
+    def predict(self, *input_args: tuple, **input_kwargs: dict) -> dict[str, list]:
         """Perform the prediction(s) of this model.
 
         Parameters
@@ -588,24 +678,46 @@ class Model(metaclass=MetaModel):
             # cast args to list
             prt.print("vectorize args")
             values = self.vectorize_kwargs(values)
-            # for name, arg in values.items():
-            #     prt.print(f"{name} = {arg!s:.80}")
 
             # predict
             prt.print("predict")
-            prediction = self._predict(values)
+            preds: dict[tuple, dict[str, list]] = {}
+            for clus_key, clus_values in self._split_values(values).items():
+                msg = ", ".join(f"{lbl}={v}" for lbl, v in zip(self._aggreg, clus_key, strict=True))
+                if clus_key not in self._parameters:
+                    msg = (
+                        f"the model has not been trained for the {msg} configuration; "
+                        "you must first call .fit() before making a prediction"
+                    )
+                    raise KeyError(msg)
+                with Printer(f"Predict for cluster {msg}..."):
+                    prt.print(
+                        "this cluster contains "
+                        f"{len(next(iter(clus_values.values())))} "
+                        "observations",
+                    )
+                    self._aggreg_ctx = clus_key
+                    preds[clus_key] = self._predict(clus_values, self._parameters[clus_key])
+                    prt.print_time()
+                    assert isinstance(preds[clus_key], dict), preds[clus_key].__class__.__name__
+                    assert preds[clus_key].keys() == set(self._output_labels), \
+                        f"_predict must return {self._output_labels}, not {sorted(preds[clus_key])}"
+            self._aggreg_ctx = None
 
-            # check output
-            assert isinstance(prediction, dict), prediction.__class__.__name__
-            assert prediction.keys() == set(self._output_labels), \
-                f"_predict must return {self._output_labels}, not {sorted(prediction)}"
+            # flatten
+            flat_prediction: dict[str, list] = {lbl: [] for lbl in self._output_labels}
+            for clus_key in zip(*(values[k] for k in self._aggreg), strict=True):
+                for lbl, data in preds[clus_key].items():
+                    flat_prediction[lbl].append(data.pop(0))
 
             prt.print_time()
-        return prediction
+
+        return flat_prediction
+
 
     def predict_from_video(
         self, video: pathlib.Path | str, *args: tuple, **kwargs: dict,
-    ) -> dict[str]:
+    ) -> dict[str, list]:
         """Simplify the predict method by automatically extracting parameters from the video.
 
         Parameters

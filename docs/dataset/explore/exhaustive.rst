@@ -77,4 +77,5 @@ Reproduce
       -c av1_nvenc -c h264_nvenc -c hevc_nvenc -c libaom-av1 -c libsvtav1 -c libvpx-vp9 -c libx264 -c libx265 -c vvc \
       reference*
     mendevi decode -r2 reference*
-    mendevi probe --psnr --ssim --vif --vmaf --lpips-alex sample*
+    mendevi decode -r1 *.mp4
+    mendevi probe --psnr --ssim --vmaf --vif --lpips-alex --rms-sobel --rms-time-diff --spatial-dct --temporal-dct *.mp4
