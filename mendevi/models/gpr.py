@@ -2,11 +2,14 @@
 
 It commes from the paper:
 "A High-Level Feature Model to Predict the Encoding Energy of a Hardware Video Encoder".
+
+https://www.infinitecuriosity.org/vizgp/
+https://hannibunny.github.io/mlbook/machinelearning/GaussianProcessRegression.html
+https://management-datascience.org/articles/24197/
+https://labex.io/fr/tutorials/gaussian-process-regression-and-classification-71104
 """
 
 import torch
-from sklearn.gaussian_process import GaussianProcessRegressor
-from sklearn.gaussian_process.kernels import RBF, WhiteKernel
 
 from .base import Model
 
@@ -16,27 +19,27 @@ class GPR(Model):
 
     def _fit_vect_norm(self, values: dict[str, torch.Tensor]) -> object:
         """Perform a linear regression on the centered and reduced values."""
-        # voir https://management-datascience.org/articles/24197/
+        from sklearn.gaussian_process import GaussianProcessRegressor
+        from sklearn.gaussian_process.kernels import RBF, WhiteKernel
 
-        max_samples = 4196
-        obs = torch.cat([values[lbl][:max_samples] for lbl in self.input_labels], dim=1)
+        max_samples = 1024  # 2048 -> 2h
+        obs = torch.cat([values[lbl][:max_samples] for lbl in self.input_labels_aggreg], dim=1)
         target = torch.cat([values[lbl][:max_samples] for lbl in self.output_labels], dim=1)
 
         kernel = RBF(length_scale=0.2) + WhiteKernel(noise_level=0.1)
-        gp = GaussianProcessRegressor(
+        gpr = GaussianProcessRegressor(
             kernel=kernel,
-            alpha=0.0,  # bruit déjà dans le kernel
-            n_restarts_optimizer=10,  # éviter les minima locaux
+            alpha=0.0,  # noise already included in the kernel
+            n_restarts_optimizer=10,  # like in the paper
             normalize_y=False,
         )
-        gp.fit(obs.numpy(force=True), target.numpy(force=True))
-
-        return gp
+        gpr.fit(obs.numpy(force=True), target.numpy(force=True))
+        return gpr
 
     def _predict_vect_norm(
         self, values: dict[str, torch.Tensor], parameters: object,
     ) -> dict[str, torch.Tensor]:
-        obs = torch.cat([values[lbl] for lbl in self.input_labels], dim=1)
+        obs = torch.cat([values[lbl] for lbl in self.input_labels_aggreg], dim=1)
         pred = torch.from_numpy(
             parameters.predict(obs.numpy(force=True)),
         ).to(dtype=obs.dtype, device=obs.device)

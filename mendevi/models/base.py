@@ -209,7 +209,8 @@ class Model(metaclass=MetaModel):
         assert hasattr(input_labels, "__iter__"), input_labels.__class__.__name__
         input_labels = list(input_labels)
         assert input_labels, "input must be not empty"
-        assert all(isinstance(lab, str) and lab in LABELS for lab in input_labels), input_labels
+        assert all(isinstance(lab, str) and lab in LABELS for lab in input_labels), \
+            (input_labels, LABELS)
         self._input_labels = input_labels
 
         # check output_labels
@@ -299,7 +300,7 @@ class Model(metaclass=MetaModel):
             ) == set(values)
             self._std_mean[self._aggreg_ctx] = {
                 name: (
-                    torch.std_mean(data, dim=0, keepdim=True)
+                    torch.std_mean(data, dim=0, keepdim=True, correction=0.0)
                     if data.shape[1] == 1 else
                     (1.0, 0.0)  # do nothing for onehot encoding
                 )
@@ -540,7 +541,27 @@ class Model(metaclass=MetaModel):
             A reference to the inplace fitted model.
 
         """
-        with Printer(f"Fit {self._title!r}...", color="pink") as prt:
+        for _ in self.fit_generator(database, select=select, query=query, table=table):
+            pass
+        return self
+
+    def fit_generator(
+        self,
+        database: pathlib.Path | str,
+        select: str | None = None,
+        query: str | None = None,
+        table: str | None = None,
+        *,
+        _validate: bool = False,
+    ) -> typing.Self:
+        """Fit the trainable hyper parameters of the model.
+
+        Implementation of :py:method:`fit`.
+
+        """
+        with Printer(
+            f"{'Validate' if _validate else 'Fit'} {self._title!r}...", color="pink",
+        ) as prt:
             # verification
             database = retrive_file(database)
             assert is_sqlite(database), f"{database} is not a valid SQL database"
@@ -592,35 +613,20 @@ class Model(metaclass=MetaModel):
             # fit the model
             for clus_key, clus_values in self._split_values(values).items():
                 msg = ", ".join(f"{lbl}={v}" for lbl, v in zip(self._aggreg, clus_key, strict=True))
-                with Printer(f"Fit on cluster {msg}..."):
+                with Printer(f"{'Validate' if _validate else 'Fit'} on cluster {msg}..."):
                     prt.print(
                         "this cluster contains "
                         f"{len(next(iter(clus_values.values())))} "
                         "observations",
                     )
                     self._aggreg_ctx = clus_key
-                    self._parameters[clus_key] = self._fit(clus_values)
+                    if not _validate:
+                        self._parameters[clus_key] = self._fit(clus_values)
+                    yield clus_key, clus_values
                     prt.print_time()
-
-                    # # evaluate the model accuracy
-                    # prediction = to_torch(
-                    #     self._predict(
-                    #         {lbl: clus_values[lbl] for lbl in self.input_labels_aggreg},
-                    #         self._parameters[clus_key],
-                    #     ),
-                    # )
-                    # validation = to_torch({lbl: clus_values[lbl] for lbl in self._output_labels})
-                    # self._accuracy[clus_key] = {
-                    #     name: float(((prediction[name] - validation[name])**2).mean().sqrt())
-                    #     for name in self._output_labels
-                    # }
-                    # for atom_names, std_err in self._accuracy[clus_key].items():
-                    #     prt.print(f"std of {atom_names}: {std_err:.4g}")
 
             self._aggreg_ctx = None
             prt.print_time()
-
-        return self
 
     @property
     def input_labels(self) -> list[str]:
@@ -714,7 +720,6 @@ class Model(metaclass=MetaModel):
 
         return flat_prediction
 
-
     def predict_from_video(
         self, video: pathlib.Path | str, *args: tuple, **kwargs: dict,
     ) -> dict[str, list]:
@@ -737,6 +742,42 @@ class Model(metaclass=MetaModel):
         """
         vid_kwargs = self.extract_video_props(video)
         return self.predict(*args, **kwargs, **vid_kwargs)
+
+    def validate(
+        self,
+        database: pathlib.Path | str,
+        select: str | None = None,
+        query: str | None = None,
+        table: str | None = None,
+    ) -> None:
+        """Evaluate the model accuracy.
+
+        It fill the attribute ``self.accuracy``.
+
+        All parameters are the same as :py:method:`fit`.
+        """
+        average: dict[str, list[float]] = {name: [] for name in self._output_labels}
+        for clus_key, clus_values in self.fit_generator(
+            database, select=select, query=query, table=table, _validate=True,
+        ):
+            prediction = to_torch(
+                self._predict(
+                    {lbl: clus_values[lbl] for lbl in self.input_labels_aggreg},
+                    self._parameters[clus_key],
+                ),
+            )
+            validation = to_torch({lbl: clus_values[lbl] for lbl in self._output_labels})
+            self._accuracy[clus_key] = {
+                name: float(((prediction[name] - validation[name])**2).mean().sqrt())
+                for name in self._output_labels
+            }
+            for name in self._output_labels:
+                average[name].append((prediction[name] - validation[name])**2)
+        self._accuracy["average"] = {
+            lbl: float(torch.cat(avg).mean().sqrt()) for lbl, avg in average.items()
+        }
+        for lbl, std in self._accuracy["average"].items():
+            Printer.print(f"std of {lbl}: {std:.4g}")
 
     @staticmethod
     def vectorize_kwargs(kwargs: dict[str], *, _skip_duplication: bool = False) -> dict[str]:
