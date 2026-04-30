@@ -428,11 +428,12 @@ ALIAS = {
 def _import_extractor(code: list[str]) -> typing.Callable:
     """Import the function line_extractor."""
     code = [
+        "import hashlib",
         "import math",
         "import re",
         "",
         "from mendevi.exceptions import RejectError",
-        "from mendevi.utils import best_profile",
+        "from mendevi.utils import best_profile, uniform",
         "import mendevi.database.extract as extract",
         "",
         *code,

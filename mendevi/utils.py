@@ -263,3 +263,12 @@ def unfold_video_files(
             )
         else:
             logging.getLogger(__name__).warning("the path %s is not correct", path)
+
+
+def uniform(data: object) -> float:
+    """Return a uniform floating-point number between [0 and 1[.
+
+    This can be very useful for reliably rejecting data based on a specified probability.
+    """
+    hash_bytes = hashlib.md5(str(data).encode(encoding="utf-8"), usedforsecurity=True).digest()
+    return float(f"0.{abs(int.from_bytes(hash_bytes))}")
