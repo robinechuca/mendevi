@@ -227,13 +227,23 @@ def create_video_sample(codec: str, pix_fmt: str) -> pathlib.Path:
     sample = pathlib.Path("/dev/shm") / f"{codec}_{pix_fmt}.mp4"
     if sample.exists():
         return sample
+    # cmd = CmdFFMPEG(  # error in libvpx-vp9 v1.16.0, ok in v1.15.2
+    #     video="/dev/urandom",
+    #     general=[
+    #         "-y",
+    #         "-f", "rawvideo",
+    #         "-s", "256x256",
+    #         "-pix_fmt", pix_fmt,
+    #         "-r", "1",
+    #         "-to", "2",
+    #     ],
+    #     output=str(sample),
+    # )
     cmd = CmdFFMPEG(
-        video="/dev/urandom",
+        video=f"nullsrc=size=256x256:rate=1,format={pix_fmt}",
         general=[
             "-y",
-            "-f", "rawvideo",
-            "-s", "256x256",
-            "-pix_fmt", pix_fmt,
+            "-f", "lavfi",
             "-r", "1",
             "-to", "2",
         ],

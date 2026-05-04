@@ -190,7 +190,7 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
     type=click.Choice(["cbr", "vbr"]),
     default=["vbr"],
     multiple=True,
-    help="The optional bitrate mode (cbr or vbr).",
+    help="The optional bitrate mode (cbr or vbr) (default = vbr).",
 )
 @click.option(
     "--filter",
@@ -250,7 +250,7 @@ def main(videos: tuple, database: str | None = None, **kwargs: dict) -> None:
         If this argument is not provided, the resolution remains unchanged.
     pix_fmt : str, optional
         If provided, A pixel conversion is performed during encoding.
-    mode : tuple[str]
+    mode : tuple[str], default = ("vbr",)
         Text that is ``cbr`` if the bit rate is constant (cbr mode),
         or ``vbr`` if it is variable (constant quality mode).
     filter : str, optional
