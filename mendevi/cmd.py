@@ -178,10 +178,12 @@ class CmdFFMPEG:
         assert isinstance(cmd, list), cmd.__class__.__name__
 
         # preparation of progress bar
-        try:
-            total = round(float(cutcutcodec.get_duration_video(self.video)), 2)
-        except cutcutcodec.core.exceptions.MissingStreamError:
-            total = None
+        total = None
+        if self.video.exists():
+            try:
+                total = round(float(cutcutcodec.get_duration_video(self.video)), 2)
+            except cutcutcodec.core.exceptions.MissingStreamError:
+                pass
         load = tqdm.tqdm(
             dynamic_ncols=True,
             leave=False,
