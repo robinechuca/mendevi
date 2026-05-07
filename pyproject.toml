@@ -78,6 +78,10 @@ test = [
   "pytest",
   "ruff",
 ]
+all = [
+  "mendevi[doc,test]",
+  "scikit-learn",
+]
 
 [project.scripts]
 mendevi = "mendevi.__main__:main"

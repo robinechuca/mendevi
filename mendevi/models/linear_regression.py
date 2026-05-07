@@ -8,10 +8,41 @@ from .base import Model
 class LinearRegression(Model):
     """Biaised linear regression on all parameters."""
 
+    def __init__(
+        self,
+        title: str = "Linear Regression for a predictive model",
+        sources: str = (
+            "A High-Level Feature Model to Predict the Encoding Energy "
+            "of a Hardware Video Encoder\n"
+            "Diwakara Reddy, Christian Herglotz, and André Kaup\n"
+            "2025"
+        ),
+        *,
+        biaised: bool = True,
+        **kwargs: dict,
+    ) -> None:
+        """Gaussian process regression predictive model.
+
+        Parameters
+        ----------
+        title, sources, **kwargs
+            Transmitted to :py:class:`mendevi.models.base.Model`.
+        biaised : boolean, default=True
+            If True, the linear regression includes a bias term, or y-intercept constant.
+            If False, the regression is unbiased, and the y-intercept is zero.
+
+        """
+        assert isinstance(biaised, bool), biaised.__class__.__name__
+        super().__init__(title=title, sources=sources, **kwargs)
+        self._biaised = biaised
+
     def _fit_vect_norm(self, values: dict[str, torch.Tensor]) -> object:
         """Perform a linear regression on the centered and reduced values."""
         obs = torch.cat([values[lbl] for lbl in self.input_labels_aggreg], dim=1)
-        obs = torch.cat([torch.ones((len(obs), 1), dtype=obs.dtype, device=obs.device), obs], dim=1)
+        if self._biaised:
+            obs = torch.cat(
+                [torch.ones((len(obs), 1), dtype=obs.dtype, device=obs.device), obs], dim=1,
+            )
         return {
             response: torch.linalg.pinv(obs.mT @ obs, hermitian=True) @ obs.mT @ values[response]
             for response in self.output_labels
@@ -21,7 +52,10 @@ class LinearRegression(Model):
         self, values: dict[str, torch.Tensor], parameters: object,
     ) -> dict[str, torch.Tensor]:
         obs = torch.cat([values[lbl] for lbl in self.input_labels_aggreg], dim=1)
-        obs = torch.cat([torch.ones((len(obs), 1), dtype=obs.dtype, device=obs.device), obs], dim=1)
+        if self._biaised:
+            obs = torch.cat(
+                [torch.ones((len(obs), 1), dtype=obs.dtype, device=obs.device), obs], dim=1,
+            )
         return {name: obs @ beta for name, beta in parameters.items()}
 
 

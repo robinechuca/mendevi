@@ -10,11 +10,12 @@ from pygments.formatters import TerminalFormatter
 from pygments.lexers import PythonLexer
 
 from mendevi.cst.labels import LABELS
+from mendevi.database.create import is_sqlite
 from mendevi.database.meta import get_extractor
 from mendevi.download.decapsulation import retrive_file
 from mendevi.plot.printer import printer, safe_lbl
 
-from .parse import parse_expr, parse_videos_database
+from .parse import parse_expr
 
 NAMES_DOC = "        ".join(
     f"* {n}: {get_extractor(n).legend}.\n" for n in LABELS
@@ -204,7 +205,7 @@ def main(database: str, **kwargs: dict) -> None:
     # parse args
     with Printer("Parse configuration...") as prt:
         database = retrive_file(database)
-        _, database = parse_videos_database(prt, (), database)
+        assert is_sqlite(database)
         _parse_args(prt, kwargs)
 
     # get title name

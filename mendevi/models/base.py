@@ -1,6 +1,7 @@
 """Unify all the models with a common sctucture."""
 
 import abc
+import contextlib
 import logging
 import numbers
 import pathlib
@@ -604,11 +605,9 @@ class Model(metaclass=MetaModel):
             with sqlite3.connect(f"file:{database}?mode=ro", uri=True) as conn:
                 conn.row_factory = sqlite3.Row
                 for raw in conn.execute(query):
-                    try:
+                    with contextlib.suppress(RejectError):
                         for label, value in line_extractor(dict(raw)).items():
                             values[label].append(value)
-                    except RejectError:
-                        pass
 
             # fit the model
             for clus_key, clus_values in self._split_values(values).items():

@@ -1,5 +1,6 @@
 """Allow to handle ffmpeg command line."""
 
+import contextlib
 import io
 import pathlib
 import re
@@ -180,10 +181,8 @@ class CmdFFMPEG:
         # preparation of progress bar
         total = None
         if self.video.exists():
-            try:
+            with contextlib.suppress(cutcutcodec.core.exceptions.MissingStreamError):
                 total = round(float(cutcutcodec.get_duration_video(self.video)), 2)
-            except cutcutcodec.core.exceptions.MissingStreamError:
-                pass
         load = tqdm.tqdm(
             dynamic_ncols=True,
             leave=False,

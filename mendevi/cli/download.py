@@ -10,7 +10,12 @@ from mendevi.download.decapsulation import retrive_file
 @click.command()
 @click.argument("file", type=str)
 def main(file: str) -> None:
-    """Download and decapsule a file.
+    """Torrent download with optional extraction and decompression.
+
+    \b
+    Automates the full retrieval process for large files: downloads them via torrent,
+    then extracts and decompresses them if necessary,
+    and returns the path to the final ready-to-use file.
 
     \b
     Parameters

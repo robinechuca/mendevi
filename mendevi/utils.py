@@ -133,6 +133,7 @@ def get_pix_fmt(*args: tuple) -> str:
     return cutcutcodec.get_pix_fmt(*args)
 
 
+@functools.cache
 def get_project_root() -> pathlib.Path:
     """Return the absolute project root folder.
 

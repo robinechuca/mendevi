@@ -130,7 +130,7 @@ def main(video: str, output: str | None = None, **kwargs: dict) -> pathlib.Path:
     output : pathlike, optional
         The destination folder to store the reference file.
         If not provided, it is store in the same folder as the input video.
-    **kwargs: dict
+    **kwargs : dict
         Please refer to the detailed arguments below.
     profile : str, default=autodetect
         A value among ``sd``, ``hd``, ``fhd`` or ``uhd4k``.
