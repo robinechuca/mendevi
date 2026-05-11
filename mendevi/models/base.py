@@ -174,10 +174,9 @@ class Model(metaclass=MetaModel):
         The subset of `input_label` that does not contain the aggregation values (readonly).
     output_labels : list[str]
         The name of all output parameters (readonly).
-    accuracy : dict[str, float]
-        For each output label, associate the standard deviation of the associated average error.
-        This dictionary is constructed when the .fit method is called (readonly).
-
+    accuracy : dict[str, dict]
+        For each cluster name, associate for each output label, the predicted and validation data.
+        This dictionary is builded / overwitten when the .validate method is called (readonly).
     """
 
     def __init__(self, title: str | None = None, **kwargs: dict) -> None:
@@ -447,7 +446,7 @@ class Model(metaclass=MetaModel):
 
     @property
     def aggregation(self) -> list[str]:
-        """Return the labels that divide clusterers."""
+        """Return the labels that divide clusters."""
         return self._aggreg.copy()
 
     @property
@@ -755,7 +754,7 @@ class Model(metaclass=MetaModel):
 
         All parameters are the same as :py:method:`fit`.
         """
-        average: dict[str, list[float]] = {name: [] for name in self._output_labels}
+        # record data
         for clus_key, clus_values in self.fit_generator(
             database, select=select, query=query, table=table, _validate=True,
         ):
@@ -767,16 +766,25 @@ class Model(metaclass=MetaModel):
             )
             validation = to_torch({lbl: clus_values[lbl] for lbl in self._output_labels})
             self._accuracy[clus_key] = {
-                name: float(((prediction[name] - validation[name])**2).mean().sqrt())
+                name: torch.cat([prediction[name][None, :, :], validation[name][None, :, :]], dim=0)
                 for name in self._output_labels
             }
-            for name in self._output_labels:
-                average[name].append((prediction[name] - validation[name])**2)
-        self._accuracy["average"] = {
-            lbl: float(torch.cat(avg).mean().sqrt()) for lbl, avg in average.items()
+
+        # compute basic metrics
+        act_concat = {
+            name: torch.cat([clus[name] for clus in self._accuracy.values()], dim=1)
+            for name in self._output_labels
         }
-        for lbl, std in self._accuracy["average"].items():
-            Printer.print(f"std of {lbl}: {std:.4g}")
+        mape_rms = {
+            name: (
+                ((val - pred).abs() / (val + EPS)).mean(),  # MAPE
+                ((val - pred)**2).mean().sqrt(),  # RMS
+            )
+            for name, (pred, val) in act_concat.items()
+        }
+        for lbl, (mape, rms) in mape_rms.items():
+            Printer.print(f"MAPE of {lbl}: {mape:.2%}")
+            Printer.print(f"RMS  of {lbl}: {rms:.4g}")
 
     @staticmethod
     def vectorize_kwargs(kwargs: dict[str], *, _skip_duplication: bool = False) -> dict[str]:
