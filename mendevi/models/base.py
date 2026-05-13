@@ -777,7 +777,7 @@ class Model(metaclass=MetaModel):
         }
         mape_rms = {
             name: (
-                ((val - pred).abs() / (val + EPS)).mean(),  # MAPE
+                ((val - pred).abs() / (val.abs() + EPS)).mean(),  # MAPE
                 ((val - pred)**2).mean().sqrt(),  # RMS
             )
             for name, (pred, val) in act_concat.items()
