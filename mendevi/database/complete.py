@@ -127,8 +127,8 @@ def add_environment(database: sqlite3.Cursor | str | bytes | pathlib.Path) -> in
     idle = get_idle()
     idle = {
         "act_duration": idle["duration"],
-        "act_gpu_dt": list_to_binary(activity.get("gpu_dt", None)),
-        "act_gpu_power": tensor_to_binary(activity.get("gpu_powers", None)),
+        "act_gpu_dt": list_to_binary(idle.get("gpu_dt", None)),
+        "act_gpu_power": tensor_to_binary(idle.get("gpu_powers", None)),
         "act_ps_core": tensor_to_binary(idle["ps_cores"]),
         "act_ps_dt": list_to_binary(idle["ps_dt"]),
         "act_ps_temp": orjson.dumps(

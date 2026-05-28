@@ -7,6 +7,7 @@ import click
 from context_verbose import Printer
 
 from mendevi.database.create import ENV_UNIQUE, create_database
+from mendevi.download.decapsulation import retrive_file
 
 from .parse import parse_videos_database
 
@@ -49,7 +50,8 @@ def _parse(databases: tuple[str], **kwargs: dict) -> tuple[list[pathlib.Path], p
         assert isinstance(databases, (tuple, list, set, frozenset)), databases.__class__.__name__
         all_databases: list[pathlib.Path] = []
         for i, database_ in enumerate(databases):
-            _, database = parse_videos_database(prt, (), database_, _quiet=True)
+            database = retrive_file(database_)
+            _, database = parse_videos_database(prt, (), database, _quiet=True)
             all_databases.append(database)
             prt.print(f"database {i+1:>2}: {database}")
 

@@ -177,6 +177,7 @@ class Model(metaclass=MetaModel):
     accuracy : dict[str, dict]
         For each cluster name, associate for each output label, the predicted and validation data.
         This dictionary is builded / overwitten when the .validate method is called (readonly).
+
     """
 
     def __init__(self, title: str | None = None, **kwargs: dict) -> None:

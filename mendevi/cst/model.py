@@ -36,7 +36,7 @@ def import_all_models() -> dict[str, Model]:
     >>> pprint(import_all_models())
     {'EncodeLinear': <class 'mendevi.models.linear_regression.EncodeLinear'>,
      'GPR': <class 'mendevi.models.gpr.GPR'>,
-     'LinearRegression': <class 'mendevi.models.linear_regression.LinearRegression'>,
+     'LR': <class 'mendevi.models.linear_regression.LR'>,
      'NearestL2': <class 'mendevi.models.interp.NearestL2'>,
      'PowerCores': <class 'mendevi.models.power_cores.PowerCores'>}
     >>>

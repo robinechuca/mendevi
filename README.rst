@@ -32,8 +32,9 @@ Useful links:
 Description
 ===========
 
-This Python module performs **energy** and **metrics** measurements on video, for encoding and decoding.
-It also provides several detailed **dataset** and a visualisation tool that generates complex matplotlib figures.
+This Python module performs **energy consumption** and **video metrics** measurements for both **video encoding and decoding workflows**.
+It includes **comprehensive ready-to-use datasets**, available as exhaustive SQL databases and lightweight JSON representations, as well as pretrained **predictive models** for energy and quality estimation.
+The framework provides advanced visualization tools for **generating complex matplotlib figures**, executable from a single command-line interface.
 
 It manages the following parameters:
 
@@ -52,6 +53,9 @@ It manages the following parameters:
 #. It take care to ``transfer files to RAM`` if possible to avoid biases related to storage space access.
 #. Provides a guide to compile ffmpeg with all optimizations in order to ``compare encoders/decoders at their limits``.
 
+.. important::
+    The entire code was written by hand, without the use of AI!
+
 
 Pipeline
 ========
@@ -65,23 +69,20 @@ This is the pipeline used for measurements:
 Example of result
 =================
 
-Example of rate distortion curve:
+Download and merge two datasets with this simple command:
 
 .. code:: shell
 
-    mendevi plot mendevi.db -x bitrate -y psnr -y ssim -wx profile -c encoder
+    mendevi merge svtav1_vs_rav1e_vs_aom.db x264_vs_openh264.db -o /tmp/av1_h264.db
 
-.. image:: https://mendevi.readthedocs.io/latest/_images/rate_distortion.svg
-    :alt: Result plot of rate distortion
-
-Example of energy per encoder:
+Example of energy and rate distortion video encoding, on a single video for several profiles:
 
 .. code:: shell
 
-    mendevi plot mendevi.db -x quality -y energy -wx profile -wy mode -c encoder -m effort
+    mendevi plot /tmp/av1_h264.db -x rate -x energy -y vmaf -c encoder -m effort -wy profile -f "ref_stem=='park_joy'"
 
-.. image:: https://mendevi.readthedocs.io/latest/_images/energy.svg
-    :alt: Result plot of encoding energy
+.. image:: https://mendevi.readthedocs.io/latest/_images/example.svg
+    :alt: Example plot
 
 
 Alternatives

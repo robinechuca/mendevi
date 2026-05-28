@@ -4,6 +4,7 @@ import itertools
 import math
 import pathlib
 import pickle
+import subprocess
 
 from context_verbose import Printer
 import click
@@ -117,7 +118,7 @@ def main() -> None:
 @click.option(
     "-c", "--class",
     type=click.Choice(sorted(import_all_models())),
-    default="LinearRegression",
+    default="LR",
     help="The model python class name",
 )
 @click.option(
@@ -334,9 +335,18 @@ def benchmark(**kwargs: dict) -> None:
         axe.xaxis.set_major_formatter(mtick.PercentFormatter(1))
         axe.set_xlim(0, maxi)
 
-        axe.bar([quants[1]], [1], width=quants[2]-quants[1], align="edge", color=COLORS[0], label="second quartile")
-        axe.bar([quants[2]], [1], width=quants[3]-quants[2], align="edge", color=COLORS[1], label="third quartile")
-        axe.bar(torch.linspace(0, width*(bins-1), bins), hist, width=width, align="edge", color=COLORS[2], label="histogram")
+        axe.bar(
+            [quants[1]], [1],
+            width=quants[2]-quants[1], align="edge", color=COLORS[0], label="second quartile",
+        )
+        axe.bar(
+            [quants[2]], [1],
+            width=quants[3]-quants[2], align="edge", color=COLORS[1], label="third quartile",
+        )
+        axe.bar(
+            torch.linspace(0, width*(bins-1), bins), hist,
+            width=width, align="edge", color=COLORS[2], label="histogram",
+        )
 
         axe.plot(
             [[quants[0], quants[1], quants[2], quants[3], quants[4]],
@@ -357,7 +367,7 @@ def benchmark(**kwargs: dict) -> None:
     fig.legend(lines, labels, loc="outside upper center", ncols=3)
 
     plt.savefig(FIGNAME, format=FIGNAME.suffix[1:], transparent=False)
-    import subprocess; subprocess.run(["pdfcrop", FIGNAME, FIGNAME])
+    subprocess.run(["pdfcrop", FIGNAME, FIGNAME], check=False)
     plt.show()
 
 

@@ -5,7 +5,7 @@ import torch
 from .base import Model
 
 
-class LinearRegression(Model):
+class LR(Model):
     """Biaised linear regression on all parameters."""
 
     def __init__(
@@ -59,7 +59,7 @@ class LinearRegression(Model):
         return {name: obs @ beta for name, beta in parameters.items()}
 
 
-class EncodeLinear(LinearRegression):
+class EncodeLinear(LR):
     """Biaised linear regression to predict parameters on encoding.
 
     Examples
