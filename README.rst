@@ -53,7 +53,7 @@ It manages the following parameters:
 #. It take care to ``transfer files to RAM`` if possible to avoid biases related to storage space access.
 #. Provides a guide to compile ffmpeg with all optimizations in order to ``compare encoders/decoders at their limits``.
 
-.. important::
+.. caution::
     The entire code was written by hand, without the use of AI!
 
 

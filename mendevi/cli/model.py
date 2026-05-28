@@ -6,11 +6,11 @@ import pathlib
 import pickle
 import subprocess
 
-from context_verbose import Printer
 import click
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mtick
 import torch
+from context_verbose import Printer
 
 from mendevi.cst.labels import LABELS
 from mendevi.cst.model import import_all_models
@@ -18,9 +18,12 @@ from mendevi.cst.plot import COLORS
 from mendevi.database.create import is_sqlite
 from mendevi.database.meta import get_extractor
 from mendevi.download.decapsulation import retrive_file
+from mendevi.models.base import Model
 
 from .parse import parse_expr
 
+FIGSIZE = (6.0, 4.0)  # (width, height)
+FIGNAME = pathlib.Path("violin.pdf")
 NAMES_DOC = "        ".join(
     f"* {n}: {get_extractor(n).legend}.\n" for n in LABELS
 )
@@ -51,6 +54,7 @@ table : str, optional
 
 class _ModelUnpickler(pickle.Unpickler):
     """Solve abstract definition missing, because pickle shortcut __call__."""
+
     def find_class(self, module: str, name: str) -> type:
         cls = super().find_class(module, name)
         if isinstance(cls, type) and getattr(cls, "__abstractmethods__", None):
@@ -94,7 +98,7 @@ def _parse_args_train(prt: Printer, kwargs: dict) -> None:
 def _parse_name(prt: Printer, name: str, *, must_exists: bool = False) -> pathlib.Path:
     """Verification and creation or parent dirs."""
     path = pathlib.Path(name)
-    if (rootdir := path.parent) == pathlib.Path("."):
+    if (rootdir := path.parent) == pathlib.Path():
         rootdir = pathlib.Path.home() / ".cache" / "mendevi"
     path = (rootdir / path.name).with_suffix(".pkl")
     if must_exists:
@@ -167,9 +171,9 @@ def train(**kwargs: dict) -> None:
 
     # exclusion of invalid, unwanted and validation-only data
     select = " and ".join(
-        f'({expr})' for expr in (
+        f"({expr})" for expr in (
             *(kwargs["select"] or []),
-            " and ".join(f'{lbl} is not None' for lbl in kwargs["output"]),
+            " and ".join(f"{lbl} is not None" for lbl in kwargs["output"]),
             f"uniform(({', '.join(kwargs['output'])})) > {kwargs['validation']}",
         )
     )
@@ -181,9 +185,9 @@ def train(**kwargs: dict) -> None:
 
     # validate model
     select = " and ".join(
-        f'({expr})' for expr in (
+        f"({expr})" for expr in (
             *(kwargs["select"] or []),
-            " and ".join(f'{lbl} is not None' for lbl in kwargs["output"]),
+            " and ".join(f"{lbl} is not None" for lbl in kwargs["output"]),
             f"uniform(({', '.join(kwargs['output'])})) <= {kwargs['validation']}",
         )
     )
@@ -234,6 +238,8 @@ def benchmark(**kwargs: dict) -> None:
     \b
     Parameters
     ----------
+    **kwargs: dict
+        See above.
     name : tuple[pathlike]
         The name, the path or the identifier of the models to be compared.
         You must provide at least one.
@@ -275,7 +281,7 @@ def benchmark(**kwargs: dict) -> None:
     assert output_labels, "the models do not predict the same thing"
 
     # compute all the MAPEs
-    def _compute_mape(model, output_label) -> torch.Tensor:
+    def _compute_mape(model: Model, output_label: str) -> torch.Tensor:
         pred, val = torch.cat([clus[output_label] for clus in model.accuracy.values()], dim=1)
         return ((val - pred).abs() / (val.abs() + torch.finfo(torch.float32).eps)).mean(dim=1)
     all_mape: dict[str, list[torch.Tensor]] = {  # to each output lbl, associate the 1d MAPE
@@ -291,11 +297,9 @@ def benchmark(**kwargs: dict) -> None:
         }
     else:
         assert isinstance(xlim, float), xlim.__class__.__name__
-        xlim = {output_label: xlim for output_label in output_labels}
+        xlim = dict.fromkeys(output_labels, xlim)
 
     # display
-    FIGSIZE = (6.0, 4.0)  # (width, height)
-    FIGNAME = pathlib.Path("violin.pdf")
     nrows, ncols = len(models), len(output_labels)
     fig = plt.figure(
         layout="constrained",
@@ -317,8 +321,8 @@ def benchmark(**kwargs: dict) -> None:
         axes[i, 0].set_ylabel(model_path.stem, loc="center")
         axes[i, 0].yaxis.set_label_position("left")
     # fill axes
-    for (i, model), (j, output_label) in itertools.product(
-        enumerate(models), enumerate(output_labels)
+    for (i, _model), (j, output_label) in itertools.product(
+        enumerate(models), enumerate(output_labels),
     ):
         # compute hist and data
         mape = all_mape[output_label][i]
