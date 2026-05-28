@@ -34,9 +34,9 @@ def import_all_models() -> dict[str, Model]:
     >>> from pprint import pprint
     >>> from mendevi.cst.model import import_all_models
     >>> pprint(import_all_models())
-    {'EncodeLinear': <class 'mendevi.models.linear_regression.EncodeLinear'>,
+    {'EncodeLinear': <class 'mendevi.models.lr.EncodeLinear'>,
      'GPR': <class 'mendevi.models.gpr.GPR'>,
-     'LR': <class 'mendevi.models.linear_regression.LR'>,
+     'LR': <class 'mendevi.models.lr.LR'>,
      'NearestL2': <class 'mendevi.models.interp.NearestL2'>,
      'PowerCores': <class 'mendevi.models.power_cores.PowerCores'>}
     >>>

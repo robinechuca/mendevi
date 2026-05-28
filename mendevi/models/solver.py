@@ -37,7 +37,7 @@ class Solver:
     --------
     >>> import cutcutcodec
     >>> from mendevi.models import Solver
-    >>> from mendevi.models.linear_regression import EncodeLinear
+    >>> from mendevi.models.lr import EncodeLinear
     >>> model = EncodeLinear().fit("x264_vs_openh264.db", table="t_enc_encode")
     >>> solver = Solver(model, lambda **kwd: kwd["log_energy_per_frame"] + (kwd["psnr"]-35)**2)
     >>> video = cutcutcodec.utils.get_project_root() / "media" / "video" / "intro.webm"

@@ -66,7 +66,7 @@ class EncodeLinear(LR):
     --------
     >>> import pprint
     >>> import cutcutcodec
-    >>> from mendevi.models.linear_regression import EncodeLinear
+    >>> from mendevi.models.lr import EncodeLinear
     >>> model = EncodeLinear().fit("x264_vs_openh264.db", table="t_enc_encode")
     >>> video = cutcutcodec.utils.get_project_root() / "media" / "video" / "intro.webm"
     >>> pred = model.predict_from_video(
