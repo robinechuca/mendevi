@@ -221,7 +221,7 @@ class CmdFFMPEG:
         if process.returncode:
             msg = f"failed to execute {cmd}:\n{output}"
             raise RuntimeError(msg)
-        return output.decode("utf-8"), activity
+        return output.decode("utf-8"), activity.as_dict()
 
     @property
     def vid_filter(self) -> str:

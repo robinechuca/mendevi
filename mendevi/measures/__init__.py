@@ -1,10 +1,14 @@
 """All measurement helper."""
 
+import contextlib
 import numbers
 import platform
 import queue
 import threading
 import time
+import typing
+
+import numpy as np
 
 from .g5kpower import g5kpower
 from .gpu import UsageGPU
@@ -12,6 +16,21 @@ from .psutil import Usage
 from .rapl import RAPL
 
 G5K_API_WAIT = 5.0  # waiting time (in sec) before data from the grid5000 API becomes accessible
+
+
+def _concat(slice1: list | dict, slice2: list | dict) -> list | dict:
+    """Merge the 2 slices."""
+    assert slice1.__class__ is slice2.__class__, (slice1, slice2)
+    match slice1:
+        case list():
+            if not slice1:
+                return []
+            if isinstance(slice1[0], list | dict):
+                return [_concat(s1, s2) for s1, s2 in zip(slice1, slice2, strict=True)]
+            return [*slice1, *slice2]
+        case dict():
+            return {lbl: _concat(slice1[lbl], slice2[lbl]) for lbl in slice1}
+    raise TypeError
 
 
 class Activity(threading.Thread):
@@ -22,8 +41,15 @@ class Activity(threading.Thread):
     >>> import pprint, time
     >>> from mendevi.measures import Activity
     >>> with Activity() as activity:
-    ...     time.sleep(1)
+    ...     time.sleep(0.5)
+    ...     activity.start_slice("point 1")
+    ...     time.sleep(0.5)
+    ...     activity.start_slice("point 2")
+    ...     time.sleep(0.5)
+    ...     activity.stop_slice()
+    ...     activity.start_slice("point 1")
     ...
+    >>> concat, slices, full = activity.as_dict()
     >>>
 
     """
@@ -46,8 +72,57 @@ class Activity(threading.Thread):
         self._usage_catcher = Usage(sleep=sleep)
         self._usage_gpu_catcher = UsageGPU(sleep=sleep)
         self._exit_queue = queue.Queue()
+        self._slices: list[list[typing.Hashable, float, float]] = []  # [lbl, start, stop]
         self.sleep = float(sleep)
         self.res: dict = {}
+
+    def as_dict(self) -> dict:
+        """Collect the data and return the dict."""
+        # stop measurements
+        if not self.is_alive():
+            return self.res
+        self.join()
+        # request wattmeter power
+        time.sleep(max(0.0, G5K_API_WAIT + self.res["start"] + self.res["duration"] - time.time()))
+        try:
+            wattmeter = g5kpower(platform.node(), self.res["start"], self.res["duration"])
+        except ValueError:
+            wattmeter = None
+        else:
+            self.res |= {
+                "wattmeter_dt": wattmeter["dt"],
+                "wattmeter_energy": wattmeter["energy"],
+                "wattmeter_power": wattmeter["power"],
+                "wattmeter_powers": wattmeter["powers"],
+            }
+        # cut slices
+        dtlbl_datalbls = (
+            ("ps_dt", ("ps_cores", "ps_ram", "ps_temp")),
+            *([("rapl_dt", ("rapl_powers",))] if "rapl_dt" in self.res else []),
+            *([("gpu_dt", ("gpu_cores", "gpu_memory", "gpu_powers"))] if "gpu_dt" in self.res else []),
+            *([("wattmeter_dt", ("wattmeter_powers",))] if "wattmeter_dt" in self.res else []),
+        )
+        if self._slices:
+            slices = [  # each slice, not concats
+                {
+                    fieldlbl: data
+                    for dt_lbl, data_lbls in dtlbl_datalbls
+                    for fieldlbl, data in self._extract_slice(dt_lbl, data_lbls, start, stop).items()
+                }
+                for _, start, stop in self._slices
+            ]
+            concat_slices = {}
+            for (slicelbl, _, _), slice_ in zip(self._slices, slices, strict=True):
+                concat_slices[slicelbl] = (
+                    _concat(concat_slices[slicelbl], slice_)
+                    if slicelbl in concat_slices else
+                    slice_
+                )
+            for dtlbl, _ in dtlbl_datalbls:
+                for slicelbl in concat_slices:
+                    del concat_slices[slicelbl][dtlbl][-1]
+            self.res = (concat_slices, self._slices, self.res)
+        return self.res
 
     def run(self) -> None:
         """Perform the measures."""
@@ -81,6 +156,108 @@ class Activity(threading.Thread):
                 "gpu_power": gpu["power"],
                 "gpu_powers": gpu["powers"],
             }
+
+    def start_slice(self, lbl: typing.Hashable) -> None:
+        """Add a new named slice of activity.
+
+        Parameters
+        ----------
+        lbl : hashable
+            The section name, as a key of the final dictionay.
+            If it is called several times, the slice with the same label are concatenated.
+
+        Notes
+        -----
+        If this method is never called, the final result will not be pack into a dict.
+
+        """
+        assert hasattr(lbl, "__hash__"), lbl.__class__.__name__
+        # end last slice
+        if self._slices:
+            self._slices[-1][2] = self._slices[-1][2] or time.time()
+        # start new slice
+        self._slices.append([lbl, time.time(), None])
+
+    def stop_slice(self) -> typing.Hashable:
+        """Close the last slice.
+
+        Returns
+        -------
+        lbl : hashable
+            The name of the closed slice.
+
+        """
+        if not self._slices:
+            msg = "you must call start_slice before"
+            raise RuntimeError(msg)
+        if self._slices[-1][2] is not None:
+            msg = (
+                "the method stop_slice can not be called twice "
+                f"(last call at {self._slices[-1][2]})"
+            )
+            raise RuntimeError(msg)
+        self._slices[-1][2] = time.time()
+
+    def _extract_slice(self, dt_lbl: str, data_lbls: list[str], start: float, stop: float) -> dict:
+        """Extract data for the slice time.
+
+        Paramaters
+        ----------
+        dt_lbl : str
+            The label of the reference time durations.
+        data_lbls : list[str]
+            Labels of interset, to be cut.
+        start, stop : float
+            The absolute timestamps of the start and stop slice.
+
+        Returns
+        -------
+        sub_slice : dict
+            The cut and selected data.
+            Only this labels and dt_lbl are in the final return dict.
+
+        """
+        assert isinstance(dt_lbl, str), dt_lbl.__class__.__name__
+        assert dt_lbl in self.res, sorted(self.res)
+        assert isinstance(data_lbls, list | tuple), data_lbls.__class__.__name__
+        assert all(lbl in self.res for lbl in data_lbls), sorted(self.res)
+        assert isinstance(start, float), start.__class__.__name__
+        assert isinstance(stop, float), stop.__class__.__name__
+
+        # get slice start and stop indicies
+        dts = np.asarray(self.res[dt_lbl], dtype=np.float64)
+        timestamps = self.res["start"] + dts.cumsum()
+        timestamps = np.asarray([0.0, *timestamps.tolist(), np.inf], dtype=timestamps.dtype)
+        idx_start = int((timestamps < start).view(np.uint8).argmin() - 1)
+        idx_stop = int((timestamps >= stop).view(np.uint8).argmax())
+
+        # restrict timestamps diff (dt) interval
+        timestamps = timestamps[idx_start:idx_stop]
+        timestamps[0], timestamps[-1] = start, stop
+
+        # cut slices
+        def cut_slice(data: list | dict, idx_start: int, idx_stop: int) -> list:
+            """Select the slice."""
+            match data:
+                case list():
+                    if not data:
+                        return []
+                    if isinstance(data[0], list | dict):
+                        return [cut_slice(subdata, idx_start, idx_stop) for subdata in data]
+                    if isinstance(data[0], numbers.Real):
+                        return [data[0], *data, data[-1]][idx_start:idx_stop]
+                    raise TypeError
+                case dict():
+                    return {
+                        lbl: cut_slice(subdata, idx_start, idx_stop)
+                        for lbl, subdata in data.items()
+                    }
+            raise TypeError
+
+        return {
+            **{lbl: cut_slice(self.res[lbl], idx_start, idx_stop) for lbl in data_lbls},
+            dt_lbl: [*(timestamps[1:] - timestamps[:-1]).tolist(), 0], # absolute to dt
+        }
 
     def __enter__(self) -> dict:
         r"""Start to measure.
@@ -116,24 +293,12 @@ class Activity(threading.Thread):
 
         """
         self.start()
-        return self.res
+        return self
 
     def __exit__(self, *_: object) -> None:
         """Stop the measure and update the dictionary returnd by __enter__."""
         # stop
         self.res["duration"] = time.time() - self.res["start"]
         self._exit_queue.put(None)
-        self.join()
-        # request wattmeter power
-        time.sleep(max(0.0, G5K_API_WAIT + self.res["start"] + self.res["duration"] - time.time()))
-        try:
-            wattmeter = g5kpower(platform.node(), self.res["start"], self.res["duration"])
-        except ValueError:
-            wattmeter = None
-        else:
-            self.res |= {
-                "wattmeter_dt": wattmeter["dt"],
-                "wattmeter_energy": wattmeter["energy"],
-                "wattmeter_power": wattmeter["power"],
-                "wattmeter_powers": wattmeter["powers"],
-            }
+        with contextlib.suppress(RuntimeError):
+            self.stop_slice()
