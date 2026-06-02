@@ -18,21 +18,6 @@ from .rapl import RAPL
 G5K_API_WAIT = 5.0  # waiting time (in sec) before data from the grid5000 API becomes accessible
 
 
-def _concat(slice1: list | dict, slice2: list | dict) -> list | dict:
-    """Merge the 2 slices."""
-    assert slice1.__class__ is slice2.__class__, (slice1, slice2)
-    match slice1:
-        case list():
-            if not slice1:
-                return []
-            if isinstance(slice1[0], list | dict):
-                return [_concat(s1, s2) for s1, s2 in zip(slice1, slice2, strict=True)]
-            return [*slice1, *slice2]
-        case dict():
-            return {lbl: _concat(slice1[lbl], slice2[lbl]) for lbl in slice1}
-    raise TypeError
-
-
 class Activity(threading.Thread):
     """Measure the computer activity of a section.
 
@@ -41,17 +26,23 @@ class Activity(threading.Thread):
     >>> import pprint, time
     >>> from mendevi.measures import Activity
     >>> with Activity() as activity:
-    ...     time.sleep(0.5)
-    ...     activity.start_slice("point 1")
-    ...     time.sleep(0.5)
-    ...     activity.start_slice("point 2")
-    ...     time.sleep(0.5)
-    ...     activity.stop_slice()
-    ...     activity.start_slice("point 1")
+    ...     time.sleep(0.1)
+    ...     activity.start_slice("lbl 1")
+    ...     time.sleep(0.2)
+    ...     _ = activity.stop_slice()
+    ...     activity.start_slice("lbl 2")
+    ...     time.sleep(0.3)
+    ...     activity.start_slice("lbl 3")
+    ...     time.sleep(0.4)
     ...
-    >>> concat, slices, full = activity.as_dict()
+    >>> slices, full = activity.get_slices(), activity.get_full()
+    >>> round(full["duration"], 2)
+    1.0
+    >>> sorted(slices)
+    ['lbl 1', 'lbl 2', 'lbl 3']
+    >>> round(slices["lbl 2"]["duration"], 2)
+    0.3
     >>>
-
     """
 
     def __init__(self, sleep: numbers.Real = 50e-3) -> None:
@@ -72,15 +63,57 @@ class Activity(threading.Thread):
         self._usage_catcher = Usage(sleep=sleep)
         self._usage_gpu_catcher = UsageGPU(sleep=sleep)
         self._exit_queue = queue.Queue()
-        self._slices: list[list[typing.Hashable, float, float]] = []  # [lbl, start, stop]
+        self._slices: dict[typing.Hashable, list[float, float]] = {}  # {lbl: [start, stop], ...}
+        self._slices_current_lbl: typing.Hashable | None = None  # the currently processing label
+        self._as_dict_called: bool = False
         self.sleep = float(sleep)
         self.res: dict = {}
 
-    def as_dict(self) -> dict:
-        """Collect the data and return the dict."""
+    def as_dict(self) -> dict | tuple[dict, dict]:
+        """Collect the data and return the full activity.
+
+        Returns
+        -------
+        activity: dict[str]
+            * duration: float, the real measure duration.
+            * gpu_cores: list[list[float]], tensor of detailed usage of each GPU in [0, 1].
+            * gpu_dt: list[float], the duration of each interval (in s).
+            * gpu_energy: float, the total energy consumption of all GPU (in J).
+            * gpu_power: float, the total power consumption of all GPU (in W).
+            * gpu_powers: list[list[float]], the sampled power in each point (in W).
+            * ps_core: float, the mean cummulated usage of all the logical cpus.
+            * ps_cores: list[list[float]], tensor of detailed usage of each logical core in %.
+            * ps_dt: list[float], the duration of each interval (in s).
+            * ps_ram: list[int], list of the sampled ram usage in bytes in each point.
+            * ps_temp: dict[str, lis[float]], the temperature of each device (in C).
+            * rapl_dt: list[float], the duration of each interval (in s).
+            * rapl_energy: float, the total energy consumption (in J).
+            * rapl_power: float, the average power, energy divided by the duration (in W).
+            * rapl_powers: list[float], the average power in each interval (in W).
+            * start: float, absolute timestamp.
+            * wattmeter_dt: list[float], the duration of each interval (in s).
+            * wattmeter_energy: float, the total energy consumption (in J).
+            * wattmeter_power: float, the average power, energy divided by the duration (in W).
+            * wattmeter_powers: list[float], the sampled power in watt in each point.
+
+        """
+        self.get_slices()
+        return self.res[1]
+
+    def get_slices(self) -> dict[str, dict]:
+        """For each slices initialized by start_slice, are returned here.
+
+        returns
+        -------
+        slices : dict[str, dict]
+            For each label given in ``start_slice``,
+            return the same dict as :py:meth:`get_full` for this specific slice.
+
+        """
         # stop measurements
-        if not self.is_alive():
-            return self.res
+        if self._as_dict_called:
+            return self.res[0]
+        self._as_dict_called = True
         self.join()
         # request wattmeter power
         time.sleep(max(0.0, G5K_API_WAIT + self.res["start"] + self.res["duration"] - time.time()))
@@ -103,26 +136,24 @@ class Activity(threading.Thread):
             *([("wattmeter_dt", ("wattmeter_powers",))] if "wattmeter_dt" in self.res else []),
         )
         if self._slices:
-            slices = [  # each slice, not concats
-                {
-                    fieldlbl: data
-                    for dt_lbl, data_lbls in dtlbl_datalbls
-                    for fieldlbl, data in self._extract_slice(dt_lbl, data_lbls, start, stop).items()
+            slices = {  # each slice, not concats
+                slicelbl: {
+                    **{
+                        fieldlbl: data
+                        for dt_lbl, data_lbls in dtlbl_datalbls
+                        for fieldlbl, data in self._extract_slice(
+                            dt_lbl, data_lbls, start, stop,
+                        ).items()
+                    },
+                    "start": start,
+                    "duration": stop-start,
                 }
-                for _, start, stop in self._slices
-            ]
-            concat_slices = {}
-            for (slicelbl, _, _), slice_ in zip(self._slices, slices, strict=True):
-                concat_slices[slicelbl] = (
-                    _concat(concat_slices[slicelbl], slice_)
-                    if slicelbl in concat_slices else
-                    slice_
-                )
-            for dtlbl, _ in dtlbl_datalbls:
-                for slicelbl in concat_slices:
-                    del concat_slices[slicelbl][dtlbl][-1]
-            self.res = (concat_slices, self._slices, self.res)
-        return self.res
+                for slicelbl, (start, stop) in self._slices.items()
+            }
+            self.res = (slices, self.res)
+        else:
+            self.res = ({}, self.res)
+        return self.res[0]
 
     def run(self) -> None:
         """Perform the measures."""
@@ -172,11 +203,18 @@ class Activity(threading.Thread):
 
         """
         assert hasattr(lbl, "__hash__"), lbl.__class__.__name__
+        assert lbl is not None, "None is a forbidden label"
+        if lbl in self._slices:
+            msg = f"the method start_slice has already been called with the label {lbl!r}"
+            raise KeyError(msg)
         # end last slice
-        if self._slices:
-            self._slices[-1][2] = self._slices[-1][2] or time.time()
+        if self._slices_current_lbl is not None and self._slices[self._slices_current_lbl]:
+            self._slices[self._slices_current_lbl][1] = (
+                self._slices[self._slices_current_lbl][1] or time.time()
+            )
         # start new slice
-        self._slices.append([lbl, time.time(), None])
+        self._slices[lbl] = [time.time(), None]
+        self._slices_current_lbl = lbl
 
     def stop_slice(self) -> typing.Hashable:
         """Close the last slice.
@@ -187,16 +225,18 @@ class Activity(threading.Thread):
             The name of the closed slice.
 
         """
-        if not self._slices:
-            msg = "you must call start_slice before"
+        # check
+        if self._slices_current_lbl is None:
+            msg = "no slice capture in process"
             raise RuntimeError(msg)
-        if self._slices[-1][2] is not None:
-            msg = (
-                "the method stop_slice can not be called twice "
-                f"(last call at {self._slices[-1][2]})"
-            )
-            raise RuntimeError(msg)
-        self._slices[-1][2] = time.time()
+
+        # end slice
+        self._slices[self._slices_current_lbl][1] = time.time()
+
+        # reset
+        lbl = self._slices_current_lbl
+        self._slices_current_lbl = None
+        return lbl
 
     def _extract_slice(self, dt_lbl: str, data_lbls: list[str], start: float, stop: float) -> dict:
         """Extract data for the slice time.
@@ -256,35 +296,11 @@ class Activity(threading.Thread):
 
         return {
             **{lbl: cut_slice(self.res[lbl], idx_start, idx_stop) for lbl in data_lbls},
-            dt_lbl: [*(timestamps[1:] - timestamps[:-1]).tolist(), 0], # absolute to dt
+            dt_lbl: (timestamps[1:] - timestamps[:-1]).tolist(), # absolute to dt
         }
 
-    def __enter__(self) -> dict:
+    def __enter__(self) -> typing.Self:
         r"""Start to measure.
-
-        Returns
-        -------
-        activity: dict[str]
-            * duration: float, the real measure duration.
-            * gpu_cores: list[list[float]], tensor of detailed usage of each GPU in [0, 1].
-            * gpu_dt: list[float], the duration of each interval (in s).
-            * gpu_energy: float, the total energy consumption of all GPU (in J).
-            * gpu_power: float, the total power consumption of all GPU (in W).
-            * gpu_powers: list[list[float]], the sampled power in each point (in W).
-            * ps_core: float, the mean cummulated usage of all the logical cpus.
-            * ps_cores: list[list[float]], tensor of detailed usage of each logical core in %.
-            * ps_dt: list[float], the duration of each interval (in s).
-            * ps_ram: list[int], list of the sampled ram usage in bytes in each point.
-            * ps_temp: dict[str, lis[float]], the temperature of each device (in C).
-            * rapl_dt: list[float], the duration of each interval (in s).
-            * rapl_energy: float, the total energy consumption (in J).
-            * rapl_power: float, the average power, energy divided by the duration (in W).
-            * rapl_powers: list[float], the average power in each interval (in W).
-            * start: float, absolute timestamp.
-            * wattmeter_dt: list[float], the duration of each interval (in s).
-            * wattmeter_energy: float, the total energy consumption (in J).
-            * wattmeter_power: float, the average power, energy divided by the duration (in W).
-            * wattmeter_powers: list[float], the sampled power in watt in each point.
 
         Notes
         -----
