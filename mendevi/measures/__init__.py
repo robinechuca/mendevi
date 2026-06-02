@@ -43,6 +43,7 @@ class Activity(threading.Thread):
     >>> round(slices["lbl 2"]["duration"], 2)
     0.3
     >>>
+
     """
 
     def __init__(self, sleep: numbers.Real = 50e-3) -> None:
@@ -69,7 +70,7 @@ class Activity(threading.Thread):
         self.sleep = float(sleep)
         self.res: dict = {}
 
-    def as_dict(self) -> dict | tuple[dict, dict]:
+    def get_full(self) -> dict | tuple[dict, dict]:
         """Collect the data and return the full activity.
 
         Returns
@@ -103,7 +104,7 @@ class Activity(threading.Thread):
     def get_slices(self) -> dict[str, dict]:
         """For each slices initialized by start_slice, are returned here.
 
-        returns
+        Returns
         -------
         slices : dict[str, dict]
             For each label given in ``start_slice``,
@@ -131,10 +132,11 @@ class Activity(threading.Thread):
         # cut slices
         dtlbl_datalbls = (
             ("ps_dt", ("ps_cores", "ps_ram", "ps_temp")),
-            *([("rapl_dt", ("rapl_powers",))] if "rapl_dt" in self.res else []),
-            *([("gpu_dt", ("gpu_cores", "gpu_memory", "gpu_powers"))] if "gpu_dt" in self.res else []),
-            *([("wattmeter_dt", ("wattmeter_powers",))] if "wattmeter_dt" in self.res else []),
+            ("rapl_dt", ("rapl_powers",)),
+            ("gpu_dt", ("gpu_cores", "gpu_memory", "gpu_powers")),
+            ("wattmeter_dt", ("wattmeter_powers",)),
         )
+        dtlbl_datalbls = tuple((dt, fields) for dt, fields in dtlbl_datalbls if dt in self.res)
         if self._slices:
             slices = {  # each slice, not concats
                 slicelbl: {

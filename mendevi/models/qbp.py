@@ -13,26 +13,25 @@ class QBP(Model):
         title: str = "Quality Based Prediction of energy model",
         sources: str = (
             "Modeling The HEVC Encoding Energy Using The Encoder Processing Time\n"
-            "Geetha Ramasubbu, André Kaup, Christian Herglotz"
+            "Geetha Ramasubbu, André Kaup, Christian Herglotz\n"
             "2022"
         ),
-        input_labels: list[str] = ["quality"],  # must at least to contains "quality"
-        output_labels: list[str] = ["energy"],
         **kwargs: dict,
     ) -> None:
         """Quality based prediction of enegy model.
 
         Parameters
-        ==========
+        ----------
         title, sources, **kwargs
             Transmitted to :py:class:`mendevi.models.base.Model`.
 
         """
+        kwargs = kwargs.copy()
+        kwargs["input_labels"] = kwargs.get("input_labels", ["quality"])
+        kwargs["output_labels"] = kwargs.get("output_labels", ["quality"])
         super().__init__(
             title=title,
             sources=sources,
-            input_labels=input_labels,
-            output_labels=output_labels,
             **kwargs,
         )
         assert "quality" in self.input_labels, self.input_labels
