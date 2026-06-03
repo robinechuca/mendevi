@@ -22,6 +22,7 @@ dependencies = [  # https://packaging.python.org/en/latest/specifications/depend
   "orjson",
   "psutil",
   "pygments",
+  "pyserial",  # for ADEC-WATTS wattmeters
   "requests",
   "tqdm",
   "unidecode",

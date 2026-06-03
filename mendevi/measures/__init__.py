@@ -10,6 +10,7 @@ import typing
 
 import numpy as np
 
+from .adecwatts import ADECWattmeter
 from .g5kpower import g5kpower
 from .gpu import UsageGPU
 from .psutil import Usage
@@ -60,6 +61,7 @@ class Activity(threading.Thread):
 
         super().__init__(daemon=True)
 
+        self._adec_catcher = ADECWattmeter(no_fail=True)
         self._rapl_catcher = RAPL(sleep=sleep, no_fail=True)
         self._usage_catcher = Usage(sleep=sleep)
         self._usage_gpu_catcher = UsageGPU(sleep=sleep)
@@ -117,18 +119,22 @@ class Activity(threading.Thread):
         self._as_dict_called = True
         self.join()
         # request wattmeter power
-        time.sleep(max(0.0, G5K_API_WAIT + self.res["start"] + self.res["duration"] - time.time()))
-        try:
-            wattmeter = g5kpower(platform.node(), self.res["start"], self.res["duration"])
-        except ValueError:
-            wattmeter = None
-        else:
-            self.res |= {
-                "wattmeter_dt": wattmeter["dt"],
-                "wattmeter_energy": wattmeter["energy"],
-                "wattmeter_power": wattmeter["power"],
-                "wattmeter_powers": wattmeter["powers"],
-            }
+        if "wattmeter_dt" not in self.res:  # ADEC and GRID'5000 are mutuialy exclusive
+            time.sleep(max(
+                0.0,
+                G5K_API_WAIT + self.res["start"] + self.res["duration"] - time.time(),
+            ))
+            try:
+                wattmeter = g5kpower(platform.node(), self.res["start"], self.res["duration"])
+            except ValueError:
+                wattmeter = None
+            else:
+                self.res |= {
+                    "wattmeter_dt": wattmeter["dt"],
+                    "wattmeter_energy": wattmeter["energy"],
+                    "wattmeter_power": wattmeter["power"],
+                    "wattmeter_powers": wattmeter["powers"],
+                }
         # cut slices
         dtlbl_datalbls = (
             ("ps_dt", ("ps_cores", "ps_ram", "ps_temp")),
@@ -161,6 +167,7 @@ class Activity(threading.Thread):
         """Perform the measures."""
         self.res["start"] = time.time()
         with (
+            self._adec_catcher as adec,
             self._rapl_catcher as rapl,
             self._usage_catcher as usage,
             self._usage_gpu_catcher as gpu,
@@ -173,6 +180,11 @@ class Activity(threading.Thread):
             "ps_ram": usage["ram"],
             "ps_temp": usage["temp"],
         }
+        if adec is not None:
+            self.res |= {
+                "wattmeter_dt": adec["dt"],
+                "wattmeter_powers": [sum(p) for p in adec["p_eff"]],
+            }
         if rapl is not None:
             self.res |= {
                 "rapl_dt": rapl["dt"],
