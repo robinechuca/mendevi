@@ -123,11 +123,18 @@ class Activity(threading.Thread):
                         return sum(trapez_integral_avg(times_delta, d) for d in data)
                     if isinstance(data[0], numbers.Real):
                         if duration := sum(times_delta):
-                            return 0.5 * sum(  # trapeze integration
-                                dt * (bmin + bmax)
-                                for dt, bmin, bmax
-                                in zip(times_delta, data[:-1], data[1:], strict=True)
-                            ) / sum(times_delta)  # average of integral
+                            if len(times_delta) == len(data):  # simple integral with rectangle
+                                return sum(
+                                    dt * val for dt, val in zip(times_delta, data, strict=True)
+                                ) / duration
+                            if len(times_delta) == len(data) - 1:  # trapeze integration
+                                return 0.5 * sum(  # trapeze integration
+                                    dt * (bmin + bmax)
+                                    for dt, bmin, bmax
+                                    in zip(times_delta, data[:-1], data[1:], strict=True)
+                                ) / duration  # average of integral
+                            msg = f"the dt lenght {len(times_delta)} ans the data lenght {len(data)} are not compatible"
+                            raise ValueError(msg)
                         else:
                             return np.nan
                     raise TypeError
