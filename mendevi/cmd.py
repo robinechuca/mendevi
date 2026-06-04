@@ -204,6 +204,7 @@ class CmdFFMPEG:
         # run command
         output: bytes = b""
         with Activity() as activity, subprocess.Popen(cmd, stderr=subprocess.PIPE) as process:
+            activity.start_slice("cmd")  # more acurate than activity.get_full()
             for line in read_lines(process.stderr):
                 if (
                     match := re.search(
@@ -217,11 +218,12 @@ class CmdFFMPEG:
                     )
                     load.total = None if load.total is None else max(load.total, elapsed)
                     load.update(elapsed-load.n)
+            activity.stop_slice()  # if ommited, implicitely called avec process.__exit__
         load.close()
         if process.returncode:
             msg = f"failed to execute {cmd}:\n{output}"
             raise RuntimeError(msg)
-        return output.decode("utf-8"), activity.get_full()
+        return output.decode("utf-8"), activity.get_slices()["cmd"]
 
     @property
     def vid_filter(self) -> str:
