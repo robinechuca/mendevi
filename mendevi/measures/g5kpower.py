@@ -67,8 +67,6 @@ def g5kpower(
     -------
     Consumption: dict[str]
         * 'dt': The time difference between 2 consecutive power measurements (in s).
-        * 'energy': The total energy consumption (in J).
-        * 'power': The average power, energy divided by the duration (in w).
         * 'powers': The power measured between 2 consecutive points (in w).
 
     Raises
@@ -171,23 +169,20 @@ def g5kpower(
         },
     }
     req = req["wattmetre_power_watt"] or req["bmc_node_power_watt"]
-    times, powers = zip(*req.items(), strict=False)
-    times, powers = np.array(times, dtype=np.float64), np.array(powers, dtype=np.float64)
+    times, power = zip(*req.items(), strict=False)
+    times, power = np.array(times, dtype=np.float64), np.array(power, dtype=np.float64)
 
     # pad for accurate boundaries
     order = np.argsort(times)
-    times, powers = times[order], powers[order]
+    times, power = times[order], power[order]
     times = times.clip(start, start+duration, out=times)  # if timestamp out of the bounds
     times = np.concatenate([(start,), times, (start+duration,)])  # edge padding, cst interpolation
-    powers = np.concatenate([(powers[0],), powers, (powers[-1],)])
+    power = np.concatenate([(power[0],), power, (power[-1],)])
 
     # compute energy, trapeze integral of power
     power_dt = times[1:] - times[:-1]
-    energy = 0.5 * float(np.sum((powers[:-1] + powers[1:]) * power_dt))
 
     return {
         "dt": power_dt.tolist(),
-        "energy": energy,
-        "power": energy / duration,
-        "powers": powers.tolist(),
+        "power": power.tolist(),
     }

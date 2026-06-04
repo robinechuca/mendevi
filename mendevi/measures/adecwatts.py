@@ -170,11 +170,10 @@ class ADECWattmeter(threading.Thread):
         Returns
         -------
         Consumption: dict[str]
-            * 'cpu': The mean cummulated usage of all the logical cpus.
-            * 'cpus': Each logical cpu usage at each time (in %).
-            * 'dt': The time difference between 2 consecutive measurements (in s).
-            * 'ram': The virtual ram usage (in bytes).
-            * 'temp': The temperatures measured at each moment for all sensors (in C).
+            * 'dt': The duration of the sample measure (in s).
+            * 'u_rms': The voltage of the 3 phases (in V).
+            * 'i_rms': The current of each channal (in A).
+            * 'p_eff': The efficient power of each channal (in W).
 
         """
         self.start()

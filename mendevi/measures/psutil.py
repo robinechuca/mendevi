@@ -38,13 +38,13 @@ class Usage(threading.Thread):
 
         self._stop_flag = False
         self.sleep = float(sleep)
-        self.res: dict = {"dt": [], "pcu": None, "cpus": [], "ram": [], "temp": {}}
+        self.res: dict = {"dt": [], "cpu": [], "ram": [], "temp": {}}
 
     def run(self) -> None:
         """Perform the measures."""
         while not self._stop_flag:
             t_init = time.time()
-            self.res["cpus"].append(psutil.cpu_percent(self.sleep, percpu=True))
+            self.res["cpu"].append(psutil.cpu_percent(self.sleep, percpu=True))
             self.res["ram"].append(psutil.virtual_memory().used)
             temp: dict[str, float] = {
                 f"{generic}_{shwtemp.label or i}": shwtemp.current
@@ -62,8 +62,7 @@ class Usage(threading.Thread):
         Returns
         -------
         Consumption: dict[str]
-            * 'cpu': The mean cummulated usage of all the logical cpus.
-            * 'cpus': Each logical cpu usage at each time (in %).
+            * 'cpu': Each logical cpu usage at each time (in %).
             * 'dt': The time difference between 2 consecutive measurements (in s).
             * 'ram': The virtual ram usage (in bytes).
             * 'temp': The temperatures measured at each moment for all sensors (in C).
@@ -76,4 +75,3 @@ class Usage(threading.Thread):
         """Stop the measure and update the dictionary returnd by __enter__."""
         self._stop_flag = True
         self.join()  # wait the last update of self.run
-        self.res["cpu"] = float(np.mean(self.res["cpus"], axis=0).sum())

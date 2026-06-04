@@ -18,13 +18,13 @@ else:
 
 def measure() -> dict[str]:
     """Get a instantaneous capture of all gpus."""
-    memory, gpus, powers = [], [], []
+    memory, gpu, power = [], [], []
     for i in range(GPUS):
         hand = pynvml.nvmlDeviceGetHandleByIndex(i)
-        powers.append(pynvml.nvmlDeviceGetPowerUsage(hand) / 1000.0)  # in Watts
-        gpus.append(pynvml.nvmlDeviceGetUtilizationRates(hand).gpu / 100.0)  # in [0, 1]
+        power.append(pynvml.nvmlDeviceGetPowerUsage(hand) / 1000.0)  # in Watts
+        gpu.append(pynvml.nvmlDeviceGetUtilizationRates(hand).gpu / 100.0)  # in [0, 1]
         memory.append(pynvml.nvmlDeviceGetMemoryInfo(hand).used)  # in bytes
-    return {"memory": memory, "gpus": gpus, "powers": powers}
+    return {"memory": memory, "gpu": gpus, "power": power}
 
 
 class UsageGPU(threading.Thread):
@@ -59,11 +59,9 @@ class UsageGPU(threading.Thread):
         self.sleep = float(sleep)
         self.res: dict | None = {
             "dt": [],
-            "energy": None,
-            "gpus": [],
+            "gpu": [],
             "memory": [],
-            "power": None,
-            "powers": [],
+            "power": [],
         } if GPUS else None
 
     def run(self) -> None:
@@ -82,11 +80,9 @@ class UsageGPU(threading.Thread):
         -------
         Consumption: dict[str]
             * 'dt': The time difference between 2 consecutive power measurements (in s).
-            * 'energy': The total energy consumption (in J).
-            * 'gpus': The mean usage of all the logical gpus.
+            * 'gpu': The mean usage of all the logical gpus.
             * 'memory': The memory used for each gpu (in bytes).
-            * 'power': The average power, energy divided by the duration (in w).
-            * 'powers': The power measured between 2 consecutive points (in w).
+            * 'power': The power measured between 2 consecutive points (in w).
 
         """
         self.start()
@@ -96,11 +92,3 @@ class UsageGPU(threading.Thread):
         """Stop the measure and update the dictionary returnd by __enter__."""
         self._stop_flag = True
         self.join()  # wait the last update of self.run
-        if GPUS:
-            self.res["gpu"] = float(np.mean(self.res["gpus"], axis=0).sum())
-
-            # compute total energy
-            self.res["energy"] = sum(
-                sum(ps) * dt for ps, dt in zip(self.res["powers"], self.res["dt"], strict=False)
-            )
-            self.res["power"] = self.res["energy"] / sum(self.res["dt"])

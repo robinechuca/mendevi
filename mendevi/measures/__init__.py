@@ -113,6 +113,24 @@ class Activity(threading.Thread):
             return the same dict as :py:meth:`get_full` for this specific slice.
 
         """
+        def trapez_integral_avg(times_delta: list[float], data: list | dict) -> float | dict:
+            """Compute the average value of a data serie."""
+            match data:
+                case list():
+                    if not data:
+                        return np.nan
+                    if isinstance(data[0], list):
+                        return sum(trapez_integral_avg(times_delta, d) for d in data)
+                    if isinstance(data[0], numbers.Real):
+                        return 0.5 * sum(  # trapeze integration
+                            dt * (bmin + bmax)
+                            for dt, bmin, bmax in zip(times_delta, data[:-1], data[1:], strict=True)
+                        ) / sum(times_delta)  # average of integral
+                    raise TypeError
+                case dict():
+                    return {k: trapez_integral_avg(times_delta, d) for k, d in data.items()}
+            raise TypeError
+
         # stop measurements
         if self._as_dict_called:
             return self.res[0]
@@ -131,16 +149,14 @@ class Activity(threading.Thread):
             else:
                 self.res |= {
                     "wattmeter_dt": wattmeter["dt"],
-                    "wattmeter_energy": wattmeter["energy"],
                     "wattmeter_power": wattmeter["power"],
-                    "wattmeter_powers": wattmeter["powers"],
                 }
         # cut slices
         dtlbl_datalbls = (
-            ("ps_dt", ("ps_cores", "ps_ram", "ps_temp")),
-            ("rapl_dt", ("rapl_powers",)),
-            ("gpu_dt", ("gpu_cores", "gpu_memory", "gpu_powers")),
-            ("wattmeter_dt", ("wattmeter_powers",)),
+            ("ps_dt", ("ps_core", "ps_ram", "ps_temp")),
+            ("rapl_dt", ("rapl_power",)),
+            ("gpu_dt", ("gpu_core", "gpu_memory", "gpu_power")),
+            ("wattmeter_dt", ("wattmeter_power",)),
         )
         dtlbl_datalbls = tuple((dt, fields) for dt, fields in dtlbl_datalbls if dt in self.res)
         if self._slices:
@@ -157,6 +173,17 @@ class Activity(threading.Thread):
                     "duration": stop-start,
                 }
                 for slicelbl, (start, stop) in self._slices.items()
+            }
+            # add the avg values
+            slices = {  # for slices
+                slicelbl: {
+                    **data,  # keep the expanded data
+                    **{  # add the averages
+                        f"{flbl}_avg": trapez_integral_avg(data[dtlbl], data[flbl])
+                        for dtlbl, fieldlbls in dtlbl_datalbls for flbl in fieldlbls
+                    },
+                }
+                for slicelbl, data in slices.items()
             }
             self.res = (slices, self.res)
         else:
@@ -175,7 +202,6 @@ class Activity(threading.Thread):
             self._exit_queue.get()  # wait
         self.res |= {
             "ps_core": usage["cpu"],
-            "ps_cores": usage["cpus"],
             "ps_dt": usage["dt"],
             "ps_ram": usage["ram"],
             "ps_temp": usage["temp"],
@@ -183,23 +209,19 @@ class Activity(threading.Thread):
         if adec is not None:
             self.res |= {
                 "wattmeter_dt": adec["dt"],
-                "wattmeter_powers": [sum(p) for p in adec["p_eff"]],
+                "wattmeter_power": [sum(p) for p in adec["p_eff"]],
             }
         if rapl is not None:
             self.res |= {
                 "rapl_dt": rapl["dt"],
-                "rapl_energy": rapl["energy"],
                 "rapl_power": rapl["power"],
-                "rapl_powers": rapl["powers"],
             }
         if gpu is not None:
             self.res |= {
-                "gpu_cores": gpu["gpus"],
+                "gpu_core": gpu["gpu"],
                 "gpu_dt": gpu["dt"],
-                "gpu_energy": gpu["energy"],
                 "gpu_memory": gpu["memory"],
                 "gpu_power": gpu["power"],
-                "gpu_powers": gpu["powers"],
             }
 
     def start_slice(self, lbl: typing.Hashable) -> None:
@@ -217,7 +239,7 @@ class Activity(threading.Thread):
 
         """
         assert hasattr(lbl, "__hash__"), lbl.__class__.__name__
-        assert lbl is not None, "None is a forbidden label"
+        assert lbl is not None, "'None' is a forbidden label"
         if lbl in self._slices:
             msg = f"the method start_slice has already been called with the label {lbl!r}"
             raise KeyError(msg)
@@ -314,7 +336,7 @@ class Activity(threading.Thread):
         }
 
     def __enter__(self) -> typing.Self:
-        r"""Start to measure.
+        """Start to measure.
 
         Notes
         -----
