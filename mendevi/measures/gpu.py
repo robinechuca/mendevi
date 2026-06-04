@@ -24,7 +24,7 @@ def measure() -> dict[str]:
         power.append(pynvml.nvmlDeviceGetPowerUsage(hand) / 1000.0)  # in Watts
         gpu.append(pynvml.nvmlDeviceGetUtilizationRates(hand).gpu / 100.0)  # in [0, 1]
         memory.append(pynvml.nvmlDeviceGetMemoryInfo(hand).used)  # in bytes
-    return {"memory": memory, "gpu": gpus, "power": power}
+    return {"memory": memory, "gpu": gpu, "power": power}
 
 
 class UsageGPU(threading.Thread):

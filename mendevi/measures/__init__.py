@@ -122,10 +122,14 @@ class Activity(threading.Thread):
                     if isinstance(data[0], list):
                         return sum(trapez_integral_avg(times_delta, d) for d in data)
                     if isinstance(data[0], numbers.Real):
-                        return 0.5 * sum(  # trapeze integration
-                            dt * (bmin + bmax)
-                            for dt, bmin, bmax in zip(times_delta, data[:-1], data[1:], strict=True)
-                        ) / sum(times_delta)  # average of integral
+                        if duration := sum(times_delta):
+                            return 0.5 * sum(  # trapeze integration
+                                dt * (bmin + bmax)
+                                for dt, bmin, bmax
+                                in zip(times_delta, data[:-1], data[1:], strict=True)
+                            ) / sum(times_delta)  # average of integral
+                        else:
+                            return np.nan
                     raise TypeError
                 case dict():
                     return {k: trapez_integral_avg(times_delta, d) for k, d in data.items()}
