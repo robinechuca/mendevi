@@ -92,3 +92,7 @@ class UsageGPU(threading.Thread):
         """Stop the measure and update the dictionary returnd by __enter__."""
         self._stop_flag = True
         self.join()  # wait the last update of self.run
+        # transpose results
+        self.res["gpu"] = list(zip(*self.res["gpu"], strict=True))
+        self.res["memory"] = list(zip(*self.res["memory"], strict=True))
+        self.res["power"] = list(zip(*self.res["power"], strict=True))

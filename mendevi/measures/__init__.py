@@ -133,7 +133,10 @@ class Activity(threading.Thread):
                                     for dt, bmin, bmax
                                     in zip(times_delta, data[:-1], data[1:], strict=True)
                                 ) / duration  # average of integral
-                            msg = f"the dt lenght {len(times_delta)} ans the data lenght {len(data)} are not compatible"
+                            msg = (
+                                f"the dt length {len(times_delta)} "
+                                f"and the data length {len(data)} are not compatible"
+                            )
                             raise ValueError(msg)
                         else:
                             return np.nan
