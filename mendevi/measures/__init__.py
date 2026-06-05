@@ -211,18 +211,18 @@ class Activity(threading.Thread):
             print("rapl:")
             print(len(self.res["rapl_dt"]))
             print(len(self.res["rapl_power"]))
-        if gpu is not None:
-            self.res |= {
-                "gpu_core": gpu["gpu"],
-                "gpu_dt": gpu["dt"],
-                "gpu_memory": gpu["memory"],
-                "gpu_power": gpu["power"],
-            }
-            print("gpu:")
-            print(len(self.res["gpu_dt"]))
-            print(len(self.res["gpu_core"]))
-            print(len(self.res["gpu_memory"]))
-            print(len(self.res["gpu_power"]))
+        # if gpu is not None:
+        #     self.res |= {
+        #         "gpu_core": gpu["gpu"],
+        #         "gpu_dt": gpu["dt"],
+        #         "gpu_memory": gpu["memory"],
+        #         "gpu_power": gpu["power"],
+        #     }
+        #     print("gpu:")
+        #     print(len(self.res["gpu_dt"]))
+        #     print(len(self.res["gpu_core"]))
+        #     print(len(self.res["gpu_memory"]))
+        #     print(len(self.res["gpu_power"]))
 
     def start_slice(self, lbl: typing.Hashable) -> None:
         """Add a new named slice of activity.
@@ -342,7 +342,9 @@ class Activity(threading.Thread):
                 if not data:
                     return np.nan
                 if isinstance(data[0], list | tuple):  # shape (n_times_point, n_sensors)
-                    return sum(self._trapez_integral_avg(times_delta, d) for d in zip(*data, strict=True))
+                    return sum(
+                        self._trapez_integral_avg(times_delta, d) for d in zip(*data, strict=True)
+                    )
                 if isinstance(data[0], numbers.Real):
                     if duration := sum(times_delta):
                         if len(times_delta) == len(data):  # simple integral with rectangle
@@ -360,8 +362,7 @@ class Activity(threading.Thread):
                             f"and the data length {len(data)} are not compatible"
                         )
                         raise ValueError(msg)
-                    else:
-                        return np.nan
+                    return np.nan
                 raise TypeError
             case dict():
                 return {k: self._trapez_integral_avg(times_delta, d) for k, d in data.items()}

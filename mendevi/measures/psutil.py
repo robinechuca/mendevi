@@ -4,7 +4,6 @@ import numbers
 import threading
 import time
 
-import numpy as np
 import psutil
 
 
@@ -54,12 +53,12 @@ class Usage(threading.Thread):
             for lbl, degrees in temp.items():
                 self.res["temp"][lbl] = self.res["temp"].get(lbl, [])
                 self.res["temp"][lbl].append(degrees)
-            self.res["dt"].append(time.time() - t_init)
             # sometimes, temperature data is missing
             # so we duplicate the missing temperature to ensure the data len is complete
             for lbl in self.res["temp"]:
-                while len(self.res["temp"][lbl]) < len(self.res["dt"]):
+                while len(self.res["temp"][lbl]) < len(self.res["dt"]) + 1:
                     self.res["temp"][lbl].append(self.res["temp"][lbl][-1])
+            self.res["dt"].append(time.time() - t_init)
 
     def __enter__(self) -> dict:
         """Start to measure.

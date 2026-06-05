@@ -4,7 +4,6 @@ import numbers
 import threading
 import time
 
-import numpy as np
 import pynvml  # uv pip install nvidia-ml-py
 
 # initialisation
@@ -82,7 +81,7 @@ class UsageGPU(threading.Thread):
             * 'dt': The time duration of each measurements (in s). Same length as the data.
             * 'gpu': The mean usage of all the logical gpus. Shape (n_points, n_gpu).
             * 'memory': The memory used for each gpu (in bytes).
-            * 'power': The power measured between 2 consecutive points (in w). Shape (n_points, n_gpu).
+            * 'power': The power measured between 2 consecutive points (in w). (n_points, n_gpu)
 
         """
         self.start()
