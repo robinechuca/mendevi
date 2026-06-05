@@ -193,6 +193,8 @@ class Activity(threading.Thread):
         print(len(self.res["ps_core"]))
         print(len(self.res["ps_ram"]))
         print([len(t) for t in self.res["ps_temp"].values()])
+        import pprint
+        pprint.pprint(self.res["ps_temp"])
         if adec is not None:
             self.res |= {
                 "wattmeter_dt": adec["dt"],

@@ -55,6 +55,11 @@ class Usage(threading.Thread):
                 self.res["temp"][lbl] = self.res["temp"].get(lbl, [])
                 self.res["temp"][lbl].append(degrees)
             self.res["dt"].append(time.time() - t_init)
+            # sometimes, temperature data is missing
+            # so we duplicate the missing temperature to ensure the data len is complete
+            for lbl in self.res["temp"]:
+                while len(self.res["temp"][lbl]) < len(self.res["dt"]):
+                    self.res["temp"][lbl].append(self.res["temp"][lbl][-1])
 
     def __enter__(self) -> dict:
         """Start to measure.
