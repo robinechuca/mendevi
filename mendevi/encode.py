@@ -122,7 +122,7 @@ def encode(src: pathlib.Path, **kwargs: dict) -> tuple[pathlib.Path, str, str, d
             if "rapl_power_avg" in activity:
                 prt.print(f"avg rapl power: {activity['rapl_power_avg']:.2g} W")
             if "gpu_power_avg" in activity:
-                printer.print(f"avg GPU power: {activity['gpu_power_avg']:.2g} W")
+                prt.print(f"avg GPU power: {activity['gpu_power_avg']:.2g} W")
             if "wattmeter_power_avg" in activity:
                 prt.print(f"avg wattmeter power: {activity['wattmeter_power_avg']:.2g} W")
 

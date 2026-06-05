@@ -54,7 +54,7 @@ def get_idle(duration: float = 60.0) -> dict:
     assert isinstance(duration, float), duration.__class__.__name__
     assert duration > 0.0, duration.__class__.__name__
 
-    with cv.Printer(f"Measure IDLE during {duration} seconds...") as printer:
+    with cv.Printer(f"Measure IDLE during {duration} seconds...") as prt:
 
         # measure IDLE
         with Activity() as activity:
@@ -63,14 +63,14 @@ def get_idle(duration: float = 60.0) -> dict:
         activity = activity.get_slices()["idle"]
 
         # print
-        printer.print(f"avg cpu usage: {activity['ps_core_avg']:.1f} %")
-        printer.print(f"avg ram usage: {1e-9*np.mean(activity['ps_ram_avg']):.2g} Go")
+        prt.print(f"avg cpu usage: {activity['ps_core_avg']:.1f} %")
+        prt.print(f"avg ram usage: {1e-9*np.mean(activity['ps_ram_avg']):.2g} Go")
         if "rapl_power_avg" in activity:
-            printer.print(f"avg rapl power: {activity['rapl_power_avg']:.2g} W")
+            prt.print(f"avg rapl power: {activity['rapl_power_avg']:.2g} W")
         if "gpu_power_avg" in activity:
-            printer.print(f"avg GPU power: {activity['gpu_power_avg']:.2g} W")
+            prt.print(f"avg GPU power: {activity['gpu_power_avg']:.2g} W")
         if "wattmeter_power_avg" in activity:
-            printer.print(f"avg wattmeter power: {activity['wattmeter_power_avg']:.2g} W")
+            prt.print(f"avg wattmeter power: {activity['wattmeter_power_avg']:.2g} W")
 
     return activity
 

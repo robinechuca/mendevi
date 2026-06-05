@@ -79,11 +79,11 @@ class Activity(threading.Thread):
         -------
         activity: dict[str]
             * duration: float, the real measure duration.
-            * gpu_cores: list[list[float]], tensor of detailed usage of each GPU in [0, 1].
+            * gpu_core: list[list[float]], tensor of detailed usage of each GPU in [0, 1].
+            * gpu_core_avg: float, the sum of the average usage of each GPU.
             * gpu_dt: list[float], the duration of each interval (in s).
-            * gpu_energy: float, the total energy consumption of all GPU (in J).
-            * gpu_power: float, the total power consumption of all GPU (in W).
-            * gpu_powers: list[list[float]], the sampled power in each point (in W).
+            * gpu_power: list[list[float]], the sampled power in each point (in W).
+            * gpu_power_avg: float, the total power consumption of all GPU (in W).
             * ps_core: float, the mean cummulated usage of all the logical cpus.
             * ps_cores: list[list[float]], tensor of detailed usage of each logical core in %.
             * ps_dt: list[float], the duration of each interval (in s).
@@ -119,7 +119,7 @@ class Activity(threading.Thread):
         self._as_dict_called = True
         self.join()
         # request wattmeter power
-        if "wattmeter_dt" not in self.res:  # ADEC and GRID'5000 are mutuialy exclusive
+        if "wattmeter_dt" not in self.res:  # ADEC and GRID'5000 are mutualy exclusive
             time.sleep(max(
                 0.0,
                 G5K_API_WAIT + self.res["start"] + self.res["duration"] - time.time(),
@@ -193,6 +193,7 @@ class Activity(threading.Thread):
                 "wattmeter_dt": adec["dt"],
                 "wattmeter_power": [sum(p) for p in adec["p_eff"]],
             }
+            print(self.res["wattmeter_power"])
         if rapl is not None:
             self.res |= {
                 "rapl_dt": rapl["dt"],
