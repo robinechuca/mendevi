@@ -152,7 +152,7 @@ def main(database: str, **kwargs: dict) -> None:
                 ),
                 dynamic_ncols=True,
                 leave=False,
-                smoothing=1e-6,
+                smoothing=1e-8,
                 total=count,
                 unit="vid",
             ):
@@ -222,7 +222,7 @@ def main(database: str, **kwargs: dict) -> None:
                 ),
                 dynamic_ncols=True,
                 leave=False,
-                smoothing=1e-6,
+                smoothing=1e-8,
                 total=count,
                 unit="vid",
             ):

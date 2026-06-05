@@ -97,7 +97,7 @@ def wait_until_finished(name: str) -> None:
         load = tqdm.tqdm(
             dynamic_ncols=True,
             leave=True,
-            smoothing=1e-6,
+            smoothing=1e-8,
             total=None,
             unit="Mo",
         )

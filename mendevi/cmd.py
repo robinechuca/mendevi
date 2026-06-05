@@ -186,7 +186,7 @@ class CmdFFMPEG:
         load = tqdm.tqdm(
             dynamic_ncols=True,
             leave=False,
-            smoothing=1e-6,
+            smoothing=1e-8,
             total=total,
             unit="s",
         )

@@ -300,11 +300,18 @@ class Activity(threading.Thread):
         def cut_slice(data: list | dict, idx_start: int, idx_stop: int) -> list:
             """Select the slice."""
             match data:
-                case list():
+                case list() | tuple():
                     if not data:
                         return []
-                    if isinstance(data[0], list | dict):
-                        return [cut_slice(subdata, idx_start, idx_stop) for subdata in data]
+                    if isinstance(data[0], list | tuple):  # shape (n_times_point, n_sensors)
+                        return list(zip(
+                            *(
+                                cut_slice(subdata, idx_start, idx_stop)
+                                for subdata in zip(*data, strict=True)
+                            ),
+                            strict=True,
+                        ))
+                        # return [cut_slice(subdata, idx_start, idx_stop) for subdata in data]
                     if isinstance(data[0], numbers.Real):
                         return [data[0], *data, data[-1]][idx_start:idx_stop]
                     raise TypeError

@@ -578,7 +578,7 @@ def print_read_sql(**kwargs: dict) -> list[str]:
         "            ),",
         "            dynamic_ncols=True,",
         "            leave=False,",
-        "            smoothing=1e-6,",
+        "            smoothing=1e-8,",
         "            total=count,",
         '            unit="line",',
         "        ):",

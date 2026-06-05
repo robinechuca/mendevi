@@ -107,7 +107,7 @@ def main(database: str, **kwargs: dict) -> None:
         fields,
         dynamic_ncols=True,
         leave=True,
-        smoothing=1e-6,
+        smoothing=1e-8,
         unit="measures",
     ):
         try:

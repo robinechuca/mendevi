@@ -45,7 +45,7 @@ def decompress(compressed_file: pathlib.Path) -> pathlib.Path:
             tqdm.tqdm(
                 dynamic_ncols=True,
                 leave=True,
-                smoothing=1e-6,
+                smoothing=1e-8,
                 total=round(size*1e-6, 1),
                 unit="Mo",
             ) as load,
