@@ -193,7 +193,8 @@ class Activity(threading.Thread):
                 "wattmeter_dt": adec["dt"],
                 "wattmeter_power": [sum(p) for p in adec["p_eff"]],
             }
-            print(self.res["wattmeter_power"])
+            print(len(self.res["wattmeter_dt"]))
+            print(len(self.res["wattmeter_power"]))
         if rapl is not None:
             self.res |= {
                 "rapl_dt": rapl["dt"],

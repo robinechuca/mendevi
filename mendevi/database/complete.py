@@ -59,7 +59,8 @@ def get_idle(duration: float = 60.0) -> dict:
         # measure IDLE
         with Activity() as activity:
             activity.start_slice("idle")
-            time.sleep(duration)
+            # time.sleep(duration)
+            time.sleep(5)
         activity = activity.get_slices()["idle"]
 
         # print
