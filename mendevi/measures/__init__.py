@@ -84,20 +84,20 @@ class Activity(threading.Thread):
             * gpu_dt: list[float], the duration of each interval (in s).
             * gpu_power: list[list[float]], the sampled power in each point (in W).
             * gpu_power_avg: float, the total power consumption of all GPU (in W).
-            * ps_core: float, the mean cummulated usage of all the logical cpus.
-            * ps_cores: list[list[float]], tensor of detailed usage of each logical core in %.
+            * ps_core: list[list[float]], tensor of detailed usage of each logical core in %.
+            * ps_core_avg: float, the mean cummulated usage of all the logical cpus.
             * ps_dt: list[float], the duration of each interval (in s).
             * ps_ram: list[int], list of the sampled ram usage in bytes in each point.
-            * ps_temp: dict[str, lis[float]], the temperature of each device (in C).
+            * ps_ram_avg: float, the average ram usage in bytes in each point.
+            * ps_temp: dict[str, list[float]], the temperature of each device (in C).
+            * ps_temp_avg: dict[str, float], the average temperature of each device (in C).
             * rapl_dt: list[float], the duration of each interval (in s).
-            * rapl_energy: float, the total energy consumption (in J).
-            * rapl_power: float, the average power, energy divided by the duration (in W).
-            * rapl_powers: list[float], the average power in each interval (in W).
+            * rapl_power: list[float], the average power in each interval (in W).
+            * rapl_power_avg: float, the average power, energy divided by the duration (in W).
             * start: float, absolute timestamp.
             * wattmeter_dt: list[float], the duration of each interval (in s).
-            * wattmeter_energy: float, the total energy consumption (in J).
-            * wattmeter_power: float, the average power, energy divided by the duration (in W).
-            * wattmeter_powers: list[float], the sampled power in watt in each point.
+            * wattmeter_power: list[float], the sampled power in watt in each point.
+            * wattmeter_power_avg: float, the average power, energy divided by the duration (in W).
 
         """
         self.get_slices()
@@ -157,19 +157,16 @@ class Activity(threading.Thread):
                 for slicelbl, (start, stop) in self._slices.items()
             }
             # add the avg values
-            try:
-                slices = {  # for slices
-                    slicelbl: {
-                        **data,  # keep the expanded data
-                        **{  # add the averages
-                            f"{flbl}_avg": self._trapez_integral_avg(data[dtlbl], data[flbl])
-                            for dtlbl, fieldlbls in dtlbl_datalbls for flbl in fieldlbls
-                        },
-                    }
-                    for slicelbl, data in slices.items()
+            slices = {  # for slices
+                slicelbl: {
+                    **data,  # keep the expanded data
+                    **{  # add the averages
+                        f"{flbl}_avg": self._trapez_integral_avg(data[dtlbl], data[flbl])
+                        for dtlbl, fieldlbls in dtlbl_datalbls for flbl in fieldlbls
+                    },
                 }
-            except ValueError:
-                import ipdb; ipdb.set_trace()
+                for slicelbl, data in slices.items()
+            }
             self.res = (slices, self.res)
         else:
             self.res = ({}, self.res)
