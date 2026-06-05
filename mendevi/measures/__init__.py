@@ -157,16 +157,19 @@ class Activity(threading.Thread):
                 for slicelbl, (start, stop) in self._slices.items()
             }
             # add the avg values
-            slices = {  # for slices
-                slicelbl: {
-                    **data,  # keep the expanded data
-                    **{  # add the averages
-                        f"{flbl}_avg": self._trapez_integral_avg(data[dtlbl], data[flbl])
-                        for dtlbl, fieldlbls in dtlbl_datalbls for flbl in fieldlbls
-                    },
+            try:
+                slices = {  # for slices
+                    slicelbl: {
+                        **data,  # keep the expanded data
+                        **{  # add the averages
+                            f"{flbl}_avg": self._trapez_integral_avg(data[dtlbl], data[flbl])
+                            for dtlbl, fieldlbls in dtlbl_datalbls for flbl in fieldlbls
+                        },
+                    }
+                    for slicelbl, data in slices.items()
                 }
-                for slicelbl, data in slices.items()
-            }
+            except ValueError:
+                import ipdb; ipdb.set_trace()
             self.res = (slices, self.res)
         else:
             self.res = ({}, self.res)
@@ -205,17 +208,6 @@ class Activity(threading.Thread):
                 "gpu_memory": gpu["memory"],
                 "gpu_power": gpu["power"],
             }
-            print("gpu:")
-            import pprint
-            pprint.pprint(self.res["gpu_dt"])
-            pprint.pprint(self.res["gpu_core"])
-            pprint.pprint(self.res["gpu_memory"])
-            pprint.pprint(self.res["gpu_power"])
-            print(len(self.res["gpu_dt"]))
-            print(len(self.res["gpu_core"]))
-            print(len(self.res["gpu_memory"]))
-            print(len(self.res["gpu_power"]))
-
 
     def start_slice(self, lbl: typing.Hashable) -> None:
         """Add a new named slice of activity.
