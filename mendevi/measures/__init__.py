@@ -161,7 +161,7 @@ class Activity(threading.Thread):
                 slicelbl: {
                     **data,  # keep the expanded data
                     **{  # add the averages
-                        f"{flbl}_avg": _trapez_integral_avg(data[dtlbl], data[flbl])
+                        f"{flbl}_avg": self._trapez_integral_avg(data[dtlbl], data[flbl])
                         for dtlbl, fieldlbls in dtlbl_datalbls for flbl in fieldlbls
                     },
                 }
@@ -317,14 +317,14 @@ class Activity(threading.Thread):
             dt_lbl: (timestamps[1:] - timestamps[:-1]).tolist(), # absolute to dt
         }
 
-    def _trapez_integral_avg(times_delta: list[float], data: list | dict) -> float | dict:
+    def _trapez_integral_avg(self, times_delta: list[float], data: list | dict) -> float | dict:
         """Compute the average value of a data serie."""
         match data:
             case list() | tuple():
                 if not data:
                     return np.nan
                 if isinstance(data[0], list | tuple):  # shape (n_times_point, n_sensors)
-                    return sum(_trapez_integral_avg(times_delta, d) for d in zip(*data, strict=True))
+                    return sum(self._trapez_integral_avg(times_delta, d) for d in zip(*data, strict=True))
                 if isinstance(data[0], numbers.Real):
                     if duration := sum(times_delta):
                         if len(times_delta) == len(data):  # simple integral with rectangle
@@ -346,7 +346,7 @@ class Activity(threading.Thread):
                         return np.nan
                 raise TypeError
             case dict():
-                return {k: _trapez_integral_avg(times_delta, d) for k, d in data.items()}
+                return {k: self._trapez_integral_avg(times_delta, d) for k, d in data.items()}
         raise TypeError
 
     def __enter__(self) -> typing.Self:

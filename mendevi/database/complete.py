@@ -64,14 +64,14 @@ def get_idle(duration: float = 60.0) -> dict:
         activity = activity.get_slices()["idle"]
 
         # print
-        printer.print(f"avg cpu usage: {activity['ps_core']:.1f} %")
-        printer.print(f"avg ram usage: {1e-9*np.mean(activity['ps_ram']):.2g} Go")
-        if "rapl_power" in activity:
-            printer.print(f"avg rapl power: {activity['rapl_power']:.2g} W")
-        if "gpu_power" in activity:
-            printer.print(f"avg GPU power: {activity['gpu_power']:.2g} W")
-        if "wattmeter_power" in activity:
-            printer.print(f"avg wattmeter power: {activity['wattmeter_power']:.2g} W")
+        printer.print(f"avg cpu usage: {activity['ps_core_avg']:.1f} %")
+        printer.print(f"avg ram usage: {1e-9*np.mean(activity['ps_ram_avg']):.2g} Go")
+        if "rapl_power_avg" in activity:
+            printer.print(f"avg rapl power: {activity['rapl_power_avg']:.2g} W")
+        if "gpu_power_avg" in activity:
+            printer.print(f"avg GPU power: {activity['gpu_power_avg']:.2g} W")
+        if "wattmeter_power_avg" in activity:
+            printer.print(f"avg wattmeter power: {activity['wattmeter_power_avg']:.2g} W")
 
     return activity
 
