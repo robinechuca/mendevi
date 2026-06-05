@@ -80,7 +80,7 @@ class UsageGPU(threading.Thread):
         Consumption: dict[str]
             * 'dt': The time duration of each measurements (in s). Same length as the data.
             * 'gpu': The mean usage of all the logical gpus. Shape (n_points, n_gpu).
-            * 'memory': The memory used for each gpu (in bytes).
+            * 'memory': The memory used for each gpu (in bytes). Shape (n_points, n_gpu).
             * 'power': The power measured between 2 consecutive points (in w). (n_points, n_gpu)
 
         """

@@ -188,41 +188,34 @@ class Activity(threading.Thread):
             "ps_ram": usage["ram"],
             "ps_temp": usage["temp"],
         }
-        print("ps:")
-        print(len(self.res["ps_dt"]))
-        print(len(self.res["ps_core"]))
-        print(len(self.res["ps_ram"]))
-        print([len(t) for t in self.res["ps_temp"].values()])
-        import pprint
-        pprint.pprint(self.res["ps_temp"])
         if adec is not None:
             self.res |= {
                 "wattmeter_dt": adec["dt"],
                 "wattmeter_power": [sum(p) for p in adec["p_eff"]],
             }
-            print("adec:")
-            print(len(self.res["wattmeter_dt"]))
-            print(len(self.res["wattmeter_power"]))
         if rapl is not None:
             self.res |= {
                 "rapl_dt": rapl["dt"],
                 "rapl_power": rapl["power"],
             }
-            print("rapl:")
-            print(len(self.res["rapl_dt"]))
-            print(len(self.res["rapl_power"]))
-        # if gpu is not None:
-        #     self.res |= {
-        #         "gpu_core": gpu["gpu"],
-        #         "gpu_dt": gpu["dt"],
-        #         "gpu_memory": gpu["memory"],
-        #         "gpu_power": gpu["power"],
-        #     }
-        #     print("gpu:")
-        #     print(len(self.res["gpu_dt"]))
-        #     print(len(self.res["gpu_core"]))
-        #     print(len(self.res["gpu_memory"]))
-        #     print(len(self.res["gpu_power"]))
+        if gpu is not None:
+            self.res |= {
+                "gpu_core": gpu["gpu"],
+                "gpu_dt": gpu["dt"],
+                "gpu_memory": gpu["memory"],
+                "gpu_power": gpu["power"],
+            }
+            print("gpu:")
+            import pprint
+            pprint.pprint(self.res["gpu_dt"])
+            pprint.pprint(self.res["gpu_core"])
+            pprint.pprint(self.res["gpu_memory"])
+            pprint.pprint(self.res["gpu_power"])
+            print(len(self.res["gpu_dt"]))
+            print(len(self.res["gpu_core"]))
+            print(len(self.res["gpu_memory"]))
+            print(len(self.res["gpu_power"]))
+
 
     def start_slice(self, lbl: typing.Hashable) -> None:
         """Add a new named slice of activity.
