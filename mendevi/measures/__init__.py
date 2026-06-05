@@ -113,38 +113,6 @@ class Activity(threading.Thread):
             return the same dict as :py:meth:`get_full` for this specific slice.
 
         """
-        def trapez_integral_avg(times_delta: list[float], data: list | dict) -> float | dict:
-            """Compute the average value of a data serie."""
-            match data:
-                case list():
-                    if not data:
-                        return np.nan
-                    if isinstance(data[0], list):
-                        return sum(trapez_integral_avg(times_delta, d) for d in data)
-                    if isinstance(data[0], numbers.Real):
-                        if duration := sum(times_delta):
-                            if len(times_delta) == len(data):  # simple integral with rectangle
-                                return sum(
-                                    dt * val for dt, val in zip(times_delta, data, strict=True)
-                                ) / duration
-                            if len(times_delta) == len(data) - 1:  # trapeze integration
-                                return 0.5 * sum(  # trapeze integration
-                                    dt * (bmin + bmax)
-                                    for dt, bmin, bmax
-                                    in zip(times_delta, data[:-1], data[1:], strict=True)
-                                ) / duration  # average of integral
-                            msg = (
-                                f"the dt length {len(times_delta)} "
-                                f"and the data length {len(data)} are not compatible"
-                            )
-                            raise ValueError(msg)
-                        else:
-                            return np.nan
-                    raise TypeError
-                case dict():
-                    return {k: trapez_integral_avg(times_delta, d) for k, d in data.items()}
-            raise TypeError
-
         # stop measurements
         if self._as_dict_called:
             return self.res[0]
@@ -193,7 +161,7 @@ class Activity(threading.Thread):
                 slicelbl: {
                     **data,  # keep the expanded data
                     **{  # add the averages
-                        f"{flbl}_avg": trapez_integral_avg(data[dtlbl], data[flbl])
+                        f"{flbl}_avg": _trapez_integral_avg(data[dtlbl], data[flbl])
                         for dtlbl, fieldlbls in dtlbl_datalbls for flbl in fieldlbls
                     },
                 }
@@ -348,6 +316,38 @@ class Activity(threading.Thread):
             **{lbl: cut_slice(self.res[lbl], idx_start, idx_stop) for lbl in data_lbls},
             dt_lbl: (timestamps[1:] - timestamps[:-1]).tolist(), # absolute to dt
         }
+
+    def _trapez_integral_avg(times_delta: list[float], data: list | dict) -> float | dict:
+        """Compute the average value of a data serie."""
+        match data:
+            case list() | tuple():
+                if not data:
+                    return np.nan
+                if isinstance(data[0], list | tuple):  # shape (n_times_point, n_sensors)
+                    return sum(_trapez_integral_avg(times_delta, d) for d in zip(*data, strict=True))
+                if isinstance(data[0], numbers.Real):
+                    if duration := sum(times_delta):
+                        if len(times_delta) == len(data):  # simple integral with rectangle
+                            return sum(
+                                dt * val for dt, val in zip(times_delta, data, strict=True)
+                            ) / duration
+                        if len(times_delta) == len(data) - 1:  # trapeze integration
+                            return 0.5 * sum(  # trapeze integration
+                                dt * (bmin + bmax)
+                                for dt, bmin, bmax
+                                in zip(times_delta, data[:-1], data[1:], strict=True)
+                            ) / duration  # average of integral
+                        msg = (
+                            f"the dt length {len(times_delta)} "
+                            f"and the data length {len(data)} are not compatible"
+                        )
+                        raise ValueError(msg)
+                    else:
+                        return np.nan
+                raise TypeError
+            case dict():
+                return {k: _trapez_integral_avg(times_delta, d) for k, d in data.items()}
+        raise TypeError
 
     def __enter__(self) -> typing.Self:
         """Start to measure.
