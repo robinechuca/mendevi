@@ -79,10 +79,10 @@ class UsageGPU(threading.Thread):
         Returns
         -------
         Consumption: dict[str]
-            * 'dt': The time difference between 2 consecutive power measurements (in s).
-            * 'gpu': The mean usage of all the logical gpus.
+            * 'dt': The time duration of each measurements (in s). Same length as the data.
+            * 'gpu': The mean usage of all the logical gpus. Shape (n_points, n_gpu).
             * 'memory': The memory used for each gpu (in bytes).
-            * 'power': The power measured between 2 consecutive points (in w).
+            * 'power': The power measured between 2 consecutive points (in w). Shape (n_points, n_gpu).
 
         """
         self.start()
@@ -92,7 +92,3 @@ class UsageGPU(threading.Thread):
         """Stop the measure and update the dictionary returnd by __enter__."""
         self._stop_flag = True
         self.join()  # wait the last update of self.run
-        # transpose results
-        self.res["gpu"] = list(zip(*self.res["gpu"], strict=True))
-        self.res["memory"] = list(zip(*self.res["memory"], strict=True))
-        self.res["power"] = list(zip(*self.res["power"], strict=True))

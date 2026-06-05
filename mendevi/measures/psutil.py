@@ -62,8 +62,8 @@ class Usage(threading.Thread):
         Returns
         -------
         Consumption: dict[str]
-            * 'cpu': Each logical cpu usage at each time (in %).
-            * 'dt': The time difference between 2 consecutive measurements (in s).
+            * 'cpu': Each logical cpu usage at each time (in %). Shape (n_points, n_cpu).
+            * 'dt': The time duration of each measurements (in s). Same length as the data.
             * 'ram': The virtual ram usage (in bytes).
             * 'temp': The temperatures measured at each moment for all sensors (in C).
 
