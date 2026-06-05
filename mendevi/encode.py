@@ -187,18 +187,18 @@ def encode_and_store(
         activity = {
             "act_duration": activity["duration"],
             "act_gpu_dt": list_to_binary(activity.get("gpu_dt", None)),
-            "act_gpu_power": tensor_to_binary(activity.get("gpu_powers", None)),
-            "act_ps_core": tensor_to_binary(activity["ps_cores"]),
+            "act_gpu_power": tensor_to_binary(activity.get("gpu_power", None)),
+            "act_ps_core": tensor_to_binary(activity["ps_core"]),
             "act_ps_dt": list_to_binary(activity["ps_dt"]),
             "act_ps_temp": orjson.dumps(
                 activity["ps_temp"], option=orjson.OPT_INDENT_2|orjson.OPT_SORT_KEYS,
             ),
             "act_ps_ram": list_to_binary(activity["ps_ram"]),
             "act_rapl_dt": list_to_binary(activity.get("rapl_dt", None)),
-            "act_rapl_power": list_to_binary(activity.get("rapl_powers", None)),
+            "act_rapl_power": list_to_binary(activity.get("rapl_power", None)),
             "act_start": activity["start"],
             "act_wattmeter_dt": list_to_binary(activity.get("wattmeter_dt", None)),
-            "act_wattmeter_power": list_to_binary(activity.get("wattmeter_powers", None)),
+            "act_wattmeter_power": list_to_binary(activity.get("wattmeter_power", None)),
         }
         keys = list(activity)
         (act_id,) = cursor.execute(

@@ -32,7 +32,7 @@ def test_simple() -> None:
         pass
     res = act.get_full()
     assert isinstance(res, dict)
-    assert {"start", "duration", "ps_dt", "ps_cores"}.issubset(res.keys())
+    assert {"start", "duration", "ps_dt", "ps_core"}.issubset(res.keys())
     assert res == act.get_full()
 
 
@@ -65,5 +65,5 @@ def test_slices_fields() -> None:
     slices = act.get_slices()
     assert isinstance(slices, dict)
     assert isinstance(slices["lbl"], dict)
-    assert {"start", "duration", "ps_dt", "ps_cores"}.issubset(slices["lbl"].keys())
+    assert {"start", "duration", "ps_dt", "ps_core"}.issubset(slices["lbl"].keys())
     assert slices == act.as_dict()

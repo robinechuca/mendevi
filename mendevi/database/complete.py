@@ -37,17 +37,16 @@ def get_idle(duration: float = 60.0) -> dict:
     >>> idle = get_idle(duration=1.0)
     >>> pprint(idle)  # doctest: +ELLIPSIS
     {'duration': 1.0...,
-     'ps_core': ...,
-     'ps_cores': [[...],
+     'ps_core': [[...],
                   ...
                   [...]],
+     'ps_core_avg': ...,
      'ps_dt': [...],
      'ps_ram': [...],
      'ps_temp': {...},
      'rapl_dt': [...],
-     'rapl_energy': ...,
-     'rapl_power': ...,
-     'rapl_powers': [...],
+     'rapl_power': [...],
+     'rapl_power_avg': ...,
      'start': ...}
     >>>
 
@@ -130,18 +129,18 @@ def add_environment(database: sqlite3.Cursor | str | bytes | pathlib.Path) -> in
     idle = {
         "act_duration": idle["duration"],
         "act_gpu_dt": list_to_binary(idle.get("gpu_dt", None)),
-        "act_gpu_power": tensor_to_binary(idle.get("gpu_powers", None)),
-        "act_ps_core": tensor_to_binary(idle["ps_cores"]),
+        "act_gpu_power": tensor_to_binary(idle.get("gpu_power", None)),
+        "act_ps_core": tensor_to_binary(idle["ps_core"]),
         "act_ps_dt": list_to_binary(idle["ps_dt"]),
         "act_ps_temp": orjson.dumps(
             idle["ps_temp"], option=orjson.OPT_INDENT_2|orjson.OPT_SORT_KEYS,
         ),
         "act_ps_ram": list_to_binary(idle["ps_ram"]),
         "act_rapl_dt": list_to_binary(idle.get("rapl_dt", None)),
-        "act_rapl_power": list_to_binary(idle.get("rapl_powers", None)),
+        "act_rapl_power": list_to_binary(idle.get("rapl_power", None)),
         "act_start": idle["start"],
         "act_wattmeter_dt": list_to_binary(idle.get("wattmeter_dt", None)),
-        "act_wattmeter_power": list_to_binary(idle.get("wattmeter_powers", None)),
+        "act_wattmeter_power": list_to_binary(idle.get("wattmeter_power", None)),
     }
     keys = list(idle)
     (act_id,) = database.execute(
