@@ -1,4 +1,73 @@
-"""Merge databases."""
+"""Merge databases.
+
+Check t_met_metric consistency
+==============================
+
+.. code:: sql
+
+    SELECT
+        (SELECT COUNT(*) FROM t_met_metric)                        AS total_metrics,
+        (SELECT COUNT(*) FROM t_enc_encode)                        AS total_encodes,
+        (SELECT COUNT(DISTINCT met_dis_vid_id) FROM t_met_metric)  AS dis_videos_unics,
+        (SELECT COUNT(*) FROM t_met_metric
+         WHERE met_dis_vid_id NOT IN
+               (SELECT enc_dst_vid_id FROM t_enc_encode))          AS orphins,
+        (SELECT COUNT(*) FROM (
+            SELECT met_ref_vid_id, met_dis_vid_id
+            FROM t_met_metric
+            GROUP BY met_ref_vid_id, met_dis_vid_id
+            HAVING COUNT(*) > 1))                                  AS duplicate_pairs;
+
+Remove fields with a corrupted wattmeter value
+==============================================
+
+.. code:: sql
+
+    -- 1) Metrics where the distorted video is caused by encoding that needs to be removed
+    DELETE FROM t_met_metric
+    WHERE met_dis_vid_id IN (
+        SELECT enc_dst_vid_id FROM t_enc_encode
+        WHERE enc_act_id IN (
+            SELECT act_id FROM t_act_activity
+            WHERE act_wattmeter_dt IS NULL OR act_wattmeter_power IS NULL
+        )
+    );
+
+    -- 2) Activity-related encodings to be deleted
+    DELETE FROM t_enc_encode
+    WHERE enc_act_id IN (
+        SELECT act_id FROM t_act_activity
+        WHERE act_wattmeter_dt IS NULL OR act_wattmeter_power IS NULL
+    );
+
+    -- 3) Orphaned videos (encoding output deleted, no longer referenced anywhere)
+    DELETE FROM t_vid_video
+    WHERE vid_id NOT IN (SELECT enc_src_vid_id FROM t_enc_encode)
+      AND vid_id NOT IN (SELECT enc_dst_vid_id FROM t_enc_encode)
+      AND vid_id NOT IN (SELECT dec_vid_id     FROM t_dec_decode)
+      AND vid_id NOT IN (SELECT met_ref_vid_id FROM t_met_metric)
+      AND vid_id NOT IN (SELECT met_dis_vid_id FROM t_met_metric);
+
+    -- 4) Decoding related to activities to be discontinued
+    DELETE FROM t_dec_decode
+    WHERE dec_act_id IN (
+        SELECT act_id FROM t_act_activity
+        WHERE act_wattmeter_dt IS NULL OR act_wattmeter_power IS NULL
+    );
+
+    -- 5) Environments where the IDLE activity has been removed → NULL (the environment is keeped)
+    UPDATE t_env_environment
+    SET env_idle_act_id = NULL
+    WHERE env_idle_act_id IN (
+        SELECT act_id FROM t_act_activity
+        WHERE act_wattmeter_dt IS NULL OR act_wattmeter_power IS NULL
+    );
+
+    -- 6) Finally: remove the activities themselves
+    DELETE FROM t_act_activity
+    WHERE act_wattmeter_dt IS NULL OR act_wattmeter_power IS NULL;
+
+"""
 
 import pathlib
 import sqlite3

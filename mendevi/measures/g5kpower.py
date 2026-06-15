@@ -63,7 +63,7 @@ def g5kpower(
     duration : float
         The job duration in seconds.
     login, password : str
-        Username an password for grid5000 api.
+        Username and password for grid5000 api.
 
     Returns
     -------

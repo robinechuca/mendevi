@@ -17,7 +17,7 @@ from mendevi.measures.g5kpower import g5kpower
 
 from .parse import parse_videos_database
 
-INTERVAL = 60  # time in seconds between 2 database flush
+INTERVAL = 300  # time in seconds between 2 database flush
 
 
 def get_power(hostname: str, start: float, duration: float, **kwargs: dict) -> tuple[bytes, bytes]:
@@ -62,7 +62,7 @@ def main(database: str, **kwargs: dict) -> None:
 
     # get missing fields
     with sqlite3.connect(f"file:{database}?mode=ro", uri=True) as conn:
-        fields = conn.execute(
+        fields = conn.execute(  # UNION ALL faster than UNION
             """
             SELECT act_id, act_start, act_duration, env_hostname
             FROM t_env_environment
@@ -85,7 +85,7 @@ def main(database: str, **kwargs: dict) -> None:
             JOIN t_env_environment ON t_env_environment.env_id = t_dec_decode.dec_env_id
             WHERE act_wattmeter_dt IS NULL or act_wattmeter_power IS NULL
             """,
-        ).fetchall()
+        ).fetchall()  # no duplication issue thanks creation process
 
     def _flush_buff(buff: list, database: pathlib.Path) -> None:
         """Add the fields into the database."""
