@@ -11,12 +11,12 @@ import typing
 import numpy as np
 
 from .adecwatts import ADECWattmeter
-from .g5kpower import g5kpower
+from .g5kpower import g5kpower, MARGIN
 from .gpu import UsageGPU
 from .psutil import Usage
 from .rapl import RAPL
 
-G5K_API_WAIT = 5.0  # waiting time (in sec) before data from the grid5000 API becomes accessible
+G5K_API_WAIT = 5.0 + MARGIN  # waiting time (in s) before data from the g5k API becomes accessible
 
 
 class Activity(threading.Thread):
