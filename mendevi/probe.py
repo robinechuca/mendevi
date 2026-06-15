@@ -97,7 +97,7 @@ def _fill_vid_table(
     # update result
     fields = list(fields)  # to frozen order for sql request
     with (
-        Lock(str(database.with_name(".dblock")), lifetime=datetime.timedelta(seconds=600)),
+        Lock(str(database.with_suffix(".lock")), lifetime=datetime.timedelta(seconds=600)),
         sqlite3.connect(database) as conn,
     ):
         cursor = conn.cursor()
@@ -210,7 +210,7 @@ def _fill_met_table(
 
     # update result
     with (
-        Lock(str(database.with_name(".dblock")), lifetime=datetime.timedelta(seconds=600)),
+        Lock(str(database.with_suffix(".lock")), lifetime=datetime.timedelta(seconds=600)),
         sqlite3.connect(database) as conn,
     ):
         cursor = conn.cursor()

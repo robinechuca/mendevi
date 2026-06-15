@@ -104,7 +104,7 @@ def decode_and_store(
     cmd, decoder, log, activity = decode(vid, **kwargs)
 
     with (
-        Lock(str(database.with_name(".dblock")), lifetime=datetime.timedelta(seconds=600)),
+        Lock(str(database.with_suffix(".lock")), lifetime=datetime.timedelta(seconds=600)),
         sqlite3.connect(database) as conn,
     ):
         cursor = conn.cursor()

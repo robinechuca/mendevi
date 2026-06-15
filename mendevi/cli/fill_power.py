@@ -90,7 +90,7 @@ def main(database: str, **kwargs: dict) -> None:
     def _flush_buff(buff: list, database: pathlib.Path) -> None:
         """Add the fields into the database."""
         with (
-            Lock(str(database.with_name(".dblock")), lifetime=datetime.timedelta(seconds=600)),
+            Lock(str(database.with_suffix(".lock")), lifetime=datetime.timedelta(seconds=600)),
             sqlite3.connect(database) as conn,
         ):
             cursor = conn.cursor()

@@ -10,16 +10,16 @@ Check t_met_metric consistency
         (SELECT COUNT(*) FROM t_enc_encode)                        AS total_encodes,
         (SELECT COUNT(DISTINCT met_dis_vid_id) FROM t_met_metric)  AS dis_videos_unics,
         (SELECT COUNT(*) FROM t_met_metric
-         WHERE met_dis_vid_id NOT IN
-               (SELECT enc_dst_vid_id FROM t_enc_encode))          AS orphins,
+            WHERE met_dis_vid_id NOT IN
+            (SELECT enc_dst_vid_id FROM t_enc_encode))             AS orphins,
         (SELECT COUNT(*) FROM (
             SELECT met_ref_vid_id, met_dis_vid_id
             FROM t_met_metric
             GROUP BY met_ref_vid_id, met_dis_vid_id
             HAVING COUNT(*) > 1))                                  AS duplicate_pairs;
 
-Remove fields with a corrupted wattmeter value
-==============================================
+Remove fields with empty wattmeter value
+========================================
 
 .. code:: sql
 
