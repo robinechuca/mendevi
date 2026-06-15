@@ -127,11 +127,11 @@ class Activity(threading.Thread):
             try:
                 wattmeter = g5kpower(platform.node(), self.res["start"], self.res["duration"])
             except ValueError:
-                wattmeter = None
+                pass
             else:
                 self.res |= {
-                    "wattmeter_ts": wattmeter["ts"],
-                    "wattmeter_power": wattmeter["power"],
+                    "wattmeter_ts": wattmeter[0],
+                    "wattmeter_power": wattmeter[1],
                 }
         # cut slices
         tslbl_datalbls = (

@@ -7,6 +7,7 @@ import sqlite3
 import time
 
 import click
+import torch
 import tqdm
 from context_verbose import Printer
 from flufl.lock import Lock
@@ -21,10 +22,11 @@ INTERVAL = 60  # time in seconds between 2 database flush
 
 def get_power(hostname: str, start: float, duration: float, **kwargs: dict) -> tuple[bytes, bytes]:
     """Exctract the wattmeters data for that specific activity."""
-    wattmeter_data = g5kpower(
+    wattmeter_ts, wattmeter_power = g5kpower(
         hostname, start, duration, login=kwargs.get("login"), password=kwargs.get("password"),
     )
-    wattmeter_dt, wattmeter_power = wattmeter_data["dt"], wattmeter_data["powers"]
+    wattmeter_ts = torch.asarray(wattmeter_ts, dtype=torch.float64)
+    wattmeter_dt = (wattmeter_ts[1:] - wattmeter_ts[:-1]).tolist()
     return list_to_binary(wattmeter_dt), list_to_binary(wattmeter_power)
 
 

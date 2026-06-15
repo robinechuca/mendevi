@@ -14,7 +14,7 @@ import requests
 
 GOOD_REQ_STATUS = 200
 MARGIN = 0.6  # request for thicker interval than requieres (in seconds)
-PATTEREN_ISOTIME = r"^\d{2,4}-\d{1,2}-\d{1,2}\w\d\d:\d\d:(?P<sec>\d+\.\d*)(?:[+-]\d{1,2}:\d{1,2})?$"
+PATTEREN_ISOTIME = r"^\d{2,4}-\d{1,2}-\d{1,2}T\d\d:\d\d:(?P<sec>\d+\.?\d*)(?:[+-]\d{1,2}:\d{1,2})?$"
 SIMP_TOL = 1e-5
 
 
@@ -31,9 +31,11 @@ class G5kPower(threading.Thread):
     def run(self) -> None:
         """Perform the request."""
         try:
-            self.power = g5kpower(*self.args, **self.kwargs)
+            timestamps, power = g5kpower(*self.args, **self.kwargs)
         except ValueError as err:
             logging.getLogger(__name__).warning(err)
+        else:
+            self.power = {"ts": timestamps, "power": power}
 
     def get(self) -> dict[str]:
         """Retrive the result."""
@@ -65,9 +67,10 @@ def g5kpower(
 
     Returns
     -------
-    Consumption: dict[str]
-        * 'dt': The absolute timestamps between 2 mesurements (in s), shape (n+1,).
-        * 'powers': The power measured between 2 consecutive points (in w), shape (n,).
+    timestamps : list[float]
+        The absolute timestamps between 2 mesurements (in s), shape (n+1,).
+    power : list[float]
+        The power measured between 2 consecutive points (in w), shape (n,).
 
     Raises
     ------
@@ -79,7 +82,7 @@ def g5kpower(
     >>> import platform, time
     >>> from mendevi.measures.g5kpower import g5kpower
     >>> try:
-    ...     power = g5kpower(platform.node(), time.time()-20.0, 10.0)
+    ...     ts, power = g5kpower(platform.node(), time.time()-20.0, 10.0)
     ... except ValueError:
     ...     pass
     ...
@@ -150,7 +153,7 @@ def g5kpower(
         if (match := re.search(PATTEREN_ISOTIME, date)) is None:
             logging.getLogger(__name__).error("failed to convert %s", date)
             return date
-        return date.replace(match["sec"], f"{float(match['sec']):09.6f}")
+        return date[:match.start("sec")] + f"{float(match['sec']):09.6f}" + date[match.end("sec"):]
 
     req = [
         {
@@ -175,11 +178,10 @@ def g5kpower(
     # pad for accurate boundaries
     order = np.argsort(times)
     times, power = times[order], power[order]
+    # guess_dt = float((times[1:] - times[:-1]).min(initial=1.0))  # one sec by default
     times = times.clip(start, start+duration, out=times)  # if timestamp out of the bounds
     times = np.concatenate([(start,), times, (start+duration,)])  # edge padding, cst interpolation
-    power = np.concatenate([(power[0],), power, (power[-1],)])
+    power = np.concatenate([power, (power[-1],)])
 
-    return {
-        "ts": times.tolist(),
-        "power": power.tolist(),
-    }
+    # add last closing timestamp
+    return times.tolist(), power.tolist()
