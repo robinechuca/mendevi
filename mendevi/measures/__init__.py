@@ -169,7 +169,6 @@ class Activity(threading.Thread):
                 }
                 for slicelbl, data in slices.items()
             }
-            import ipdb; ipdb.set_trace()
             self.res = (slices, self.res)
         else:
             self.res = ({}, self.res)
