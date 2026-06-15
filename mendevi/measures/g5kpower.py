@@ -66,8 +66,8 @@ def g5kpower(
     Returns
     -------
     Consumption: dict[str]
-        * 'dt': The time difference between 2 consecutive power measurements (in s).
-        * 'powers': The power measured between 2 consecutive points (in w).
+        * 'dt': The absolute timestamps between 2 mesurements (in s), shape (n+1,).
+        * 'powers': The power measured between 2 consecutive points (in w), shape (n,).
 
     Raises
     ------
@@ -179,10 +179,7 @@ def g5kpower(
     times = np.concatenate([(start,), times, (start+duration,)])  # edge padding, cst interpolation
     power = np.concatenate([(power[0],), power, (power[-1],)])
 
-    # compute energy, trapeze integral of power
-    power_dt = times[1:] - times[:-1]
-
     return {
-        "dt": power_dt.tolist(),
+        "ts": times.tolist(),
         "power": power.tolist(),
     }

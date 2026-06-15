@@ -16,10 +16,9 @@ class RAPL:
 
     Examples
     --------
-    >>> import time
     >>> from mendevi.measures.rapl import RAPL
     >>> with RAPL() as energy:
-    ...     time.sleep(1)
+    ...     pass
     ...
     >>>
 
@@ -63,7 +62,7 @@ class RAPL:
                     "or give rights with 'sudo sysctl -w kernel.perf_event_paranoid=0'",
                 )
                 logging.getLogger(__name__).error(
-                    "or edit /etc/sysctl.d/99-perf.conf with 'kernel.perf_event_paranoid = 0'",
+                    "or create /etc/sysctl.d/99-perf.conf with 'kernel.perf_event_paranoid = 0'",
                 )
             self.lines.extend(self.process.stderr.readlines())
             if not no_fail:
@@ -77,8 +76,8 @@ class RAPL:
         Returns
         -------
         Consumption: dict[str]
-            * 'dt': The time difference between 2 consecutive power measurements (in s).
-            * 'power': The power measured between 2 consecutive points (in w).
+            * 'ts': The time duration of each measurements (in s). Shape (n_points+1,).
+            * 'power': The power measured between 2 consecutive points (in w). Shape (n_points,).
 
         """
         self.time_bounds[1] = time.time()
@@ -122,5 +121,5 @@ class RAPL:
         times_start[0], times_end[-1] = self.time_bounds[1], self.time_bounds[2]
 
         # compute total energy
-        self.res["dt"] = [te - ts for ts, te in zip(times_start, times_end, strict=False)]
+        self.res["ts"] = [self.time_bounds[1], *times_end]
         self.res["power"] = power

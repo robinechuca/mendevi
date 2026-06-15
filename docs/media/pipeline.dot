@@ -44,7 +44,7 @@ digraph pipeline {
     # blocs
     subgraph clus_prepare {
         cluster=true
-        label="step: Preparation"
+        label="action: Prepare"
         bgcolor="#29a2c6"
         prepare
     }
@@ -54,13 +54,13 @@ digraph pipeline {
         bgcolor="#ffcb18"
         subgraph clus_encode {
             cluster=true
-            label="step: Encode"
+            label="action: Encode"
             bgcolor="#29a2c6"
             t_dec t_convert t_encode
         }
         subgraph clus_decode {
             cluster=true
-            label="step: Decode"
+            label="action: Decode"
             bgcolor="#29a2c6"
             decode convert
         }
@@ -68,7 +68,7 @@ digraph pipeline {
     }
     subgraph clus_probe {
         cluster=true
-        label="step: Probe"
+        label="action: Probe"
         bgcolor="#29a2c6"
         probe
     }

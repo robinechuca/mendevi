@@ -65,7 +65,7 @@ class Activity(threading.Thread):
         self._rapl_catcher = RAPL(sleep=sleep, no_fail=True)
         self._usage_catcher = Usage(sleep=sleep)
         self._usage_gpu_catcher = UsageGPU(sleep=sleep)
-        self._exit_queue = queue.Queue()
+        self._exit_queue, self._started_queue = queue.Queue(), queue.Queue()
         self._slices: dict[typing.Hashable, list[float, float]] = {}  # {lbl: [start, stop], ...}
         self._slices_current_lbl: typing.Hashable | None = None  # the currently processing label
         self._as_dict_called: bool = False
@@ -130,25 +130,25 @@ class Activity(threading.Thread):
                 wattmeter = None
             else:
                 self.res |= {
-                    "wattmeter_dt": wattmeter["dt"],
+                    "wattmeter_ts": wattmeter["ts"],
                     "wattmeter_power": wattmeter["power"],
                 }
         # cut slices
-        dtlbl_datalbls = (
-            ("ps_dt", ("ps_core", "ps_ram", "ps_temp")),
-            ("rapl_dt", ("rapl_power",)),
-            ("gpu_dt", ("gpu_core", "gpu_memory", "gpu_power")),
-            ("wattmeter_dt", ("wattmeter_power",)),
+        tslbl_datalbls = (
+            ("ps_ts", ("ps_core", "ps_ram", "ps_temp")),
+            ("rapl_ts", ("rapl_power",)),
+            ("gpu_ts", ("gpu_core", "gpu_memory", "gpu_power")),
+            ("wattmeter_ts", ("wattmeter_power",)),
         )
-        dtlbl_datalbls = tuple((dt, fields) for dt, fields in dtlbl_datalbls if dt in self.res)
+        tslbl_datalbls = tuple((ts, fields) for ts, fields in tslbl_datalbls if ts in self.res)
         if self._slices:
             slices = {  # each slice, not concats
                 slicelbl: {
                     **{
                         fieldlbl: data
-                        for dt_lbl, data_lbls in dtlbl_datalbls
+                        for ts_lbl, data_lbls in tslbl_datalbls
                         for fieldlbl, data in self._extract_slice(
-                            dt_lbl, data_lbls, start, stop,
+                            ts_lbl, data_lbls, start, stop,
                         ).items()
                     },
                     "start": start,
@@ -161,12 +161,15 @@ class Activity(threading.Thread):
                 slicelbl: {
                     **data,  # keep the expanded data
                     **{  # add the averages
-                        f"{flbl}_avg": self._trapez_integral_avg(data[dtlbl], data[flbl])
-                        for dtlbl, fieldlbls in dtlbl_datalbls for flbl in fieldlbls
+                        f"{f_lbl}_avg": self._integral_avg(
+                            data[f"{ts_lbl[:-2]}dt"], data[f_lbl],
+                        )
+                        for ts_lbl, fieldlbls in tslbl_datalbls for f_lbl in fieldlbls
                     },
                 }
                 for slicelbl, data in slices.items()
             }
+            import ipdb; ipdb.set_trace()
             self.res = (slices, self.res)
         else:
             self.res = ({}, self.res)
@@ -181,27 +184,28 @@ class Activity(threading.Thread):
             self._usage_catcher as usage,
             self._usage_gpu_catcher as gpu,
         ):
-            self._exit_queue.get()  # wait
+            self._started_queue.put(None)  # send signal catched by .__enter__()
+            self._exit_queue.get()  # wait the signal sended by .__exit__()
         self.res |= {
             "ps_core": usage["cpu"],
-            "ps_dt": usage["dt"],
+            "ps_ts": usage["ts"],
             "ps_ram": usage["ram"],
             "ps_temp": usage["temp"],
         }
         if adec is not None:
             self.res |= {
-                "wattmeter_dt": adec["dt"],
+                "wattmeter_ts": adec["ts"],
                 "wattmeter_power": [sum(p) for p in adec["p_eff"]],
             }
         if rapl is not None:
             self.res |= {
-                "rapl_dt": rapl["dt"],
+                "rapl_ts": rapl["ts"],
                 "rapl_power": rapl["power"],
             }
         if gpu is not None:
             self.res |= {
                 "gpu_core": gpu["gpu"],
-                "gpu_dt": gpu["dt"],
+                "gpu_ts": gpu["ts"],
                 "gpu_memory": gpu["memory"],
                 "gpu_power": gpu["power"],
             }
@@ -256,13 +260,13 @@ class Activity(threading.Thread):
         self._slices_current_lbl = None
         return lbl
 
-    def _extract_slice(self, dt_lbl: str, data_lbls: list[str], start: float, stop: float) -> dict:
+    def _extract_slice(self, ts_lbl: str, data_lbls: list[str], start: float, stop: float) -> dict:
         """Extract data for the slice time.
 
         Paramaters
         ----------
-        dt_lbl : str
-            The label of the reference time durations.
+        ts_lbl : str
+            The label of the reference timestamps boundaries.
         data_lbls : list[str]
             Labels of interset, to be cut.
         start, stop : float
@@ -272,25 +276,23 @@ class Activity(threading.Thread):
         -------
         sub_slice : dict
             The cut and selected data.
-            Only this labels and dt_lbl are in the final return dict.
+            Only this labels and ts_lbl are in the final return dict.
 
         """
-        assert isinstance(dt_lbl, str), dt_lbl.__class__.__name__
-        assert dt_lbl in self.res, sorted(self.res)
+        assert isinstance(ts_lbl, str), ts_lbl.__class__.__name__
+        assert ts_lbl in self.res, sorted(self.res)
         assert isinstance(data_lbls, list | tuple), data_lbls.__class__.__name__
         assert all(lbl in self.res for lbl in data_lbls), sorted(self.res)
         assert isinstance(start, float), start.__class__.__name__
         assert isinstance(stop, float), stop.__class__.__name__
 
         # get slice start and stop indicies
-        dts = np.asarray(self.res[dt_lbl], dtype=np.float64)
-        timestamps = self.res["start"] + dts.cumsum()
-        timestamps = np.asarray([0.0, *timestamps.tolist(), np.inf], dtype=timestamps.dtype)
-        idx_start = int((timestamps < start).view(np.uint8).argmin() - 1)
+        timestamps = np.asarray([0.0, *self.res[ts_lbl], np.inf], dtype=np.float64)
+        idx_start = int((timestamps <= start).view(np.uint8).argmin() - 1)
         idx_stop = int((timestamps >= stop).view(np.uint8).argmax())
 
         # restrict timestamps diff (dt) interval
-        timestamps = timestamps[idx_start:idx_stop]
+        timestamps = timestamps[idx_start:idx_stop+1]
         timestamps[0], timestamps[-1] = start, stop
 
         # cut slices
@@ -321,10 +323,10 @@ class Activity(threading.Thread):
 
         return {
             **{lbl: cut_slice(self.res[lbl], idx_start, idx_stop) for lbl in data_lbls},
-            dt_lbl: (timestamps[1:] - timestamps[:-1]).tolist(), # absolute to dt
+            f"{ts_lbl[:-2]}dt": (timestamps[1:] - timestamps[:-1]).tolist(),  # ts to dt
         }
 
-    def _trapez_integral_avg(self, times_delta: list[float], data: list | dict) -> float | dict:
+    def _integral_avg(self, times_delta: list[float], data: list | dict) -> float | dict:
         """Compute the average value of a data serie."""
         match data:
             case list() | tuple():
@@ -332,47 +334,33 @@ class Activity(threading.Thread):
                     return np.nan
                 if isinstance(data[0], list | tuple):  # shape (n_times_point, n_sensors)
                     return sum(
-                        self._trapez_integral_avg(times_delta, d) for d in zip(*data, strict=True)
+                        self._integral_avg(times_delta, d) for d in zip(*data, strict=True)
                     )
                 if isinstance(data[0], numbers.Real):
-                    if duration := sum(times_delta):
-                        if len(times_delta) == len(data):  # simple integral with rectangle
-                            return sum(
-                                dt * val for dt, val in zip(times_delta, data, strict=True)
-                            ) / duration
-                        if len(times_delta) == len(data) - 1:  # trapeze integration
-                            return 0.5 * sum(  # trapeze integration
-                                dt * (bmin + bmax)
-                                for dt, bmin, bmax
-                                in zip(times_delta, data[:-1], data[1:], strict=True)
-                            ) / duration  # average of integral
+                    if len(times_delta) != len(data):
                         msg = (
                             f"the dt length {len(times_delta)} "
                             f"and the data length {len(data)} are not compatible"
                         )
                         raise ValueError(msg)
-                    return np.nan
+                    return sum(   # simple integral with rectangle
+                        dt * val for dt, val in zip(times_delta, data, strict=True)
+                    ) / sum(times_delta)
                 raise TypeError
             case dict():
-                return {k: self._trapez_integral_avg(times_delta, d) for k, d in data.items()}
+                return {k: self._integral_avg(times_delta, d) for k, d in data.items()}
         raise TypeError
 
     def __enter__(self) -> typing.Self:
-        """Start to measure.
-
-        Notes
-        -----
-        The returned dictionary is update inplace when we exit the code bloc.
-        Only the successfull field are created.
-
-        """
+        """Start to measure."""
         self.start()
+        self._started_queue.get()  # wait until the acquisitions are well established
         return self
 
     def __exit__(self, *_: object) -> None:
         """Stop the measure and update the dictionary returnd by __enter__."""
         # stop
         self.res["duration"] = time.time() - self.res["start"]
-        self._exit_queue.put(None)
+        self._exit_queue.put(None)  # send a signal catched by .run()
         with contextlib.suppress(RuntimeError):
             self.stop_slice()

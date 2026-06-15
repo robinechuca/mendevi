@@ -1,6 +1,7 @@
 """Query the GPUs activity."""
 
 import numbers
+import queue
 import threading
 import time
 
@@ -31,10 +32,9 @@ class UsageGPU(threading.Thread):
 
     Examples
     --------
-    >>> import time
     >>> from mendevi.measures.gpu import UsageGPU
     >>> with UsageGPU() as gpu:
-    ...     time.sleep(1)
+    ...     pass
     ...
     >>>
 
@@ -54,10 +54,11 @@ class UsageGPU(threading.Thread):
         assert isinstance(sleep, numbers.Real), sleep.__class__.__name__
         assert sleep > 0, sleep
 
+        self._signal_queue = queue.Queue()
         self._stop_flag = False
         self.sleep = float(sleep)
         self.res: dict | None = {
-            "dt": [],
+            "ts": [],
             "gpu": [],
             "memory": [],
             "power": [],
@@ -65,12 +66,29 @@ class UsageGPU(threading.Thread):
 
     def run(self) -> None:
         """Perform the measures."""
-        while GPUS and not self._stop_flag:
-            t_init = time.time()
-            for cat, vals in measure().items():
-                self.res[cat].append(vals)
-            time.sleep(max(0.0, self.sleep + t_init - time.time()))
-            self.res["dt"].append(time.time() - t_init)
+        is_warming = True
+        if self.res is None:
+            self._signal_queue.put(None)
+            return
+        # reset the measures
+        for data in self.res.values():
+            data.clear()
+
+        # start measurements
+        self.res["ts"].append(time.time())
+        try:
+            while True:
+                for cat, vals in measure().items():
+                    self.res[cat].append(vals)
+                if is_warming:
+                    is_warming = False
+                    self._signal_queue.put(None)  # send signal catched by .__enter__()
+                time.sleep(max(0.0, self.sleep + self.res["ts"][-1] - time.time()))
+                self.res["ts"].append(time.time())
+                if self._stop_flag:
+                    break
+        except Exception as err:
+            self._signal_queue.put(err)
 
     def __enter__(self) -> dict:
         """Start to measure.
@@ -78,16 +96,24 @@ class UsageGPU(threading.Thread):
         Returns
         -------
         Consumption: dict[str]
-            * 'dt': The time duration of each measurements (in s). Same length as the data.
             * 'gpu': The mean usage of all the logical gpus. Shape (n_points, n_gpu).
             * 'memory': The memory used for each gpu (in bytes). Shape (n_points, n_gpu).
-            * 'power': The power measured between 2 consecutive points (in w). (n_points, n_gpu)
+            * 'power': The power measured between 2 consecutive points (in w). (n_points, n_gpu).
+            * 'ts': The time duration of each measurements (in s). Shape (n_points+1,).
 
         """
         self.start()
+        if (err := self._signal_queue.get()) is not None:  # wait until the first frame is catched
+            raise err
         return self.res
 
     def __exit__(self, *_: object) -> None:
         """Stop the measure and update the dictionary returnd by __enter__."""
         self._stop_flag = True
         self.join()  # wait the last update of self.run
+        try:
+            err = self._signal_queue.get_nowait()
+        except queue.Empty:
+            pass
+        else:
+            raise err

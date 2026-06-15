@@ -1,6 +1,7 @@
 """Get the power consumption of as usb plugded ADEC WATTS wattmeters."""
 
 import math
+import queue
 import struct
 import threading
 import time
@@ -18,10 +19,9 @@ class ADECWattmeter(threading.Thread):
 
     Examples
     --------
-    >>> import time
-    >>> from mendevi.measures.adec import ADECWattmeter
-    >>> with ADECWattmeter() as usage:
-    ...     time.sleep(1)
+    >>> from mendevi.measures.adecwatts import ADECWattmeter
+    >>> with ADECWattmeter(no_fail=True) as usage:
+    ...     pass
     ...
     >>>
 
@@ -50,13 +50,13 @@ class ADECWattmeter(threading.Thread):
             except RuntimeError:
                 if not no_fail:
                     raise
-
         else:
             assert isinstance(port, "/dev/ttyUSB0"), port.__class__.__name__
 
+        self._signal_queue = queue.Queue()
         self._stop_flag = False
         self.port = port
-        self.res: dict | None = {"dt": [], "u_rms": [], "i_rms": [], "p_eff": []} if port else None
+        self.res: dict | None = {"ts": [], "u_rms": [], "i_rms": [], "p_eff": []} if port else None
 
     def _find_header(self, port: serial.Serial) -> float:
         """Read the stream until it encounters the header."""
@@ -120,6 +120,23 @@ class ADECWattmeter(threading.Thread):
         msg = f"failed to read on device {port.port!r}"
         raise TimeoutError(msg)
 
+    def _yield_frames(self, port: serial.Serial) -> dict[str]:
+        """Like _read_frame but skip the corrupted one."""
+        n_corrupted_max = 5
+        err = None
+        while True:
+            for _ in range(n_corrupted_max):
+                try:
+                    self._find_header(port)
+                    yield self._read_frame(port)
+                except ValueError as err:  # reject the first frame
+                    continue
+                else:
+                    break
+            else:
+                msg = f"{n_corrupted_max} corrupted packets recovered subsequently"
+                raise RuntimeError(msg) from err
+
     @staticmethod
     def guess_port() -> str:
         """Automaticaly find the port in the list of reachable ports."""
@@ -145,24 +162,36 @@ class ADECWattmeter(threading.Thread):
 
     def run(self) -> None:
         """Perform the measures."""
+        is_warming = True
         if self.res is None:
+            self._signal_queue.put(None)
             return
-        # open the port
-        with serial.Serial(
-            self.port,
-            baudrate=BAUD,
-            timeout=1.0,
-            dsrdtr=False,  # already default values, juste to be shure
-            rtscts=False,  # already default values, juste to be shure
-        ) as port:
-            port.dtr = port.rts = False  # like in adecwatts c code
-            port.reset_input_buffer()
-            self._find_header(port)  # reject the first frame
-            self._find_header(port)  # and the second one as well
-            while not self._stop_flag:
-                self._find_header(port)
-                for lbl, value in self._read_frame(port).items():
-                    self.res[lbl].append(value)
+        # reset the measures
+        for data in self.res.values():
+            data.clear()
+        try:
+            # open the port
+            with serial.Serial(
+                self.port,
+                baudrate=BAUD,
+                timeout=1.0,
+                dsrdtr=False,  # already default values, just to be shure
+                rtscts=False,  # already default values, just to be shure
+            ) as port:
+                port.dtr = port.rts = False  # like in adecwatts c code
+                port.reset_input_buffer()
+                self.res["ts"].append(time.time())
+                for frame in self._yield_frames(port):
+                    if is_warming:
+                        is_warming = False
+                        self._signal_queue.put(None)  # send signal catched by .__enter__()
+                    self.res["ts"].append(self.res["ts"][-1] + frame["dt"])  # increment timestamp
+                    for lbl in ("u_rms", "i_rms", "p_eff"):
+                        self.res[lbl].append(frame[lbl])
+                    if self._stop_flag:
+                        break
+        except Exception as err:
+            self._signal_queue.put(err)
 
     def __enter__(self) -> dict:
         """Start to measure.
@@ -170,23 +199,24 @@ class ADECWattmeter(threading.Thread):
         Returns
         -------
         Consumption: dict[str]
-            * 'dt': The duration of the sample measure (in s).
-            * 'u_rms': The voltage of the 3 phases (in V).
-            * 'i_rms': The current of each channal (in A).
-            * 'p_eff': The efficient power of each channal (in W).
+            * 'ts': The absolute timestamps between 2 mesurements (in s), shape (n+1,).
+            * 'u_rms': The voltage of the 3 phases (in V), shape (n, 3).
+            * 'i_rms': The current of each channal (in A), shape (n, c).
+            * 'p_eff': The efficient power of each channal (in W), shape (n, c).
 
         """
         self.start()
+        if (err := self._signal_queue.get()) is not None:  # wait until the first frame is catched
+            raise err
         return self.res
 
     def __exit__(self, *_: object) -> None:
         """Stop the measure and update the dictionary returnd by __enter__."""
         self._stop_flag = True
         self.join()  # wait the last update of self.run
-
-
-if __name__ == "__main__":
-    with ADECWattmeter() as usage:
-        time.sleep(10)
-    import pprint
-    pprint.pprint(usage)
+        try:
+            err = self._signal_queue.get_nowait()
+        except queue.Empty:
+            pass
+        else:
+            raise err

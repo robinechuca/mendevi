@@ -286,7 +286,7 @@ def extract_cores(raw: dict[str]) -> float:
     if act_ps_dt is None or act_ps_core is None:
         return None
     act_ps_dt = binary_to_list(act_ps_dt)
-    act_ps_core = binary_to_tensor(act_ps_core).sum(axis=1)
+    act_ps_core = binary_to_tensor(act_ps_core).sum(axis=1)  # (n_points, n_cpu)
     integral = (act_ps_core * act_ps_dt).sum()  # act_ps_core is already the average on each dt
     average = integral / act_ps_dt.sum()
     return float(average) / 100.0  # normalisation
@@ -530,7 +530,6 @@ def extract_powers(raw: dict[str]) -> tuple:
     act_dt, act_power = raw["act_wattmeter_dt"], raw["act_wattmeter_power"]
     if act_dt is not None and act_power is not None:  # if it comes from wattmeter
         act_dt, act_power = binary_to_list(act_dt), binary_to_list(act_power)
-        act_power = 0.5 * (act_power[:-1] + act_power[1:])  # trapez method
     else:  # if it comes from rapl
         act_dt, act_power = raw["act_rapl_dt"], raw["act_rapl_power"]
         if act_dt is None or act_power is None:

@@ -1,6 +1,7 @@
 """Use psutil to record the CPU and RAM usage."""
 
 import numbers
+import queue
 import threading
 import time
 
@@ -12,10 +13,9 @@ class Usage(threading.Thread):
 
     Examples
     --------
-    >>> import time
     >>> from mendevi.measures.psutil import Usage
     >>> with Usage() as usage:
-    ...     time.sleep(1)
+    ...     pass
     ...
     >>>
 
@@ -35,14 +35,19 @@ class Usage(threading.Thread):
         assert isinstance(sleep, numbers.Real), sleep.__class__.__name__
         assert sleep > 0, sleep
 
+        self._signal_queue = queue.Queue()
         self._stop_flag = False
         self.sleep = float(sleep)
-        self.res: dict = {"dt": [], "cpu": [], "ram": [], "temp": {}}
+        self.res: dict = {"ts": [], "cpu": [], "ram": [], "temp": {}}
 
     def run(self) -> None:
         """Perform the measures."""
-        while not self._stop_flag:
-            t_init = time.time()
+        is_warming = True
+        # reset the measures
+        for data in self.res.values():
+            data.clear()
+        self.res["ts"].append(time.time())
+        while True:
             self.res["cpu"].append(psutil.cpu_percent(self.sleep, percpu=True))
             self.res["ram"].append(psutil.virtual_memory().used)
             temp: dict[str, float] = {
@@ -53,12 +58,20 @@ class Usage(threading.Thread):
             for lbl, degrees in temp.items():
                 self.res["temp"][lbl] = self.res["temp"].get(lbl, [])
                 self.res["temp"][lbl].append(degrees)
+            self.res["ts"].append(time.time())
             # sometimes, temperature data is missing
             # so we duplicate the missing temperature to ensure the data len is complete
             for lbl in self.res["temp"]:
-                while len(self.res["temp"][lbl]) < len(self.res["dt"]) + 1:
+                while len(self.res["temp"][lbl]) < len(self.res["ts"]) - 1:
                     self.res["temp"][lbl].append(self.res["temp"][lbl][-1])
-            self.res["dt"].append(time.time() - t_init)
+            # send signal
+            if is_warming:
+                is_warming = False
+                self._signal_queue.put(None)  # send signal catched by .__enter__()
+            # exit
+            if self._stop_flag:
+                break
+
 
     def __enter__(self) -> dict:
         """Start to measure.
@@ -67,12 +80,13 @@ class Usage(threading.Thread):
         -------
         Consumption: dict[str]
             * 'cpu': Each logical cpu usage at each time (in %). Shape (n_points, n_cpu).
-            * 'dt': The time duration of each measurements (in s). Same length as the data.
-            * 'ram': The virtual ram usage (in bytes).
+            * 'ram': The virtual ram usage (in bytes). Shape (n_points,).
             * 'temp': The temperatures measured at each moment for all sensors (in C).
+            * 'ts': The time duration of each measurements (in s). Shape (n_points+1,).
 
         """
         self.start()
+        self._signal_queue.get()  # wait until the first frame is catched
         return self.res
 
     def __exit__(self, *_: object) -> None:
