@@ -119,7 +119,7 @@ class Activity(threading.Thread):
         self._as_dict_called = True
         self.join()
         # request wattmeter power
-        if "wattmeter_dt" not in self.res:  # ADEC and GRID'5000 are mutualy exclusive
+        if "wattmeter_ts" not in self.res:  # ADEC and GRID'5000 are mutualy exclusive
             time.sleep(max(
                 0.0,
                 G5K_API_WAIT + self.res["start"] + self.res["duration"] - time.time(),
