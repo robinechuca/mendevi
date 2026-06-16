@@ -35,7 +35,7 @@ class ADECWattmeter(threading.Thread):
         port : str, default=autodetect
             The port to listen on. In gerenal it is "/dev/ttyUSB0".
             By default, it is autodetected using :py:meth`guess_port`.
-        no_fail : bool, default=True
+        no_fail : bool, default=False
             If False, raise RuntimeError if it fails to get the ADEC measure.
             Otherwise (if True), return None instead of failing.
 
@@ -51,7 +51,7 @@ class ADECWattmeter(threading.Thread):
                 if not no_fail:
                     raise
         else:
-            assert isinstance(port, "/dev/ttyUSB0"), port.__class__.__name__
+            assert isinstance(port, str), port.__class__.__name__
 
         self._signal_queue = queue.Queue()
         self._stop_flag = False
@@ -115,9 +115,14 @@ class ADECWattmeter(threading.Thread):
     @staticmethod
     def _read_port(port: serial.Serial, nbr: int = 1) -> bytes:
         """Raise an exception if the port is not readable."""
-        if len(data := port.read(nbr)) == nbr:
-            return data
-        msg = f"failed to read on device {port.port!r}"
+        try:
+            if len(data := port.read(nbr)) == nbr:
+                return data
+        except serial.SerialException as err:  # device reports readiness to read but returned no data...
+            time.sleep(0.1)  # wait for better stabilisation
+            msg = f"device {port.port!r} busy"
+            raise ValueError(msg) from err
+        msg = f"failed to read on device {port.port!r}, data to short {len(data)} vs {nbr}"
         raise TimeoutError(msg)
 
     def _yield_frames(self, port: serial.Serial) -> dict[str]:
@@ -179,7 +184,7 @@ class ADECWattmeter(threading.Thread):
                 rtscts=False,  # already default values, just to be shure
             ) as port:
                 port.dtr = port.rts = False  # like in adecwatts c code
-                port.reset_input_buffer()
+                port.reset_input_buffer()  # can trigger other daemons doing stuff on this port
                 self.res["ts"].append(time.time())
                 for frame in self._yield_frames(port):
                     if is_warming:

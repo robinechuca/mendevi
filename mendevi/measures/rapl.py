@@ -31,7 +31,7 @@ class RAPL:
         ----------
         sleep : float, default=50e-3
             The time interval between 2 measures (in s).
-        no_fail : bool, default=True
+        no_fail : bool, default=False
             If False, raise RuntimeError if it fails to get the RAPL measure.
             Otherwise (if True), return None instead of failing.
 

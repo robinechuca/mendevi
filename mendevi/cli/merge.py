@@ -1,23 +1,5 @@
 """Merge databases.
 
-Check t_met_metric consistency
-==============================
-
-.. code:: sql
-
-    SELECT
-        (SELECT COUNT(*) FROM t_met_metric)                        AS total_metrics,
-        (SELECT COUNT(*) FROM t_enc_encode)                        AS total_encodes,
-        (SELECT COUNT(DISTINCT met_dis_vid_id) FROM t_met_metric)  AS dis_videos_unics,
-        (SELECT COUNT(*) FROM t_met_metric
-            WHERE met_dis_vid_id NOT IN
-            (SELECT enc_dst_vid_id FROM t_enc_encode))             AS orphins,
-        (SELECT COUNT(*) FROM (
-            SELECT met_ref_vid_id, met_dis_vid_id
-            FROM t_met_metric
-            GROUP BY met_ref_vid_id, met_dis_vid_id
-            HAVING COUNT(*) > 1))                                  AS duplicate_pairs;
-
 Remove fields with empty wattmeter value
 ========================================
 
@@ -191,8 +173,8 @@ def main(databases: tuple[str], **kwargs: dict) -> None:
                 act_old_to_new: dict[int, int] = {}
                 for row_ in cursor_src.execute("SELECT * FROM t_act_activity"):
                     row = dict(row_)
-                    if len(row["act_wattmeter_dt"]) != len(row["act_wattmeter_power"]):  # fix bug version <= 1.3.4
-                        del row["act_wattmeter_dt"], row["act_wattmeter_power"]
+                    if len(row["act_wattmeter_dt"]) != len(row["act_wattmeter_power"]):
+                        del row["act_wattmeter_dt"], row["act_wattmeter_power"]  # corrupted in version <= 1.3.4
                     old = row.pop("act_id")
                     new = _insert_update(cursor_dst, row, "t_act_activity", ())["act_id"]
                     act_old_to_new[old] = new
