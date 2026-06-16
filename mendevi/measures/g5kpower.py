@@ -129,6 +129,9 @@ def g5kpower(
     except requests.exceptions.SSLError as err:
         logging.getLogger(__name__).info(err)
         req = requests.get(url, auth=auth, verify=False, timeout=60)
+    except requests.exceptions.ChunkedEncodingError as err:
+        msg = f"the result of the request {url} is corrupted"
+        raise ValueError(msg) from err
     if req.status_code != GOOD_REQ_STATUS:
         msg = f"the request {url} failed"
         raise ValueError(msg, req)
