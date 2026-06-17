@@ -173,7 +173,7 @@ def main(databases: tuple[str], **kwargs: dict) -> None:
                 act_old_to_new: dict[int, int] = {}
                 for row_ in cursor_src.execute("SELECT * FROM t_act_activity"):
                     row = dict(row_)
-                    if len(row["act_wattmeter_dt"]) != len(row["act_wattmeter_power"]):
+                    if len(row["act_wattmeter_dt"] or b"") != len(row["act_wattmeter_power"] or b""):
                         del row["act_wattmeter_dt"], row["act_wattmeter_power"]  # corrupted in version <= 1.3.4
                     old = row.pop("act_id")
                     new = _insert_update(cursor_dst, row, "t_act_activity", ())["act_id"]
