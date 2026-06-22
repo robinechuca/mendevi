@@ -210,4 +210,6 @@ def parse_videos_database(
     elif not _quiet:
         prt.print(f"database  : {database}")
 
+    # filtering
+    videos = [v for v in videos if v != database]
     return videos, database
