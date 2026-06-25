@@ -89,6 +89,7 @@ class UsageGPU(threading.Thread):
                     break
         except Exception as err:
             self._signal_queue.put(err)
+            raise
 
     def __enter__(self) -> dict:
         """Start to measure.

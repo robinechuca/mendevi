@@ -32,6 +32,8 @@ x, y : tuple[str]
     The name of the x and y axes on each window. Possible values are:
         {NAMES_DOC}
 \b
+animation : str, optional
+    It work like a parametric filter over the time "t", to generate an animation.
 color, marker : str, optional
     All points with the same value for this variable will be displayed in the same color and marker.
     Conversely, this allows points that do not share this criterion to be visually separated.
@@ -74,6 +76,9 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
     assert kwargs["y"], "you must provide the -y option"
     for i, expr in enumerate(kwargs["y"]):
         parse_expr(expr, prt, f"y_{i:<8}")
+
+    # animation
+    kwargs["animation"] = kwargs.get("animation")
 
     # color
     kwargs["color"] = kwargs.get("color")
@@ -147,6 +152,11 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
     type=str,
     multiple=True,
     help="The code for the value to be displayed on the y-axis.",
+)
+@click.option(
+    "-a", "--animation",
+    type=str,
+    help="Like x or y but for the time axis.",
 )
 @click.option(
     "-c", "--color",

@@ -11,7 +11,7 @@ import typing
 import numpy as np
 
 from .adecwatts import ADECWattmeter
-from .g5kpower import g5kpower, MARGIN
+from .g5kpower import MARGIN, g5kpower
 from .gpu import UsageGPU
 from .psutil import Usage
 from .rapl import RAPL

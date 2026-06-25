@@ -173,8 +173,6 @@ def main(databases: tuple[str], **kwargs: dict) -> None:
                 act_old_to_new: dict[int, int] = {}
                 for row_ in cursor_src.execute("SELECT * FROM t_act_activity"):
                     row = dict(row_)
-                    if len(row["act_wattmeter_dt"] or b"") != len(row["act_wattmeter_power"] or b""):
-                        del row["act_wattmeter_dt"], row["act_wattmeter_power"]  # corrupted in version <= 1.3.4
                     old = row.pop("act_id")
                     new = _insert_update(cursor_dst, row, "t_act_activity", ())["act_id"]
                     act_old_to_new[old] = new
@@ -195,8 +193,6 @@ def main(databases: tuple[str], **kwargs: dict) -> None:
                 for row_ in cursor_src.execute("SELECT * FROM t_enc_encode"):
                     row = dict(row_)
                     del row["enc_id"]
-                    if "enc_vbr" in row:  # retrocompatibility with version <= 1.2.0
-                        row["enc_mode"] = "vbr" if row.pop("enc_vbr") else "cbr"
                     row["enc_env_id"] = env_old_to_new[row["enc_env_id"]]
                     row["enc_act_id"] = act_old_to_new[row["enc_act_id"]]
                     _insert_update(cursor_dst, row, "t_enc_encode", ())

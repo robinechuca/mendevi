@@ -118,7 +118,8 @@ class ADECWattmeter(threading.Thread):
         try:
             if len(data := port.read(nbr)) == nbr:
                 return data
-        except serial.SerialException as err:  # device reports readiness to read but returned no data...
+        # device reports readiness to read but returned no data...
+        except serial.SerialException as err:
             time.sleep(0.1)  # wait for better stabilisation
             msg = f"device {port.port!r} busy"
             raise ValueError(msg) from err
@@ -128,19 +129,19 @@ class ADECWattmeter(threading.Thread):
     def _yield_frames(self, port: serial.Serial) -> dict[str]:
         """Like _read_frame but skip the corrupted one."""
         n_corrupted_max = 5
-        err = None
+        errors = [None]
         while True:
             for _ in range(n_corrupted_max):
                 try:
                     self._find_header(port)
                     yield self._read_frame(port)
                 except ValueError as err:  # reject the first frame
-                    continue
+                    errors[0] = err
                 else:
                     break
             else:
                 msg = f"{n_corrupted_max} corrupted packets recovered subsequently"
-                raise RuntimeError(msg) from err
+                raise RuntimeError(msg) from errors.pop()
 
     @staticmethod
     def guess_port() -> str:
@@ -197,6 +198,7 @@ class ADECWattmeter(threading.Thread):
                         break
         except Exception as err:
             self._signal_queue.put(err)
+            raise
 
     def __enter__(self) -> dict:
         """Start to measure.

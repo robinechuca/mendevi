@@ -4,7 +4,6 @@ import itertools
 import math
 import pathlib
 import pickle
-import subprocess
 
 import click
 import matplotlib.pyplot as plt
@@ -213,7 +212,8 @@ def predict(ctx: click.Context) -> None:
         model = _ModelUnpickler(file).load()
         prt.print_time()
 
-    raise NotImplementedError
+    raise NotImplementedError(model)
+
 
 
 @click.command
@@ -328,7 +328,6 @@ def benchmark(**kwargs: dict) -> None:
         mape = all_mape[output_label][i]
         bins = math.ceil(math.sqrt(len(mape))) + 1
         maxi = xlim[output_label] / 0.95
-        width = maxi / bins
         hist = torch.histc(mape, bins=bins, min=0, max=maxi)
         hist /= hist.max()
         quants = torch.quantile(mape, torch.asarray([0.05, 0.25, 0.5, 0.75, 0.95]))
@@ -348,8 +347,8 @@ def benchmark(**kwargs: dict) -> None:
             width=quants[3]-quants[2], align="edge", color=COLORS[1], label="third quartile",
         )
         axe.bar(
-            torch.linspace(0, width*(bins-1), bins), hist,
-            width=width, align="edge", color=COLORS[2], label="histogram",
+            torch.linspace(0, (maxi / bins)*(bins-1), bins), hist,
+            width=maxi / bins, align="edge", color=COLORS[2], label="histogram",
         )
 
         axe.plot(
@@ -371,7 +370,7 @@ def benchmark(**kwargs: dict) -> None:
     fig.legend(lines, labels, loc="outside upper center", ncols=3)
 
     plt.savefig(FIGNAME, format=FIGNAME.suffix[1:], transparent=False)
-    subprocess.run(["pdfcrop", FIGNAME, FIGNAME], check=False)
+    # subprocess.run(["pdfcrop", FIGNAME, FIGNAME], check=False)
     plt.show()
 
 
