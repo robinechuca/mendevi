@@ -22,13 +22,13 @@ dependencies = [  # https://packaging.python.org/en/latest/specifications/depend
   "orjson",
   "psutil",
   "pygments",
-  "pyserial",  # for ADEC-WATTS wattmeters
+  "pyserial",  # optional for ADEC-WATTS wattmeters
   "requests",
   "tqdm",
   "unidecode",
 ]
 readme = "README.rst"
-license = {file = "LICENSE"}
+license = {file = "LICENSE"}  # GPL-3.0-or-later
 keywords = [
   "av1",
   "avc",
@@ -60,7 +60,9 @@ classifiers = [  # all classifiers https://pypi.org/classifiers/
   "Programming Language :: SQL",
   "Topic :: Database :: Database Engines/Servers",
   "Topic :: File Formats :: JSON",
+  "Topic :: Multimedia :: Sound/Audio :: Analysis",
   "Topic :: Multimedia :: Video :: Conversion",
+  "Topic :: Software Development :: Code Generators",
 ]
 
 [project.optional-dependencies]
@@ -96,7 +98,7 @@ where = [""]
 exclude = ["docs"]
 
 [tool.setuptools.package-data]
-"*" = ["*.json.xz"]
+"*" = ["*.json.xz", "dataset/**/*.torrent"]
 
 [tool.setuptools.dynamic]
 version = {attr = "mendevi.__version__"}

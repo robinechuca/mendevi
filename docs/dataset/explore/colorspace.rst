@@ -20,7 +20,7 @@ Allows you to see the impact of the color space on compression.
       - Total
     * - video
       - ``park_joy``
-      - `ctc <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/video/ctc.torrent?inline=false>`_
+      - `ctc <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/video/ctc.torrent?inline=false>`_
       - :math:`1`
     * - profile
       - ``fhd``

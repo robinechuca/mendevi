@@ -54,7 +54,7 @@ It manages the following parameters:
 #. Provides a guide to compile ffmpeg with all optimizations in order to ``compare encoders/decoders at their limits``.
 
 .. caution::
-    The entire code was written by hand, without the use of AI!
+    The entire code was written by hand, without the use of AI, including the kernel module cutcutcodec!
 
 
 Pipeline
@@ -92,4 +92,4 @@ Alternatives
 #. The `MVCD database <https://github.com/cd-athena/MVCD>`_ also includes video encoding and decoding energy measurements.
 #. The `COCONUT database <https://github.com/cd-athena/COCONUT>`_ also includes video decoding measurements.
 #. The `SEED and VEED dataset <https://github.com/cd-athena/VEED-dataset>`_ offers a comprehensive LCA and GPU measurements.
-#. The `CTC videos <https://dash-large-files.akamaized.net/WAVE/3GPP/5GVideo/ReferenceSequences/>`_ and `Big Buck Bunny <https://media.xiph.org/BBB/>`_ are used for the tests. The videos are downloadable for `these torrents <https://gitlab.inria.fr/rrichard/mendevi/-/tree/main/video>`_.
+#. The `CTC videos <https://dash-large-files.akamaized.net/WAVE/3GPP/5GVideo/ReferenceSequences/>`_ and `Big Buck Bunny <https://media.xiph.org/BBB/>`_ are used for the tests. The videos are downloadable from `these torrents <https://gitlab.inria.fr/rrichard/mendevi/-/tree/main/video>`_.

@@ -18,7 +18,7 @@ Compare the performance of ffmpeg when videos are read and written to **RAM**, a
       - Total
     * - video
       - ``park_joy``
-      - `ctc <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/video/ctc.torrent?inline=false>`_
+      - `ctc <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/video/ctc.torrent?inline=false>`_
       - :math:`1`
     * - profile
       - ``sd``, ``fhd``

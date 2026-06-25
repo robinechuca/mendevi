@@ -14,7 +14,7 @@ Allows you to see the impact of video length on compression and energy consumpti
       - Total
     * - video
       - :math:`100` slices
-      - `Big Buck Bunny <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/video/bbb.mp4.torrent?inline=false>`_
+      - `Big Buck Bunny <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/video/bbb.mp4.torrent?inline=false>`_
       - :math:`100`
     * - profile
       - ``sd``, ``fhd``

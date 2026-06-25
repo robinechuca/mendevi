@@ -14,7 +14,7 @@ Source videos
 You can access the **uhd4k lossless** encoded source **videos** via the following torrents:
 
 * `bbb.mp4 <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/video/bbb.mp4.torrent?inline=false>`_ (101 Go).
-* `ctc <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/video/ctc.torrent?inline=false>`_ (140 Go).
+* `ctc <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/video/ctc.torrent?inline=false>`_ (140 Go).
 
 All information relating to copyright, sources and content can be found directly in the video metadata.
 You can view this by typing ``ffprobe park_joy.mkv``.
