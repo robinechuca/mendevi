@@ -109,7 +109,7 @@ def print_cst(**kwargs: dict) -> list[str]:
             "FILENAME = pathlib.Path(__file__).with_suffix("
             f"{('.webm' if kwargs['animation'] else '.svg')!r})"
         ),
-        f"FIGSIZE = {FIGSIZE}  # (width, height)",
+        f"FIGSIZE = {FIGSIZE}  # matplotlib size (width, height)",
         f"MARKERS = {MARKERS}  # list of dot shapes",
         f"MARKERSIZE = {MARKERSIZE}",
         "",
@@ -274,7 +274,7 @@ def print_animation(**kwargs: dict) -> list[str]:
         '        """Efficient frame creator."""',
         "        self.full_values = full_values",
         "        self.limits = []",
-        "        main(self.full_values, render=False, limits=self.limits)  # find limits inplace",
+        "        main(self.full_values, render=False, limits=self.limits)  # find limits",
         "",
         "    def __call__(self, timestamp: fractions.Fraction) -> plt.Figure:",
         '        """Return the frame at this timestamp."""',
@@ -292,39 +292,29 @@ def print_animation(**kwargs: dict) -> list[str]:
         "            for name, vals in self.full_values.items()",
         "        }",
         "        # render",
-        "        return main(filtered_values, render=False, limits=self.limits)",
+        f'        title = {kwargs["animation"]!r}.replace("lamb", f"{{lamb:.3f}}")',
+        "        fig = main(filtered_values, render=False, limits=self.limits)",
+        "        fig.suptitle(title)",
+        "        return fig",
         "",
         "    def write(self) -> None:",
         '        """Use cutcutcodec to record the animation."""',
         "        (stream,) = cutcutcodec.generation.GeneratorVideoMatplotlib(self).out_streams",
         "        clipped_stream = stream.apply_video_subclip(0, DURATION)",
         "        streams_settings = [{",
-        '            "encodec": "libsvtav1",  # "libx264" for better compatibility but less efficiency',
-        '            "rate": 30,  # frame rate',
-        '            "shape": (720, 1080),  # image resolution as (height, width)',
+        '            "encodec": "libsvtav1",',
+        '            "rate": 25,  # frame rate',
+        '            "shape": (720, 900),  # image resolution as (height, width)',
         '            "pix_fmt": "yuv420p",  # "yuv420p10le" for better and lighter render, but slowler',
         '            "options": {  # easy read with fast seek configuration',
-        '                "crf": "23",  # high quality',
+        '                "crf": "28",  # high quality',
         '                "preset": "6",  # medium / high effort of compression',
-        '                "svtav1-params": "tune=1:film-grain=0:keyint=1s:fast-decode=1"',
+        '                "svtav1-params": "tune=1:film-grain=0:keyint=2s:fast-decode=1"',
         "            }",
         "        }]",
         "        cutcutcodec.write([clipped_stream], FILENAME, streams_settings=streams_settings)",
         "",
         "",
-    ]
-
-    streams_settings = [
-        {
-            "encodec": "libsvtav1",
-            "rate": 30,
-            "shape": (720, 1080),
-            "options": {  # easy read with fast seek configuration
-                "crf": "23",  # high quality
-                "preset": "6",  # medium effort of compression
-                "svtav1-params": "tune=1:film-grain=0:keyint=1s:fast-decode=1",
-            },
-        },
     ]
 
 

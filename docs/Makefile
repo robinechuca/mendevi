@@ -28,6 +28,8 @@ html:
 	@cp $(SOURCEDIR)/media/*.avif $(SOURCEDIR)/_static/media/
 	@echo "Moving *.svg..."
 	@cp $(SOURCEDIR)/media/*.svg $(SOURCEDIR)/_static/media/
+	@echo "Moving *.webm..."
+	@cp $(SOURCEDIR)/media/*.webm $(SOURCEDIR)/_static/media/
 	@echo "****************************************"
 	@echo "************* Change README ************"
 	@echo "****************************************"

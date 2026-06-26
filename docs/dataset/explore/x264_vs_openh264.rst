@@ -101,20 +101,22 @@ Compression efficiency for PSNR=35dB
 
 .. code:: shell
 
-    mendevi plot x264_vs_openh264.db -x rate -y energy -c '(encoder, profile)' -m category -f '34.5<psnr<35.5'
+    mendevi plot x264_vs_openh264.db -x rate -y energy -c '(encoder, profile)' -m category -a '19.5+50*lamb<psnr<20.5+50*lamb'
 
-.. image:: /_static/media/x264_vs_openh264_efficiency_psnr.svg
-    :alt: Consumption as a function of bitrate for a psnr of 35dB
+.. video:: /_static/media/x264_vs_openh264_efficiency_psnr.webm
+    :alt: Consumption as a function of bitrate for a sliding psnr
+    :width: 100%
 
 Compression efficiency for rate=2Mb/s
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code:: shell
 
-    mendevi plot x264_vs_openh264.db -x psnr -y energy -c '(encoder, profile)' -m category -f '1.8e6<rate<2.2e6'
+mendevi plot x264_vs_openh264.db -x psnr -y energy -c '(encoder, profile)' -m category -a '10**(3.8+4*lamb)<rate<10**(4.2+4*lamb)'
 
-.. image:: /_static/media/x264_vs_openh264_efficiency_rate.svg
+.. video:: /_static/media/x264_vs_openh264_efficiency_rate.webm
     :alt: Consumption as a function of bitrate for a bitrate of 2Mb/s
+    :width: 100%
 
 Compression efficiency for fixed energy
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
