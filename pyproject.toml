@@ -98,7 +98,7 @@ where = [""]
 exclude = ["docs"]
 
 [tool.setuptools.package-data]
-"*" = ["*.json.xz", "dataset/**/*.torrent"]
+"*" = ["*.json.xz", "*.torrent"]
 
 [tool.setuptools.dynamic]
 version = {attr = "mendevi.__version__"}

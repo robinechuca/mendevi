@@ -11,7 +11,7 @@ import sys
 from mendevi import __version__
 from mendevi.cst.plot import COLORS, FIGSIZE, MARKERS, MARKERSIZE
 from mendevi.database.extract import SqlLinker
-from mendevi.database.meta import Scale, get_extractor, merge_extractors
+from mendevi.database.meta import Scale, extract_names, get_extractor, merge_extractors
 
 
 def printer(**kwargs: dict) -> str:
@@ -21,11 +21,12 @@ def printer(**kwargs: dict) -> str:
     code.extend(print_header())
     code.extend(print_import())
     code.extend(print_cst(**kwargs))
+    code.extend(print_animation(**kwargs))
     code.extend(print_mean_std())
     code.extend(print_read_sql(**kwargs))
     code.extend(print_fill_axe(**kwargs))
     code.extend(print_main(**kwargs))
-    code.extend(print_entry())
+    code.extend(print_entry(**kwargs))
     code = "\n".join(code)
 
     # format code
@@ -53,12 +54,23 @@ def printer(**kwargs: dict) -> str:
     return code.replace("{cmd}", repr(shlex.join(sys.argv)))
 
 
-def print_entry() -> list[str]:
+def print_entry(**kwargs: dict) -> list[str]:
     """Return the code of the entry point."""
-    return [
+    code = [
         'if __name__ == "__main__":',
         "    values: dict[str] = read_sql(DATABASE)",
-        "    main(values)",
+    ]
+    if kwargs["animation"]:
+        return [
+            *code,
+            "    # main(values)  # for single static image",
+            "    Animation(values).write()  # when argument --animation is provided",
+            "",
+        ]
+    return [
+        *code,
+        "    main(values)  # for singe static image",
+        "    # Animation(values).write()  # when argument --animation is provided",
         "",
     ]
 
@@ -92,7 +104,11 @@ def print_cst(**kwargs: dict) -> list[str]:
     return [
         f"COLORS = {COLORS}",
         f"DATABASE = pathlib.Path({str(kwargs['database'])!r})",
-        'FIGNAME = pathlib.Path(__file__).with_suffix(".svg")',
+        "DURATION = 30.0  # the animation total duration in seconds",
+        (
+            "FILENAME = pathlib.Path(__file__).with_suffix("
+            f"{('.webm' if kwargs['animation'] else '.svg')!r})"
+        ),
         f"FIGSIZE = {FIGSIZE}  # (width, height)",
         f"MARKERS = {MARKERS}  # list of dot shapes",
         f"MARKERSIZE = {MARKERSIZE}",
@@ -247,6 +263,71 @@ def print_fill_axe(**kwargs: dict) -> list[str]:
     return code
 
 
+def print_animation(**kwargs: dict) -> list[str]:
+    """Return the code tha select few data for an animated slice."""
+    names = sorted(extract_names(kwargs["animation"] or "") - {"lamb"})
+    return [
+        "class Animation:",
+        '    """Create a matplotlib animation, using cutcutcodec."""',
+        "",
+        "    def __init__(self, full_values: dict[str]) -> None:",
+        '        """Efficient frame creator."""',
+        "        self.full_values = full_values",
+        "        self.limits = []",
+        "        main(self.full_values, render=False, limits=self.limits)  # find limits inplace",
+        "",
+        "    def __call__(self, timestamp: fractions.Fraction) -> plt.Figure:",
+        '        """Return the frame at this timestamp."""',
+        "        # filtering values",
+        "        lamb = timestamp / DURATION  # t_animation in [0, 1]",
+        "        mask = [",
+        f"            bool({kwargs['animation']})",
+        f"            for ({', '.join(names or ['_'])},) in zip(",
+        *(f"            self.full_values[{f'animation_{n}'!r}]," for n in names),
+        "                strict=True,",
+        "            )",
+        "        ]",
+        "        filtered_values = {",
+        "            name: [val for val, selector in zip(vals, mask) if selector]",
+        "            for name, vals in self.full_values.items()",
+        "        }",
+        "        # render",
+        "        return main(filtered_values, render=False, limits=self.limits)",
+        "",
+        "    def write(self) -> None:",
+        '        """Use cutcutcodec to record the animation."""',
+        "        (stream,) = cutcutcodec.generation.GeneratorVideoMatplotlib(self).out_streams",
+        "        clipped_stream = stream.apply_video_subclip(0, DURATION)",
+        "        streams_settings = [{",
+        '            "encodec": "libsvtav1",  # "libx264" for better compatibility but less efficiency',
+        '            "rate": 30,  # frame rate',
+        '            "shape": (720, 1080),  # image resolution as (height, width)',
+        '            "pix_fmt": "yuv420p",  # "yuv420p10le" for better and lighter render, but slowler',
+        '            "options": {  # easy read with fast seek configuration',
+        '                "crf": "23",  # high quality',
+        '                "preset": "6",  # medium / high effort of compression',
+        '                "svtav1-params": "tune=1:film-grain=0:keyint=1s:fast-decode=1"',
+        "            }",
+        "        }]",
+        "        cutcutcodec.write([clipped_stream], FILENAME, streams_settings=streams_settings)",
+        "",
+        "",
+    ]
+
+    streams_settings = [
+        {
+            "encodec": "libsvtav1",
+            "rate": 30,
+            "shape": (720, 1080),
+            "options": {  # easy read with fast seek configuration
+                "crf": "23",  # high quality
+                "preset": "6",  # medium effort of compression
+                "svtav1-params": "tune=1:film-grain=0:keyint=1s:fast-decode=1",
+            },
+        },
+    ]
+
+
 def print_header() -> list[str]:
     """Return the code at the very top of the file."""
     return [
@@ -267,6 +348,7 @@ def print_header() -> list[str]:
 def print_import() -> list[str]:
     """Print the importations."""
     return [
+        "import fractions",
         "import itertools",
         "import math",
         "import pathlib",
@@ -397,7 +479,7 @@ def print_main(**kwargs: dict) -> list[str]:
 
     # main function
     code.extend([
-        "def main(values: dict[str]):",
+        "def main(values: dict[str], *, render: bool = True, limits: list = None) -> plt.Figure:",
         '    """Create the plots with matplotlib."""',
         "    # create and fill in the main figure",
         '    fig = plt.figure(layout="constrained", figsize=FIGSIZE)',
@@ -427,9 +509,18 @@ def print_main(**kwargs: dict) -> list[str]:
         "    fig.set_size_inches(FIGSIZE[0]*math.sqrt(ncols), FIGSIZE[1]*math.sqrt(nrows))",
         "",
         "    # recompute limits to solve share log errorbar matplotlib error",
-        "    for axe in axes:",
-        "        axe.relim()  # recompute limits",
-        "        axe.autoscale()  # adjust the view",
+        "    if not limits:",
+        "        if limits is None:",
+        "            limits = []",
+        "        limits.clear()",
+        "        for i, axe in enumerate(axes):",
+        "            axe.relim()  # recompute limits",
+        "            axe.autoscale()  # adjust the view",
+        "            limits.append([axe.get_xlim(), axe.get_ylim()])  # set value inplace",
+        "    else:",
+        "        for (xlim, ylim), axe in zip(limits, axes, strict=True):",
+        "            axe.set_xlim(xlim)",
+        "            axe.set_ylim(ylim)",
         "",
         "    # legend managment",
         "    labels = {frozenset(a.get_legend_handles_labels()[1]) for a in axes}",
@@ -478,8 +569,10 @@ def print_main(**kwargs: dict) -> list[str]:
         f'        "Description": "{shlex.join(["mendevi", "plot", *args]).replace('"', '\\"')}",',
         f'        "Title": {kwargs["path"].stem!r},',
         "    }",
-        "    plt.savefig(FIGNAME, format=FIGNAME.suffix[1:], transparent=False, metadata=metadata)",
-        "    plt.show()",
+        "    if render:",
+        "        plt.savefig(FILENAME, format=FILENAME.suffix[1:], transparent=False, metadata=metadata)",
+        "        plt.show()",
+        "    return fig",
         "",
         "",
     ])
@@ -517,7 +610,7 @@ def print_read_sql(**kwargs: dict) -> list[str]:
         lbl: kwargs[lbl]
         for lbl in ["color", "marker", "window_x", "window_y", "error"]
         if kwargs[lbl] is not None
-    }
+    } | {f"animation_{var}": var for var in extract_names(kwargs["animation"] or "") - {"lamb"}}
 
     # get sql query
     atom_names, line_extractor = merge_extractors(set(alias), alias=alias, select=kwargs["filter"])

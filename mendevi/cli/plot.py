@@ -33,7 +33,8 @@ x, y : tuple[str]
         {NAMES_DOC}
 \b
 animation : str, optional
-    It work like a parametric filter over the time "t", to generate an animation.
+    It work like a parametric filter over the time "lamb", to generate an animation.
+    "lamb" is the parameter evolving between 0 to 1.
 color, marker : str, optional
     All points with the same value for this variable will be displayed in the same color and marker.
     Conversely, this allows points that do not share this criterion to be visually separated.
@@ -79,6 +80,7 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
 
     # animation
     kwargs["animation"] = kwargs.get("animation")
+    parse_expr(kwargs["animation"], prt, "animation ", excess={"lamb"})
 
     # color
     kwargs["color"] = kwargs.get("color")
@@ -156,7 +158,7 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
 @click.option(
     "-a", "--animation",
     type=str,
-    help="Like x or y but for the time axis.",
+    help="A python filter expression parametrized on 'lamb' in [0, 1].",
 )
 @click.option(
     "-c", "--color",
@@ -241,7 +243,10 @@ def main(database: str, **kwargs: dict) -> None:
     spec = importlib.util.spec_from_file_location(path.stem, path)
     modulevar = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(modulevar)
-    modulevar.main(modulevar.read_sql(database))
+    if kwargs["animation"]:
+        modulevar.Animation(modulevar.read_sql(database)).write()
+    else:
+        modulevar.main(modulevar.read_sql(database))
 
 
 # fill the documentation
