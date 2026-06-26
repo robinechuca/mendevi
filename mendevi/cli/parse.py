@@ -132,13 +132,14 @@ def _guess_database(files: tuple[str]) -> str | None:
     return None
 
 
-def parse_expr(expr: str | None, prt: Printer, start_msg: str) -> None:
+def parse_expr(expr: str | None, prt: Printer, start_msg: str, *, excess=None) -> None:
     """Ensure that the expression provided is valid."""
     if expr is None:
         return
+    excess = excess or set()  # the allowed excedent variables
     assert isinstance(expr, str), expr.__class__.__name__
     variables = extract_names(expr)  # retrieves the names of variables in the expression
-    if excess := variables - set(LABELS):
+    if excess := variables - set(LABELS) - excess:
         def dist(label: list[str], excess: set[str]) -> tuple[int, str]:
             return (
                 min(Levenshtein.distance(label, e) for e in excess),
