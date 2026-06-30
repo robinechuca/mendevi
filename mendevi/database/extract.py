@@ -30,7 +30,9 @@ JOIN: dict[str: dict[str, str]] = {  # join = JOIN[destination_table][source_tab
             "ON t_dec_decode.dec_vid_id = t_enc_encode_single_dst_vid_id.enc_dst_vid_id\n"
             "JOIN t_enc_encode ON t_enc_encode.enc_id = t_enc_encode_single_dst_vid_id.enc_id_min"
         ),
-        "t_met_metric": "JOIN t_enc_encode ON t_met_metric.met_dis_vid_id = t_enc_encode.enc_dst_vid_id",
+        "t_met_metric": (
+            "JOIN t_enc_encode ON t_met_metric.met_dis_vid_id = t_enc_encode.enc_dst_vid_id"
+        ),
     },
     "t_dec_decode": {
         "t_enc_encode": (

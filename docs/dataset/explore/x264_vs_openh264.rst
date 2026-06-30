@@ -95,9 +95,8 @@ Result for a single video, including energy:
 .. image:: /_static/media/x264_vs_openh264_cut.svg
     :alt: Link between distortion and energy for each encoder
 
-
-Compression efficiency for PSNR=35dB
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Compression efficiency for several PSNR
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code:: shell
 
@@ -107,15 +106,15 @@ Compression efficiency for PSNR=35dB
     :alt: Consumption as a function of bitrate for a sliding psnr
     :width: 100%
 
-Compression efficiency for rate=2Mb/s
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Compression efficiency for several rate
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code:: shell
 
-    mendevi plot x264_vs_openh264.db -x psnr -y energy -c '(encoder, profile)' -m category -a '10**(3.9+4*lamb)<rate<10**(4.1+4*lamb)'
+    mendevi plot x264_vs_openh264.db -x psnr -y energy -c '(encoder, profile)' -m category -a '10**(4+4*lamb)<rate<10**(4.3+4*lamb)'
 
 .. video:: /_static/media/x264_vs_openh264_efficiency_rate.webm
-    :alt: Consumption as a function of bitrate for a bitrate of 2Mb/s
+    :alt: Consumption as a function of bitrate for sliding bitrate
     :width: 100%
 
 Compression efficiency for fixed energy

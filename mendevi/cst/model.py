@@ -38,7 +38,8 @@ def import_all_models() -> dict[str, Model]:
      'GPR': <class 'mendevi.models.gpr.GPR'>,
      'LR': <class 'mendevi.models.lr.LR'>,
      'NearestL2': <class 'mendevi.models.interp.NearestL2'>,
-     'PowerCores': <class 'mendevi.models.power_cores.PowerCores'>}
+     'PowerCores': <class 'mendevi.models.power_cores.PowerCores'>,
+     'QBP': <class 'mendevi.models.qbp.QBP'>}
     >>>
 
     """

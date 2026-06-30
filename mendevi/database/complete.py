@@ -37,13 +37,15 @@ def get_idle(duration: float = 60.0) -> dict:
     >>> idle = get_idle(duration=1.0)
     >>> pprint(idle)  # doctest: +ELLIPSIS
     {'duration': 1.0...,
-     'ps_core': [[...],
+     'ps_core': [(...),
                   ...
-                  [...]],
+                  (...)],
      'ps_core_avg': ...,
      'ps_dt': [...],
      'ps_ram': [...],
+     'ps_ram_avg': ...,
      'ps_temp': {...},
+     'ps_temp_avg': {...},
      'rapl_dt': [...],
      'rapl_power': [...],
      'rapl_power_avg': ...,
@@ -129,6 +131,8 @@ def add_environment(database: sqlite3.Cursor | str | bytes | pathlib.Path) -> in
     idle = {
         "act_duration": idle["duration"],
         "act_gpu_dt": list_to_binary(idle.get("gpu_dt", None)),
+        "act_gpu_core": tensor_to_binary(idle.get("gpu_core", None)),
+        "act_gpu_memory": tensor_to_binary(idle.get("gpu_memory", None)),
         "act_gpu_power": tensor_to_binary(idle.get("gpu_power", None)),
         "act_ps_core": tensor_to_binary(idle["ps_core"]),
         "act_ps_dt": list_to_binary(idle["ps_dt"]),

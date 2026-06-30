@@ -120,6 +120,8 @@ def decode_and_store(
         activity = {
             "act_duration": activity["duration"],
             "act_gpu_dt": list_to_binary(activity.get("gpu_dt", None)),
+            "act_gpu_core": tensor_to_binary(activity.get("gpu_core", None)),
+            "act_gpu_memory": tensor_to_binary(activity.get("gpu_memory", None)),
             "act_gpu_power": tensor_to_binary(activity.get("gpu_power", None)),
             "act_ps_core": tensor_to_binary(activity["ps_core"]),
             "act_ps_dt": list_to_binary(activity["ps_dt"]),

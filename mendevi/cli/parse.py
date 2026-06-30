@@ -132,7 +132,13 @@ def _guess_database(files: tuple[str]) -> str | None:
     return None
 
 
-def parse_expr(expr: str | None, prt: Printer, start_msg: str, *, excess=None) -> None:
+def parse_expr(
+    expr: str | None,
+    prt: Printer,
+    start_msg: str,
+    *,
+    excess: set[str] | None=None,
+) -> None:
     """Ensure that the expression provided is valid."""
     if expr is None:
         return

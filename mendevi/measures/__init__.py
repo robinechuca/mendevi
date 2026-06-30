@@ -36,11 +36,11 @@ class Activity(threading.Thread):
     ...     activity.start_slice("lbl 3")
     ...     time.sleep(0.4)
     ...
-    >>> slices, full = activity.get_slices(), activity.get_full()
-    >>> round(full["duration"], 2)
-    1.0
+    >>> slices = activity.get_slices()
     >>> sorted(slices)
     ['lbl 1', 'lbl 2', 'lbl 3']
+    >>> round(sum(s["duration"] for s in slices.values()), 2)
+    0.9
     >>> round(slices["lbl 2"]["duration"], 2)
     0.3
     >>>
@@ -82,6 +82,8 @@ class Activity(threading.Thread):
             * gpu_core: list[list[float]], tensor of detailed usage of each GPU in [0, 1].
             * gpu_core_avg: float, the sum of the average usage of each GPU.
             * gpu_dt: list[float], the duration of each interval (in s).
+            * gpu_memory: list[list[float]], tensor of the memory usage of each GPU in bytes.
+            * gpu_memory_avg: float, the sum of the average memory usage of each GPU.
             * gpu_power: list[list[float]], the sampled power in each point (in W).
             * gpu_power_avg: float, the total power consumption of all GPU (in W).
             * ps_core: list[list[float]], tensor of detailed usage of each logical core in %.
@@ -203,8 +205,8 @@ class Activity(threading.Thread):
             }
         if gpu is not None:
             self.res |= {
-                "gpu_core": gpu["gpu"],
                 "gpu_ts": gpu["ts"],
+                "gpu_core": gpu["gpu"],
                 "gpu_memory": gpu["memory"],
                 "gpu_power": gpu["power"],
             }

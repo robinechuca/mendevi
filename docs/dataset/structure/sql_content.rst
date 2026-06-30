@@ -32,6 +32,10 @@ Table t_act_activity
 +----------------------------+-------------+-------------------------------+
 | :ref:`act_gpu_dt`          | *LONGBLOB*  | GPU measures intervals        |
 +----------------------------+-------------+-------------------------------+
+| :ref:`act_gpu_core`        | *LONGBLOB*  | GPU usage values              |
++----------------------------+-------------+-------------------------------+
+| :ref:`act_gpu_memory`      | *LONGBLOB*  | GPU memory usage              |
++----------------------------+-------------+-------------------------------+
 | :ref:`act_gpu_power`       | *LONGBLOB*  | GPU power values              |
 +----------------------------+-------------+-------------------------------+
 | :ref:`act_ps_dt`           | *LONGBLOB*  | time intervals for ps         |
@@ -125,6 +129,30 @@ act_gpu_dt
 
 The list of time intervals in seconds between two consecutive GPU measures.
 To deserialize into an exploitable numpy array, please use the function :py:func:`mendevi.database.serialize.binary_to_list`.
+
+.. tip::
+
+    Only available for the measures taken with NVIDIA GPU.
+
+.. _act_gpu_core:
+
+act_gpu_core
+^^^^^^^^^^^^
+
+The list of time intervals in seconds between two consecutive GPU measures.
+To deserialize into an exploitable numpy array, please use the function :py:func:`mendevi.database.serialize.binary_to_tensor`.
+
+.. tip::
+
+    Only available for the measures taken with NVIDIA GPU.
+
+.. _act_gpu_memory:
+
+act_gpu_memory
+^^^^^^^^^^^^^^
+
+The list of time intervals in seconds between two consecutive GPU measures.
+To deserialize into an exploitable numpy array, please use the function :py:func:`mendevi.database.serialize.binary_to_tensor`.
 
 .. tip::
 
