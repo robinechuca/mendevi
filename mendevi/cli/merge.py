@@ -149,7 +149,7 @@ def main(databases: tuple[str], **kwargs: dict) -> None:
         for database in all_databases:
             with (
                 Printer(f"Add {database.name} into {dst.name}...", color="cyan") as prt,
-                sqlite3.connect(f"file:{database}?mode=ro", uri=True) as conn_src,
+                sqlite3.connect(f"file:{database}?mode=ro&immutable=1", uri=True) as conn_src,
             ):
                 conn_src.row_factory = sqlite3.Row
                 cursor_src = conn_src.cursor()

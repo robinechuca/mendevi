@@ -509,7 +509,7 @@ class Model(metaclass=MetaModel):
         # 5) extract fields from SQL database
         vid_id: bytes = compute_video_hash(video)
         _, line_extractor = merge_extractors(input_labels, return_callable=True)
-        with sqlite3.connect(f"file:{database}?mode=ro", uri=True) as conn:
+        with sqlite3.connect(f"file:{database}?mode=ro&immutable=1", uri=True) as conn:
             conn.row_factory = sqlite3.Row
             raw = conn.execute("SELECT * FROM t_vid_video WHERE vid_id = ?", (vid_id,)).fetchone()
             return line_extractor(dict(raw))
@@ -602,7 +602,7 @@ class Model(metaclass=MetaModel):
             # perform sql request
             prt.print("perform SQL query")
             values = {label: [] for label in set(self._input_labels) | set(self._output_labels)}
-            with sqlite3.connect(f"file:{database}?mode=ro", uri=True) as conn:
+            with sqlite3.connect(f"file:{database}?mode=ro&immutable=1", uri=True) as conn:
                 conn.row_factory = sqlite3.Row
                 for raw in conn.execute(query):
                     with contextlib.suppress(RejectError):

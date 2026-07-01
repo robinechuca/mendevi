@@ -61,7 +61,7 @@ def main(database: str, **kwargs: dict) -> None:
         _, database = parse_videos_database(prt, (), database)
 
     # get missing fields
-    with sqlite3.connect(f"file:{database}?mode=ro", uri=True) as conn:
+    with sqlite3.connect(f"file:{database}?mode=ro&immutable=1", uri=True) as conn:
         fields = conn.execute(  # UNION ALL faster than UNION
             """
             SELECT act_id, act_start, act_duration, env_hostname

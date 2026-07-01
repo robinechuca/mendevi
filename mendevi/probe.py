@@ -18,7 +18,7 @@ from mendevi.utils import compute_video_hash
 def open_ro(database: pathlib.Path, conn: sqlite3.Connection | None) -> sqlite3.Connection:
     """Open a new conn if the previous one is not already opened."""
     if conn is None:
-        conn = sqlite3.connect(f"file:{database}?mode=ro", uri=True, timeout=30)
+        conn = sqlite3.connect(f"file:{database}?mode=ro&immutable=1", uri=True, timeout=30)
         conn.row_factory = sqlite3.Row
     return conn
 
