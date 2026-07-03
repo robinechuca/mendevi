@@ -15,25 +15,30 @@ from mendevi.database.serialize import list_to_binary
 from mendevi.utils import compute_video_hash
 
 
-def open_ro(database: pathlib.Path, conn: sqlite3.Connection | None) -> sqlite3.Connection:
+LOCK_CONN_TYPE = tuple[Lock, sqlite3.Connection] | None
+
+
+def open_ro(database: pathlib.Path, lock_conn: LOCK_CONN_TYPE) -> sqlite3.Connection:
     """Open a new conn if the previous one is not already opened."""
-    if conn is None:
+    if lock_conn is None:
+        lock = Lock(str(database.with_suffix(".lock")), lifetime=datetime.timedelta(seconds=600))
+        lock.lock()  # aquire
         conn = sqlite3.connect(f"file:{database}?mode=ro&immutable=1", uri=True, timeout=30)
         conn.row_factory = sqlite3.Row
-    return conn
+    return (lock, conn)
 
 
 def _fill_vid_table(
     database: pathlib.Path,
     vid_id: bytes,
     video: pathlib.Path,
-    conn: sqlite3.Connection | None = None,
+    lock_conn: LOCK_CONN_TYPE = None,
     **kwargs: dict,
-) -> sqlite3.Connection | None:
+) -> LOCK_CONN_TYPE:
     """Complete the table t_vid_video."""
     # get actual informations
-    conn = open_ro(database, conn)
-    prop = conn.execute(
+    lock_conn = open_ro(database, lock_conn)
+    prop = lock_conn[1].execute(
         "SELECT * FROM t_vid_video WHERE vid_id=?", (vid_id,),
     ).fetchone()
     prop = {} if prop is None else dict(prop)
@@ -60,8 +65,9 @@ def _fill_vid_table(
     }
     fields -= {k for k, v in prop.items() if v is not None}
     if not fields:
-        return conn
-    conn.close()
+        return lock_conn
+    lock_conn[1].close()
+    lock_conn[0].unlock()  # release
 
     # fill missing fields
     pad = max(map(len, fields)) - 4
@@ -164,11 +170,11 @@ def _fill_met_table(
     dis_id: bytes,
     dis_path: pathlib.Path,
     **kwargs: dict,
-) -> sqlite3.Connection | None:
+) -> LOCK_CONN_TYPE:
     """Complete the table t_met_metric."""
     # get actual informations
-    conn = open_ro(database, kwargs.pop("conn"))
-    metrics = conn.execute(
+    lock_conn = open_ro(database, kwargs.pop("lock_conn"))
+    metrics = lock_conn[1].execute(
         "SELECT * FROM t_met_metric WHERE met_ref_vid_id=? AND met_dis_vid_id=?",
         (ref_id, dis_id),
     ).fetchone()
@@ -185,8 +191,9 @@ def _fill_met_table(
     }
     fields -= {k for k, v in metrics.items() if v is not None}
     if not fields:
-        return conn
-    conn.close()
+        return lock_conn
+    lock_conn[1].close()
+    lock_conn[0].unlock()
     fields = sorted(fields)  # to frozen order in sql request and for printing repetability
 
     # fill missing fields
@@ -232,9 +239,9 @@ def _fill_met_table(
 def probe_and_store(
     database: pathlib.Path,
     video: pathlib.Path,
-    conn: sqlite3.Connection | None = None,
+    lock_conn: LOCK_CONN_TYPE = None,
     **kwargs: dict,
-) -> sqlite3.Connection | None:
+) -> LOCK_CONN_TYPE:
     """Measure the properties of the video.
 
     Parameters
@@ -243,7 +250,7 @@ def probe_and_store(
         The path of the existing database to be updated.
     video : pathlib.Path
         The source video file to be annalysed.
-    conn: sqlite3.Connection, optional
+    lock_conn: tuple[Lock, sqlite3.Connection], optional
         A read only database connection.
     **kwargs : dict
         All the metrics
@@ -254,12 +261,12 @@ def probe_and_store(
 
     vid_id: bytes = compute_video_hash(video)
 
-    conn = _fill_vid_table(database, vid_id, video, conn=conn, **kwargs)
-    conn = open_ro(database, conn)
+    lock_conn = _fill_vid_table(database, vid_id, video, lock_conn=lock_conn, **kwargs)
+    lock_conn = open_ro(database, lock_conn)
 
     # get the references videos for comparative comparisons
     references: dict[pathlib.Path, bytes] = kwargs["ref"].copy()
-    for res in conn.execute(
+    for res in lock_conn[1].execute(
         """
         SELECT vid_name, enc_src_vid_id FROM t_enc_encode
         JOIN t_vid_video ON enc_src_vid_id=vid_id
@@ -279,5 +286,5 @@ def probe_and_store(
 
     # perform the comparative metrics
     for ref, ref_id in references.items():
-        conn = _fill_met_table(database, ref_id, ref, vid_id, video, conn=conn, **kwargs)
-    return conn
+        lock_conn = _fill_met_table(database, ref_id, ref, vid_id, video, lock_conn=lock_conn, **kwargs)
+    return lock_conn

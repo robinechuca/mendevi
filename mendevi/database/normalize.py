@@ -11,7 +11,7 @@ import tqdm
 from .create import is_sqlite
 from .serialize import binary_to_list, binary_to_tensor
 
-DURATION = 2.0  # slices duration in second
+DURATION = 10.0  # slices duration in second
 
 
 def _serializable_extractor(row: sqlite3.Row) -> dict:
@@ -21,7 +21,7 @@ def _serializable_extractor(row: sqlite3.Row) -> dict:
 
     # get cpu slices
     act_ps_dt = binary_to_list(row["act_ps_dt"])
-    act_ps_core = binary_to_tensor(row["act_ps_core"])
+    act_ps_core = 0.01 * binary_to_tensor(row["act_ps_core"])
     core: list[float] = avg_slices(act_ps_dt, act_ps_core, DURATION)
 
     # get rapl slices
@@ -44,12 +44,12 @@ def _serializable_extractor(row: sqlite3.Row) -> dict:
     if row["act_gpu_dt"] and row["act_gpu_core"] and row["act_gpu_power"]:
         core: list[float] = avg_slices(
             binary_to_list(row["act_gpu_dt"]),
-            binary_to_list(row["act_gpu_core"]),
+            binary_to_tensor(row["act_gpu_core"]),
             DURATION,
         )
         power: list[float] = avg_slices(
             binary_to_list(row["act_gpu_dt"]),
-            binary_to_list(row["act_gpu_power"]),
+            binary_to_tensor(row["act_gpu_power"]),
             DURATION,
         )
         data["gpu"] = {"c": core[:len(power)], "p": power[:len(core)]}
@@ -217,4 +217,7 @@ def p_static_p_core(database: str | bytes | pathlib.Path) -> dict[str, tuple]:
             plt.scatter(data["wattmeter_c"], data["wattmeter_p"], alpha=0.1, label="wattmeter")
             plt.scatter(data["gpu_c"], data["gpu_p"], alpha=0.1, label="gpu")
             plt.legend()
+            plt.xlabel("taux d'utilisation")
+            plt.ylabel("puissance (W)")
+            plt.savefig(f"{hostname}.pdf", format="pdf")
             plt.show()
