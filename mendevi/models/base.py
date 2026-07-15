@@ -100,7 +100,7 @@ def to_torch(data: dict[str, list], dtype: torch.dtype = torch.float32) -> dict[
                 msg = "The one hot encoding for hostname is not defined."
                 raise NotImplementedError(msg)
             case _:
-                assert all(isinstance(v, numbers.Real) for v in values), values
+                assert all(isinstance(v, numbers.Real) for v in values), (name, values)
                 out_data[name] = torch.asarray(values, dtype=dtype)[:, None]
     return out_data
 
@@ -204,7 +204,7 @@ class Model(metaclass=MetaModel):
             a single instance of the model will be trained on all parameters.
 
         """
-        assert set(kwargs).issubset({"sources", "input_labels", "output_labels", "parameters"})
+        assert set(kwargs).issubset({"sources", "input_labels", "output_labels", "aggregation"})
         # check input_labels
         input_labels = kwargs.get("input_labels", [])
         assert hasattr(input_labels, "__iter__"), input_labels.__class__.__name__

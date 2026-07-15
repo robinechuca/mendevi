@@ -38,13 +38,13 @@ class PowerCores(Model):
             "Power estimation based on the utilisation rate of logic cores",
             sources="""
             F. C. Heinrich, T. Cornebize, A. Degomme, A. Legrand, A. Carpen-
-            Amarie, S. Hunold, A.-C. Orgerie, and M. Quinson, “Predicting the
+            Amarie, S. Hunold, A.-C. Orgerie, and M. Quinson, "Predicting the
             Energy Consumption of MPI Applications at Scale Using a Single
-            Node,” in IEEE Cluster Conference, 2017.
+            Node," in IEEE Cluster Conference, 2017.
 
             R. Rodriguez-Sánchez, F. D. Igual, J. L. Martinez, R. Mayo, and E. S.
-            Quintana-Orti, “Parallel performance and energy efficiency of modern
-            video encoders on multithreaded architectures,” in Eur
+            Quintana-Orti, "Parallel performance and energy efficiency of modern
+            video encoders on multithreaded architectures," in Eur
             """,
             input_labels=["hostname", "cores"],
             output_labels=["power"],

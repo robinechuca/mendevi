@@ -87,7 +87,7 @@ ALL_EXTRACTORS = {
     ),
     "act_duration_per_frame": Extractor(
         "Average video processing activity duration per frame in seconds",
-        "None if act_duration is None or nbr_frames is None else 8.0 * act_duration / nbr_frames",
+        "None if act_duration is None or nbr_frames is None else act_duration / nbr_frames",
         Scale.LOGARITHMIC,
     ),
     "bitrate": Extractor(
@@ -317,6 +317,11 @@ ALL_EXTRACTORS = {
         "The image shapes height x width in pixels",
         "(height, width)",
         Scale.DISCRETE,
+    ),
+    "size_per_frame": Extractor(
+        "Average bitrate in byte per frame",
+        "None if size is None or nbr_frames is None else size / nbr_frames",
+        Scale.LINEAR,
     ),
     "spatial_dct": Extractor(
         "Spatial DCT complexity",

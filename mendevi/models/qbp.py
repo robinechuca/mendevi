@@ -28,7 +28,7 @@ class QBP(Model):
         """
         kwargs = kwargs.copy()
         kwargs["input_labels"] = kwargs.get("input_labels", ["quality"])
-        kwargs["output_labels"] = kwargs.get("output_labels", ["quality"])
+        kwargs["output_labels"] = kwargs.get("output_labels", ["energy"])
         super().__init__(
             title=title,
             sources=sources,
