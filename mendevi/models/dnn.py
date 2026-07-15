@@ -9,23 +9,25 @@ import torch
 class _TorchNN(torch.nn.Module):
     """Simple perceptron nn."""
 
-    def __init__(self, ndim: int):
+    def __init__(self, in_ndim: int, out_ndim: int) -> None:
+        assert isinstance(in_ndim, int), in_ndim.__class__.__name__
+        assert isinstance(out_ndim, int), out_ndim.__class__.__name__
         super().__init__()
-        self.linear = nn.Sequential(
-            nn.Linear(ndim, 512),
-            nn.ReLU(),
-            nn.Linear(512, 512),
-            nn.ReLU(),
-            nn.Linear(512, ndim),
+        self.linear = torch.nn.Sequential(
+            torch.nn.Linear(in_ndim, 512),
+            torch.nn.ReLU(),
+            torch.nn.Linear(512, 512),
+            torch.nn.ReLU(),
+            torch.nn.Linear(512, out_ndim),
         )
 
-    def forward(self, values: torch.Tensor):
+    def forward(self, values: torch.Tensor) -> torch.Tensor:
         """Inference of the vectorised model.
 
         Parameters
         ----------
         values : torch.Tensor
-            The concatenated values of shape (batch, ndim)
+            The concatenated values of shape (batch, in_ndim)
         """
         assert isinstance(values, torch.Tensor), values.__class__.__name__
         assert values.ndim == 2, values.shape
@@ -70,11 +72,40 @@ class DNN(Model):
 
     def _fit_vect_norm(self, values: dict[str, torch.Tensor]) -> object:
         """Perform the gradient descent on a juste intanciated nn."""
-        import ipdb; ipdb.set_trace()
-        raise NotImplementedError
+        # intitialisation
+        input_values = torch.cat([values[lbl] for lbl in self.input_labels_aggreg], dim=1)
+        reference = torch.cat([values[lbl] for lbl in self.output_labels], dim=1)
+        model = _TorchNN(input_values.shape[1], reference.shape[1])
+
+        # train
+        optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
+        for _ in range(10):
+            for _ in range(100):
+                optimizer.zero_grad()
+                predict = model(input_values)
+                loss = torch.mean((predict - reference)**2)
+                loss.backward()
+                optimizer.step()
+            print(loss)
+
+        # serialisation
+        return (model, {lbl: values[lbl].shape[1] for lbl in self.output_labels})
 
     def _predict_vect_norm(
         self, values: dict[str, torch.Tensor], parameters: object,
     ) -> dict[str, torch.Tensor]:
         """Inference part of the model."""
-        raise NotImplementedError
+        # preparation, vectorisation
+        input_values = torch.cat([values[lbl] for lbl in self.input_labels_aggreg], dim=1)
+        model, sizes = parameters
+
+        # inference
+        prediction = model(input_values)
+
+        # parse result
+        output = {}
+        index = 0
+        for lbl in self.output_labels:
+            output[lbl] = prediction[:, index:index+sizes[lbl]]
+            index += sizes[lbl]
+        return output

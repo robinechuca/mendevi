@@ -167,7 +167,7 @@ class Model(metaclass=MetaModel):
     parameters : tuple[tuple[str], dict[tuple, object]] | None
         The fitted parameters of the trainable model (readonly).
     aggregation : list[str]
-        The labels that divide clusterers (readonly).
+        The labels that divide clusters (readonly).
     input_labels : list[str]
         The name of all input parameters (readonly).
     input_labels_aggreg : list[str]

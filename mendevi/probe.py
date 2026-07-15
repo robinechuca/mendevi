@@ -20,11 +20,12 @@ LOCK_CONN_TYPE = tuple[Lock, sqlite3.Connection] | None
 
 def open_ro(database: pathlib.Path, lock_conn: LOCK_CONN_TYPE) -> sqlite3.Connection:
     """Open a new conn if the previous one is not already opened."""
-    if lock_conn is None:
-        lock = Lock(str(database.with_suffix(".lock")), lifetime=datetime.timedelta(seconds=600))
-        lock.lock()  # aquire
-        conn = sqlite3.connect(f"file:{database}?mode=ro&immutable=1", uri=True, timeout=30)
-        conn.row_factory = sqlite3.Row
+    if lock_conn is not None:
+        return lock_conn
+    lock = Lock(str(database.with_suffix(".lock")), lifetime=datetime.timedelta(seconds=600))
+    lock.lock()  # aquire
+    conn = sqlite3.connect(f"file:{database}?mode=ro&immutable=1", uri=True, timeout=30)
+    conn.row_factory = sqlite3.Row
     return (lock, conn)
 
 
