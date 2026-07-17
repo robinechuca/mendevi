@@ -275,7 +275,7 @@ def extract_codec(raw: dict[str]) -> str:
 
 @verif
 @SqlLinker("t_act_activity.act_ps_dt", "t_act_activity.act_ps_core")
-def extract_cores(raw: dict[str]) -> float:
+def extract_cpu_cores(raw: dict[str]) -> float:
     """Return the average cumulative utilisation rate of logical cores.
 
     Parameters
@@ -409,6 +409,27 @@ def extract_gamut(raw: dict[str]) -> str:
         return None
     assert isinstance(gamut, str), gamut.__class__.__name__
     return gamut
+
+
+@verif
+@SqlLinker("t_act_activity.act_gpu_dt", "t_act_activity.act_gpu_core")
+def extract_gpu_cores(raw: dict[str]) -> float:
+    """Return the average cumulative utilisation rate of GPU cores.
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+
+    """
+    act_gpu_dt, act_gpu_core = raw["act_gpu_dt"], raw["act_gpu_core"]
+    if act_gpu_dt is None or act_gpu_core is None:
+        return None
+    act_gpu_dt = binary_to_list(act_gpu_dt)
+    act_gpu_core = binary_to_tensor(act_gpu_core).sum(axis=1)  # (n_points, n_gpu)
+    integral = (act_gpu_core * act_gpu_dt).sum()  # act_gpu_core is already the average on each dt
+    average = integral / act_gpu_dt.sum()
+    return float(average)  # normalisation
 
 
 @verif

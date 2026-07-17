@@ -32,6 +32,14 @@ Useful links:
 Description
 ===========
 
+Context
+^^^^^^^
+
+This module is developed by the `INRIA COMPACT team <https://www.inria.fr/fr/compact>`_, as part of the `VideoImpact <https://project.inria.fr/videoimpact/>`_ project.
+
+Project
+^^^^^^^
+
 This Python module performs **energy consumption** and **video metrics** measurements for both **video encoding and decoding workflows**.
 It includes **comprehensive ready-to-use datasets**, available as exhaustive SQL databases and lightweight JSON representations, as well as pretrained **predictive models** for energy and quality estimation.
 The framework provides advanced visualization tools for **generating complex matplotlib figures**, executable from a single command-line interface.

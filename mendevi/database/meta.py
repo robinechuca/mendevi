@@ -150,9 +150,9 @@ ALL_EXTRACTORS = {
         extract.extract_codec,
         Scale.DISCRETE,
     ),
-    "cores": Extractor(
+    "cpu_cores": Extractor(
         "Average cumulative utilisation rate of logical cores",
-        extract.extract_cores,
+        extract.extract_cpu_cores,
         Scale.LINEAR,
     ),
     "decode_cmd": Extractor(
@@ -229,6 +229,11 @@ ALL_EXTRACTORS = {
         "The tristimulus primaries colors name",
         extract.extract_gamut,
         Scale.DISCRETE,
+    ),
+    "gpu_cores": Extractor(
+        "Average cumulative utilisation rate of GPU cores",
+        extract.extract_gpu_cores,
+        Scale.LINEAR,
     ),
     "height": Extractor(
         "Height of images in pixels",
@@ -396,6 +401,7 @@ ALIAS = {
     "color_primaries": "gamut",
     "color_transfer": "transfer",
     "comp_ssim": "ssim_comp",
+    "cores": "cpu_cores",
     "dec_cmd": "decode_cmd",
     "dec_ram": "decode_ram",
     "dec_scenario": "decode_scenario",
@@ -535,7 +541,7 @@ def get_extractor(name: str, *, safe: bool = False) -> Extractor:
         extractor = get_extractor(name[4:], safe=safe)
         return Extractor(
             f"Log 10 of {extractor.legend.lower()}",
-            f"None if {name[4:]} is None else math.log10({name[4:]})",
+            f"None if {name[4:]} is None else math.log10(max(1e-256, {name[4:]}))",
             Scale.LINEAR,
         )
 
