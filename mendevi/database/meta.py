@@ -363,6 +363,11 @@ ALL_EXTRACTORS = {
         extract.extract_transfer,
         Scale.DISCRETE,
     ),
+    "vif": Extractor(
+        "Video Visual Information Fidelity (VIF)",
+        extract.extract_vif,
+        Scale.LINEAR,
+    ),
     "vmaf": Extractor(
         "Video Multi-Method Assessment Fusion (VMAF)",
         extract.extract_vmaf,

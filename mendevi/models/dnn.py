@@ -80,7 +80,13 @@ class DNN(Model):
             for _ in range(iterations):
                 optimizer.zero_grad()
                 predict = model(input_values)
-                loss = torch.mean((predict - reference)**2)
+                # handle nan values
+                nanref = reference.clone()
+                nanmask = nanref.isnan()
+                nanref[nanmask] = predict[nanmask]
+                
+
+                loss = ((predict - nanref)**2).mean()
                 loss.backward()
                 optimizer.step()
                 progress_bar.update(1)
@@ -141,7 +147,7 @@ class DNN_Quality(DNN):
         )
         kwargs["output_labels"] = kwargs.get(
             "output_labels",
-            ["lpips", "psnr", "ssim", "vmaf", "log_size_per_frame"],
+            ["lpips", "psnr", "ssim", "vif", "vmaf", "log_size_per_frame"],
         )
         kwargs["aggregation"] = kwargs.get("aggregation", [])
         super().__init__(title=title, **kwargs)

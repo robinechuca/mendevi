@@ -100,8 +100,10 @@ def to_torch(data: dict[str, list], dtype: torch.dtype = torch.float32) -> dict[
                 msg = "The one hot encoding for hostname is not defined."
                 raise NotImplementedError(msg)
             case _:
-                assert all(isinstance(v, numbers.Real) for v in values), (name, values)
-                out_data[name] = torch.asarray(values, dtype=dtype)[:, None]
+                assert all(isinstance(v, numbers.Real | None) for v in values), (name, values)
+                out_data[name] = torch.asarray(  # convert None -> nan
+                    [torch.nan if v is None else v for v in values], dtype=dtype,
+                )[:, None]
     return out_data
 
 
@@ -211,7 +213,7 @@ class Model(metaclass=MetaModel):
         input_labels = list(input_labels)
         assert input_labels, "input must be not empty"
         assert all(isinstance(lab, str) and lab in LABELS for lab in input_labels), \
-            (input_labels, LABELS)
+            (input_labels, sorted(LABELS))
         self._input_labels = input_labels
 
         # check output_labels
@@ -219,7 +221,8 @@ class Model(metaclass=MetaModel):
         assert hasattr(output_labels, "__iter__"), output_labels.__class__.__name__
         output_labels = list(output_labels)
         assert output_labels, "output must be not empty"
-        assert all(isinstance(lab, str) and lab in LABELS for lab in output_labels), output_labels
+        assert all(isinstance(lab, str) and lab in LABELS for lab in output_labels), \
+            (output_labels, sorted(LABELS))
         self._output_labels = output_labels
 
         # check or define aggregation
@@ -301,7 +304,14 @@ class Model(metaclass=MetaModel):
             ) == set(values)
             self._std_mean[self._aggreg_ctx] = {
                 name: (
-                    torch.std_mean(data, dim=0, keepdim=True, correction=0.0)
+                    (  # same as torch.std_mean(data, dim=0, keepdim=True, correction=0.0) with nan
+                        torch.asarray(
+                            np.nanstd(
+                                data.numpy(force=True), axis=0, keepdims=True, correction=0.0,
+                            ),
+                        ),
+                        torch.nanmean(data, dim=0, keepdim=True),
+                    )
                     if data.shape[1] == 1 else
                     (1.0, 0.0)  # do nothing for onehot encoding
                 )
@@ -604,6 +614,7 @@ class Model(metaclass=MetaModel):
             values = {label: [] for label in set(self._input_labels) | set(self._output_labels)}
             with sqlite3.connect(f"file:{database}?mode=ro&immutable=1", uri=True) as conn:
                 conn.row_factory = sqlite3.Row
+                print(query)
                 for raw in conn.execute(query):
                     with contextlib.suppress(RejectError):
                         for label, value in line_extractor(dict(raw)).items():
@@ -778,8 +789,8 @@ class Model(metaclass=MetaModel):
         }
         mape_rms = {
             name: (
-                ((val - pred).abs() / (val.abs() + EPS)).mean(),  # MAPE
-                ((val - pred)**2).mean().sqrt(),  # RMS
+                ((val - pred).abs() / (val.abs() + EPS)).nanmean(),  # MAPE
+                ((val - pred)**2).nanmean().sqrt(),  # RMS
             )
             for name, (pred, val) in act_concat.items()
         }

@@ -833,6 +833,22 @@ def extract_video_size(raw: dict[str]) -> int:
 
 
 @verif
+@SqlLinker("t_met_metric.met_vif")
+def extract_vif(raw: dict[str]) -> float:
+    """Return the Video Visual Information Fidelity (VIF).
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+
+    """
+    if (vif := raw["met_vif"]) is None:
+        return None
+    return float(np.nanmean(binary_to_list(vif)))
+
+
+@verif
 @SqlLinker("t_met_metric.met_vmaf")
 def extract_vmaf(raw: dict[str]) -> float:
     """Return the Video Multi-Method Assessment Fusion (VMAF).

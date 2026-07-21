@@ -23,6 +23,7 @@ from mendevi.cst.profiles import PROFILES
 
 HASHSIZE = 16  # md5 has number of bytes
 PATHLIKE = str | bytes | pathlib.Path
+INV_MAXIMD5 = 1.0 / float(2**128 - 1)
 
 
 @functools.cache
@@ -272,4 +273,4 @@ def uniform(data: object) -> float:
     This can be very useful for reliably rejecting data based on a specified probability.
     """
     hash_bytes = hashlib.md5(str(data).encode(encoding="utf-8"), usedforsecurity=True).digest()
-    return float(f"0.{abs(int.from_bytes(hash_bytes))}")
+    return INV_MAXIMD5 * float(int.from_bytes(hash_bytes, signed=False))
