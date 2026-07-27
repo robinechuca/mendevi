@@ -1,12 +1,12 @@
 """Extract simple constants in order to 'normalize' the values."""
 
-import sqlite3
 import pathlib
+import sqlite3
 
-from context_verbose import Printer
 import cutcutcodec
 import numpy as np
 import tqdm
+from context_verbose import Printer
 
 from .create import is_sqlite
 from .serialize import binary_to_list, binary_to_tensor
@@ -110,6 +110,7 @@ def p_static_p_core(database: str | bytes | pathlib.Path) -> dict[str, tuple]:
     >>> from mendevi.database.normalize import p_static_p_core
     >>> p_static_p_core("/data/dataset/merge.db")
     >>>
+
     """
     # open file
     database = pathlib.Path(database).expanduser()

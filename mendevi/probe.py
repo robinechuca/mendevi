@@ -14,7 +14,6 @@ from flufl.lock import Lock
 from mendevi.database.serialize import list_to_binary
 from mendevi.utils import compute_video_hash
 
-
 LOCK_CONN_TYPE = tuple[Lock, sqlite3.Connection] | None
 
 
@@ -287,5 +286,7 @@ def probe_and_store(
 
     # perform the comparative metrics
     for ref, ref_id in references.items():
-        lock_conn = _fill_met_table(database, ref_id, ref, vid_id, video, lock_conn=lock_conn, **kwargs)
+        lock_conn = _fill_met_table(
+            database, ref_id, ref, vid_id, video, lock_conn=lock_conn, **kwargs,
+        )
     return lock_conn

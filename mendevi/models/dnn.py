@@ -1,10 +1,9 @@
 """Predict the energy and the quality based on a neuronal network."""
 
-
-from mendevi.models import Model
-
 import torch
 import tqdm
+
+from .base import EPS, Model, discard_nan
 
 
 class _TorchNN(torch.nn.Module):
@@ -46,6 +45,7 @@ class _TorchNN(torch.nn.Module):
         ----------
         values : torch.Tensor
             The concatenated values of shape (batch, in_ndim)
+
         """
         assert isinstance(values, torch.Tensor), values.__class__.__name__
         assert values.ndim == 2, values.shape
@@ -55,46 +55,74 @@ class _TorchNN(torch.nn.Module):
 class DNN(Model):
     """Deep neuronal network predictive model."""
 
+    def __init__(self, niter: int=10000, rate: float=1e-4, **kwargs: dict) -> None:
+        """Define the gradient decrease convergence parameters.
+
+        Parameters
+        ----------
+        **kwargs
+            Transmitted to :py:class:`mendevi.models.base.Model`.
+        niter : int, default=1000
+            The number of epoch, also the number of batch, because one batch by epoch.
+        rate : float, default=1e-3
+            The learning rate.
+        """
+        assert isinstance(niter, int), niter.__class__.__name__
+        assert niter >= 0, niter
+        assert isinstance(rate, float), rate.__class__.__name__
+        assert rate > 0, rate
+        self._niter, self._rate = niter, rate
+        super().__init__(**kwargs)
+
     def _fit_vect_norm(self, values: dict[str, torch.Tensor]) -> object:
         """Perform the gradient descent on a just intanciated nn."""
         # intitialisation
         input_values = torch.cat([values[lbl] for lbl in self.input_labels_aggreg], dim=1)
         reference = torch.cat([values[lbl] for lbl in self.output_labels], dim=1)
+
+        # handle nan values
+        nanmask = ~input_values.isnan().any(dim=1)  # to discarded corrupted input
+        input_values, nanref = input_values[nanmask, :], reference[nanmask, :]
+        nanmask = nanref.isnan()  # for output
+
+        # end of initialization
         total = max(
-            input_values.shape[1] + 8 + reference.shape[1],  # minimum structural
+            input_values.shape[1] + 8 + nanref.shape[1],  # minimum structural
             input_values.shape[0] // 5,  # empirical rule
         )
-        model = _TorchNN(input_values.shape[1], reference.shape[1], total=total)
+        model = _TorchNN(input_values.shape[1], nanref.shape[1], total=total)
 
         # train
         model.train()
-        optimizer = torch.optim.Adam(model.parameters(), lr=2e-4)
-        iterations = 10_000
+        optimizer = torch.optim.RAdam(model.parameters(), lr=self._rate)
         with tqdm.tqdm(
             desc="Gradient decay",
             dynamic_ncols=True,
             leave=False,
             smoothing=1e-6,
-            total=iterations,
+            total=self._niter,
         ) as progress_bar:
-            for _ in range(iterations):
-                optimizer.zero_grad()
+            for _ in range(self._niter):
+                # prediction, ignore nan values in output
                 predict = model(input_values)
-                # handle nan values
-                nanref = reference.clone()
-                nanmask = nanref.isnan()
-                nanref[nanmask] = predict[nanmask]
-                
-
+                nanref[nanmask] = predict[nanmask].detach()  # hack to ignore thes values in gradient
+                # gradient stuff
                 loss = ((predict - nanref)**2).mean()
+                optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
+                # display progression
                 progress_bar.update(1)
                 progress_bar.set_postfix_str(f"loss: {loss:9.3e}")
         model.eval()
 
         # serialisation
-        return (model, {lbl: values[lbl].shape[1] for lbl in self.output_labels})
+        index = 0
+        slices = {}
+        for lbl in self.output_labels:
+            slices[lbl] = (index, index+values[lbl].shape[1])
+            index = slices[lbl][1]
+        return (model, slices)
 
     def _predict_vect_norm(
         self, values: dict[str, torch.Tensor], parameters: object,
@@ -102,29 +130,24 @@ class DNN(Model):
         """Inference part of the model."""
         # preparation, vectorisation
         input_values = torch.cat([values[lbl] for lbl in self.input_labels_aggreg], dim=1)
-        model, sizes = parameters
+        model, slices = parameters
 
         # inference
         prediction = model(input_values)
 
         # parse result
-        output = {}
-        index = 0
-        for lbl in self.output_labels:
-            output[lbl] = prediction[:, index:index+sizes[lbl]]
-            index += sizes[lbl]
-        return output
+        return {lbl: prediction[:, idx_min:idx_max] for lbl, (idx_min, idx_max) in slices.items()}
 
 
-# from mendevi.models.dnn import DNN_Quality
-# DNN_Quality().fit("/data/dataset/merge.db", table="t_met_metric", select="lpips is not None and uniform(vid_hash) > 0.2").validate("/data/dataset/merge.db", table="t_met_metric", select="lpips is not None and uniform(vid_hash) <= 0.2")
-class DNN_Quality(DNN):
+# from mendevi.models.dnn import QualityNN
+# QualityNN().fit("/data/dataset/merge.db", table="t_met_metric", select="lpips is not None and uniform(vid_hash) > 0.2").validate("/data/dataset/merge.db", table="t_met_metric", select="lpips is not None and uniform(vid_hash) <= 0.2")
+class QualityNN(DNN):
     """Deep neuronal network for the video quality prediction.
 
     Examples
     --------
-    >>> from mendevi.models.dnn import DNN_Quality
-    >>> model = DNN_Quality(output_labels=["psnr", "log_rev_ssim"])
+    >>> from mendevi.models.dnn import QualityNN
+    >>> model = QualityNN(output_labels=["psnr", "log_rev_ssim"])
     >>> model.fit("svtav1_vs_rav1e_vs_aom.db", select="uniform(vid_hash) >= 0.2")
     >>> model.validate("svtav1_vs_rav1e_vs_aom.db", select="uniform(vid_hash) < 0.2")
     >>>
@@ -153,13 +176,14 @@ class DNN_Quality(DNN):
         super().__init__(title=title, **kwargs)
 
 
-class DNN_EncodeEnergy(DNN):
+class EncodeEnergyNN(DNN):
     """Deep neuronal network for the video encoding energy prediction.
 
     Examples
     --------
-    >>> from mendevi.models.dnn import DNN_EncodeEnergy
-    >>> model = DNN_EncodeEnergy().fit("svtav1_vs_rav1e_vs_aom.db", table="t_enc_encode")
+    >>> from mendevi.models.dnn import EncodeEnergyNN
+    >>> model = EncodeEnergyNN().fit("svtav1_vs_rav1e_vs_aom.db", table="t_enc_encode")
+    >>> model.delay_fit()
     >>> model.validate("svtav1_vs_rav1e_vs_aom.db")
     >>>
 
@@ -184,14 +208,133 @@ class DNN_EncodeEnergy(DNN):
         kwargs["aggregation"] = kwargs.get("aggregation", ["hostname"])
         super().__init__(title=title, **kwargs)
 
+    def _fit_vect(self, values: dict[str, torch.Tensor]) -> object:
+        """A hack to delay the model instantation and training."""
+        return values  # no normalization to avoid a subnormalisation by cluster
 
-class DNN_DecodeEnergy(DNN):
+    def delay_fit(self) -> None:
+        """Create a unique model to fit all the clusters at the same time."""
+        # merge cluster data
+        clus_keys = list(self._parameters)  # to frozen order
+        merge_values = {  # concatenate the data of all clusters
+            lbl: torch.cat(
+                [self._parameters[clus_key][lbl] for clus_key in clus_keys], dim=0,
+            )
+            for lbl in (*self.input_labels_aggreg, *self.output_labels)
+        }
+
+        # pretrain the universal model
+        self._aggreg_ctx = "full"  # for normalization
+        niter, self._niter = self._niter, 0  # avoid to pretrain general model
+        model, slices = super()._fit_vect(merge_values)  # universal model warming
+        self._niter = niter
+
+        # parameters preparation
+        parameters = {  # normalisation
+            clus: {
+                lbl: (
+                    (data - self._std_mean["full"][lbl][1])
+                    / (self._std_mean["full"][lbl][0] + EPS)
+                )
+                for lbl, data in values.items()
+            }
+            for clus, values in self._parameters.items()
+        }
+        parameters = {clus: discard_nan(values) for clus, values in parameters.items()}
+        parameters = {  # concatenation
+            clus: {
+                "input": torch.cat([values[lbl] for lbl in self.input_labels_aggreg], dim=1),
+                **values,
+            }
+            for clus, values in parameters.items()
+        }
+
+        # initialise the R -> R specific traductors
+        translators = {
+            clus: {
+                lbl: _TorchNN(in_ndim=idx_max-idx_min, out_ndim=idx_max-idx_min, total=80)
+                for lbl, (idx_min, idx_max) in slices.items()
+            }
+            for clus in clus_keys
+        }
+
+        # gradient decrease preparation
+        optimizer = torch.optim.RAdam(
+            [
+                *model.parameters(),
+                *(p for ms in translators.values() for m in ms.values() for p in m.parameters()),
+            ],
+            lr=self._rate,
+        )
+        with tqdm.tqdm(
+            desc="Gradient decay",
+            dynamic_ncols=True,
+            leave=False,
+            smoothing=1e-6,
+            total=self._niter,
+        ) as progress_bar:
+            for _ in range(self._niter):
+                intrinsic = {clus: model(values["input"]) for clus, values in parameters.items()}
+                predict = {
+                    clus: {
+                        lbl: data[:, idx_min:idx_max] + translators[clus][lbl](data[:, idx_min:idx_max])
+                        for lbl, (idx_min, idx_max) in slices.items()
+                    }
+                    for clus, data in intrinsic.items()
+                }
+                # compute mse loss
+                losses = {
+                    clus: {
+                        lbl: ((data_pred[lbl] - parameters[clus][lbl])**2).mean()
+                        for lbl, (idx_min, idx_max) in slices.items()
+                    }
+                    for clus, data_pred in predict.items()
+                }
+
+                loss = torch.cat([sl[None] for data in losses.values() for sl in data.values()]).mean()
+                regul_id = torch.cat([  # regularisation term to force identity
+                    ((data[:, idx_min:idx_max] - predict[clus][lbl])**2).mean()[None]
+                    for clus, data in intrinsic.items()
+                    for lbl, (idx_min, idx_max) in slices.items()
+                ]).mean()
+                # gradient stuff
+                optimizer.zero_grad()
+                (loss + 1e-4*regul_id).backward()
+                optimizer.step()
+                # display progression
+                progress_bar.update(1)
+                progress_bar.set_postfix_str(f"loss: {loss:9.3e}")
+
+
+        import matplotlib.pyplot as plt
+        for lbl, (idx_min, idx_max) in slices.items():
+            plt.xlabel(f"{lbl} intrinsec")
+            plt.ylabel(f"{lbl} absolute")
+            for clus, trans in translators.items():
+                trad_model = trans[lbl]
+                mini, maxi = model(parameters[clus]["input"])[:, idx_min:idx_max].aminmax()
+                plt.plot(
+                    (torch.linspace(mini, maxi, 1000) * self._std_mean["full"][lbl][0] + self._std_mean["full"][lbl][1]).numpy(force=True).ravel(),
+                    (
+                        (torch.linspace(mini, maxi, 1000)[:, None] + trad_model(torch.linspace(mini, maxi, 1000)[:, None]))
+                        * self._std_mean["full"][lbl][0] + self._std_mean["full"][lbl][1]
+                    ).numpy(force=True).ravel(),
+                    label=str(clus),
+                )
+            plt.legend()
+            plt.show()
+
+        import ipdb; ipdb.set_trace()
+
+
+
+class DecodeEnergyNN(DNN):
     """Deep neuronal network for the video encoding energy prediction.
 
     Examples
     --------
-    >>> from mendevi.models.dnn import DNN_DecodeEnergy
-    >>> model = DNN_DecodeEnergy().fit("svtav1_vs_rav1e_vs_aom.db", table="t_dec_decode")
+    >>> from mendevi.models.dnn import DecodeEnergyNN
+    >>> model = DecodeEnergyNN().fit("svtav1_vs_rav1e_vs_aom.db", table="t_dec_decode")
     >>> model.validate("svtav1_vs_rav1e_vs_aom.db")
     >>>
 
@@ -212,9 +355,8 @@ class DNN_DecodeEnergy(DNN):
                 "spatial_dct", "temporal_dct", "rms_sobel", "rms_time_diff",
             ],
         )
-        kwargs["output_labels"] = kwargs.get("output_labels", ["log_act_duration_per_frame", "power"])
+        kwargs["output_labels"] = kwargs.get(
+            "output_labels", ["log_act_duration_per_frame", "power"],
+        )
         kwargs["aggregation"] = kwargs.get("aggregation", ["hostname"])
         super().__init__(title=title, **kwargs)
-
-
-

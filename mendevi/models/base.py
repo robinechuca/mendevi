@@ -28,6 +28,27 @@ from mendevi.utils import compute_video_hash
 EPS = torch.finfo(torch.float32).eps
 
 
+def discard_nan(values: dict[str, torch.Tensor]) -> dict[str, torch.Tensor]:
+    """Reject observations containing nan values."""
+    cat_values = torch.cat(list(values.values()), dim=1)
+    mask = ~cat_values.isnan().any(dim=1)  # keep lines with only valid data
+    return {key: data[mask, :] for key, data in values.items()}
+
+
+def from_torch(data: dict[str, torch.Tensor]) -> dict[str, list]:
+    """Back convertion from vectorized torch to python list, bijection of :py:func:`to_torch`."""
+    out_data: dict[str, list] = {}
+    for name, values in data.items():
+        assert isinstance(values, torch.Tensor), values.__class__.__name__
+        assert values.ndim == 2, values.shape
+        match name:
+            case "effort" | "encoder" | "profile" | "mode" | "hostname":
+                raise NotImplementedError
+            case _:
+                out_data[name] = values.squeeze(1).tolist()
+    return out_data
+
+
 def to_torch(data: dict[str, list], dtype: torch.dtype = torch.float32) -> dict[str, torch.Tensor]:
     """Convert the fields into a tensor compatible encoding.
 
@@ -107,20 +128,6 @@ def to_torch(data: dict[str, list], dtype: torch.dtype = torch.float32) -> dict[
     return out_data
 
 
-def from_torch(data: dict[str, torch.Tensor]) -> dict[str, list]:
-    """Back convertion from vectorized torch to python list, bijection of :py:func:`to_torch`."""
-    out_data: dict[str, list] = {}
-    for name, values in data.items():
-        assert isinstance(values, torch.Tensor), values.__class__.__name__
-        assert values.ndim == 2, values.shape
-        match name:
-            case "effort" | "encoder" | "profile" | "mode" | "hostname":
-                raise NotImplementedError
-            case _:
-                out_data[name] = values.squeeze(1).tolist()
-    return out_data
-
-
 class MetaModel(abc.ABCMeta):
     """Relax somes+ constraints on few methods.
 
@@ -147,13 +154,13 @@ class MetaModel(abc.ABCMeta):
                     f"{' '.join(f'{n!r}' for n in abstracts)}"
                 )
                 raise TypeError(msg)
-            if list(abstracts.values()).count(False) != 1:
-                msg = (
-                    f"Can't instanciate abstract class {cls.__name__} "
-                    "without more than one implementation of the abstract method "
-                    f"{' '.join(f'{n!r}' for n in group)}"
-                )
-                raise TypeError(msg)
+            # if list(abstracts.values()).count(False) != 1:
+            #     msg = (
+            #         f"Can't instanciate abstract class {cls.__name__} "
+            #         "without more than one implementation of the abstract method "
+            #         f"{' '.join(f'{n!r}' for n in group)}"
+            #     )
+            #     raise TypeError(msg)
             # cleaning
             cls.__abstractmethods__ = cls.__abstractmethods__ - frozenset(group)
         return super().__call__(*args, **kwargs)
@@ -192,7 +199,7 @@ class Model(metaclass=MetaModel):
         **kwargs : dict
             Includes the following fields.
         sources : str
-            All sources for the model, the conference paper, the authors, etc.
+            All bibliographic sources for the model, the conference paper, the authors, etc.
         input_labels : list[str]
             The name of all input parameters.
             The possibles values are `mendevi.plot.axis.Name`.
@@ -614,7 +621,6 @@ class Model(metaclass=MetaModel):
             values = {label: [] for label in set(self._input_labels) | set(self._output_labels)}
             with sqlite3.connect(f"file:{database}?mode=ro&immutable=1", uri=True) as conn:
                 conn.row_factory = sqlite3.Row
-                print(query)
                 for raw in conn.execute(query):
                     with contextlib.suppress(RejectError):
                         for label, value in line_extractor(dict(raw)).items():
@@ -786,6 +792,11 @@ class Model(metaclass=MetaModel):
         act_concat = {
             name: torch.cat([clus[name] for clus in self._accuracy.values()], dim=1)
             for name in self._output_labels
+        }
+        act_concat |= {
+            name[4:]: 10.0**pred_val
+            for name, pred_val in act_concat.items()
+            if name.startswith("log_")
         }
         mape_rms = {
             name: (
