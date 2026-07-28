@@ -121,10 +121,10 @@ def p_static_p_core(database: str | bytes | pathlib.Path) -> dict[str, tuple]:
     ):
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
-        hostnames = set(
+        hostnames = {
             row_["env_hostname"]
             for row_ in cursor.execute("SELECT env_hostname FROM t_env_environment")
-        )
+        }
         for i, hostname in enumerate(sorted(hostnames)):
             # preparation
             data = {
@@ -212,13 +212,13 @@ def p_static_p_core(database: str | bytes | pathlib.Path) -> dict[str, tuple]:
                     data["gpu_c"].extend(slices["gpu"]["c"])
                     data["gpu_p"].extend(slices["gpu"]["p"])
 
-            # linear regression
-            import matplotlib.pyplot as plt
-            plt.scatter(data["rapl_c"], data["rapl_p"], alpha=0.1, label="rapl")
-            plt.scatter(data["wattmeter_c"], data["wattmeter_p"], alpha=0.1, label="wattmeter")
-            plt.scatter(data["gpu_c"], data["gpu_p"], alpha=0.1, label="gpu")
-            plt.legend()
-            plt.xlabel("taux d'utilisation")
-            plt.ylabel("puissance (W)")
-            plt.savefig(f"{hostname}.pdf", format="pdf")
-            plt.show()
+            # # linear regression
+            # import matplotlib.pyplot as plt
+            # plt.scatter(data["rapl_c"], data["rapl_p"], alpha=0.1, label="rapl")
+            # plt.scatter(data["wattmeter_c"], data["wattmeter_p"], alpha=0.1, label="wattmeter")
+            # plt.scatter(data["gpu_c"], data["gpu_p"], alpha=0.1, label="gpu")
+            # plt.legend()
+            # plt.xlabel("taux d'utilisation")
+            # plt.ylabel("puissance (W)")
+            # plt.savefig(f"{hostname}.pdf", format="pdf")
+            # plt.show()

@@ -42,7 +42,7 @@ def from_torch(data: dict[str, torch.Tensor]) -> dict[str, list]:
         assert isinstance(values, torch.Tensor), values.__class__.__name__
         assert values.ndim == 2, values.shape
         match name:
-            case "effort" | "encoder" | "profile" | "mode" | "hostname":
+            case "decoder" | "effort" | "encoder" | "profile" | "mode" | "hostname":
                 raise NotImplementedError
             case _:
                 out_data[name] = values.squeeze(1).tolist()
@@ -100,6 +100,9 @@ def to_torch(data: dict[str, list], dtype: torch.dtype = torch.float32) -> dict[
                     ),
                     num_classes=3,
                 ).to(dtype)
+            case "decoder":
+                msg = "The one hot encoding for decoder is not defined."
+                raise NotImplementedError(msg)
             case "encoder":
                 encoders = {e: i for i, e in enumerate(sorted(ENCODERS))}
                 out_data["encoder"] = torch.nn.functional.one_hot(
