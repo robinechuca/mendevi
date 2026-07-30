@@ -226,6 +226,7 @@ preparation
     # set context
     export PATH="$HOME/bin:$PATH"
     export PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig:$PKG_CONFIG_PATH"
+    export LDFLAGS="-Wl,-rpath,$HOME/bin"  # for pyav
 
     # --enable-libvpl and --enable-libmfx are mutualy exclusive, both are for *_qsv codecs
     # dynamic flag declaration
@@ -238,7 +239,7 @@ preparation
         --ld=\"g++\"
         --bindir=\"$HOME/bin\"
         --enable-shared
-        --extra-ldflags=\"-Wl,-rpath,$HOME/ffmpeg_build/lib\"
+        --extra-ldflags=\"-Wl,-rpath,$HOME/bin\"
 
         --enable-chromaprint
         --enable-frei0r
@@ -318,9 +319,10 @@ compilation
     # linkage
     cp ~/ffmpeg_build/bin/x265 ~/bin
     cp ~/ffmpeg_build/bin/SvtAv1EncApp ~/bin
+    cp -P ~/ffmpeg_build/lib/lib{avcodec,avdevice,avfilter,avformat,avutil,swresample,swscale}.so* ~/bin
 
     CONTENT=$'export PATH=$HOME/bin:$PATH'
     grep -q "$CONTENT" ~/.bashrc || echo "$CONTENT" >> ~/.bashrc
     source ~/.bashrc
 
-    # cd ~/bin && cp ffmpeg /usr/bin/. && cp ffprobe /usr/bin/.
+    # cp ~/bin/* /usr/bin/.
