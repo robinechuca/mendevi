@@ -319,10 +319,13 @@ compilation
     # linkage
     cp ~/ffmpeg_build/bin/x265 ~/bin
     cp ~/ffmpeg_build/bin/SvtAv1EncApp ~/bin
-    cp -P ~/ffmpeg_build/lib/lib{avcodec,avdevice,avfilter,avformat,avutil,swresample,swscale}.so* ~/bin
+    cp ~/ffmpeg_build/lib/lib{avcodec,avdevice,avfilter,avformat,avutil,swresample,swscale}.so* ~/bin
 
     CONTENT=$'export PATH=$HOME/bin:$PATH'
     grep -q "$CONTENT" ~/.bashrc || echo "$CONTENT" >> ~/.bashrc
     source ~/.bashrc
 
     # cp ~/bin/* /usr/bin/.
+    # uv pip install -v av --no-binary av --no-cache
+
+
