@@ -237,6 +237,8 @@ preparation
         --extra-libs=\"-lpthread -lm\"
         --ld=\"g++\"
         --bindir=\"$HOME/bin\"
+        --enable-shared
+        --extra-ldflags=\"-Wl,-rpath,$HOME/ffmpeg_build/lib\"
 
         --enable-chromaprint
         --enable-frei0r

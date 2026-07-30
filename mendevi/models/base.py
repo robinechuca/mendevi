@@ -15,6 +15,7 @@ import torch
 from context_verbose import Printer
 
 from mendevi.cst.encoders import ENCODERS
+from mendevi.cst.decoders import DECODERS
 from mendevi.cst.labels import LABELS
 from mendevi.cst.profiles import PROFILES
 from mendevi.database.create import create_database, is_sqlite
@@ -101,8 +102,11 @@ def to_torch(data: dict[str, list], dtype: torch.dtype = torch.float32) -> dict[
                     num_classes=3,
                 ).to(dtype)
             case "decoder":
-                msg = "The one hot encoding for decoder is not defined."
-                raise NotImplementedError(msg)
+                decoders = {e: i for i, e in enumerate(sorted(DECODERS))}
+                out_data["decoder"] = torch.nn.functional.one_hot(
+                    torch.asarray([decoders[e] for e in values], dtype=int),
+                    num_classes=len(decoders),
+                ).to(dtype)
             case "encoder":
                 encoders = {e: i for i, e in enumerate(sorted(ENCODERS))}
                 out_data["encoder"] = torch.nn.functional.one_hot(

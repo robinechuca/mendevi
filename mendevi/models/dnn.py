@@ -85,7 +85,7 @@ class DNN(Model):
         reference = torch.cat([values[lbl] for lbl in self.output_labels], dim=1)
 
         # handle nan values
-        nanmask = ~input_values.isnan().any(dim=1)  # to discarded corrupted input
+        nanmask = ~input_values.isnan().any(dim=1)  # to discard corrupted input
         input_values, nanref = input_values[nanmask, :], reference[nanmask, :]
         nanmask = nanref.isnan()  # for output
 
@@ -185,7 +185,7 @@ class KernelMultiHead(DNN):
         """Hack to delay the model instantation and training."""
         return values  # no normalization to avoid a subnormalisation by cluster
 
-    def _delay_fit(self) -> tuple:
+    def _delay_fit(self) -> dict[str, tuple]:
         """Create a unique model to fit all the clusters at the same time.
 
         It has to be called after the classical ``.fit()`` method.
@@ -297,37 +297,66 @@ class KernelMultiHead(DNN):
                 ).backward()
                 optimizer.step()
                 progress_bar.update(1)
-        # sum up
-        for lbl in sorted(losses):
-            prt.print(f"mse {lbl}: {losses[lbl]:9.3e}")
-        prt.print_time()
+            # sum up
+            for lbl in sorted(losses):
+                prt.print(f"mse {lbl}: {losses[lbl]:9.3e}")
+            prt.print_time()
 
 
-        # import matplotlib.pyplot as plt
-        # for lbl, (idx_min, idx_max) in slices.items():
-        #     plt.xlabel(f"{lbl} intrinsec")
-        #     plt.ylabel(f"{lbl} absolute")
-        #     for clus, trans in heads.items():
-        #         trad_model = trans[lbl]
-        #         mini, maxi = model(parameters[clus]["input"])[:, idx_min:idx_max].aminmax()
-        #         plt.plot(
-        #             (
-        #                 torch.linspace(mini, maxi, 1000) * self._std_mean["full"][lbl][0]
-        #                 + self._std_mean["full"][lbl][1]
-        #             ).numpy(force=True).ravel(),
-        #             (
-        #                 (
-        #                     torch.linspace(mini, maxi, 1000)[:, None]
-        #                     + trad_model(torch.linspace(mini, maxi, 1000)[:, None])
-        #                 )
-        #                 * self._std_mean["full"][lbl][0] + self._std_mean["full"][lbl][1]
-        #             ).numpy(force=True).ravel(),
-        #             label=str(clus),
-        #         )
-        #     plt.legend()
-        #     plt.show()
+        import matplotlib.pyplot as plt
+        for lbl, (idx_min, idx_max) in slices.items():
+            plt.xlabel(f"{lbl} intrinsec")
+            plt.ylabel(f"{lbl} absolute")
+            for clus, trans in heads.items():
+                trad_model = trans[lbl]
+                mini, maxi = model(parameters[clus]["input"])[:, idx_min:idx_max].aminmax()
+                plt.plot(
+                    (
+                        torch.linspace(mini, maxi, 1000) * self._std_mean["full"][lbl][0]
+                        + self._std_mean["full"][lbl][1]
+                    ).numpy(force=True).ravel(),
+                    (
+                        (
+                            torch.linspace(mini, maxi, 1000)[:, None]
+                            + trad_model(torch.linspace(mini, maxi, 1000)[:, None])
+                        )
+                        * self._std_mean["full"][lbl][0] + self._std_mean["full"][lbl][1]
+                    ).numpy(force=True).ravel(),
+                    label=str(clus),
+                )
+            plt.legend()
+            plt.show()
 
-        return (model, slices, heads)
+        return {clus: (model, slices, head) for clus, head in heads.items()}
+
+    def _predict_vect(
+        self, values: dict[str, torch.Tensor], parameters: object,
+    ) -> dict[str, torch.Tensor]:
+        """Perform the prediction on a specific cluster."""
+        model, slices, heads = parameters
+
+        # data normalization and concatenation
+        normalized_data = torch.cat(
+            [
+                (values[lbl] - self._std_mean["full"][lbl][1]) / (self._std_mean["full"][lbl][0] + EPS)
+                for lbl in self.input_labels_aggreg
+            ],
+            dim=1,
+        )
+
+        # evaluation latent intrinsic (normalized)
+        prediction = model(normalized_data)
+        prediction = {lbl: prediction[:, idx_min:idx_max] for lbl, (idx_min, idx_max) in slices.items()}
+        # evaluation final (normalized)
+        prediction = {lbl: pred + heads[lbl](pred) for lbl, pred in prediction.items()}  # optional
+
+        # denormalization
+        prediction = {
+            lbl: pred * (self._std_mean["full"][lbl][0] + EPS) + self._std_mean["full"][lbl][1]
+            for lbl, pred in prediction.items()
+        }
+
+        return prediction
 
 
     def fit(self, *args: tuple, **kwargs: dict) -> typing.Self:
@@ -344,7 +373,6 @@ class EncodeEnergyNN(KernelMultiHead):
     --------
     >>> from mendevi.models.dnn import EncodeEnergyNN
     >>> model = EncodeEnergyNN().fit("svtav1_vs_rav1e_vs_aom.db", table="t_enc_encode")
-    >>> model.delay_fit()
     >>> model.validate("svtav1_vs_rav1e_vs_aom.db")
     >>>
 

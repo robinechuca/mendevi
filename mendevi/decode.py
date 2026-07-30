@@ -21,6 +21,38 @@ from mendevi.database.serialize import list_to_binary, tensor_to_binary
 from mendevi.utils import cp_shm
 
 
+DECODERS_CAT = {  # sorted by order of priority
+    "av1": [
+        ("cuvid", "av1_cuvid"),
+        ("vaapi", "vaapi"),
+        ("cpu", "libdav1d"),
+        ("cpu", "libaom-av1"),
+    ],
+    "h264": [
+        ("cuvid", "h264_cuvid"),
+        ("vaapi", "vaapi"),
+        ("cpu", "h264"),
+        ("cpu", "libopenh264"),
+    ],
+    "hevc": [
+        ("cuvid", "hevc_cuvid"),
+        ("vaapi", "vaapi"),
+        ("cpu", "hevc"),
+    ],
+    "vp9": [
+        ("cuvid", "vp9_cuvid"),
+        ("vaapi", "vaapi"),
+        ("cpu", "libvpx-vp9"),
+        ("cpu", "vp9"),
+    ],
+    "vvc": [
+        ("cuvid", "vvc_cuvid"),
+        ("vaapi", "vaapi"),
+        ("cpu", "vvc"),
+    ],
+}
+
+
 def decode(vid: pathlib.Path, **kwargs: dict) -> tuple[str, str | None, str, dict[str]]:
     """Decode an existing video.
 
@@ -297,32 +329,8 @@ def available_decoders(codec: str, pix_fmt: str) -> tuple[str, str | None]:
     sample = create_video_sample(codec, pix_fmt)
 
     # general: -hwaccel cuda -hwaccel_output_format cuda
-    match codec:
-        case "av1":
-            candidates = [
-                ("cuvid", "av1_cuvid"),
-                ("vaapi", "vaapi"),
-                ("cpu", "libdav1d"),
-                ("cpu", "libaom-av1"),
-            ]
-        case "h264":
-            candidates = [
-                ("cuvid", "h264_cuvid"),
-                ("vaapi", "vaapi"),
-                ("cpu", "h264"),
-                ("cpu", "libopenh264"),
-            ]
-        case "hevc":
-            candidates = [("cuvid", "hevc_cuvid"), ("vaapi", "vaapi"), ("cpu", "hevc")]
-        case "vvc":
-            candidates = [("cuvid", "vvc_cuvid"), ("vaapi", "vaapi"), ("cpu", "vvc")]
-        case "vp9":
-            candidates = [
-                ("cuvid", "vp9_cuvid"), ("vaapi", "vaapi"), ("cpu", "libvpx-vp9"), ("cpu", "vp9"),
-            ]
-        case _:
-            logging.getLogger(__name__).info("no decoder tested for the codec %s", codec)
-            candidates = []
+    if not (candidates := DECODERS_CAT.get(codec, [])):
+        logging.getLogger(__name__).info("no decoder tested for the codec %s", codec)
     for family, decoder in candidates:
         if try_decode_sample_encoder(sample, decoder):
             yield family, decoder
