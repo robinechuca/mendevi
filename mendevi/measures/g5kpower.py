@@ -8,6 +8,7 @@ import logging
 import numbers
 import re
 import threading
+import time
 
 import numpy as np
 import requests
@@ -50,6 +51,7 @@ def g5kpower(
     *,
     login: str | None = None,
     password: str | None = None,
+    _first: bool = True,
 ) -> dict[str]:
     """Do a request to get the grid5000 consumption.
 
@@ -129,6 +131,13 @@ def g5kpower(
     except requests.exceptions.SSLError as err:
         logging.getLogger(__name__).info(err)
         req = requests.get(url, auth=auth, verify=False, timeout=60)
+    except requests.exceptions.ReadTimeout as err:  # give a second chance
+        if _first:
+            logging.getLogger(__name__).info(err)
+            time.sleep(MARGIN)
+            return g5kpower(hostname, start, duration, login=login, password=password, _first=False)
+        msg = f"the request {url} raised a timeout twice"
+        raise ValueError(msg) from err
     except requests.exceptions.ChunkedEncodingError as err:
         msg = f"the result of the request {url} is corrupted"
         raise ValueError(msg) from err

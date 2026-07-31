@@ -365,7 +365,6 @@ class KernelMultiHead(DNN):
         self._parameters = self._delay_fit()  # create and train all models
 
 
-
 class EncodeEnergyNN(KernelMultiHead):
     """Deep neuronal network for the video encoding energy prediction.
 
