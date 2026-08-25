@@ -2,6 +2,8 @@
 # dot -Tsvg pipeline.dot > pipeline.svg
 digraph pipeline {
     rankdir=LR
+    nodesep=0.1
+    # ranksep=0.3
     compound=true
 
     # data
@@ -22,9 +24,8 @@ digraph pipeline {
 
     effort [label="Effort" shape=note style=filled fillcolor=white]
     encoder [label="Encoder" shape=note style=filled fillcolor=white]
-    quality [label="Quality" shape=note style=filled fillcolor=white]
+    quality_mode [label="Quality / Mode" shape=note style=filled fillcolor=white]
     thread [label="Thread" shape=note style=filled fillcolor=white]
-    mode_ [label="Mode" shape=note style=filled fillcolor=white]
 
     callback [label="Callback" shape=note style=filled fillcolor=white]
     repeat [label="Repeat" shape=note style=filled fillcolor=white]
@@ -90,7 +91,7 @@ digraph pipeline {
         cluster=true
         label="Parameters"
         bgcolor="#ef597b"
-        effort encoder quality thread mode_
+        effort encoder quality_mode thread
     }
     subgraph clus_param_callback {
         cluster=true
@@ -110,7 +111,7 @@ digraph pipeline {
     # arguments
     {p_colorspace p_fps p_pxl p_resol} -> prepare [lhead=clus_prepare arrowhead=none style=dashed]
     {c_fps c_pxl c_resol c_filter} -> t_convert [arrowhead=none style=dashed]
-    {effort encoder quality thread, mode_} -> t_encode [arrowhead=none style=dashed]
+    {effort encoder quality_mode thread} -> t_encode [arrowhead=none style=dashed]
     {callback repeat} -> t_dec [lhead=clus_encode arrowhead=none style=dashed]
     {callback repeat} -> decode [lhead=clus_decode arrowhead=none style=dashed]
     {c_resol} -> convert [arrowhead=none style=dashed]

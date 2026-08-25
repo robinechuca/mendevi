@@ -363,6 +363,7 @@ class KernelMultiHead(DNN):
         """Container for the :py:meth:`Model.fit` method."""
         super().fit(*args, **kwargs)  # prepare data
         self._parameters = self._delay_fit()  # create and train all models
+        return self
 
 
 class EncodeEnergyNN(KernelMultiHead):
