@@ -50,7 +50,7 @@ libx264 and libopenh264
     ARCH=$(uname -m)
     PATH="$HOME/bin:$PATH" make OS=linux ARCH="$ARCH"
     make install PREFIX="$HOME/ffmpeg_build"
-    rm ~/ffmpeg_build/lib/libopenh264.so*  # to force the static build overwise it will failed on dynamic
+    rm ~/ffmpeg_build/lib/libopenh264.so*  # to force the static build otherwise it will failed on dynamic
 
 libx265
 ^^^^^^^

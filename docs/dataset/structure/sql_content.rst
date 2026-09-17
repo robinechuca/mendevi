@@ -1160,7 +1160,7 @@ The pixel format used for encoding.
 enc_quality
 ^^^^^^^^^^^
 
-The relative quality :math:`\in [0, 1]` that the encoder aims for the final video. This number is afinally related to the ``crf`` or ``qp`` parameter. 0 corresponds to near lossless encoding, and 1 to highly lossly encoding.
+The relative quality :math:`\in [0, 1]` that the encoder aims for the final video. This number is afinally related to the ``crf`` or ``qp`` parameter. 0 corresponds to near lossless encoding, and 1 to highly lossy encoding.
 
 .. _enc_threads:
 

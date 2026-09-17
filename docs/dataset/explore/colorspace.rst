@@ -99,7 +99,7 @@ This is the pipeline used for measurements:
 
 1) The input video ``park_joy.mkv`` was losslessly transcoded with different colorspaces to form the set of reference videos ``reference_park_joy_*_fhd.mp4``, including the default ``reference_park_joy_fhd.mp4``.
 
-2) Each of the ``reference_park_joy_*`` videos was lossly encoded by varying several parameters but **without changing the colorspace**. These videos form the ``sample*`` collection.
+2) Each of the ``reference_park_joy_*`` videos was lossy encoded by varying several parameters but **without changing the colorspace**. These videos form the ``sample*`` collection.
 
 Plots
 -----

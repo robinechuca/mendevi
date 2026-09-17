@@ -49,16 +49,16 @@ It manages the following parameters:
 #. It supports the ``libx264``, ``libopenh264``, ``libx265``, ``libvpx-vp9``, ``libaom-av1``, ``libsvtav1``, ``librav1e`` and ``vvc`` cpu encoders.
 #. It supports the ``h264_nvenc``, ``hevc_nvenc``, ``av1_nvenc`` and ``*_vaapi`` gpu encoders.
 #. Distortions are measured using the ``lpips``, ``psnr``, ``ssim``, ``vif`` and ``vmaf`` metrics.
-#. Complexity are measured using the ``rms_sobel``, ``rms_time_diff``, ``spatial_dct`` and ``temporal_dct`` metrics.
+#. Complexity metrics are measured using the ``rms_sobel``, ``rms_time_diff``, ``spatial_dct`` and ``temporal_dct`` metrics.
 #. Encoding efforts are ``fast``, ``medium`` and ``slow``.
-#. It takes care about the colorspaces (``range``, ``transfer`` and ``primaries``).
+#. It handles color-related parameters, including color range, transfer characteristics, and color primaries (``range``, ``transfer`` and ``primaries``).
 #. Iterate over different ``effort``, ``encoder``, ``mode``, ``quality``, ``threads``, ``fps``, ``resolution`` and ``pix_fmt``.
-#. Energy measurements are catched with ``RAPL`` and an external wattmeter on ``grid'5000``.
+#. Energy measurements are captured with ``RAPL`` and an external wattmeter on ``grid'5000``.
 #. Get the ``cpu``, ``gpu``, ``ram`` and ``temperature`` activity.
 #. Get a full environment context, including hardware and software version.
-#. It support the mode (constant bitrate) ``cbr`` and (constant quality) ``vbr``.
-#. Ability to ``modify ffmpeg commands`` on the fly to perform specific tests, ginving your own defined callback function.
-#. It take care to ``transfer files to RAM`` if possible to avoid biases related to storage space access.
+#. It supports the mode (constant bitrate) ``cbr`` and (constant quality) ``vbr``.
+#. Ability to ``modify ffmpeg commands`` on the fly to perform specific tests, giving your own defined callback function.
+#. It takes care to ``transfer files to RAM`` if possible to avoid biases related to storage space access.
 #. Provides a guide to compile ffmpeg with all optimizations in order to ``compare encoders/decoders at their limits``.
 
 .. caution::

@@ -500,14 +500,14 @@ Basic Installation
 ^^^^^^^^^^^^^^^^^^
 
 To install a minimal version of *mendevi*, follow :ref:`simple_installation`.
-Overwise, you can follow :ref:`building_from_source` for a full installation.
+Otherwise, you can follow :ref:`building_from_source` for a full installation.
 
 .. _building_from_source:
 
-Building From Source (For devellopers)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Building From Source (For developers)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-To install the lastest development version from `GitLab <https://gitlab.inria.fr/rrichard/mendevi>`_ source, clone mendevi using ``git`` and install it using ``uv pip``:
+To install the latest development version from `GitLab <https://gitlab.inria.fr/rrichard/mendevi>`_ source, clone mendevi using ``git`` and install it using ``uv pip``:
 
 .. code:: shell
 

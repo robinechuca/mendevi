@@ -20,8 +20,8 @@ digraph colorspace {
     p_range [label="Range", shape=note, style=filled, fillcolor=white]
 
     # process
-    conv [label="Colorspace Convertion", style=filled, fillcolor=white]
-    rev_conv [label="Reverse Colorspace Convertion", style=filled, fillcolor=white]
+    conv [label="Colorspace Conversion", style=filled, fillcolor=white]
+    rev_conv [label="Reverse Colorspace Conversion", style=filled, fillcolor=white]
     comp1 [label="Direct\nCompare", style=filled, fillcolor=white]
     comp2 [label="Same Colorspace\nCompare", style=filled, fillcolor=white]
     # comp2 [label="Compare", style=filled, fillcolor=white]
