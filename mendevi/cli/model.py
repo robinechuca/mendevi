@@ -193,10 +193,7 @@ def train(**kwargs: dict) -> None:
     model.validate(train, select=select, table=kwargs["table"])
 
     # save the model
-    with Printer(f"Save model into {model_path}..."), model_path.open("wb") as file:
-        kwargs["train"] = train
-        pickle.dump(model, file)
-        prt.print_time()
+    model.save(model_path)
 
 
 @click.command

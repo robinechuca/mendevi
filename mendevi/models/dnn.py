@@ -58,7 +58,9 @@ class _TorchNN(torch.nn.Module):
 class DNN(Model):
     """Deep neuronal network predictive model."""
 
-    def __init__(self, niter: int=10000, rate: float=1e-4, **kwargs: dict) -> None:
+    def __init__(
+        self, niter: int=10000, rate: float=1e-4, total: int | None=None, **kwargs: dict,
+    ) -> None:
         """Define the gradient decrease convergence parameters.
 
         Parameters
@@ -69,13 +71,20 @@ class DNN(Model):
             The number of epoch, also the number of batch, because one batch by epoch.
         rate : float, default=1e-3
             The learning rate.
+        total : int, optional
+            The number of parameters of the neuronal network.
+            By default, the size if choosen according a simple heuristic
+            based on the size of the training set.
 
         """
         assert isinstance(niter, int), niter.__class__.__name__
         assert niter >= 0, niter
         assert isinstance(rate, float), rate.__class__.__name__
         assert rate > 0, rate
-        self._niter, self._rate = niter, rate
+        if total is not None:
+            assert isinstance(total, int), total.__class__.__name__
+            assert total > 0, total
+        self._niter, self._rate, self._total = niter, rate, total
         super().__init__(**kwargs)
 
     def _fit_vect_norm(self, values: dict[str, torch.Tensor]) -> object:
@@ -90,7 +99,7 @@ class DNN(Model):
         nanmask = nanref.isnan()  # for output
 
         # end of initialization
-        total = max(
+        total = self._total or max(
             input_values.shape[1] + 8 + nanref.shape[1],  # minimum structural
             input_values.shape[0] // 5,  # empirical rule
         )
@@ -149,7 +158,7 @@ class QualityNN(DNN):
     Examples
     --------
     >>> from mendevi.models.dnn import QualityNN
-    >>> model = QualityNN(output_labels=["psnr", "log_rev_ssim"])
+    >>> model = QualityNN(output_labels=["psnr"])
     >>> model.fit("svtav1_vs_rav1e_vs_aom.db", select="uniform(vid_hash) >= 0.2")
     >>> model.validate("svtav1_vs_rav1e_vs_aom.db", select="uniform(vid_hash) < 0.2")
     >>>
@@ -293,7 +302,7 @@ class KernelMultiHead(DNN):
                 optimizer.zero_grad()
                 (
                     torch.cat([ls[None] for ls in losses.values()]).mean()  # main loss
-                    + 0.1 * identity_regularization  # force latent space to be homogeneous
+                    + 0.5 * identity_regularization  # force latent space to be homogeneous
                 ).backward()
                 optimizer.step()
                 progress_bar.update(1)
@@ -302,43 +311,19 @@ class KernelMultiHead(DNN):
                 prt.print(f"mse {lbl}: {losses[lbl]:9.3e}")
             prt.print_time()
 
-
-        import matplotlib.pyplot as plt
-        for lbl, (idx_min, idx_max) in slices.items():
-            plt.xlabel(f"{lbl} intrinsec")
-            plt.ylabel(f"{lbl} absolute")
-            for clus, trans in heads.items():
-                trad_model = trans[lbl]
-                mini, maxi = model(parameters[clus]["input"])[:, idx_min:idx_max].aminmax()
-                plt.plot(
-                    (
-                        torch.linspace(mini, maxi, 1000) * self._std_mean["full"][lbl][0]
-                        + self._std_mean["full"][lbl][1]
-                    ).numpy(force=True).ravel(),
-                    (
-                        (
-                            torch.linspace(mini, maxi, 1000)[:, None]
-                            + trad_model(torch.linspace(mini, maxi, 1000)[:, None])
-                        )
-                        * self._std_mean["full"][lbl][0] + self._std_mean["full"][lbl][1]
-                    ).numpy(force=True).ravel(),
-                    label=str(clus),
-                )
-            plt.legend()
-            plt.show()
-
-        return {clus: (model, slices, head) for clus, head in heads.items()}
+        return {clus: (model, slices, head, parameters[clus]) for clus, head in heads.items()}
 
     def _predict_vect(
         self, values: dict[str, torch.Tensor], parameters: object,
     ) -> dict[str, torch.Tensor]:
         """Perform the prediction on a specific cluster."""
-        model, slices, heads = parameters
+        model, slices, heads, _ = parameters
 
         # data normalization and concatenation
         normalized_data = torch.cat(
             [
-                (values[lbl] - self._std_mean["full"][lbl][1]) / (self._std_mean["full"][lbl][0] + EPS)
+                (values[lbl] - self._std_mean["full"][lbl][1])
+                / (self._std_mean["full"][lbl][0] + EPS)
                 for lbl in self.input_labels_aggreg
             ],
             dim=1,
@@ -346,7 +331,9 @@ class KernelMultiHead(DNN):
 
         # evaluation latent intrinsic (normalized)
         prediction = model(normalized_data)
-        prediction = {lbl: prediction[:, idx_min:idx_max] for lbl, (idx_min, idx_max) in slices.items()}
+        prediction = {
+            lbl: prediction[:, idx_min:idx_max] for lbl, (idx_min, idx_max) in slices.items()
+        }
         # evaluation final (normalized)
         prediction = {lbl: pred + heads[lbl](pred) for lbl, pred in prediction.items()}  # optional
 
@@ -358,12 +345,55 @@ class KernelMultiHead(DNN):
 
         return prediction
 
-
     def fit(self, *args: tuple, **kwargs: dict) -> typing.Self:
         """Container for the :py:meth:`Model.fit` method."""
         super().fit(*args, **kwargs)  # prepare data
         self._parameters = self._delay_fit()  # create and train all models
+        if self._weights is not None:  # save again
+            self.save(self._weights)
         return self
+
+    def draw(self) -> None:
+        """Plot the R -> R heads function."""
+        import matplotlib.pyplot as plt
+        heads_data = {clus: (head, data) for clus, (_, _, head, data) in self._parameters.items()}
+        model, slices, _, _ = next(iter(self._parameters.values()))
+        for lbl, (idx_min, idx_max) in slices.items():
+            plt.xlabel(f"{lbl} intrinsec")
+            plt.ylabel(f"{lbl} absolute")
+            for clus, (head, data) in heads_data.items():
+                trad_model = head[lbl]
+                mini, maxi = model(data["input"])[:, idx_min:idx_max].aminmax()
+                # plt.plot(
+                #     (
+                #         torch.linspace(mini, maxi, 1000) * self._std_mean["full"][lbl][0]
+                #         + self._std_mean["full"][lbl][1]
+                #     ).numpy(force=True).ravel(),
+                #     (
+                #         (
+                #             torch.linspace(mini, maxi, 1000)[:, None]
+                #             + trad_model(torch.linspace(mini, maxi, 1000)[:, None])
+                #         )
+                #         * self._std_mean["full"][lbl][0] + self._std_mean["full"][lbl][1]
+                #     ).numpy(force=True).ravel(),
+                #     label=str(clus),
+                # )
+
+                lattent = model(data["input"])[:, idx_min:idx_max]
+                plt.scatter(
+                    (
+                        lattent * self._std_mean["full"][lbl][0]
+                        + self._std_mean["full"][lbl][1]
+                    ).numpy(force=True).ravel(),
+                    (
+                        (lattent + trad_model(lattent))
+                        * self._std_mean["full"][lbl][0] + self._std_mean["full"][lbl][1]
+                    ).numpy(force=True).ravel(),
+                    label=str(clus),
+                )
+
+            plt.legend()
+            plt.show()
 
 
 class EncodeEnergyNN(KernelMultiHead):
@@ -373,7 +403,7 @@ class EncodeEnergyNN(KernelMultiHead):
     --------
     >>> from mendevi.models.dnn import EncodeEnergyNN
     >>> model = EncodeEnergyNN().fit("svtav1_vs_rav1e_vs_aom.db", table="t_enc_encode")
-    >>> model.validate("svtav1_vs_rav1e_vs_aom.db")
+    >>> model.validate("svtav1_vs_rav1e_vs_aom.db", table="t_enc_encode")
     >>>
 
     """
@@ -408,7 +438,7 @@ class DecodeEnergyNN(KernelMultiHead):
     --------
     >>> from mendevi.models.dnn import DecodeEnergyNN
     >>> model = DecodeEnergyNN().fit("svtav1_vs_rav1e_vs_aom.db", table="t_dec_decode")
-    >>> model.validate("svtav1_vs_rav1e_vs_aom.db")
+    >>> model.validate("svtav1_vs_rav1e_vs_aom.db", table="t_dec_decode")
     >>>
 
     """

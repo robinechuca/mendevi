@@ -101,3 +101,24 @@ Alternatives
 #. The `COCONUT database <https://github.com/cd-athena/COCONUT>`_ also includes video decoding measurements.
 #. The `SEED and VEED dataset <https://github.com/cd-athena/VEED-dataset>`_ offers a comprehensive LCA and GPU measurements.
 #. The `CTC videos <https://dash-large-files.akamaized.net/WAVE/3GPP/5GVideo/ReferenceSequences/>`_ and `Big Buck Bunny <https://media.xiph.org/BBB/>`_ are used for the tests. The videos are downloadable from `these torrents <https://gitlab.inria.fr/rrichard/mendevi/-/tree/main/video>`_.
+
+
+Citation
+========
+
+If this work is helpful for your research, please consider citing it.
+
+.. code::
+
+    @software{mendevi,
+        author = {Robin Richard and Thomas Maugey and Anne-Cecile Orgerie},
+        title = {{Mendevi}: Measures of Encoding and Decoding of Videos},
+        date = {2026-09-12},
+        url = {https://gitlab.inria.fr/rrichard/mendevi},
+        version = {1.3.6},
+        license = {GPLv3},
+        note = {Python software and dataset for measuring video encoding and decoding},
+        keywords = {video encoding, decoding, energy, complexity, quality, dataset},
+        organization = {Inria},
+        location = {Rennes, France},
+    }

@@ -3,8 +3,10 @@
 import abc
 import contextlib
 import logging
+import lzma
 import numbers
 import pathlib
+import pickle
 import re
 import sqlite3
 import tempfile
@@ -14,8 +16,8 @@ import numpy as np
 import torch
 from context_verbose import Printer
 
-from mendevi.cst.encoders import ENCODERS
 from mendevi.cst.decoders import DECODERS
+from mendevi.cst.encoders import ENCODERS
 from mendevi.cst.labels import LABELS
 from mendevi.cst.profiles import PROFILES
 from mendevi.database.create import create_database, is_sqlite
@@ -136,7 +138,7 @@ def to_torch(data: dict[str, list], dtype: torch.dtype = torch.float32) -> dict[
 
 
 class MetaModel(abc.ABCMeta):
-    """Relax somes+ constraints on few methods.
+    """Relax some constraints on a few methods.
 
     see https://github.com/python/cpython/blob/main/Lib/_py_abc.py
     and https://github.com/python/cpython/blob/main/Lib/abc.py
@@ -218,9 +220,14 @@ class Model(metaclass=MetaModel):
             By default, this list consists of the subset of discrete parameters from `input_labels`.
             For example, if you provide an empty list,
             a single instance of the model will be trained on all parameters.
+        weights : str, optional
+            If provided, this is the name of the model weights,
+            which will be loaded and saved automatically.
 
         """
-        assert set(kwargs).issubset({"sources", "input_labels", "output_labels", "aggregation"})
+        assert set(kwargs).issubset(
+            {"sources", "input_labels", "output_labels", "aggregation", "weights"},
+        )
         # check input_labels
         input_labels = kwargs.get("input_labels", [])
         assert hasattr(input_labels, "__iter__"), input_labels.__class__.__name__
@@ -273,6 +280,16 @@ class Model(metaclass=MetaModel):
         sources = kwargs.get("sources", "")
         assert isinstance(sources, str), sources.__class__.__name__
         self._sources = sources
+
+        # check cache
+        self._weights = None
+        if "weights" in kwargs:
+            assert isinstance(kwargs["weights"], str), kwargs["weights"].__class__.__name__
+            cachedir = pathlib.Path.home() / ".cache" / "mendevi"
+            cachedir.mkdir(mode=0o777, parents=True, exist_ok=True)
+            self._weights = (cachedir / kwargs["weights"]).with_suffix(".pk.xz")
+            if self._weights.exists():
+                self.__dict__ = self.load(self._weights).__dict__
 
     @abc.abstractmethod
     def _fit(self, values: dict[str]) -> object:
@@ -568,6 +585,9 @@ class Model(metaclass=MetaModel):
         """
         for _ in self.fit_generator(database, select=select, query=query, table=table):
             pass
+        if self._weights is not None:
+            self._weights.parent.mkdir(mode=0o777, parents=True, exist_ok=True)
+            self.save(self._weights)
         return self
 
     def fit_generator(
@@ -665,6 +685,16 @@ class Model(metaclass=MetaModel):
     def is_fit(self) -> bool:
         """Return True if the method `fit` has been succesfully called."""
         return bool(self._parameters)
+
+    @staticmethod
+    def load(path: pathlib.Path | str) -> typing.Self:
+        """Load a model recorded by self.save()."""
+        with Printer(f"Load model from {path}...") as prt:
+            with lzma.open(path, "r") as file:
+                data = file.read()
+            model = pickle.loads(data)
+            prt.print_time()
+        return model
 
     @property
     def output_labels(self) -> list[str]:
@@ -765,6 +795,18 @@ class Model(metaclass=MetaModel):
         """
         vid_kwargs = self.extract_video_props(video)
         return self.predict(*args, **kwargs, **vid_kwargs)
+
+    def save(self, path: pathlib.Path | str) -> pathlib.Path:
+        """Save the model by freezing its current state."""
+        path = pathlib.Path(path).expanduser()
+        if path.suffixes != [".pk", ".xz"]:
+            path = path.with_suffix(".pk.xz")
+        with Printer(f"Save model into {path}...") as prt:
+            data = pickle.dumps(self)
+            with lzma.open(path, "wb", preset=lzma.PRESET_EXTREME) as file:
+                file.write(data)
+            prt.print_time()
+        return path
 
     def validate(
         self,

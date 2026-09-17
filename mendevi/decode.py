@@ -20,7 +20,6 @@ from mendevi.convert import filter_best_order
 from mendevi.database.serialize import list_to_binary, tensor_to_binary
 from mendevi.utils import cp_shm
 
-
 DECODERS_CAT = {  # sorted by order of priority
     "av1": [
         ("cuvid", "av1_cuvid"),
