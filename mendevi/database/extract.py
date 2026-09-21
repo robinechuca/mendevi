@@ -209,7 +209,7 @@ class SqlLinker:
 
         # set doctrsing
         doc: list[str] = (func.__doc__ or "").split("\n")
-        example = "\nor, alternativaly\n".join(
+        example = "\nor, alternatively\n".join(
             (
                 "\n"
                 ".. code:: sql\n"

@@ -80,7 +80,7 @@ def main(videos: tuple[str], database: str | None = None, **kwargs: dict) -> Non
     lpips_alex, lpips_vgg, psnr, ssim, vif, vmaf : boolean
         If True, compute the comparative video metric, otherwise, skip it.
     rms_sobel, rms_time_diff, spatial_dct, temporal_dct, uvq : boolean
-        If True, compute the absolute uvq metric, overwise, skip it.
+        If True, compute the absolute uvq metric, otherwise, skip it.
 
     """
     with Printer("Parse configuration...") as prt:

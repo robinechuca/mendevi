@@ -87,7 +87,7 @@ class Activity(threading.Thread):
             * gpu_power: list[list[float]], the sampled power in each point (in W).
             * gpu_power_avg: float, the total power consumption of all GPU (in W).
             * ps_core: list[list[float]], tensor of detailed usage of each logical core in %.
-            * ps_core_avg: float, the mean cummulated usage of all the logical cpus.
+            * ps_core_avg: float, the mean cumulative usage of all the logical cpus.
             * ps_dt: list[float], the duration of each interval (in s).
             * ps_ram: list[int], list of the sampled ram usage in bytes in each point.
             * ps_ram_avg: float, the average ram usage in bytes in each point.
@@ -217,7 +217,7 @@ class Activity(threading.Thread):
         Parameters
         ----------
         lbl : hashable
-            The section name, as a key of the final dictionay.
+            The section name, as a key of the final dictionary.
             If it is called several times, the slice with the same label are concatenated.
 
         Notes

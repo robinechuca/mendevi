@@ -77,7 +77,7 @@ This is the pipeline used for measurements:
 Example of result
 =================
 
-Download and merge two datasets with this simple command:
+Download and merge two datasets with this bash command:
 
 .. code:: shell
 
@@ -100,7 +100,6 @@ Alternatives
 #. The `MVCD database <https://github.com/cd-athena/MVCD>`_ also includes video encoding and decoding energy measurements.
 #. The `COCONUT database <https://github.com/cd-athena/COCONUT>`_ also includes video decoding measurements.
 #. The `SEED and VEED dataset <https://github.com/cd-athena/VEED-dataset>`_ offers a comprehensive LCA and GPU measurements.
-#. The `CTC videos <https://dash-large-files.akamaized.net/WAVE/3GPP/5GVideo/ReferenceSequences/>`_ and `Big Buck Bunny <https://media.xiph.org/BBB/>`_ are used for the tests. The videos are downloadable from `these torrents <https://gitlab.inria.fr/rrichard/mendevi/-/tree/main/video>`_.
 
 
 Citation

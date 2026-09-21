@@ -96,7 +96,7 @@ class ADECWattmeter(threading.Thread):
             raise ValueError(msg)
         data = data[24:-1]
 
-        # extract cumulated current and cummulated efficient powers
+        # extract cumulated current and cumulative efficient powers
         is_cum, p_cum = [], []  # each cumulative square current an efficient power for each channel
         while data:
             is_cum.extend(struct.unpack("<ffffff", data[:24]))

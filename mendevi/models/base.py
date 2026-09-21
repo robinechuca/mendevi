@@ -39,7 +39,7 @@ def discard_nan(values: dict[str, torch.Tensor]) -> dict[str, torch.Tensor]:
 
 
 def from_torch(data: dict[str, torch.Tensor]) -> dict[str, list]:
-    """Back convertion from vectorized torch to python list, bijection of :py:func:`to_torch`."""
+    """Back conversion from vectorized torch to python list, bijection of :py:func:`to_torch`."""
     out_data: dict[str, list] = {}
     for name, values in data.items():
         assert isinstance(values, torch.Tensor), values.__class__.__name__
