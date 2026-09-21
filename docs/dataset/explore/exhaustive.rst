@@ -4,6 +4,7 @@ Full Dataset
 ============
 
 Corresponds to a random subsampling of a highly varied set of encoding scenarios.
+The dataset contains 35573 encoding measurements and 99801 decoding measurements.
 
 .. list-table:: The parameters of this database
     :header-rows: 1
@@ -13,9 +14,9 @@ Corresponds to a random subsampling of a highly varied set of encoding scenarios
       - Description (link)
       - Total
     * - video
-      - ``aov``, ``baolei_balloon``, ``baolei_man``, ``baolei_woman``, ``baolei_yard``, ``boat``, ``bode_museum``, ``brest_sedof``, ``cosmos``, ``cs_go``, ``elevator``, ``fountain``, ``graphics_mix_simple``, ``graphics_mix_transitions``, ``heroes_of_the_storm``, ``jianling_beach``, ``jianling_temple``, ``life_untouched``, ``meridian``, ``mine_craft``, ``mission_control``, ``mooving_text``, ``neon``, ``neptune_fountain_2``, ``neptune_fountain_3``, ``nocturne``, ``oberbaum_spree``, ``park_joy``, ``project_cars``, ``quadriga_tree``, ``rain_fruits``, ``riverbank``, ``skater``, ``soccer``, ``sol_levante``, ``sparks``, ``star_craft``, ``subway_tree``, ``text_mix_transition``, ``tiergarten_parkway``, ``tunnel_flag world_of_warcraft``
+      - ``baolei_balloon``, ``baolei_yard``, ``boat``, ``bode_museum``, ``brest_sedof``, ``cosmos``, ``elevator``, ``fountain``, ``graphics_mix_simple``, ``graphics_mix_transitions``, ``life_untouched``, ``meridian``, ``mooving_text``, ``neon``, ``neptune_fountain_2``, ``neptune_fountain_3``, ``nocturne``, ``oberbaum_spree``, ``park_joy``, ``quadriga_tree``, ``rain_fruits``, ``riverbank``, ``skater``, ``soccer``, ``sol_levante``, ``sparks``, ``subway_tree``, ``text_mix_transition``, ``tiergarten_parkway``, ``tunnel_flag``
       - `ctc <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/video/ctc.torrent?inline=false>`_
-      - :math:`42`
+      - :math:`30`
     * - profile
       - ``sd``, ``hd``, ``fhd``,  ``uhd4k``
       - `video resolution and more <https://gitlab.inria.fr/rrichard/mendevi/-/blob/main/mendevi/cst/profiles.py>`_
@@ -23,7 +24,7 @@ Corresponds to a random subsampling of a highly varied set of encoding scenarios
     * - encoder
       - ``libx264``, ``h264_vaapi``, ``h264_nvenc``, ``libx265``, ``hevc_nvenc``, ``vvc``, ``libaom-av1``, ``libsvtav1``, ``av1_nvenc``
       - :ref:`enc_encoder`
-      - :math:`8`
+      - :math:`9`
     * - quality
       - :math:`\left\{\frac{k}{25} \mid k \in [1,24] \right\}`
       - :ref:`enc_quality`
@@ -49,9 +50,9 @@ Corresponds to a random subsampling of a highly varied set of encoding scenarios
       - shm in :ref:`enc_cmd`
       - :math:`1`
     * - host
-      - ``paradoxe``, ``yeti``, ``abacus26``, ``pc-intel``
+      - ``abacus26``, ``dahu``, ``gemini``, ``nova``, ``paradoxe``, ``pc-intel``, ``yeti``
       - :ref:`env_hostname`
-      - :math:`3`
+      - :math:`7`
     * - metrics
       - ``psnr``, ``ssim``, ``vif``, ``vmaf``, ``lpips_alex``
       - :ref:`t_met_metric`
@@ -59,7 +60,7 @@ Corresponds to a random subsampling of a highly varied set of encoding scenarios
     * - **total**
       - :math:`\prod`
       - total number of points
-      - :math:`435456`
+      - :math:`35573`
 
 Reproduce
 ---------
