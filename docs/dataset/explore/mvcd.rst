@@ -48,6 +48,14 @@ This database attempts to replicate the `MVCD <https://github.com/cd-athena/MVCD
       - :math:`\left\{ 8 \right\}`
       - :ref:`enc_threads`
       - :math:`1`
+    * - repeat
+      - :math:`5` times
+      - total repetitions
+      - :math:`5`
+    * - **total**
+      - :math:`\prod`
+      - total number of points
+      - :math:`1280000`
 
 
 Reproduce
@@ -56,8 +64,8 @@ Reproduce
 .. code:: shell
 
     mendevi encode \
-        --resolution 2160 3840 --resolution 1080 1920 --resolution 720 1280 --resolution 540 960 \
+        --resolution 2160x3840 --resolution 1080x1920 --resolution 720x1280 --resolution 540x960 \
         --fps 60 --fps 30 \
         -c vvc -c libsvtav1 -c libx264 -c libx265 \
-        -n4 -e fast -e medium \
+        -n4 -e fast -e medium -r5 \
         {1..1000}.mp4
