@@ -55,14 +55,14 @@ This database attempts to approach the `MVCD <https://github.com/cd-athena/MVCD>
     * - **total**
       - :math:`\prod`
       - total number of points
-      - :math:`1280000`
+      - :math:`640000`
 
 Differences
 -----------
 
 In the original MVCD experiment, the following parameters were used and differ from those adopted in this study:
 
-.. list-table:: The MVCD parameters
+.. list-table:: MVCD parameters differing from those explored here
     :header-rows: 1
 
     * - Encoder
@@ -118,9 +118,34 @@ If you want to replicate more closely to the original MVCD database, you can cre
     Orgiginal script: https://github.com/cd-athena/MVCD/blob/main/run_encoding.py
     """
 
+    import re
+
+    from mendevi.cmd import CmdFFMPEG
+
     def mendevi_to_mvcd(cmd: CmdFFMPEG, **kwargs) -> CmdFFMPEG:
         """Adaptatthe ffmpeg mendevi command to bring it closer that the MVCD one."""
-        cmd.general = [*cmd.general, "-frames", "64"]  # clip frames
+        def closer(choices: dict[float], ref: float) -> object:
+            """Pick up the closet choice into the dictionary."""
+            keys = list(choices)
+            dists = [abs(k - ref) for k in choices]
+            return choices[keys[dists.index(min(dists))]]
+
+        # clip frames and GOP
+        cmd.pre = [*cmd.pre, "-frames", {30: "32", 60: "64"}[int(kwargs["fps"])], "-g", "32"]
+
+        # effort to preset, crf to qp
+        match kwargs["encoder"]:
+            case "vvc":
+                qp_mvcd = closer({1.0/5: 22, 2.0/5: 27, 3.0/5: 32, 4.0/5: 37}, kwargs["quality"])
+                cmd = re.sub(r"-qp \d+", f"-qp {qp_mvcd}", str(cmd))
+                cmd = re.sub(r"-preset \w+", "-preset faster", cmd)
+            case "libsvtav1":
+                qp_mvcd = closer(
+                    {1.0/8: 22, 2.0/8: 27, 3.0/8: 32, 4.0/8: 35, 5.0/8: 37, 6.0/8: 46, 7.0/8: 55},
+                    kwargs["quality"],
+                )
+                import ipdb; ipdb.set_trace()
+
         return cmd
 
 
@@ -132,5 +157,6 @@ Then in a terminal, (omit --callback to replicate the mendevi one), run:
         --resolution 2160x3840 --resolution 1080x1920 --resolution 720x1280 --resolution 540x960 \
         --fps 60 --fps 30 \
         -c vvc -c libsvtav1 -c libx264 -c libx265 \
-        -n4 -e fast -r5 --callback callback.py \
-        {1..1000}.mp4
+        -n4 -e fast -r5 \
+        --callback callback.py \
+        -d mvcd.db {1..1000}.mp4

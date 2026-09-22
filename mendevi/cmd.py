@@ -27,6 +27,8 @@ class CmdFFMPEG:
         The options between -c:v and -i (read and write).
     video : pathlib.Path
         The input video path (readonly).
+    pre : list[str]
+        The options immediately after video, and before -vf (read and write).
     vid_filter : str
         The filter string after -vf (read and write).
     encode : list[str]
@@ -53,6 +55,8 @@ class CmdFFMPEG:
             The options immediately after ffmpeg and immediately before the decoder.
         decode : list[str], str, optional
             The options between ``-c:v`` and ``-i``.
+        pre : list[str], str, optional
+            The options immediately after video, and before ``-vf``.
         vid_filter : str, optional
             The filter string after ``-vf``.
         encode: list[str], str, optional
@@ -64,11 +68,12 @@ class CmdFFMPEG:
         # initialisation
         video = pathlib.Path(video).expanduser()
         self._video = video
-        self._general = self._decode = self._vid_filter = self._encode = self._output = None
+        self._general = self._decode = self._pre = self._vid_filter = self._encode = self._output = None
 
         # parse and check, using setter
         self.general = kwargs.get("general")
         self.decode = kwargs.get("decode")
+        self.pre = kwargs.get("pre")
         self.vid_filter = kwargs.get("vid_filter", "")
         self.encode = kwargs.get("encode")
         self.output = kwargs.get("output")
@@ -79,6 +84,7 @@ class CmdFFMPEG:
             video=self.video,
             general=self.general,
             decode=self.decode,
+            pre=self.pre,
             vid_filter=self.vid_filter,
             encode=self.encode,
             output=self.output,
@@ -166,6 +172,27 @@ class CmdFFMPEG:
                 msg = f"'output' has to be None, str or list, not {output.__class__.__name__}"
                 raise TypeError(msg)
 
+    @property
+    def pre(self) -> list[str]:
+        """Return the options immediately after video, and before -vf."""
+        return self._pre.copy()
+
+    @pre.setter
+    def pre(self, pre: list[str] | str | None) -> None:
+        """Update the options immediately after video, and before -vf."""
+        match pre:
+            case None:
+                self._pre = []
+            case str():
+                self._pre = shlex.split(pre)
+            case list():
+                assert all(isinstance(cmd, str) for cmd in pre), pre
+                self._pre = pre.copy()
+            case _:
+                msg = f"'pre' has to be None, str or list, not {pre.__class__.__name__}"
+                raise TypeError(msg)
+
+
     def run(self, cmd: list[str] | str | None = None) -> tuple[str, dict[str]]:
         """Execute the command and return the stderr output.
 
@@ -250,6 +277,8 @@ class CmdFFMPEG:
             yield from self._decode
         yield "-i"
         yield str(self._video)
+        if self._pre:
+            yield from self._pre
         if self._vid_filter:
             yield "-vf"
             yield self._vid_filter

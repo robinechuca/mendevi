@@ -258,7 +258,7 @@ def main(videos: tuple, database: str | None = None, **kwargs: dict) -> None:
         more precisely between decoding and conversion. It is a kind of pre-conversion.
     callback : str, optional
         The name of the custom function to change the cmd, the signature must match:
-        def any(cmd: CmdFFMPEG, **kwargs) -> list[str] | str:
+        def any(cmd: CmdFFMPEG, **kwargs) -> list[str] | str | CmdFFMPEG:
             ...
     ram : float
         The threshold for deciding where to copy videos. Copy in /dev/shm if
