@@ -1,7 +1,7 @@
 .. _mvcd_datset:
 
-Inspiration from MVCD
-=====================
+MVCD like
+=========
 
 This database attempts to approach the `MVCD <https://github.com/cd-athena/MVCD>`_ measurements.
 
@@ -105,6 +105,10 @@ framerate
 
 Although the MVCD script does not change the frame rate, the documentation and database indicate that two different frame rates were tested. We therefore assume this is an error in the script and measure both 30 and 60 fps here.
 
+gop
+^^^
+
+MVCD controls the *Group Of Pictures*, whereas by default, mendevi asks the encoder to place I-frames more intelligently at scene changes. This second approach allows for a **more classical encoding context**.
 
 Reproduce
 ---------
@@ -149,7 +153,7 @@ If you want to replicate more closely to the original MVCD database, you can cre
                 cmd = re.sub(r"-preset \d+", "-preset 13", cmd)
             case "libx264" | "libx265":
                 qp_mvcd = closer({1.0/5: 22, 2.0/5: 27, 3.0/5: 32, 4.0/5: 37}, kwargs["quality"])
-                cmd = re.sub(r"-crf \d+?\.?\d*", f"-qp {qp_mvcd}", str(cmd))
+                cmd = re.sub(r"-crf \d+\.?\d*", f"-qp {qp_mvcd}", str(cmd))
                 cmd = re.sub(r"-preset \w+", "-preset ultrafast", cmd)
 
         return cmd
@@ -160,9 +164,12 @@ Then in a terminal, (omit --callback to replicate the mendevi one), run:
 .. code:: shell
 
     mendevi encode \
+        -r5 -n4 -e fast \
         --resolution 2160x3840 --resolution 1080x1920 --resolution 720x1280 --resolution 540x960 \
         --fps 60 --fps 30 \
         -c vvc -c libsvtav1 -c libx264 -c libx265 \
-        -n4 -e fast -r5 \
         --callback callback.py \
         -d mvcd.db {1..1000}.mp4
+    mendevi decode -r5 --resolution 2160x3840 -d mvcd.db '*.mp4'  # upscale=ups
+    mendevi decode -r5 -d mvcd.db '*.mp4'  # upscale=dws
+    mendevi probe -d mvcd.db '*.mp4'

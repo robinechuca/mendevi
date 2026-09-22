@@ -355,7 +355,7 @@ class KernelMultiHead(DNN):
 
     def draw(self) -> None:
         """Plot the R -> R heads function."""
-        import matplotlib.pyplot as plt
+        import matplotlib.pyplot as plt  # noqa: PLC0415
         heads_data = {clus: (head, data) for clus, (_, _, head, data) in self._parameters.items()}
         model, slices, _, _ = next(iter(self._parameters.values()))
         for lbl, (idx_min, idx_max) in slices.items():
@@ -363,7 +363,7 @@ class KernelMultiHead(DNN):
             plt.ylabel(f"{lbl} absolute")
             for clus, (head, data) in heads_data.items():
                 trad_model = head[lbl]
-                mini, maxi = model(data["input"])[:, idx_min:idx_max].aminmax()
+                # mini, maxi = model(data["input"])[:, idx_min:idx_max].aminmax()
                 # plt.plot(
                 #     (
                 #         torch.linspace(mini, maxi, 1000) * self._std_mean["full"][lbl][0]
