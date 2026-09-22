@@ -114,7 +114,7 @@ If this work is helpful for your research, please consider citing it.
         title = {{Mendevi}: Measures of Encoding and Decoding of Videos},
         date = {2026-09-12},
         url = {https://gitlab.inria.fr/rrichard/mendevi},
-        version = {1.3.6},
+        version = {latest},
         license = {GPLv3},
         note = {Python software and dataset for measuring video encoding and decoding},
         keywords = {video encoding, decoding, energy, complexity, quality, dataset},
