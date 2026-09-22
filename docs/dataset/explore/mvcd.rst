@@ -122,8 +122,9 @@ If you want to replicate more closely to the original MVCD database, you can cre
 
     from mendevi.cmd import CmdFFMPEG
 
-    def mendevi_to_mvcd(cmd: CmdFFMPEG, **kwargs) -> CmdFFMPEG:
-        """Adaptatthe ffmpeg mendevi command to bring it closer that the MVCD one."""
+    def mendevi_to_mvcd(cmd: CmdFFMPEG, **kwargs) -> str:
+        """Adaptat the ffmpeg mendevi command to bring it closer to original MVCD."""
+
         def closer(choices: dict[float], ref: float) -> object:
             """Pick up the closet choice into the dictionary."""
             keys = list(choices)
@@ -133,7 +134,7 @@ If you want to replicate more closely to the original MVCD database, you can cre
         # clip frames and GOP
         cmd.pre = [*cmd.pre, "-frames", {30: "32", 60: "64"}[int(kwargs["fps"])], "-g", "32"]
 
-        # effort to preset, crf to qp
+        # crf to qp, effort to preset
         match kwargs["encoder"]:
             case "vvc":
                 qp_mvcd = closer({1.0/5: 22, 2.0/5: 27, 3.0/5: 32, 4.0/5: 37}, kwargs["quality"])
@@ -144,7 +145,12 @@ If you want to replicate more closely to the original MVCD database, you can cre
                     {1.0/8: 22, 2.0/8: 27, 3.0/8: 32, 4.0/8: 35, 5.0/8: 37, 6.0/8: 46, 7.0/8: 55},
                     kwargs["quality"],
                 )
-                import ipdb; ipdb.set_trace()
+                cmd = re.sub(r"-crf \d+", f"-qp {qp_mvcd}", str(cmd))
+                cmd = re.sub(r"-preset \d+", "-preset 13", cmd)
+            case "libx264" | "libx265":
+                qp_mvcd = closer({1.0/5: 22, 2.0/5: 27, 3.0/5: 32, 4.0/5: 37}, kwargs["quality"])
+                cmd = re.sub(r"-crf \d+?\.?\d*", f"-qp {qp_mvcd}", str(cmd))
+                cmd = re.sub(r"-preset \w+", "-preset ultrafast", cmd)
 
         return cmd
 
