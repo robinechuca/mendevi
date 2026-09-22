@@ -1,4 +1,4 @@
-"""The scecifics mendevi exceptions."""
+"""The specifics mendevi exceptions."""
 
 
 class RejectError(AssertionError):
