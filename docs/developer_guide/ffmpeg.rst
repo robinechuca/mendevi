@@ -227,7 +227,7 @@ preparation
     # set context
     export PATH="$HOME/bin:$PATH"
     export PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig:$PKG_CONFIG_PATH"
-    export LDFLAGS="-Wl,-rpath,$HOME/bin"  # for pyav
+    export LDFLAGS="-L$HOME/ffmpeg_build/lib -Wl,-rpath,$HOME/bin"  # for pyav
 
     # --enable-libvpl and --enable-libmfx are mutualy exclusive, both are for *_qsv codecs
     # dynamic flag declaration
@@ -240,7 +240,6 @@ preparation
         --ld=\"g++\"
         --bindir=\"$HOME/bin\"
         --enable-shared
-        --extra-ldflags=\"$LDFLAGS\"
 
         --enable-chromaprint
         --enable-frei0r
