@@ -218,8 +218,9 @@ preparation
 
     # download ffmpeg
     cd ~/ffmpeg_sources
-    wget -O ffmpeg-snapshot.tar.bz2 https://ffmpeg.org/releases/ffmpeg-snapshot.tar.bz2
-    tar xjvf ffmpeg-snapshot.tar.bz2
+    # wget -O ffmpeg-snapshot.tar.bz2 https://ffmpeg.org/releases/ffmpeg-snapshot.tar.bz2
+    # tar xjvf ffmpeg-snapshot.tar.bz2
+    git -C ffmpeg pull 2> /dev/null || git clone --depth 1 https://git.ffmpeg.org/ffmpeg.git
     cd ffmpeg
     echo -e "$(cat VERSION) [$(date +%Y-%m-%d)] [$(cat RELEASE)]" > VERSION
 
