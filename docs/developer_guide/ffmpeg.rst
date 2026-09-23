@@ -17,8 +17,8 @@ Preparation
         autoconf automake build-essential cmake git-core diffutils flite1-dev frei0r-plugins-dev gcc git ladspa-sdk libass-dev libbluray-dev libbs2b-dev libcdio-dev libcdio-paranoia-dev libcdparanoia-dev libchromaprint-dev libfreetype6-dev libgme-dev libgnutls28-dev libgsm1-dev liblzma-dev libmp3lame-dev libopencore-amrnb-dev libopenjp2-7-dev libopenmpt-dev librubberband-dev libsdl2-dev libshine-dev libsnappy-dev libsoxr-dev libspeex-dev libssl-dev libtool libtwolame-dev libv4l-dev libva-dev libvdpau-dev libvidstab-dev libvo-amrwbenc-dev libvpl-dev libwebp-dev libxcb-shm0-dev libxcb-xfixes0-dev libxcb1-dev libxvidcore-dev libzimg-dev libzvbi-dev meson nasm ninja-build texinfo wget yasm zlib1g-dev
 
     # create directories
-    rm -rf ~/ffmpeg_sources
-    mkdir -pv ~/{bin,ffmpeg_sources}
+    rm -rf $HOME/ffmpeg_sources
+    mkdir -pv $HOME/{bin,ffmpeg_sources}
 
     # optimized compilation
     export CFLAGS="-O2 -march=native -mtune=native"
@@ -34,7 +34,7 @@ libx264 and libopenh264
 
     # libx264
     # Instead of the following code, you can do "sudo apt install libx264-dev".
-    cd ~/ffmpeg_sources
+    cd $HOME/ffmpeg_sources
     git -C x264 pull 2> /dev/null || git clone --depth 1 https://code.videolan.org/videolan/x264.git
     cd x264
     PATH="$HOME/bin:$PATH" PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig" \
@@ -44,13 +44,13 @@ libx264 and libopenh264
 
     # libopenh264
     # Instead of the following code, you can do "sudo apt install libopenh264-dev".
-    cd ~/ffmpeg_sources
+    cd $HOME/ffmpeg_sources
     git -C openh264 pull 2> /dev/null || git clone --depth 1 https://github.com/cisco/openh264.git
     cd openh264
     ARCH=$(uname -m)
     PATH="$HOME/bin:$PATH" make OS=linux ARCH="$ARCH"
     make install PREFIX="$HOME/ffmpeg_build"
-    rm ~/ffmpeg_build/lib/libopenh264.so*  # to force the static build otherwise it will failed on dynamic
+    rm $HOME/ffmpeg_build/lib/libopenh264.so*  # to force the static build otherwise it will failed on dynamic
 
 libx265
 ^^^^^^^
@@ -59,7 +59,7 @@ libx265
 
     # Instead of the following code, you can do "sudo apt install libx265-dev".
     sudo apt install libnuma-dev
-    cd ~/ffmpeg_sources
+    cd $HOME/ffmpeg_sources
     wget -O x265.tar.bz2 https://bitbucket.org/multicoreware/x265_git/get/master.tar.bz2
     tar xjvf x265.tar.bz2
     cd multicoreware*/build/linux
@@ -73,7 +73,7 @@ libvpx
 .. code:: shell
 
     # Instead of the following code, you can do "sudo apt install libvpx-dev".
-    cd ~/ffmpeg_sources
+    cd $HOME/ffmpeg_sources
     git -C libvpx pull 2> /dev/null || git clone --depth 1 https://chromium.googlesource.com/webm/libvpx.git
     cd libvpx
     PATH="$HOME/bin:$PATH" ./configure --prefix="$HOME/ffmpeg_build" --disable-examples --disable-unit-tests --enable-vp9-highbitdepth --as=yasm --extra-cflags="$CFLAGS" --extra-cxxflags="$CXXFLAGS"
@@ -87,7 +87,7 @@ libdav1d, libsvtav1, libaom and librav1e
 
     # libdav1d for decoding
     # Instead of the following code, you can do "sudo apt install libdav1d-dev".
-    cd ~/ffmpeg_sources
+    cd $HOME/ffmpeg_sources
     git -C dav1d pull 2> /dev/null || git clone --depth 1 https://code.videolan.org/videolan/dav1d.git
     mkdir -p dav1d/build
     cd dav1d/build
@@ -97,7 +97,7 @@ libdav1d, libsvtav1, libaom and librav1e
 
     # libsvtav1 for encoding
     # Instead of the following code, you can do "sudo apt install libsvtav1enc-dev".
-    cd ~/ffmpeg_sources
+    cd $HOME/ffmpeg_sources
     git -C SVT-AV1 pull 2> /dev/null || git clone --depth 1 https://gitlab.com/AOMediaCodec/SVT-AV1.git
     mkdir -p SVT-AV1/build
     cd SVT-AV1/build
@@ -107,7 +107,7 @@ libdav1d, libsvtav1, libaom and librav1e
 
     # libaom for encoding
     # Instead of the following code, you can do "sudo apt install libaom-dev".
-    cd ~/ffmpeg_sources
+    cd $HOME/ffmpeg_sources
     git -C aom pull 2> /dev/null || git clone --depth 1 https://aomedia.googlesource.com/aom
     mkdir -p aom/build
     cd aom/build
@@ -124,7 +124,7 @@ libdav1d, libsvtav1, libaom and librav1e
         source "$HOME/.cargo/env"
     fi
     rustup default stable
-    cd ~/ffmpeg_sources
+    cd $HOME/ffmpeg_sources
     git -C rav1e pull 2> /dev/null || git clone --depth 1 https://github.com/xiph/rav1e.git
     cd rav1e
     RUSTFLAGS="-C target-cpu=native" cargo build --release
@@ -134,13 +134,13 @@ libdav1d, libsvtav1, libaom and librav1e
         --libdir=$HOME/ffmpeg_build/lib \
         --includedir=$HOME/ffmpeg_build/include
     rm -v $HOME/ffmpeg_build/lib/librav1e.so*
-    cp target/release/rav1e ~/bin/.
+    cp target/release/rav1e $HOME/bin/.
 
 vvc
 ^^^
 .. code:: shell
 
-    cd ~/ffmpeg_sources
+    cd $HOME/ffmpeg_sources
     git -C vvenc pull 2> /dev/null || git clone --depth 1 https://github.com/fraunhoferhhi/vvenc
     cd vvenc
     PATH="$HOME/bin:$PATH" cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$HOME/ffmpeg_build" -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DCMAKE_C_FLAGS="$CFLAGS" -DCMAKE_CXX_FLAGS="$CXXFLAGS"
@@ -166,7 +166,7 @@ If it fails, `this tutorial <https://www.cyberciti.biz/faq/how-to-install-ffmpeg
     # chec cuda well installed
     if command -v nvidia-smi &> /dev/null; then
         # install nv-codec-headers (needed for NVENC/NVDEC support)
-        cd ~/ffmpeg_sources
+        cd $HOME/ffmpeg_sources
         git -C nv-codec-headers pull 2> /dev/null || git clone --depth 1 https://github.com/FFmpeg/nv-codec-headers.git
         cd nv-codec-headers
         sudo make install
@@ -183,7 +183,7 @@ The code comes from the `amf wiki <https://github.com/GPUOpen-LibrariesAndSDKs/A
 
 .. code:: shell
 
-    cd ~/ffmpeg_sources
+    cd $HOME/ffmpeg_sources
     git -C AMF pull 2> /dev/null || git clone --depth 1 https://github.com/GPUOpen-LibrariesAndSDKs/AMF.git
     mkdir -p /usr/local/include/AMF
     cp -r AMF/amf/public/include/* /usr/local/include/AMF/
@@ -191,7 +191,7 @@ The code comes from the `amf wiki <https://github.com/GPUOpen-LibrariesAndSDKs/A
 vaapi: integrated intel GPU chip
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Not all codecs are supported; it really depends on the CPUs. Here is a `non-exhaustive list <https://github.com/intel/media-driver>`_.
+Not all codecs are supported, it really depends on the CPUs. Here is a `non-exhaustive list <https://github.com/intel/media-driver>`_.
 
 .. code:: shell
 
@@ -217,7 +217,7 @@ preparation
 .. code:: shell
 
     # download ffmpeg
-    cd ~/ffmpeg_sources
+    cd $HOME/ffmpeg_sources
     # wget -O ffmpeg-snapshot.tar.bz2 https://ffmpeg.org/releases/ffmpeg-snapshot.tar.bz2
     # tar xjvf ffmpeg-snapshot.tar.bz2
     git -C ffmpeg pull 2> /dev/null || git clone --depth 1 https://git.ffmpeg.org/ffmpeg.git
@@ -240,7 +240,7 @@ preparation
         --ld=\"g++\"
         --bindir=\"$HOME/bin\"
         --enable-shared
-        --extra-ldflags=\"-Wl,-rpath,$HOME/bin\"
+        --extra-ldflags=\"$LDFLAGS\"
 
         --enable-chromaprint
         --enable-frei0r
@@ -268,7 +268,6 @@ preparation
         --enable-libopus
         --enable-libpulse
         --enable-librav1e
-        --enable-librubberband
         --enable-librubberband
         --enable-libshine
         --enable-libsnappy
@@ -318,15 +317,15 @@ compilation
     make && make install && hash -r
 
     # linkage
-    cp ~/ffmpeg_build/bin/x265 ~/bin
-    cp ~/ffmpeg_build/bin/SvtAv1EncApp ~/bin
-    cp ~/ffmpeg_build/lib/lib{avcodec,avdevice,avfilter,avformat,avutil,swresample,swscale}.so* ~/bin
+    cp $HOME/ffmpeg_build/bin/x265 $HOME/bin
+    cp $HOME/ffmpeg_build/bin/SvtAv1EncApp $HOME/bin
+    cp $HOME/ffmpeg_build/lib/lib{avcodec,avdevice,avfilter,avformat,avutil,swresample,swscale}.so* $HOME/bin
 
     CONTENT=$'export PATH=$HOME/bin:$PATH'
-    grep -q "$CONTENT" ~/.bashrc || echo "$CONTENT" >> ~/.bashrc
-    source ~/.bashrc
+    grep -q "$CONTENT" $HOME/.bashrc || echo "$CONTENT" >> $HOME/.bashrc
+    source $HOME/.bashrc
 
-    # cp ~/bin/* /usr/bin/.
+    # cp $HOME/bin/* /usr/bin/.
     # uv pip install -v av --no-binary av --no-cache
 
 
