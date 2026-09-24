@@ -48,27 +48,26 @@ class PowerCores(Model):
             """,
             input_labels=["hostname", "cores"],
             output_labels=["power"],
-            parameters={},  # to each hostname, associate P_{static} and P_{core}
         )
 
-    def _fit(self, values: dict[str]) -> None:
+    def _fit(self, values: dict[str]) -> object:
         """Perform a linear regression for the 2 constants P_{static} and P_{core}."""
-        for hostname in set(values["hostname"]):
-            with Printer(f"Affine regression of power = f(cores) on {hostname}...") as prt:
-                mask = [i for i, h in enumerate(values["hostname"]) if h == hostname]
-                prt.print(f"fit on {len(mask)} points")
-                if len(mask) < MIN_POINTS:
-                    logging.getLogger(__name__).error(
-                        "can not fit model for hostname=%s, not enouth points", hostname,
-                    )
-                    continue
-                cores = [values["cores"][i] for i in mask]
-                power = [values["power"][i] for i in mask]
-                p_cores, p_static = np.polyfit(cores, power, deg=1)
-                prt.print(f"power = {p_static:.3g} + cores * {p_cores:.3g}")
-                self.parameters[hostname] = {"p_static": float(p_static), "p_cores": float(p_cores)}
+        with Printer(f"Affine regression of power = f(cores)...") as prt:
+            nbr_points = len(values['cores'])
+            prt.print(f"fit on {nbr_points} points")
+            if nbr_points < MIN_POINTS:
+                logging.getLogger(__name__).error(
+                    "can not fit model for hostname=%s, not enouth points", hostname,
+                )
+                return 0.0, 0.0
+            p_cores, p_static = np.polyfit(values["cores"], values["power"], deg=1)
+            prt.print(f"power = {p_static:.3g} + cores * {p_cores:.3g}")
+        return float(p_static), float(p_cores)
 
-    def _predict(self, values: dict[str]) -> dict[str]:
+    def _predict(self, values: dict[str], parameters: object) -> dict[str]:
+        p_static, p_cores = parameters
+
+
         all_power = []
         for hostname, cores in zip(values["hostname"], values["cores"], strict=True):
             if hostname not in self.parameters:

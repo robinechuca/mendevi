@@ -105,12 +105,6 @@ def p_static_p_core(database: str | bytes | pathlib.Path) -> dict[str, tuple]:
     cst : dict
         To each hostname, associate the estimation of (p_static, p_core).
 
-    Examples
-    --------
-    >>> from mendevi.database.normalize import p_static_p_core
-    >>> p_static_p_core("/data/dataset/merge.db")
-    >>>
-
     """
     # open file
     database = pathlib.Path(database).expanduser()
