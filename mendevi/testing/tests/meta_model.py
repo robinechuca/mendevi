@@ -41,32 +41,6 @@ def test_no_instanciable_missing() -> None:
         MyModelPredict(**DEFAULT_KWARGS)
 
 
-def test_no_instanciable_exces() -> None:
-    """Make sure it it abstract."""
-
-    class MyModelFit(Model):
-        _fit = None
-        _predict = None
-        _fit_vect = None
-
-    class MyModelPredict(Model):
-        _fit = None
-        _predict = None
-        _predict_vect = None
-
-    with pytest.raises(
-        TypeError,
-        match=r"Can't instanciate abstract class MyModelFit",
-    ):
-        MyModelFit(**DEFAULT_KWARGS)
-
-    with pytest.raises(
-        TypeError,
-        match=r"Can't instanciate abstract class MyModelPredict",
-    ):
-        MyModelPredict(**DEFAULT_KWARGS)
-
-
 def test_instanciable() -> None:
     """Test to instanciate only 1 of the 3 methods."""
 

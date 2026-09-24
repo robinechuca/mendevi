@@ -15,7 +15,7 @@ import orjson
 from context_verbose import Printer
 from flufl.lock import Lock
 
-from mendevi.cmd import CmdFFMPEG
+from mendevi.cmd import CmdFFMPEG, apply_callback
 from mendevi.convert import filter_best_order
 from mendevi.database.serialize import list_to_binary, tensor_to_binary
 from mendevi.utils import cp_shm
@@ -67,7 +67,7 @@ def decode(vid: pathlib.Path, **kwargs: dict) -> tuple[str, str | None, str, dic
     cmd : str
         The ffmpeg command.
     activity : dict[str]
-        The computeur activity during the decoding process.
+        The computer activity during the decoding process.
 
     """
     assert isinstance(vid, pathlib.Path), vid.__class__.__name__
@@ -78,23 +78,7 @@ def decode(vid: pathlib.Path, **kwargs: dict) -> tuple[str, str | None, str, dic
         cmd = get_decode_cmd(
             vid_ram, kwargs.get("filter"), kwargs.get("resolution"), kwargs.get("family"),
         )
-        if kwargs.get("callback") is None:
-            user_cmd = None
-        else:
-            user_cmd = kwargs["callback"](cmd, **kwargs.copy())  # copy for user safe
-            match user_cmd:
-                case str():
-                    user_cmd = shlex.split(user_cmd)
-                case CmdFFMPEG():
-                    user_cmd = list(user_cmd)
-                case list():
-                    pass
-                case _:
-                    msg = (
-                        f"the callback function {kwargs['callback']} should return str, "
-                        f"CmdFFMPEG or list, not {user_cmd.__class__.__name__}"
-                    )
-                    raise TypeError(msg)
+        user_cmd = apply_callback(cmd, **kwargs)
 
         # display
         prt_cmd = " ".join(map(

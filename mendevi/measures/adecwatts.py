@@ -92,7 +92,7 @@ class ADECWattmeter(threading.Thread):
         for item in data[1:-1]:
             checksum ^= item
         if checksum != data[-1]:
-            msg = f"the frame checksum {checksum} doese not match the excpected checksum {data[-1]}"
+            msg = f"the frame checksum {checksum} does not match the expected checksum {data[-1]}"
             raise ValueError(msg)
         data = data[24:-1]
 
@@ -206,7 +206,7 @@ class ADECWattmeter(threading.Thread):
         Returns
         -------
         Consumption: dict[str]
-            * 'ts': The absolute timestamps between 2 mesurements (in s), shape (n+1,).
+            * 'ts': The absolute timestamps between 2 measurements (in s), shape (n+1,).
             * 'u_rms': The voltage of the 3 phases (in V), shape (n, 3).
             * 'i_rms': The current of each channal (in A), shape (n, c).
             * 'p_eff': The efficient power of each channal (in W), shape (n, c).

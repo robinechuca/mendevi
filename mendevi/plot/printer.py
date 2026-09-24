@@ -69,7 +69,7 @@ def print_entry(**kwargs: dict) -> list[str]:
         ]
     return [
         *code,
-        "    main(values)  # for singe static image",
+        "    main(values)  # for single static image",
         "    # Animation(values).write()  # when argument --animation is provided",
         "",
     ]
@@ -123,7 +123,7 @@ def print_grid(axe: str, dim: str, scale: Scale) -> list[str]:
     Parameters
     ----------
     axe : str
-        The acessor to the matplotlib axe.
+        The accessor to the matplotlib axe.
     dim : str
         "x" or "y".
     scale : Scale

@@ -163,7 +163,7 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
 @click.option(
     "-c", "--color",
     type=str,
-    help="The discriminating criterion for colour.",
+    help="The discriminating criterion for color.",
 )
 @click.option(
     "-m", "--marker",

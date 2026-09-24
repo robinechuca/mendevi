@@ -194,15 +194,15 @@ def main(database: str, **kwargs: dict) -> None:
                         t_dst_video.vid_gamut,
                         t_dst_video.vid_height,
                         t_dst_video.vid_id,
-                        NULL AS ref_vid_name,  -- bulshit
+                        NULL AS ref_vid_name,  -- bullshit
                         t_dst_video.vid_range,
                         t_dst_video.vid_size,
                         t_dst_video.vid_width,
-                        NULL AS enc_effort,  -- bulshit
-                        NULL AS enc_encoder,  -- bulshit
-                        NULL AS enc_mode,  -- bulshit
-                        NULL AS enc_quality,  -- bulshit
-                        NULL AS enc_threads,  -- bulshit
+                        NULL AS enc_effort,  -- bullshit
+                        NULL AS enc_encoder,  -- bullshit
+                        NULL AS enc_mode,  -- bullshit
+                        NULL AS enc_quality,  -- bullshit
+                        NULL AS enc_threads,  -- bullshit
                         t_env_environment.env_hostname,
                         t_met_metric.met_lpips_alex,
                         t_met_metric.met_lpips_vgg,

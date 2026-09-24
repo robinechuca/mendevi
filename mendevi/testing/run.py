@@ -42,7 +42,7 @@ def run_tests(
             return int(code)
 
     # classical tests
-    print("Runing all the little unit tests...")
+    print("Running all the little unit tests...")
     paths = sorted(
         map(
             str,
@@ -57,7 +57,7 @@ def run_tests(
 
     # slow tests
     if not skip_slow:
-        print("Runing the slow unit tests...")
+        print("Running the slow unit tests...")
         if (code := pytest.main([*debug_options, "-m", "slow", "--verbose", *paths])):
             return int(code)
     return 0

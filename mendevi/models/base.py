@@ -163,13 +163,6 @@ class MetaModel(abc.ABCMeta):
                     f"{' '.join(f'{n!r}' for n in abstracts)}"
                 )
                 raise TypeError(msg)
-            # if list(abstracts.values()).count(False) != 1:
-            #     msg = (
-            #         f"Can't instanciate abstract class {cls.__name__} "
-            #         "without more than one implementation of the abstract method "
-            #         f"{' '.join(f'{n!r}' for n in group)}"
-            #     )
-            #     raise TypeError(msg)
             # cleaning
             cls.__abstractmethods__ = cls.__abstractmethods__ - frozenset(group)
         return super().__call__(*args, **kwargs)
@@ -636,7 +629,7 @@ class Model(metaclass=MetaModel):
                 # warning
                 if len(queries) > 1:
                     logging.getLogger(__name__).warning(
-                        "several request founded %s, please provide the table or the request",
+                        "several request found %s, please provide the table or the request",
                         queries,
                     )
                 query = queries.pop(0)
@@ -730,7 +723,7 @@ class Model(metaclass=MetaModel):
                     msg = f"argument {name} given twice"
                     raise ValueError(msg)
                 if name not in self._input_labels:
-                    msg = f"only {self._input_labels} arguments excpected, not {name}"
+                    msg = f"only {self._input_labels} arguments expected, not {name}"
                     raise ValueError(msg)
                 values[name] = arg
 

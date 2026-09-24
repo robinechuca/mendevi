@@ -195,7 +195,7 @@ def parse_videos_database(
     if len(videos) == 1 and not _quiet:
         prt.print(f"video     : {videos[0]}")
     elif len(videos) > 1 and not _quiet:
-        prt.print(f"videos    : {len(videos)} files founded")
+        prt.print(f"videos    : {len(videos)} files found")
 
     # database
     if not database:

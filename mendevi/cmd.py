@@ -304,3 +304,24 @@ class CmdFFMPEG:
 
         """
         return " ".join(map(shlex.quote, self))
+
+
+def apply_callback(cmd: CmdFFMPEG, **kwargs: dict[str]) -> list[str] | None:
+    """Apply the callback function, an return the transformed cmd."""
+    if kwargs.get("callback") is None:
+        return None
+    user_cmd = kwargs["callback"](cmd, **kwargs.copy())  # copy for user safe
+    match user_cmd:
+        case str():
+            user_cmd = shlex.split(user_cmd)
+        case CmdFFMPEG():
+            user_cmd = list(user_cmd)
+        case list():
+            pass
+        case _:
+            msg = (
+                f"the callback function {kwargs['callback']} should return str, "
+                f"CmdFFMPEG or list, not {user_cmd.__class__.__name__}"
+            )
+            raise TypeError(msg)
+    return user_cmd

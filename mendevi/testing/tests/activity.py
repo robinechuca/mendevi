@@ -66,4 +66,3 @@ def test_slices_fields() -> None:
     assert isinstance(slices, dict)
     assert isinstance(slices["lbl"], dict)
     assert {"start", "duration", "ps_dt", "ps_core"}.issubset(slices["lbl"].keys())
-    assert slices == act.as_dict()

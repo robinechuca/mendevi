@@ -118,7 +118,7 @@ def main(video: str, output: str | None = None, **kwargs: dict) -> pathlib.Path:
     * Ensure a square pixel ratio.
     * Ensure that you have a lossless encoded video with a codec that allows for fast decoding.
     * Ensure high-quality resizing without spectral aliasing and blur.
-    * Ensure the correct management of colour space and associated metadata.
+    * Ensure the correct management of color space and associated metadata.
     * Ensure that the appearance of the video is not distorted.
     * Ensure that the pixel format is recognised.
 
@@ -135,7 +135,7 @@ def main(video: str, output: str | None = None, **kwargs: dict) -> pathlib.Path:
     profile : str, default=autodetect
         A value among ``sd``, ``hd``, ``fhd`` or ``uhd4k``.
         This represents a typical video profile, which includes a pixel format,
-        and image resolution, a sampling frequency, and a colour space.
+        and image resolution, a sampling frequency, and a color space.
         For more details, see :py:module:`mendevi.cst.profiles`.
         By default, it is automatically detected based on the number of pixels of the video.
     fps : fractions.Fraction, optional

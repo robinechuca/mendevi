@@ -85,7 +85,7 @@ JOIN: dict[str: dict[str, str]] = {  # join = JOIN[destination_table][source_tab
             "JOIN t_vid_video AS t_ref_video "
             "ON t_enc_encode.enc_src_vid_id = t_ref_video.vid_id"
         ),
-        "t_dec_decode": (  # to avoid redundency, we may define only atomic steps then link them
+        "t_dec_decode": (  # to avoid redundancy, we may define only atomic steps then link them
             "JOIN (\n"
             "    SELECT t_enc_encode.enc_dst_vid_id, MIN(enc_id) AS enc_id_min\n"
             "    FROM t_enc_encode\n"

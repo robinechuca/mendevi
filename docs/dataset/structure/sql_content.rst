@@ -374,7 +374,7 @@ The height of the video in pixels, after being decoded.
 vid_pix_fmt
 ^^^^^^^^^^^
 
-The canonical name of the pixel format, carrying information about the colour space used (yuv or rgb), subsampling (444, 420 or 422) and bit depth (8, 10 or 12).
+The canonical name of the pixel format, carrying information about the color space used (yuv or rgb), subsampling (444, 420 or 422) and bit depth (8, 10 or 12).
 Catched by ``cutcutcodec.get_pix_fmt()``.
 
 .. code:: text

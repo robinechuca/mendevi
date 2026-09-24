@@ -186,7 +186,7 @@ class Activity(threading.Thread):
             self._usage_gpu_catcher as gpu,
         ):
             self._started_queue.put(None)  # send signal catched by .__enter__()
-            self._exit_queue.get()  # wait the signal sended by .__exit__()
+            self._exit_queue.get()  # wait the signal sent by .__exit__()
         self.res |= {
             "ps_core": usage["cpu"],
             "ps_ts": usage["ts"],

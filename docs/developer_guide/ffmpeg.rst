@@ -219,7 +219,7 @@ preparation
     # download ffmpeg
     cd $HOME/ffmpeg_sources
     wget -O ffmpeg-snapshot.tar.xz https://ffmpeg.org/releases/ffmpeg-9.0.2.tar.xz
-    mkdir ffmpeg && tar -xvf ffmpeg-snapshot.tar.xz -C ffmpeg --strip-components=1
+    mkdir -p ffmpeg && tar -xvf ffmpeg-snapshot.tar.xz -C ffmpeg --strip-components=1
     cd ffmpeg
     # echo -e "$(cat VERSION) [$(date +%Y-%m-%d)] [$(cat RELEASE)]" > VERSION
 

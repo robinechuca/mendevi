@@ -81,7 +81,7 @@ def g5kpower(
     Returns
     -------
     timestamps : list[float]
-        The absolute timestamps between 2 mesurements (in s), shape (n+1,).
+        The absolute timestamps between 2 measurements (in s), shape (n+1,).
     power : list[float]
         The power measured between 2 consecutive points (in w), shape (n,).
 
