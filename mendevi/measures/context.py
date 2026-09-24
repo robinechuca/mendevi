@@ -140,7 +140,7 @@ def get_libsvtav1_version() -> str:
     --------
     >>> from mendevi.measures.context import get_libsvtav1_version
     >>> print(get_libsvtav1_version())  # doctest: +ELLIPSIS
-    v3.1.0...
+    v4.2...
     GCC ... 64 bit
     >>>
 
@@ -220,7 +220,7 @@ def get_vvc_version() -> str:
     --------
     >>> from mendevi.measures.context import get_vvc_version
     >>> print(get_vvc_version())  # doctest: +ELLIPSIS
-    1.14...
+    1.15...
     >>>
 
     """
