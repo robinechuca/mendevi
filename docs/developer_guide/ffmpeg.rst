@@ -218,11 +218,10 @@ preparation
 
     # download ffmpeg
     cd $HOME/ffmpeg_sources
-    # wget -O ffmpeg-snapshot.tar.bz2 https://ffmpeg.org/releases/ffmpeg-snapshot.tar.bz2
-    # tar xjvf ffmpeg-snapshot.tar.bz2
-    git -C ffmpeg pull 2> /dev/null || git clone --depth 1 https://git.ffmpeg.org/ffmpeg.git
+    wget -O ffmpeg-snapshot.tar.xz https://ffmpeg.org/releases/ffmpeg-9.0.2.tar.xz
+    mkdir ffmpeg && tar -xvf ffmpeg-snapshot.tar.xz -C ffmpeg --strip-components=1
     cd ffmpeg
-    echo -e "$(cat VERSION) [$(date +%Y-%m-%d)] [$(cat RELEASE)]" > VERSION
+    # echo -e "$(cat VERSION) [$(date +%Y-%m-%d)] [$(cat RELEASE)]" > VERSION
 
     # set context
     export PATH="$HOME/bin:$PATH"
