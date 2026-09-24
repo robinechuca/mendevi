@@ -2,7 +2,7 @@
 name = "mendevi"
 description = "Video encoding and decoding measures."
 dynamic = ["version"]
-requires-python = ">=3.12,<3.15"
+requires-python = ">=3.12,<3.16"
 authors = [
   {name = "Robin RICHARD (robinechuca)", email = "robin.richard@inria.fr"},
 ]

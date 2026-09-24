@@ -11,7 +11,7 @@ import av
 import torch
 
 VERSION_MIN = 6
-VERSION_MAX = 8
+VERSION_MAX = 9
 
 
 def test_av_ffmpeg_link() -> None:
@@ -41,19 +41,19 @@ def test_av_ffmpeg_link() -> None:
             msg,
         ) from err
 
-    version_pattern = r"version\s+[^\n]*?(?P<major>\d+)\.(?P<minor>\d+)"
+    version_pattern = r"version\s+[^\n]*?(?P<major>\d+)\.(?P<minor>\d+)(?:\.\d+)?"
     if (version := re.search(version_pattern, version_ffmpeg)) is None:
         msg = "failed to decode the version of ffmpeg"
         raise RuntimeError(msg)
     assert VERSION_MIN <= int(version["major"]) <= VERSION_MAX, (
-        "only the version 4, 5, and 6 of ffmpeg are supported, "
+        "only the version 4, 5, 6, 7, 8 and 9 of ffmpeg are supported, "
         f"not {version['major']}.{version['minor']}"
     )
     if (version := re.search(version_pattern, version_ffprobe)) is None:
         msg = "failed to decode the version of ffprobe"
         raise RuntimeError(msg)
     assert VERSION_MIN <= int(version["major"]) <= VERSION_MAX, (
-        "only the version 4, 5, and 6 of ffprobe are supported, "
+        "only the version 4, 5, 6, 7, 8 and 9 of ffprobe are supported, "
         f"not {version['major']}.{version['minor']}"
     )
 

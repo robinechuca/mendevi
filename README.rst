@@ -12,7 +12,7 @@
     :alt: [linting: ruff]
     :target: https://docs.astral.sh/ruff
 
-.. image:: https://img.shields.io/badge/python-3.12%20%7C%203.13%20%7C%203.14-blue
+.. image:: https://img.shields.io/badge/python-3.12%20%7C%203.13%20%7C%203.14%20%7C%203.15-blue
     :alt: [versions]
 
 .. image:: https://static.pepy.tech/badge/mendevi

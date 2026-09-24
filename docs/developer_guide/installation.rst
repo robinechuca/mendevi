@@ -86,8 +86,8 @@ Create the virtual environment.
     # --enable-bolt
     export PYTHON_CONFIGURE_OPTS='--enable-shared --enable-optimizations --with-lto=yes'
     export PYTHON_CFLAGS='-march=native -mtune=native'
-    pyenv install -v 3.14
-    pyenv virtualenv 3.14 mendevi
+    pyenv install -v 3.15
+    pyenv virtualenv 3.15 mendevi
     pyenv activate mendevi
     pip install uv
 
