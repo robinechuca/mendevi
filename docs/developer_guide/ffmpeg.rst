@@ -163,7 +163,7 @@ If it fails, `this tutorial <https://www.cyberciti.biz/faq/how-to-install-ffmpeg
     # get dependencies
     sudo apt install libc6 libc6-dev unzip libnuma1 libnuma-dev
 
-    # chec cuda well installed
+    # check if cuda is well installed
     if command -v nvidia-smi &> /dev/null; then
         # install nv-codec-headers (needed for NVENC/NVDEC support)
         cd $HOME/ffmpeg_sources
@@ -229,7 +229,7 @@ preparation
     export PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig:$PKG_CONFIG_PATH"
     export LDFLAGS="-L$HOME/ffmpeg_build/lib -Wl,-rpath,$HOME/bin"  # for pyav
 
-    # --enable-libvpl and --enable-libmfx are mutualy exclusive, both are for *_qsv codecs
+    # --enable-libvpl and --enable-libmfx are mutually exclusive, both are for *_qsv codecs
     # dynamic flag declaration
     CONFIG_FLAGS="
         --prefix=\"$HOME/ffmpeg_build\"

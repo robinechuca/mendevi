@@ -68,7 +68,12 @@ class CmdFFMPEG:
         # initialisation
         video = pathlib.Path(video).expanduser()
         self._video = video
-        self._general = self._decode = self._pre = self._vid_filter = self._encode = self._output = None
+        self._general = None
+        self._decode = None
+        self._pre = None
+        self._vid_filter = None
+        self._encode = None
+        self._output = None
 
         # parse and check, using setter
         self.general = kwargs.get("general")

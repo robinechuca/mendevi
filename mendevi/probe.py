@@ -17,7 +17,7 @@ from mendevi.utils import compute_video_hash
 LOCK_CONN_TYPE = tuple[Lock, sqlite3.Connection] | None
 
 
-def open_ro(database: pathlib.Path, lock_conn: LOCK_CONN_TYPE) -> sqlite3.Connection:
+def open_ro(database: pathlib.Path, lock_conn: LOCK_CONN_TYPE) -> tuple[Lock, sqlite3.Connection]:
     """Open a new conn if the previous one is not already opened."""
     if lock_conn is not None:
         return lock_conn

@@ -44,6 +44,17 @@ class G5kPower(threading.Thread):
         return self.power
 
 
+def _to_iso(date: str) -> str:
+    """Convert iso for retrocompatibility python < 3.11.
+
+    Set the norm: YYYY-MM-DD[*HH[:MM[:SS[.fff[fff]]]][+HH:MM[:SS[.ffffff]]]]
+    """
+    if (match := re.search(PATTEREN_ISOTIME, date)) is None:
+        logging.getLogger(__name__).error("failed to convert %s", date)
+        return date
+    return date[:match.start("sec")] + f"{float(match['sec']):09.6f}" + date[match.end("sec"):]
+
+
 def g5kpower(
     hostname: str,
     start: numbers.Real,
@@ -156,20 +167,9 @@ def g5kpower(
     #  {"timestamp":"2025...:01+02:00","metric_id":"wattmetre_power_watt","value":6.0707317073,...},
     #  {"timestamp":"2025...:01+02:00","metric_id":"wattmetre_power_watt","value":6.2390243902,...},
     # ...
-
-    def to_iso(date: str) -> str:
-        """Convert iso for retrocompatibility python < 3.11.
-
-        Set the norm: YYYY-MM-DD[*HH[:MM[:SS[.fff[fff]]]][+HH:MM[:SS[.ffffff]]]]
-        """
-        if (match := re.search(PATTEREN_ISOTIME, date)) is None:
-            logging.getLogger(__name__).error("failed to convert %s", date)
-            return date
-        return date[:match.start("sec")] + f"{float(match['sec']):09.6f}" + date[match.end("sec"):]
-
     req = [
         {
-            "timestamp": datetime.datetime.fromisoformat(to_iso(data["timestamp"])).timestamp(),
+            "timestamp": datetime.datetime.fromisoformat(_to_iso(data["timestamp"])).timestamp(),
             "metric_id": data["metric_id"],
             "value": data["value"],
         }

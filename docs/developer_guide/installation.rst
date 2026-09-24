@@ -157,7 +157,7 @@ ffmpeg
 lshw
 ^^^^
 
-To get the full environment information, *mendevi* use tha system package ``lshw``.
+To get the full environment information, *mendevi* uses the system package ``lshw``.
 
 .. tab:: Linux
 
@@ -335,7 +335,7 @@ Although it is installed automatically, it is better to install **av** manually 
 
     .. warning:: I see that you insist on using Windows, this step is the most critical, good luck!
 
-    On **Windows** you must build from source in order to indicate the location of ffmpeg, pleas follow the `PyAv windows installation guide <https://pyav.org/docs/develop/overview/installation.html#windows>`_ and good luck!
+    On **Windows** you must build from source in order to indicate the location of ffmpeg, please follow the `PyAv windows installation guide <https://pyav.org/docs/develop/overview/installation.html#windows>`_ and good luck!
 
 .. _install_cuda:
 
@@ -355,7 +355,7 @@ If you have a NVIDIA GPU, please install CUDA then follow the `PyTorch installat
 
         .. warning::
 
-            **Do not install "cuda-toolkit"**, witch is conflicual with the official drivers.
+            **Do not install "cuda-toolkit"**, which is conflicual with the official drivers.
 
         Prerequisite: This block can be executed multiple times
 
@@ -433,7 +433,7 @@ If you have a NVIDIA GPU, please install CUDA then follow the `PyTorch installat
 
 .. tab:: FreeBSD
 
-    It is not well supproted, you can try to follow `this bsd link <https://gist.github.com/Mostly-BSD/4d3cacc0ee2f045ed8505005fd664c6e>`_.
+    It is not well supported, you can try to follow `this bsd link <https://gist.github.com/Mostly-BSD/4d3cacc0ee2f045ed8505005fd664c6e>`_.
 
 .. tab:: macOS
 
@@ -466,11 +466,11 @@ If you have an AMD GPU, please install ROC then follow the `PyTorch installation
 
             sudo apt install firmware-linux-nonfree firmware-amd-graphics libgl1-mesa-dri libglx-mesa0 mesa-vulkan-drivers xserver-xorg-video-all
 
-            # lsmod | grep amdgpu  # if nothing apears -> probleme
+            # lsmod | grep amdgpu  # if nothing appears -> probleme
 
         To use the non-free drivers (required for video encoding but optional for torch), execute the following code.
         It comes from `amdgpu-install package <https://amdgpu-install.readthedocs.io/en/latest/index.html>`_.
-        And it doses the installation given in the `AMD documentation <https://instinct.docs.amd.com/projects/amdgpu-docs/en/latest/install/detailed-install/package-manager/package-manager-ubuntu.html>`_.
+        And it does the installation given in the `AMD documentation <https://instinct.docs.amd.com/projects/amdgpu-docs/en/latest/install/detailed-install/package-manager/package-manager-ubuntu.html>`_.
 
         .. code:: shell
 
