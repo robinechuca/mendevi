@@ -1,3 +1,6 @@
+# Copyright (C) 2026 Robin Richard and Thomas Maugey and Anne-Cecile Orgerie
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 """Use psutil to record the CPU and RAM usage."""
 
 import numbers

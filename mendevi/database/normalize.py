@@ -1,3 +1,6 @@
+# Copyright (C) 2026 Robin Richard and Thomas Maugey and Anne-Cecile Orgerie
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 """Extract simple constants in order to 'normalize' the values."""
 
 import pathlib

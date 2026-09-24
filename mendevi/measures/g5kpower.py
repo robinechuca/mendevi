@@ -1,3 +1,6 @@
+# Copyright (C) 2026 Robin Richard and Thomas Maugey and Anne-Cecile Orgerie
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 """Integrates grid5000's power meter.
 
 Implementation based on https://www.grid5000.fr/w/Energy_consumption_monitoring_tutorial

@@ -1,3 +1,6 @@
+# Copyright (C) 2026 Robin Richard and Thomas Maugey and Anne-Cecile Orgerie
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 """Executes all the tests via the ``pytest`` module."""
 
 try:

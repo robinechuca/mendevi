@@ -121,6 +121,10 @@ ignore = [
 [tool.ruff.lint.pylint]
 allow-magic-value-types = ["int", "str", "bytes"]
 
+[tool.ruff.lint.flake8-copyright]
+author = "Robin Richard and Thomas Maugey and Anne-Cecile Orgerie"
+min-file-size = 1024  # avoid enforcing a header on small files
+
 [tool.pytest.ini_options]
 markers = [
   "slow: mark test as slow"
