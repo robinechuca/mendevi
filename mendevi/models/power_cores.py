@@ -7,7 +7,6 @@ import logging
 
 import numpy as np
 import torch
-from context_verbose import Printer
 
 from mendevi.models import Model
 
@@ -55,17 +54,15 @@ class PowerCores(Model):
 
     def _fit(self, values: dict[str]) -> object:
         """Perform a linear regression for the 2 constants P_{static} and P_{core}."""
-        with Printer("Affine regression of power = f(cores)...") as prt:
-            nbr_points = len(values["cores"])
-            prt.print(f"fit on {nbr_points} points")
-            if nbr_points < MIN_POINTS:
-                logging.getLogger(__name__).error("can not fit model, not enouth points")
-                return 0.0, 0.0
-            p_cores, p_static = np.polyfit(values["cores"], values["power"], deg=1)
-            prt.print(f"power = {p_static:.3g} + cores * {p_cores:.3g}")
+        if len(values["cores"]) < MIN_POINTS:
+            logging.getLogger(__name__).error("can not fit model, not enouth points")
+            return 0.0, 0.0
+        p_cores, p_static = np.polyfit(values["cores"], values["power"], deg=1)
         return float(p_static), float(p_cores)
 
-    def _predict_vect(self, values: dict[str, torch.Tensor], parameters: object) -> dict[str, torch.Tensor]:
+    def _predict_vect(
+        self, values: dict[str, torch.Tensor], parameters: object,
+    ) -> dict[str, torch.Tensor]:
         p_static, p_cores = parameters
         power = p_static + values["cores"] * p_cores
         return {"power": power}
