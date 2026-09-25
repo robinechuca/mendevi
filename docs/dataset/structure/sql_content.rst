@@ -270,7 +270,7 @@ The base name of the video file, including the suffix:
 vid_codec
 ^^^^^^^^^
 
-The name of the video codec, catched by ``cutcutcodec.get_codec_video()``:
+The name of the video codec, caught by ``cutcutcodec.get_codec_video()``:
 
 .. code:: text
 

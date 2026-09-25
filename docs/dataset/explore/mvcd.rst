@@ -110,6 +110,16 @@ gop
 
 MVCD controls the *Group Of Pictures*, whereas by default, mendevi asks the encoder to place I-frames more intelligently at scene changes. This second approach allows for a **more classical encoding context**.
 
+threads
+^^^^^^^
+
+Although MVCD does not consider the number of threads into account, it is fixed to 8 here.
+
+ssim
+^^^^
+
+Although MVCD does not consider the metric to optimise, ssim is choosen here.
+
 Reproduce
 ---------
 

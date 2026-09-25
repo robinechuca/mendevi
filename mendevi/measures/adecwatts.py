@@ -193,7 +193,7 @@ class ADECWattmeter(threading.Thread):
                 for frame in self._yield_frames(port):
                     if is_warming:
                         is_warming = False
-                        self._signal_queue.put(None)  # send signal catched by .__enter__()
+                        self._signal_queue.put(None)  # send signal caught by .__enter__()
                     self.res["ts"].append(self.res["ts"][-1] + frame["dt"])  # increment timestamp
                     for lbl in ("u_rms", "i_rms", "p_eff"):
                         self.res[lbl].append(frame[lbl])
@@ -216,7 +216,7 @@ class ADECWattmeter(threading.Thread):
 
         """
         self.start()
-        if (err := self._signal_queue.get()) is not None:  # wait until the first frame is catched
+        if (err := self._signal_queue.get()) is not None:  # wait until the first frame is caught
             raise err
         return self.res
 

@@ -70,7 +70,7 @@ class Usage(threading.Thread):
             # send signal
             if is_warming:
                 is_warming = False
-                self._signal_queue.put(None)  # send signal catched by .__enter__()
+                self._signal_queue.put(None)  # send signal caught by .__enter__()
             # exit
             if self._stop_flag:
                 break
@@ -89,7 +89,7 @@ class Usage(threading.Thread):
 
         """
         self.start()
-        self._signal_queue.get()  # wait until the first frame is catched
+        self._signal_queue.get()  # wait until the first frame is caught
         return self.res
 
     def __exit__(self, *_: object) -> None:

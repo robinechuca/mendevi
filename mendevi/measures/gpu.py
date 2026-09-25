@@ -85,7 +85,7 @@ class UsageGPU(threading.Thread):
                     self.res[cat].append(vals)
                 if is_warming:
                     is_warming = False
-                    self._signal_queue.put(None)  # send signal catched by .__enter__()
+                    self._signal_queue.put(None)  # send signal caught by .__enter__()
                 time.sleep(max(0.0, self.sleep + self.res["ts"][-1] - time.time()))
                 self.res["ts"].append(time.time())
                 if self._stop_flag:
@@ -107,7 +107,7 @@ class UsageGPU(threading.Thread):
 
         """
         self.start()
-        if (err := self._signal_queue.get()) is not None:  # wait until the first frame is catched
+        if (err := self._signal_queue.get()) is not None:  # wait until the first frame is caught
             raise err
         return self.res
 

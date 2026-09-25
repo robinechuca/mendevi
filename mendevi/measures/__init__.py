@@ -207,7 +207,7 @@ class Activity(threading.Thread):
             self._usage_gpu_catcher as gpu,
         ):
             self.res["start"] = time.time() # as close as possible to the exit of __enter__
-            self._started_queue.put(None)  # send signal catched by .__enter__()
+            self._started_queue.put(None)  # send signal caught by .__enter__()
             self._exit_queue.get()  # wait the signal sent by .__exit__()
         self.res |= {
             "ps_core": usage["cpu"],
@@ -384,6 +384,6 @@ class Activity(threading.Thread):
         """Stop the measure and update the dictionary returnd by __enter__."""
         # stop
         self.res["duration"] = time.time() - self.res["start"]
-        self._exit_queue.put(None)  # send a signal catched by .run()
+        self._exit_queue.put(None)  # send a signal caught by .run()
         with contextlib.suppress(RuntimeError):
             self.stop_slice()
