@@ -3,13 +3,15 @@
 Simple Installation
 ===================
 
-For a more detailed and complete installation, please refer to :ref:`full_installation`.
+If you only want **to explore the pre-recorded data provided with mendevi, this simple installation is sufficient**. The :ref:`full_installation` is only required if you intend to perform measurements yourself.
+
+If you want to automate the download of the available datasets, you may also install :ref:`install_transmission`.
 
 Prerequisites
 -------------
 
 * It is preferable to install *mendevi* in a virtual environment. More details on :ref:`virtual_environment`.
-* Please install ``ffmpeg``, ``lshw``, and ``perf``. More details on :ref:`dependencies`.
+* Download automation with ``transmission-daemon``. More details on :ref:`install_transmission`.
 
 Basic Installation
 ------------------

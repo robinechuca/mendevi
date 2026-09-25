@@ -11,11 +11,11 @@ Getting started
     :maxdepth: 2
 
     getting_started/installation.rst
-    getting_started/measure.rst
+    dataset/explore.rst
 
 
-Dataset
-=======
+Dataset Structure and Python API
+================================
 
 The source videos come from three different sources:
 
@@ -27,7 +27,7 @@ The source videos come from three different sources:
     :maxdepth: 2
 
     dataset/structure.rst
-    dataset/explore.rst
+    api_reference.rst
 
 
 Developer guide
@@ -36,17 +36,9 @@ Developer guide
 .. toctree::
     :maxdepth: 2
 
-    developer_guide/ffmpeg.rst
     developer_guide/installation.rst
-
-
-API documentation
-=================
-
-.. toctree::
-    :maxdepth: 2
-
-    api_reference.rst
+    developer_guide/ffmpeg.rst
+    getting_started/measure.rst
 
 
 Reference
