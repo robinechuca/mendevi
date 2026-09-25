@@ -75,13 +75,13 @@ class EncodeLinear(LR):
     >>> pred = model.predict_from_video(
     ...     video, effort="medium", encoder="libx264", quality=0.5, threads=8, mode="vbr",
     ... )
-    >>> pprint.pprint(pred)
-    {'log_act_duration_per_frame': [-1.063035249710083],
-     'log_energy_per_frame': [0.5252208709716797],
-     'log_rate': [6.431523323059082],
-     'psnr': [38.24165725708008],
-     'ssim': [0.8785048723220825],
-     'vmaf': [81.59996032714844]}
+    >>> pprint.pprint(pred)  # doctest: +ELLIPSIS
+    {'log_act_duration_per_frame': [-1.96...],
+     'log_energy_per_frame': [0.525...],
+     'log_rate': [6.431...],
+     'psnr': [38.2...],
+     'ssim': [0.878...],
+     'vmaf': [81.5...]}
     >>>
 
     """

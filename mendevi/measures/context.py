@@ -22,23 +22,22 @@ def get_ffmpeg_version() -> str:
     >>> import pprint
     >>> from mendevi.measures.context import get_ffmpeg_version
     >>> pprint.pprint(get_ffmpeg_version())  # doctest: +ELLIPSIS
-    ('ffmpeg version ... Copyright (c) '
-     '... the FFmpeg developers\n'
+    ('ffmpeg version ... Copyright (c) ... the FFmpeg developers\n'
      'built with gcc ...\n'
      'configuration: --prefix=.../ffmpeg_build '
      '--pkg-config-flags=--static '
-     '--extra-cflags=-I.../ffmpeg_build/include '
-     "--extra-ldflags=-L.../ffmpeg_build/lib --extra-libs='-lpthread "
-     "-lm' --ld=g++ --bindir=.../bin --enable-chromaprint "
-     '--enable-frei0r --enable-gpl --enable-ladspa --enable-libaom --enable-libass '
-     '--enable-libbluray --enable-libbs2b --enable-libcaca --enable-libcdio '
-     '--enable-libdav1d --enable-libdrm --enable-libfdk-aac --enable-libflite '
-     '--enable-libfontconfig --enable-libfreetype --enable-libfribidi '
-     '--enable-libgme --enable-libgsm --enable-libharfbuzz --enable-libmp3lame '
-     '--enable-libopenh264 --enable-libopenmpt --enable-libopus --enable-libpulse '
-     '--enable-librav1e --enable-librubberband --enable-librubberband '
-     '--enable-libshine --enable-libsnappy --enable-libsoxr --enable-libspeex '
-     '--enable-libsvtav1 --enable-libtheora --enable-libtwolame '
+     '--extra-cflags=-I/home/rrichard/ffmpeg_build/include '
+     "--extra-ldflags=-L/home/rrichard/ffmpeg_build/lib --extra-libs='-lpthread "
+     "-lm' --ld=g++ --bindir=/home/rrichard/bin --enable-shared "
+     '--enable-chromaprint --enable-frei0r --enable-gpl --enable-ladspa '
+     '--enable-libaom --enable-libass --enable-libbluray --enable-libbs2b '
+     '--enable-libcaca --enable-libcdio --enable-libdav1d --enable-libdrm '
+     '--enable-libfdk-aac --enable-libflite --enable-libfontconfig '
+     '--enable-libfreetype --enable-libfribidi --enable-libgme --enable-libgsm '
+     '--enable-libharfbuzz --enable-libmp3lame --enable-libopenh264 '
+     '--enable-libopenmpt --enable-libopus --enable-libpulse --enable-librav1e '
+     '--enable-librubberband --enable-libshine --enable-libsnappy --enable-libsoxr '
+     '--enable-libspeex --enable-libsvtav1 --enable-libtheora --enable-libtwolame '
      '--enable-libvidstab --enable-libvo-amrwbenc --enable-libvorbis '
      '--enable-libvpx --enable-libvvenc --enable-libwebp --enable-libx264 '
      '--enable-libx265 --enable-libxml2 --enable-libxvid --enable-libzimg '
