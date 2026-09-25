@@ -42,6 +42,7 @@ extensions = [
     "sphinx_inline_tabs",  # in pillow conf
     "sphinxcontrib.video",  # for video insertion in doc
     "sphinxext.opengraph",  # for website metadata
+    "sphinx_design",  # for dropdown
 ]
 todo_include_todos = True
 intersphinx_mapping = {"python": ("https://docs.python.org/3", None)}
