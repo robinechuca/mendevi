@@ -7,7 +7,13 @@ import time
 
 import pytest
 
-from mendevi.measures import Activity
+from mendevi.measures import Activity, RAPL
+
+
+def test_rapl_no_fail():
+    """Ensure it works even without sudo."""
+    with RAPL(no_fail=True) as res:
+        assert res is None or isinstance(res, dict)
 
 
 def test_unique_slice() -> None:
@@ -29,7 +35,7 @@ def test_unique_stop() -> None:
             act.stop_slice()
 
 
-def test_simple() -> None:
+def test_structure() -> None:
     """Retrocompatibility test."""
     with Activity() as act:
         pass
@@ -45,10 +51,13 @@ def test_slices_duration() -> None:
         act.start_slice("lbl1")
         time.sleep(0.1)
         act.start_slice("lbl2")
-        time.sleep(0.1)
+        time.sleep(0.2)
     slices, full = act.get_slices(), act.get_full()
-    cum_duration = sum(s["duration"] for s in slices)
-    assert full["duration"] >= cum_duration
+    cum_duration = sum(s["duration"] for s in slices.values())
+    assert full["duration"] >= cum_duration  # sublices fit in the full capture activity
+    assert round(full["duration"], 2) == round(cum_duration, 2)  # total close of sum of slices
+    assert round(slices["lbl1"]["duration"], 2) == 0.1
+    assert round(slices["lbl2"]["duration"], 2) == 0.2
 
 
 def test_slices_numbers() -> None:

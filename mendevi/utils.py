@@ -59,7 +59,7 @@ def compute_video_hash(
     For :math:`n` hash of :math:`b` bits, the proba of the colision :math:`C` is
     :math:`p(C) = 1 - \left(\frac{2^k-1}{2^k}\right)^{\frac{n(n-1)}{2}}`.
 
-    The md5 hash uses :math:`b = 128` bits. If we add one video per second durring 10 years,
+    The md5 hash uses :math:`b = 128` bits. If we add one video per second during 10 years,
     the proba of colision is about :math:`p(C) \approx 1.46*10^{-22}`.
 
     That's why the md5 hash is used to identify the video files.
@@ -205,7 +205,8 @@ def signature_to_hash(signature: str) -> bytes:
     Parameters
     ----------
     signature : str
-        The 26 ascii [2-7a-z] symbols string of the converted checksum.
+        The 32 exadecimal [0-9a-f] symbols string of the converted checksum.
+        For retrocompatibility, it also understand the previous protocol 26 ascii [2-7a-z] symbols.
 
     Returns
     -------

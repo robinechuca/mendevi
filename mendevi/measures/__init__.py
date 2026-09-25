@@ -181,13 +181,13 @@ class Activity(threading.Thread):
 
     def run(self) -> None:
         """Perform the measures."""
-        self.res["start"] = time.time()
         with (
             self._adec_catcher as adec,
             self._rapl_catcher as rapl,
             self._usage_catcher as usage,
             self._usage_gpu_catcher as gpu,
         ):
+            self.res["start"] = time.time() # as close as possible to the exit of __enter__
             self._started_queue.put(None)  # send signal catched by .__enter__()
             self._exit_queue.get()  # wait the signal sent by .__exit__()
         self.res |= {
