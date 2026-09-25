@@ -41,8 +41,8 @@ Developer guide
     getting_started/measure.rst
 
 
-Reference
-=========
+Index
+=====
 
 .. toctree::
     :maxdepth: 1
