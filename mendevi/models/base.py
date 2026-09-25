@@ -529,8 +529,9 @@ class Model(metaclass=MetaModel):
         } | {"ref": {}}  # required by probe_and_store (for comparative metrics)
 
         # 3) call probe
-        if (conn := probe_and_store(database, video, **probe_kwargs)) is not None:
-            conn.close()
+        if (lock_conn := probe_and_store(database, video, **probe_kwargs)) is not None:
+            lock_conn[1].close()
+            lock_conn[0].unlock()  # release
 
         # 4) select lthe labels deducible from probe
         # to verify that a value can be extracted from probe,

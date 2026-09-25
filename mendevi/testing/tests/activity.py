@@ -7,10 +7,10 @@ import time
 
 import pytest
 
-from mendevi.measures import Activity, RAPL
+from mendevi.measures import RAPL, Activity
 
 
-def test_rapl_no_fail():
+def test_rapl_no_fail() -> None:
     """Ensure it works even without sudo."""
     with RAPL(no_fail=True) as res:
         assert res is None or isinstance(res, dict)
@@ -41,23 +41,26 @@ def test_structure() -> None:
         pass
     res = act.get_full()
     assert isinstance(res, dict)
-    assert {"start", "duration", "ps_dt", "ps_core"}.issubset(res.keys())
+    assert {
+        "duration", "ps_core", "ps_core_avg", "ps_ram", "ps_ram_avg", "ps_ts", "start",
+    }.issubset(res.keys())
     assert res == act.get_full()
 
 
 def test_slices_duration() -> None:
     """Ensure sublices fit in the full capture activity."""
+    wait = 0.1
     with Activity() as act:
         act.start_slice("lbl1")
-        time.sleep(0.1)
+        time.sleep(wait)
         act.start_slice("lbl2")
-        time.sleep(0.2)
+        time.sleep(wait)
     slices, full = act.get_slices(), act.get_full()
     cum_duration = sum(s["duration"] for s in slices.values())
     assert full["duration"] >= cum_duration  # sublices fit in the full capture activity
     assert round(full["duration"], 2) == round(cum_duration, 2)  # total close of sum of slices
-    assert round(slices["lbl1"]["duration"], 2) == 0.1
-    assert round(slices["lbl2"]["duration"], 2) == 0.2
+    assert round(slices["lbl1"]["duration"], 2) == wait
+    assert round(slices["lbl2"]["duration"], 2) == wait
 
 
 def test_slices_numbers() -> None:

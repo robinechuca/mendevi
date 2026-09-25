@@ -123,6 +123,7 @@ class Activity(threading.Thread):
             return self.res[0]
         self._as_dict_called = True
         self.join()
+
         # request wattmeter power
         if "wattmeter_ts" not in self.res:  # ADEC and GRID'5000 are mutually exclusive
             time.sleep(max(
@@ -138,7 +139,8 @@ class Activity(threading.Thread):
                     "wattmeter_ts": wattmeter[0],
                     "wattmeter_power": wattmeter[1],
                 }
-        # cut slices
+
+        # add the avg values to full aquisition
         tslbl_datalbls = (
             ("ps_ts", ("ps_core", "ps_ram", "ps_temp")),
             ("rapl_ts", ("rapl_power",)),
@@ -146,6 +148,22 @@ class Activity(threading.Thread):
             ("wattmeter_ts", ("wattmeter_power",)),
         )
         tslbl_datalbls = tuple((ts, fields) for ts, fields in tslbl_datalbls if ts in self.res)
+        self.res = {
+            **self.res,  # keep the expanded self.res
+            **{  # add the averages
+                f"{f_lbl}_avg": self._integral_avg(
+                    [   # ts to dt
+                        ts_next-ts_prev for ts_next, ts_prev in zip(
+                            self.res[ts_lbl][1:], self.res[ts_lbl][:-1], strict=True,
+                        )
+                    ],
+                    self.res[f_lbl],
+                )
+                for ts_lbl, fieldlbls in tslbl_datalbls for f_lbl in fieldlbls
+            },
+        }
+
+        # cut slices
         if self._slices:
             slices = {  # each slice, not concats
                 slicelbl: {
@@ -177,6 +195,7 @@ class Activity(threading.Thread):
             self.res = (slices, self.res)
         else:
             self.res = ({}, self.res)
+
         return self.res[0]
 
     def run(self) -> None:
