@@ -28,6 +28,10 @@ To see all available options, type
 
     mendevi prepare --help
 
+.. dropdown:: Afficher les détails
+
+    Test de message caches
+
 Encode
 ------
 
