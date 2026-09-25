@@ -4,87 +4,87 @@ description = "Video encoding and decoding measures."
 dynamic = ["version"]
 requires-python = ">=3.12,<3.16"
 authors = [
-  {name = "Robin RICHARD (robinechuca)", email = "robin.richard@inria.fr"},
+    {name = "Robin RICHARD (robinechuca)", email = "robin.richard@inria.fr"},
 ]
 maintainers = [
-  {name = "Robin RICHARD (robinechuca)", email = "robin.richard@inria.fr"},
+    {name = "Robin RICHARD (robinechuca)", email = "robin.richard@inria.fr"},
 ]
 dependencies = [  # https://packaging.python.org/en/latest/specifications/dependency-specifiers/#dependency-specifiers
-  "click",
-  "context_verbose >= 2.2.3",
-  "cutcutcodec",
-  "flufl.lock",
-  "levenshtein",
-  "matplotlib",
-  "networkx",
-  "numpy",
-  "nvidia-ml-py",
-  "orjson",
-  "psutil",
-  "pygments",
-  "pyserial",  # optional for ADEC-WATTS wattmeters
-  "requests",
-  "tqdm",
-  "unidecode",
+    "click",
+    "context_verbose >= 2.2.3",
+    "cutcutcodec",
+    "flufl.lock",
+    "levenshtein",
+    "matplotlib",
+    "networkx",
+    "numpy",
+    "nvidia-ml-py",
+    "orjson",
+    "psutil",
+    "pygments",
+    "pyserial",  # optional for ADEC-WATTS wattmeters
+    "requests",
+    "tqdm",
+    "unidecode",
 ]
 readme = "README.rst"
 license = {file = "LICENSE"}  # GPL-3.0-or-later
 keywords = [
-  "av1",
-  "avc",
-  "consumption",
-  "dataset",
-  "energy",
-  "h264",
-  "h265",
-  "hevc",
-  "measure",
-  "power",
-  "psnr",
-  "ssim",
-  "video decoding",
-  "video encoding",
-  "vif",
-  "vmaf",
-  "vp9",
-  "vvc",
-  "wattmeter",
+    "av1",
+    "avc",
+    "consumption",
+    "dataset",
+    "energy",
+    "h264",
+    "h265",
+    "hevc",
+    "measure",
+    "power",
+    "psnr",
+    "ssim",
+    "video decoding",
+    "video encoding",
+    "vif",
+    "vmaf",
+    "vp9",
+    "vvc",
+    "wattmeter",
 ]
 classifiers = [  # all classifiers https://pypi.org/classifiers/
-  "Development Status :: 5 - Production/Stable",
-  "Intended Audience :: Education",
-  "Intended Audience :: Science/Research",
-  "Natural Language :: English",
-  "Operating System :: POSIX :: Linux",
-  "Programming Language :: Python :: 3",
-  "Programming Language :: SQL",
-  "Topic :: Database :: Database Engines/Servers",
-  "Topic :: File Formats :: JSON",
-  "Topic :: Multimedia :: Sound/Audio :: Analysis",
-  "Topic :: Multimedia :: Video :: Conversion",
-  "Topic :: Software Development :: Code Generators",
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "Natural Language :: English",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: SQL",
+    "Topic :: Database :: Database Engines/Servers",
+    "Topic :: File Formats :: JSON",
+    "Topic :: Multimedia :: Sound/Audio :: Analysis",
+    "Topic :: Multimedia :: Video :: Conversion",
+    "Topic :: Software Development :: Code Generators",
 ]
 
 [project.optional-dependencies]
 doc = [
-  "furo",  # sphinx theme
-  "mathjax",  # for sphinx latex math
-  "recommonmark",
-  "ruff",  # to format chart code
-  "sphinx",
-  "sphinx-copybutton",
-  "sphinx-inline-tabs",
-  "sphinxcontrib-video",
-  "sphinxext-opengraph",  # for web page tags
-  "sphinx-design",  # for dropdown
+    "furo",  # sphinx theme
+    "mathjax",  # for sphinx latex math
+    "recommonmark",
+    "ruff",  # to format chart code
+    "sphinx",
+    "sphinx-copybutton",
+    "sphinx-inline-tabs",
+    "sphinxcontrib-video",
+    "sphinxext-opengraph",  # for web page tags
+    "sphinx-design",  # for dropdown
 ]
 test = [
-  "pytest",
-  "ruff",
+    "pytest",
+    "ruff",
 ]
 all = [
-  "mendevi[doc,test]",
-  "scikit-learn",
+    "mendevi[doc,test]",
+    "scikit-learn",
 ]
 
 [project.scripts]
@@ -110,13 +110,13 @@ line-length = 100
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
-  "D203",  # incorrect-blank-line-before-class (D203) and no-blank-line-before-class (D211) are incompatible
-  "D213",  # multi-line-summary-first-line (D212) and multi-line-summary-second-line (D213) are incompatible
-  "D411",  # Missing blank line before section: miss detection with \b
-  "D301",  # Use `r"""` if any backslashes in a docstring: miss detection with \b
-  "ERA001",  # commented-out-code
-  "S",  # all flake8-bandit
-  "T20",  # flake8-print
+    "D203",  # incorrect-blank-line-before-class (D203) and no-blank-line-before-class (D211) are incompatible
+    "D213",  # multi-line-summary-first-line (D212) and multi-line-summary-second-line (D213) are incompatible
+    "D411",  # Missing blank line before section: miss detection with \b
+    "D301",  # Use `r"""` if any backslashes in a docstring: miss detection with \b
+    "ERA001",  # commented-out-code
+    "S",  # all flake8-bandit
+    "T20",  # flake8-print
 ]
 
 [tool.ruff.lint.pylint]
@@ -128,5 +128,5 @@ min-file-size = 1024  # avoid enforcing a header on small files
 
 [tool.pytest.ini_options]
 markers = [
-  "slow: mark test as slow"
+    "slow: mark test as slow"
 ]
