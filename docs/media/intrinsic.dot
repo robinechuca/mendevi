@@ -1,0 +1,54 @@
+# dot -Tpdf intrinsic.dot -o /tmp/intrinsic.pdf && pdfcrop /tmp/intrinsic.pdf intrinsic.pdf
+# dot -Tsvg intrinsic.dot > intrinsic.svg
+digraph intrinsic {
+    rankdir=TB
+
+    # data
+    src [label="x\nfull data" shape=Mdiamond style=filled fillcolor="#73b66b"]
+    var [label="x'\nimpacting vars" shape=Mdiamond style=filled fillcolor="#73b66b"]
+    int [label="i'\naffected vars\nintrinsic" shape=Mdiamond style=filled fillcolor="#73b66b"]
+    est [label="î\naffected vars\nestimated" shape=Mdiamond style=filled fillcolor="#73b66b"]
+    imp [label="i\naffected vars" shape=Mdiamond style=filled fillcolor="#73b66b"]
+    cmp [label="c\nother vars" shape=Mdiamond style=filled fillcolor="#73b66b"]
+
+    # parameters
+    params_encoder [label="Weights", shape=note, style=filled, fillcolor=white]
+    params_decoder [label="Weights", shape=note, style=filled, fillcolor=white]
+
+    # process
+    select [label="Selector", style=filled, fillcolor=white]
+    encoder [label="Model", style=filled, fillcolor=white]
+    decoder [label="Model", style=filled, fillcolor=white]
+    extractor [label="Selector", style=filled, fillcolor=white]
+    compl [label="Complement\nx - (x' u i)", style=filled, fillcolor=white]
+
+    # blocs
+    subgraph clus_sample {
+        cluster=true
+        label="Influence of x' other i'"
+        bgcolor="#ffcb18"
+        var encoder int
+    }
+    # parameters bloc
+    subgraph clus_param_encoder {
+        cluster=true
+        label="Parameters"
+        bgcolor="#ef597b"
+        params_encoder
+    }
+    subgraph clus_param_decoder {
+        cluster=true
+        label="Parameters"
+        bgcolor="#ef597b"
+        cmp params_decoder
+    }
+
+    # pipeline
+    src -> select -> var -> encoder -> int -> decoder -> est
+    {src var imp} -> compl -> cmp
+    src -> extractor -> imp
+
+    # arguments
+    params_encoder -> encoder [arrowhead=none style=dashed]
+    {cmp params_decoder} -> decoder [arrowhead=none style=dashed]
+}

@@ -4,29 +4,29 @@ digraph colorspace {
     rankdir=TB
 
     # data
-    src [label="park_joy.mkv", shape=Mdiamond, style=filled, fillcolor="#73b66b"]
-    ref1 [label="reference_park_joy_fhd.mp4", shape=Mdiamond, style=filled, fillcolor="#73b66b"]
-    ref2 [label="reference_park_joy_{...}_fhd.mp4", shape=Mdiamond, style=filled, fillcolor="#73b66b"]
-    sam1 [label="sample_{...}.mp4", shape=Mdiamond, style=filled, fillcolor="#73b66b"]
-    sam2 [label="sample_{...}.mp4", shape=Mdiamond, style=filled, fillcolor="#73b66b"]
-    # sam3 [label="sample_{...}.mp4", shape=Mdiamond, style=filled, fillcolor="#73b66b"]
-    # sam4 [label="sample_{...}.mp4", shape=Mdiamond, style=filled, fillcolor="#73b66b"]
+    src [label="park_joy.mkv" shape=Mdiamond style=filled fillcolor="#73b66b"]
+    ref1 [label="reference_park_joy_fhd.mp4" shape=Mdiamond style=filled fillcolor="#73b66b"]
+    ref2 [label="reference_park_joy_{...}_fhd.mp4" shape=Mdiamond style=filled fillcolor="#73b66b"]
+    sam1 [label="sample_{...}.mp4" shape=Mdiamond style=filled fillcolor="#73b66b"]
+    sam2 [label="sample_{...}.mp4" shape=Mdiamond style=filled fillcolor="#73b66b"]
+    # sam3 [label="sample_{...}.mp4" shape=Mdiamond style=filled fillcolor="#73b66b"]
+    # sam4 [label="sample_{...}.mp4" shape=Mdiamond style=filled fillcolor="#73b66b"]
 
-    database [label="Database", shape=folder, style=filled, fillcolor="#73b66b"]
+    database [label="Database" shape=folder style=filled fillcolor="#73b66b"]
 
     # parameters
-    p_primaries [label="Primaries", shape=note, style=filled, fillcolor=white]
-    p_transfer [label="Transfer", shape=note, style=filled, fillcolor=white]
-    p_range [label="Range", shape=note, style=filled, fillcolor=white]
+    p_primaries [label="Primaries" shape=note style=filled fillcolor=white]
+    p_transfer [label="Transfer" shape=note style=filled fillcolor=white]
+    p_range [label="Range" shape=note style=filled fillcolor=white]
 
     # process
-    conv [label="Colorspace Conversion", style=filled, fillcolor=white]
-    rev_conv [label="Reverse Colorspace Conversion", style=filled, fillcolor=white]
-    comp1 [label="Direct\nCompare", style=filled, fillcolor=white]
-    comp2 [label="Same Colorspace\nCompare", style=filled, fillcolor=white]
-    # comp2 [label="Compare", style=filled, fillcolor=white]
-    # comp3 [label="Compare", style=filled, fillcolor=white]
-    # comp4 [label="Compare", style=filled, fillcolor=white]
+    conv [label="Colorspace Conversion" style=filled fillcolor=white]
+    rev_conv [label="Reverse Colorspace Conversion" style=filled fillcolor=white]
+    comp1 [label="Direct\nCompare" style=filled fillcolor=white]
+    comp2 [label="Same Colorspace\nCompare" style=filled fillcolor=white]
+    # comp2 [label="Compare" style=filled fillcolor=white]
+    # comp3 [label="Compare" style=filled fillcolor=white]
+    # comp4 [label="Compare" style=filled fillcolor=white]
 
     # blocs
     subgraph clus_reference {

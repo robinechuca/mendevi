@@ -12,7 +12,7 @@ This step allows you to prepare the ``Reference`` video from the ``Input`` video
 
 This step specifically ensures the reference video:
 
-* is encoded with the lossless **ffv1** codec
+* is encoded with the lossless **libx264** codec
 * has **square pixels** (1:1 ratio)
 * is encoded in the **correct color space** with consistent associated metadata
 * is encoded at standard **resolution** and **framerate**

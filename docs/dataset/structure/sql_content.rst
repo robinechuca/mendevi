@@ -432,7 +432,7 @@ To deserialize into an exploitable numpy array, please use the function :py:func
 .. _vid_temporal_dct:
 
 vid_temporal_dct
-^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^
 
 The serialised list of the temporal dct based complexity.
 Catched by ``cutcutcodec.video_metrics(video, temporal_dct=True)["temporal_dct"]``.

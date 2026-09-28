@@ -174,7 +174,7 @@ If you want to replicate more closely to the original MVCD database, you can cre
         return cmd
 
 
-Then in a terminal, (omit --callback to replicate the mendevi one), run:
+Then in a terminal, (omit --callback to replicate the mendevi dataset), run:
 
 .. code:: shell
 

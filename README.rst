@@ -1,8 +1,8 @@
 .. rst syntax: https://deusyss.developpez.com/tutoriels/Python/SphinxDoc/
 .. version conv: https://peps.python.org/pep-0440/
 
-**Me**\asures of **En**\coding and **De**\coding of **Vi**\deos.
-****************************************************************
+Measures of Encoding and Decoding of Videos
+*******************************************
 
 .. image:: https://img.shields.io/badge/License-GPL-green.svg
     :alt: [license GPL]

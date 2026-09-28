@@ -191,7 +191,11 @@ class QualityNN(DNN):
 
 
 class KernelMultiHead(DNN):
-    """Share the kernel NN to all aggregated data, and split output with several headers."""
+    """Share the kernel NN to all aggregated data, and split output with several headers.
+
+    .. image:: /_static/media/intrinsic.svg
+        :alt: Pipeline diagram
+    """
 
     def _fit_vect(self, values: dict[str, torch.Tensor]) -> object:
         """Hack to delay the model instantation and training."""

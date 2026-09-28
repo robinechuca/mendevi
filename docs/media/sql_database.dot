@@ -135,12 +135,12 @@ graph database {
       </TABLE>
     >
   ];
-  t_enc_encode -- t_act_activity [minlen=3, taillabel="1", headlabel="1", xlabel="encoding\nressources", labeldistance=2.0]
-  t_enc_encode -- t_env_environment [minlen=3, taillabel="1", headlabel="*", xlabel="machine\ncontext", labeldistance=2.0]
-  t_enc_encode -- t_vid_video [minlen=3, taillabel="1", headlabel="*", xlabel="output\nvideo", labeldistance=2.0]
-  t_met_metric -- t_vid_video [minlen=3, taillabel="1", headlabel="*", xlabel="video\nquality", labeldistance=2.0]
-  t_dec_decode -- t_act_activity [minlen=3, taillabel="1", headlabel="1", xlabel="decoding\nresources", labeldistance=2.0]
-  t_dec_decode -- t_env_environment [minlen=3, taillabel="1", headlabel="*", xlabel="machine\ncontext", labeldistance=2.0]
-  t_dec_decode -- t_vid_video [minlen=3, taillabel="1", headlabel="*", xlabel="input\nvideo", labeldistance=2.0]
-  t_env_environment -- t_act_activity [minlen=3, taillabel="1", headlabel="1", xlabel="idle\nresources", labeldistance=2.0]
+  t_enc_encode -- t_act_activity [minlen=3 taillabel="1" headlabel="1" xlabel="encoding\nressources" labeldistance=2.0]
+  t_enc_encode -- t_env_environment [minlen=3 taillabel="1" headlabel="*" xlabel="machine\ncontext" labeldistance=2.0]
+  t_enc_encode -- t_vid_video [minlen=3 taillabel="1" headlabel="*" xlabel="output\nvideo" labeldistance=2.0]
+  t_met_metric -- t_vid_video [minlen=3 taillabel="1" headlabel="*" xlabel="video\nquality" labeldistance=2.0]
+  t_dec_decode -- t_act_activity [minlen=3 taillabel="1" headlabel="1" xlabel="decoding\nresources" labeldistance=2.0]
+  t_dec_decode -- t_env_environment [minlen=3 taillabel="1" headlabel="*" xlabel="machine\ncontext" labeldistance=2.0]
+  t_dec_decode -- t_vid_video [minlen=3 taillabel="1" headlabel="*" xlabel="input\nvideo" labeldistance=2.0]
+  t_env_environment -- t_act_activity [minlen=3 taillabel="1" headlabel="1" xlabel="idle\nresources" labeldistance=2.0]
 }
