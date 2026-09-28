@@ -120,10 +120,15 @@ ssim
 
 Although MVCD does not consider the metric to optimise, ssim is choosen here.
 
-output yuv
-^^^^^^^^^^
+write output
+^^^^^^^^^^^^
 
 During decoding, MVCD writes a ``.yuv`` file to the hard drive, whereas mendevi simply decodes the video and throw the result without writing anything.
+
+yuv vs rgb
+----------
+
+MVCD keep the frame in there native yuv format, while mendevi converte them into rgb to match the display device format.
 
 Reproduce
 ---------
