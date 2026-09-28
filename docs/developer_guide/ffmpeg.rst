@@ -143,7 +143,7 @@ vvc
     cd $HOME/ffmpeg_sources
     git -C vvenc pull 2> /dev/null || git clone --depth 1 https://github.com/fraunhoferhhi/vvenc
     cd vvenc
-    PATH="$HOME/bin:$PATH" cmake -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$HOME/ffmpeg_build" -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DCMAKE_C_FLAGS="$CFLAGS" -DCMAKE_CXX_FLAGS="$CXXFLAGS"
+    PATH="$HOME/bin:$PATH" cmake .. -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$HOME/ffmpeg_build" -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DCMAKE_C_FLAGS="$CFLAGS" -DCMAKE_CXX_FLAGS="$CXXFLAGS"
     PATH="$HOME/bin:$PATH" make
     make install
 

@@ -120,6 +120,11 @@ ssim
 
 Although MVCD does not consider the metric to optimise, ssim is choosen here.
 
+output yuv
+^^^^^^^^^^
+
+During decoding, MVCD writes a ``.yuv`` file to the hard drive, whereas mendevi simply decodes the video and throw the result without writing anything.
+
 Reproduce
 ---------
 
@@ -180,6 +185,6 @@ Then in a terminal, (omit --callback to replicate the mendevi one), run:
         -c vvc -c libsvtav1 -c libx264 -c libx265 \
         --callback callback.py \
         -d mvcd.db {1..1000}.mp4
-    mendevi decode -r5 --resolution 2160x3840 -d mvcd.db '*.mp4'  # upscale=ups
+    mendevi decode -r5 --resolution 2160x3840 --filter fps=60 -d mvcd.db '*.mp4'  # upscale=ups
     mendevi decode -r5 -d mvcd.db '*.mp4'  # upscale=dws
-    mendevi probe -d mvcd.db '*.mp4'
+    mendevi probe --psnr --ssim --vmaf --rms-sobel --rms-time-diff --spatial-dct --temporal-dct -d mvcd.db '*.mp4'
