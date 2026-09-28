@@ -136,6 +136,23 @@ libdav1d, libsvtav1, libaom and librav1e
     rm -v $HOME/ffmpeg_build/lib/librav1e.so*
     cp target/release/rav1e $HOME/bin/.
 
+av2
+^^^
+
+It is not yet linked to ffmpeg. (experimental)
+
+.. code:: shell
+
+    cd $HOME/ffmpeg_sources
+    git -C avm pull 2> /dev/null || git clone --depth 1 https://github.com/AOMediaCodec/avm
+    mkdir -p avm/build
+    cd avm/build
+    PATH="$HOME/bin:$PATH" cmake .. -G "Unix Makefiles" \
+        -DCMAKE_INSTALL_PREFIX="$HOME/ffmpeg_build" -DCMAKE_C_FLAGS="$CFLAGS" -DCMAKE_CXX_FLAGS="$CXXFLAGS" \
+        -DBUILD_SHARED_LIBS=1 -DCONFIG_AV2_ENCODER=1 -DCONFIG_AV2_DECODER=1 -DENABLE_DOCS=0
+    PATH="$HOME/bin:$PATH" make
+    make install
+
 vvc
 ^^^
 .. code:: shell
@@ -143,7 +160,8 @@ vvc
     cd $HOME/ffmpeg_sources
     git -C vvenc pull 2> /dev/null || git clone --depth 1 https://github.com/fraunhoferhhi/vvenc
     cd vvenc
-    PATH="$HOME/bin:$PATH" cmake .. -G "Unix Makefiles" -DCMAKE_INSTALL_PREFIX="$HOME/ffmpeg_build" -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DCMAKE_C_FLAGS="$CFLAGS" -DCMAKE_CXX_FLAGS="$CXXFLAGS"
+    PATH="$HOME/bin:$PATH" cmake .. -G "Unix Makefiles" \
+        -DCMAKE_INSTALL_PREFIX="$HOME/ffmpeg_build" -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DCMAKE_C_FLAGS="$CFLAGS" -DCMAKE_CXX_FLAGS="$CXXFLAGS"
     PATH="$HOME/bin:$PATH" make
     make install
 
