@@ -152,6 +152,7 @@ It is not yet linked to ffmpeg. (experimental)
         -DBUILD_SHARED_LIBS=1 -DCONFIG_AV2_ENCODER=1 -DCONFIG_AV2_DECODER=1 -DENABLE_DOCS=0
     PATH="$HOME/bin:$PATH" make
     make install
+    cp avmenc avmdec "$HOME/bin/"
 
 vvc
 ^^^
@@ -341,5 +342,5 @@ compilation
     grep -q "$CONTENT" $HOME/.bashrc || echo "$CONTENT" >> $HOME/.bashrc
     source $HOME/.bashrc
 
-    # cp $HOME/bin/* /usr/bin/.
+    # cd $HOME/bin && sudo cp ff* /usr/bin/.
     # uv pip install -v av --no-binary av --no-cache
