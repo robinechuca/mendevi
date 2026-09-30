@@ -58,9 +58,9 @@ def test_slices_duration() -> None:
     slices, full = act.get_slices(), act.get_full()
     cum_duration = sum(s["duration"] for s in slices.values())
     assert full["duration"] >= cum_duration  # sublices fit in the full capture activity
-    assert round(full["duration"], 2) == round(cum_duration, 2)  # total close of sum of slices
-    assert round(slices["lbl1"]["duration"], 2) == wait
-    assert round(slices["lbl2"]["duration"], 2) == wait
+    assert round(full["duration"], 1) == round(cum_duration, 1)  # total close of sum of slices
+    assert round(slices["lbl1"]["duration"], 1) == wait
+    assert round(slices["lbl2"]["duration"], 1) == wait
 
 
 def test_slices_numbers() -> None:

@@ -176,7 +176,7 @@ To see all available options, type
                   * log_lpips: Log 10 of learned perceptual image patch similarity (lpips).
                   * log_lpips_alex: Log 10 of learned perceptual image patch similarity (lpips) with alex.
                   * log_lpips_vgg: Log 10 of learned perceptual image patch similarity (lpips) with vgg.
-                  * log_mode: Log 10 of bitrate mode, constant (cbr) or variable (vbr).
+                  * log_mode: Log 10 of bitrate mode, crf, cbr or qp.
                   * log_name: Log 10 of full video basename.
                   * log_nb_frames: Log 10 of the real number of frames of the video file.
                   * log_nbr_frames: Log 10 of the real number of frames of the video file.

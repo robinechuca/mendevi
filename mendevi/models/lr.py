@@ -80,8 +80,7 @@ class EncodeLinear(LR):
      'log_energy_per_frame': [0.525...],
      'log_rate': [6.431...],
      'psnr': [38.2...],
-     'ssim': [0.878...],
-     'vmaf': [81.5...]}
+     'ssim': [0.878...]}
     >>>
 
     """
@@ -112,6 +111,5 @@ class EncodeLinear(LR):
                 "log_rate",
                 "psnr",
                 "ssim",
-                "vmaf",
             ],
         )
