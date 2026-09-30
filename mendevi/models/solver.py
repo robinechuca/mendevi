@@ -24,7 +24,7 @@ N_QUAL: int = 24  # default number of tested quality points
 DEFAULT_GRID: dict[str, list] = {
     "effort": ["fast", "medium", "slow"],
     "encoder": sorted(ENCODERS),
-    "mode": ["vbr", "cbr"],
+    "mode": ["crf", "cbr", "qp"],
     "profile": sorted(PROFILES),
     "quality": [i/(N_QUAL+2) for i in range(1, N_QUAL+2)],
     "threads": [THREADS],

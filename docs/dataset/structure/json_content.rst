@@ -70,7 +70,7 @@ This is a summarized version of :ref:`sql_content`.
             "eotf": "smpte2084",  # non-linear transfer function name
             "height": 1080,  # height of images in pixels
             "lpips": 0.0421354321587,  # average Learned Perceptual Image Patch Similarity (LPIPS)
-            "mode": "vbr",  # bitrate mode, constant (cbr) or variable (vbr)
+            "mode": "crf",  # bitrate mode, crf, cbr or qp
             "primaries": "bt709",  # tristimulus primaries colors name
             "profile": "hd",  # profile of the video
             "psnr": 27.739999771118164,  # average Peak Signal to Noise Ratio (PSNR)

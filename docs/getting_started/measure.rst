@@ -115,84 +115,85 @@ To see all available options, type
 
     .. code-block:: console
 
-        Usage: mendevi encode [OPTIONS] [VIDEOS]...
+      Usage: mendevi encode [OPTIONS] [VIDEOS]...
 
-          Measures activity during encoding.
+        Measures activity during encoding.
 
-          Parameters
-          ----------
-          videos : tuple[pathlike]
-              The source videos to be transcoded.
-              It can be a glob expression, a directory or a file path.
-          database : pathlike, optional
-              The path to the database where all measurements are stored.
-              If a folder is provided, the database is created inside this folder.
-              By default, it is created right next to the video.
-          **kwargs: dict
-              Please refer to the detailed arguments below.
-          repeat : int, default=2
-              The number of times the experiment is repeated on this environment.
-              This allows us to estimate the variance of measurements.
-          effort : tuple[str], default=("medium",)
-              The effort made to compress, `fast`, `medium` or `slow`.
-          encoder : tuple[str], default=("libx264", "libsvtav1")
-              The encoders and therefore the codecs to use.
-              The available encoders are mendevi.cst.encoders.ENCODERS.
-          points : int, default=16
-              The number of different qualities to use.
-              It is an indirect way to determine the CRF or the QP.
-              The quality values are distributed evenly over ]0, 1[,
-              for example, points=3 => qualities=[0.25, 0.5, 0.75].
-          threads : int, default=8
-              The theoretical number of threads used by the encoder.
-              This roughly reflects the number of logical cores used.
-          fps : fractions.Fraction, optional
-              If provided, the reference video will be resampled on fly just before being encoded.
-              This is therefore the frame rate of the transcoded video.
-              If this argument is not provided, the frame rate remains unchanged.
-          resolution : tuple[int, int], optional
-              If provided, the reference video will be reshaped on fly just before being encoded.
-              This is therefore the resolution of the transcoded video.
-              If this argument is not provided, the resolution remains unchanged.
-          pix_fmt : str, optional
-              If provided, A pixel conversion is performed during encoding.
-          mode : tuple[str], default = ("vbr",)
-              Text that is ``cbr`` if the bit rate is constant (cbr mode),
-              or ``vbr`` if it is variable (constant quality mode).
-          filter : str, optional
-              A video ffmpeg filter (after -vf) which applies at the time of transcoding,
-              more precisely between decoding and conversion. It is a kind of pre-conversion.
-          callback : str, optional
-              The name of the custom function to change the cmd, the signature must match:
-              def any(cmd: CmdFFMPEG, **kwargs) -> list[str] | str | CmdFFMPEG:
-                  ...
-          ram : float
-              The threshold for deciding where to copy videos. Copy in /dev/shm if
-              ``available_ram_memory > ram * video_size``, otherwise, copy to the /tmp folder.
+        Parameters
+        ----------
+        videos : tuple[pathlike]
+            The source videos to be transcoded.
+            It can be a glob expression, a directory or a file path.
+        database : pathlike, optional
+            The path to the database where all measurements are stored.
+            If a folder is provided, the database is created inside this folder.
+            By default, it is created right next to the video.
+        **kwargs: dict
+            Please refer to the detailed arguments below.
+        repeat : int, default=2
+            The number of times the experiment is repeated on this environment.
+            This allows us to estimate the variance of measurements.
+        effort : tuple[str], default=("medium",)
+            The effort made to compress, `fast`, `medium` or `slow`.
+        encoder : tuple[str], default=("libx264", "libsvtav1")
+            The encoders and therefore the codecs to use.
+            The available encoders are mendevi.cst.encoders.ENCODERS.
+        points : int, default=16
+            The number of different qualities to use.
+            It is an indirect way to determine the CRF or the QP.
+            The quality values are distributed evenly over ]0, 1[,
+            for example, points=3 => qualities=[0.25, 0.5, 0.75].
+        threads : int, default=8
+            The theoretical number of threads used by the encoder.
+            This roughly reflects the number of logical cores used.
+        fps : fractions.Fraction, optional
+            If provided, the reference video will be resampled on fly just before being encoded.
+            This is therefore the frame rate of the transcoded video.
+            If this argument is not provided, the frame rate remains unchanged.
+        resolution : tuple[int, int], optional
+            If provided, the reference video will be reshaped on fly just before being encoded.
+            This is therefore the resolution of the transcoded video.
+            If this argument is not provided, the resolution remains unchanged.
+        pix_fmt : str, optional
+            If provided, A pixel conversion is performed during encoding.
+        mode : tuple[str], default = ("crf",)
+            Text that is ``crf`` if the quality is constant,
+            ``cbr`` if the bitrate is constant,
+            or ``qp`` for the internal quantification constant.
+        filter : str, optional
+            A video ffmpeg filter (after -vf) which applies at the time of transcoding,
+            more precisely between decoding and conversion. It is a kind of pre-conversion.
+        callback : str, optional
+            The name of the custom function to change the cmd, the signature must match:
+            def any(cmd: CmdFFMPEG, **kwargs) -> list[str] | str | CmdFFMPEG:
+                ...
+        ram : float
+            The threshold for deciding where to copy videos. Copy in /dev/shm if
+            ``available_ram_memory > ram * video_size``, otherwise, copy to the /tmp folder.
 
-        Options:
-          -d, --database PATH             The database path.
-          -r, --repeat INTEGER            The number of times the encoding is repeated
-                                          on this machine.
-          -e, --effort [fast|medium|slow]
-                                          The compression effort (default = medium).
-          -c, --encoder [av1_nvenc|av1_vaapi|h264_nvenc|h264_vaapi|hevc_nvenc|hevc_vaapi|libaom-av1|libopenh264|librav1e|libsvtav1|libvpx-vp9|libx264|libx265|vp9_vaapi|vvc]
-                                          The encoder name.
-          -n, --points INTEGER            The number of quality point per encoder.
-          -t, --threads INTEGER           The number of threads used by encoders.
-          -f, --fps FRACTION              The optional framerate conversion during
-                                          encoding.
-          --resolution RESOLUTION         The optional video shape conversion during
-                                          encoding.
-          --pix_fmt PIXEL                 The optional pixel format conversion during
-                                          encoding.
-          -m, --mode [cbr|vbr]            The optional bitrate mode (cbr or vbr)
-                                          (default = vbr).
-          --filter TEXT                   The ffmpeg filter to apply before encoding.
-          --callback CALLBACK             User defined function to adapt the cmd.
-          --ram RAM                       'yes', 'no' or threshold: To manage video
-                                          copy in ramdisk or local disk.
-          --help                          Show this message and exit.
+      Options:
+        -d, --database PATH             The database path.
+        -r, --repeat INTEGER            The number of times the encoding is repeated
+                                        on this machine.
+        -e, --effort [fast|medium|slow]
+                                        The compression effort (default = medium).
+        -c, --encoder [av1_nvenc|av1_vaapi|h264_nvenc|h264_vaapi|hevc_nvenc|hevc_vaapi|libaom-av1|libopenh264|librav1e|libsvtav1|libvpx-vp9|libx264|libx265|vp9_vaapi|vvc]
+                                        The encoder name.
+        -n, --points INTEGER            The number of quality point per encoder.
+        -t, --threads INTEGER           The number of threads used by encoders.
+        -f, --fps FRACTION              The optional framerate conversion during
+                                        encoding.
+        --resolution RESOLUTION         The optional video shape conversion during
+                                        encoding.
+        --pix_fmt PIXEL                 The optional pixel format conversion during
+                                        encoding.
+        -m, --mode [crf|cbr|qp]         The optional bitrate mode (crf, cbr or qp)
+                                        (default = crf).
+        --filter TEXT                   The ffmpeg filter to apply before encoding.
+        --callback CALLBACK             User defined function to adapt the cmd.
+        --ram RAM                       'yes', 'no' or threshold: To manage video
+                                        copy in ramdisk or local disk.
+        --help                          Show this message and exit.
 
 Probe
 -----

@@ -126,8 +126,8 @@ def to_torch(data: dict[str, list], dtype: torch.dtype = torch.float32) -> dict[
                 ).to(dtype)
             case "mode":
                 out_data["mode"] = torch.nn.functional.one_hot(
-                    torch.asarray([{"cbr": 0, "vbr": 1}[e] for e in values], dtype=int),
-                    num_classes=2,
+                    torch.asarray([{"crf": 0, "cbr": 1, "qp": 2}[e] for e in values], dtype=int),
+                    num_classes=3,
                 ).to(dtype)
             case "hostname":
                 msg = "The one hot encoding for hostname is not defined."

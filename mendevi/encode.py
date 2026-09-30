@@ -266,7 +266,7 @@ def quality_to_rate(kwargs: dict[str]) -> int:
     Based on https://twitch-overlay.fr/quelle-connexion-internet-choisir-pour-streamer-sur-twitch/
     and https://bitmovin.com/blog/video-bitrate-streaming-hls-dash/
 
-    You can plot the bitrate with: mendevi plot mendevi.db -x bitrate -y psnr -f 'mode = "vbr"'
+    You can plot the bitrate with: mendevi plot mendevi.db -x bitrate -y psnr -f 'mode = "crf"'
 
     The flow margin is taken to be twice as small and twice as large as the recommendations.
     """

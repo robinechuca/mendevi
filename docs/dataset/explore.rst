@@ -86,7 +86,7 @@ To see all available options, type
                   * lpips: Learned Perceptual Image Patch Similarity (LPIPS).
                   * lpips_alex: Learned Perceptual Image Patch Similarity (LPIPS) with alex.
                   * lpips_vgg: Learned Perceptual Image Patch Similarity (LPIPS) with vgg.
-                  * mode: Bitrate mode, constant (cbr) or variable (vbr).
+                  * mode: Bitrate mode, crf, cbr or qp.
                   * name: Full video basename.
                   * nb_frames: The real number of frames of the video file.
                   * nbr_frames: The real number of frames of the video file.

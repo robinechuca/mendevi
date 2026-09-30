@@ -252,7 +252,7 @@ Contains the essential absolute characteristics of a video file.
 vid_id
 ^^^^^^
 
-The md5 128 bits checksum of the video file. The names of transcoded videos include this signature encoded in base32.
+The md5 128 bits checksum of the video file. The name of transcoded videos include this signature encoded in hexadecimal.
 
 .. _vid_name:
 
@@ -263,7 +263,7 @@ The base name of the video file, including the suffix:
 
 .. code:: text
 
-    sample_74d47vez2trcs3uupnjzclz4mm.mp4
+    sample_6c4e97ee860c72c0b8c567ce1d917553.mp4
 
 .. _vid_codec:
 
@@ -1035,7 +1035,7 @@ Table t_enc_encode
 +-----------------------+---------------+--------------------------------+
 | :ref:`enc_log`        | *LONGTEXT*    | the standard output of the cmd |
 +-----------------------+---------------+--------------------------------+
-| :ref:`enc_mode`       | *TINYTEXT*    | constant or variable bitrate   |
+| :ref:`enc_mode`       | *TINYTEXT*    | ``crf``, ``cbr`` or ``qp``     |
 +-----------------------+---------------+--------------------------------+
 | :ref:`enc_pix_fmt`    | *TINYTEXT*    | the input pixel format         |
 +-----------------------+---------------+--------------------------------+
@@ -1135,7 +1135,11 @@ The number of pixel of the frames along the height dimension.
 enc_mode
 ^^^^^^^^
 
-Text that is ``cbr`` if the bit rate is constant (cbr mode), or ``vbr`` if it is variable (constant quality mode).
+This is the flow control mode, which can take 3 values:
+
+#. ``crf``: Constant quality, targets a specific output ssim. Previously named ``vbr`` in <= 1.3.6.
+#. ``cbr``: Constant bitrate, targets a specific output rate based on this heuristic: :py:func:`mendevi.encode.quality_to_rate`.
+#. ``qp``: Constant quantization level. This is the fastest option because the encoder does not use a loop. This setting does not ensure either consistent quality or a constant bitrate.
 
 .. _enc_log:
 

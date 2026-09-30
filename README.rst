@@ -56,7 +56,7 @@ It manages the following parameters:
 #. Energy measurements are captured with ``RAPL`` and an external wattmeter on ``grid'5000``.
 #. Get the ``cpu``, ``gpu``, ``ram`` and ``temperature`` activity.
 #. Get a full environment context, including hardware and software version.
-#. It supports the mode (constant bitrate) ``cbr`` and (constant quality) ``vbr``.
+#. It supports the mode (constant quality) ``crf``, (constant bitrate) ``cbr`` and (constant quantization) ``qp``.
 #. Ability to ``modify ffmpeg commands`` on the fly to perform specific tests, giving your own defined callback function.
 #. It takes care to ``transfer files to RAM`` if possible to avoid biases related to storage space access.
 #. Provides a guide to compile ffmpeg with all optimizations in order to ``compare encoders/decoders at their limits``.

@@ -37,7 +37,7 @@ Compare the performance of ffmpeg when videos are read and written to **RAM**, a
       - :ref:`enc_effort`
       - :math:`2`
     * - mode
-      - ``vbr``
+      - ``crf``
       - :ref:`enc_mode`
       - :math:`1`
     * - thread

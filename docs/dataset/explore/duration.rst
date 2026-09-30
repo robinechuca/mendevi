@@ -33,7 +33,7 @@ Allows you to see the impact of video length on compression and energy consumpti
       - :ref:`enc_effort`
       - :math:`2`
     * - mode
-      - ``cbr``, ``vbr``
+      - ``cbr``, ``crf``
       - :ref:`enc_mode`
       - :math:`2`
     * - thread
@@ -99,7 +99,7 @@ Bitrate as a function of the number of frame at constant quality
 
 .. code:: shell
 
-    mendevi plot duration.db -x nbr_frames -y rate -c encoder -m effort -wx quality -wy profile -f "mode == 'vbr'"
+    mendevi plot duration.db -x nbr_frames -y rate -c encoder -m effort -wx quality -wy profile -f "mode == 'crf'"
 
 .. image:: /_static/media/duration_rate_frames.svg
     :alt: Energy per frame as a function of the number of frames
@@ -126,6 +126,6 @@ Next, perform the measurements
 
 .. code:: shell
 
-    mendevi encode -r10 -c libx264 -c libsvtav1 -e fast -e medium -m cbr -m vbr -n2 reference*
+    mendevi encode -r10 -c libx264 -c libsvtav1 -e fast -e medium -m crf -m cbr -n2 reference*
     mendevi probe --no-vmaf reference* sample*
     mendevi decode -r10 sample*

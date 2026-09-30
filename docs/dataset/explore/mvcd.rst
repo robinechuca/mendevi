@@ -41,7 +41,7 @@ This database attempts to approach the `MVCD <https://github.com/cd-athena/MVCD>
       - On fly
       - :math:`2`
     * - mode
-      - ``vbr``
+      - ``crf``
       - :ref:`enc_mode`
       - :math:`1`
     * - thread

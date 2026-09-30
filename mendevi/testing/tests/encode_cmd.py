@@ -41,7 +41,7 @@ GENERAL = [
 def encode(encoder: str, cmd_creator: typing.Callable) -> None:
     """General encoding test."""
     for mode, quality, effort, pix_fmt in itertools.product(
-        ["vbr", "cbr"], [0.33, 0.66], ["fast", "medium", "slow"], ["yuv420p", "yuv420p10le"],
+        ["crf", "cbr", "qp"], [0.33, 0.66], ["fast", "medium", "slow"], ["yuv420p", "yuv420p10le"],
     ):
         general, vid_filter, encode = cmd_creator(
             effort=effort,

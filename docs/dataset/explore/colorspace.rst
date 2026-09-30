@@ -51,7 +51,7 @@ Allows you to see the impact of the color space on compression.
       - :ref:`enc_effort`
       - :math:`1`
     * - mode
-      - ``vbr``
+      - ``crf``
       - :ref:`enc_mode`
       - :math:`1`
     * - thread

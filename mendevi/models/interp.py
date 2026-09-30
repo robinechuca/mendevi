@@ -56,7 +56,7 @@ class NearestL2(Model):
 #     >>> model = EncodeNearest().fit("x264_vs_openh264.db", table="t_enc_encode")
 #     >>> video = cutcutcodec.utils.get_project_root() / "media" / "video" / "intro.webm"
 #     >>> pred = model.predict_from_video(
-#     ...     video, effort="medium", encoder="libx264", quality=0.5, threads=8, mode="vbr",
+#     ...     video, effort="medium", encoder="libx264", quality=0.5, threads=8, mode="crf",
 #     ... )
 #     >>> pprint.pprint(pred)
 #     {'log_act_duration_per_frame': [-1.6198468208312988],

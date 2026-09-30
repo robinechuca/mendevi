@@ -34,7 +34,7 @@ The dataset contains 35573 encoding measurements and 99801 decoding measurements
       - :ref:`enc_effort`
       - :math:`3`
     * - mode
-      - ``vbr``
+      - ``crf``
       - :ref:`enc_mode`
       - :math:`1`
     * - thread

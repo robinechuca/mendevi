@@ -518,7 +518,7 @@ def extract_lpips_vgg(raw: dict[str]) -> float:
 @verif
 @SqlLinker("t_enc_encode.enc_mode")
 def extract_mode(raw: dict[str]) -> str:
-    """Return the bitrate mode, constant (cbr) or variable (vbr).
+    """Return the bitrate mode, crf, cbr or qp.
 
     Parameters
     ----------
@@ -529,7 +529,9 @@ def extract_mode(raw: dict[str]) -> str:
     if (mode := raw["enc_mode"]) is None:
         return None
     assert isinstance(mode, str), mode.__class__.__name__
-    assert mode in {"cbr", "vbr"}, mode
+    if mode == "vbr":  # retrocompatibility with version <= 1.3.6
+        mode = "crf"
+    assert mode in {"crf", "cbr", "qp"}, mode
     return mode
 
 

@@ -33,7 +33,7 @@ Compare the **libx264** and the **libopenh264** encoders.
       - :ref:`enc_effort`
       - :math:`3`
     * - mode
-      - ``cbr``, ``vbr``
+      - ``crf``, ``cbr``
       - :ref:`enc_mode`
       - :math:`2`
     * - thread
@@ -149,5 +149,5 @@ Reproduce
         mendevi prepare $video -p sd
         mendevi prepare $video -p fhd
     done
-    mendevi encode -e fast -e medium -e slow -m cbr -m vbr -c libx264 -c libopenh264 reference*
+    mendevi encode -e fast -e medium -e slow -m crf -m cbr -c libx264 -c libopenh264 reference*
     mendevi probe --psnr --ssim --vif --vmaf sample*

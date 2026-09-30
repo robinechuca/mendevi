@@ -274,7 +274,7 @@ ALL_EXTRACTORS = {
         Scale.DISCRETE,
     ),
     "mode": Extractor(
-        "Bitrate mode, constant (cbr) or variable (vbr)",
+        "Bitrate mode, crf, cbr or qp",
         extract.extract_mode,
         Scale.DISCRETE,
     ),

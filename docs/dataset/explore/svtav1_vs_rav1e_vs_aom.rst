@@ -33,7 +33,7 @@ Compare the **libsvtav1**, **librav1e** and **libaom-av1** encoders.
       - :ref:`enc_effort`
       - :math:`3`
     * - mode
-      - ``cbr``, ``vbr``
+      - ``crf``, ``cbr``
       - :ref:`enc_mode`
       - :math:`2`
     * - thread
@@ -114,5 +114,5 @@ Reproduce
         mendevi prepare $video -o av1 -p fhd
     done
     cd av1
-    mendevi encode -e fast -e medium -e slow -m cbr -m vbr -c libsvtav1 -c librav1e -c libaom-av1 reference*
+    mendevi encode -e fast -e medium -e slow -m crf -m cbr -c libsvtav1 -c librav1e -c libaom-av1 reference*
     mendevi probe --psnr --ssim --vif --vmaf reference* sample*

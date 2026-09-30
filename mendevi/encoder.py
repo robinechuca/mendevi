@@ -35,7 +35,7 @@ def quality_to_rate(kwargs: dict[str]) -> int:
     Based on https://twitch-overlay.fr/quelle-connexion-internet-choisir-pour-streamer-sur-twitch/
     and https://bitmovin.com/blog/video-bitrate-streaming-hls-dash/
 
-    You can plot the bitrate with: mendevi plot mendevi.db -x bitrate -y psnr -f 'mode = "vbr"'
+    You can plot the bitrate with: mendevi plot mendevi.db -x bitrate -y psnr -f 'mode = "crf"'
 
     The flow margin is taken to be twice as small and twice as large as the recommendations.
     """
@@ -76,21 +76,31 @@ def _encode_av1_nvenc(**kwargs: dict) -> list[str]:
         "-tune", "hq",
         "-preset", {"fast": "p2", "medium": "p4", "slow": "p6"}[kwargs["effort"]],
     ]
-    if kwargs["mode"] == "vbr":
-        return [
-            *general,
-            "-rc", "vbr",
-            "-cq", str(round(1.0 + kwargs["quality"]*60.0)),  # [1, 63]
-        ]
-    rate = f"{quality_to_rate(kwargs)}k"
-    return [
-        *general,
-        "-b:v", rate,
-        "-minrate", rate,
-        "-maxrate", rate,
-        "-bufsize", rate,
-        "-rc", "cbr",
-    ]
+    match kwargs["mode"]:
+        case "crf":
+            return [
+                *general,
+                "-cq", str(round(1.0 + kwargs["quality"]*62.0)),  # [1, 63]
+                "-rc", "vbr",
+            ]
+        case "cbr":
+            rate = f"{quality_to_rate(kwargs)}k"
+            return [
+                *general,
+                "-b:v", rate,
+                "-minrate", rate,
+                "-maxrate", rate,
+                "-bufsize", rate,
+                "-rc", "cbr",
+            ]
+        case "qp":
+            return [
+                *general,
+                "-rc", "constqp",
+                "-qp", str(round(kwargs["quality"]*255.0)),  # [0, 255]
+            ]
+    msg = f"only the mode 'crf', 'cbr' and 'qp' allow, not {kwargs['mode']}"
+    raise ValueError(msg)
 
 
 def _encode_av1_vaapi(**kwargs: dict) -> list[str]:
@@ -107,21 +117,31 @@ def _encode_h264_nvenc(**kwargs: dict) -> list[str]:
         "-tune", "hq",
         "-preset", {"fast": "p2", "medium": "p4", "slow": "p6"}[kwargs["effort"]],
     ]
-    if kwargs["mode"] == "vbr":
-        return [
-            *general,
-            "-rc", "vbr",
-            "-cq", str(round(1.0 + kwargs["quality"]*50.0)),  # [1, 51]
-        ]
-    rate = f"{quality_to_rate(kwargs)}k"
-    return [
-        *general,
-        "-b:v", rate,
-        "-minrate", rate,
-        "-maxrate", rate,
-        "-bufsize", rate,
-        "-rc", "cbr",
-    ]
+    match kwargs["mode"]:
+        case "crf":
+            return [
+                *general,
+                "-cq", str(round(1.0 + kwargs["quality"]*50.0)),  # [1, 51]
+                "-rc", "vbr",
+            ]
+        case "cbr":
+            rate = f"{quality_to_rate(kwargs)}k"
+            return [
+                *general,
+                "-b:v", rate,
+                "-minrate", rate,
+                "-maxrate", rate,
+                "-bufsize", rate,
+                "-rc", "cbr",
+            ]
+        case "qp":
+            return [
+                *general,
+                "-rc", "constqp",
+                "-qp", str(round(1.0 + kwargs["quality"]*50.0)),  # [1, 51]
+            ]
+    msg = f"only the mode 'crf', 'cbr' and 'qp' allow, not {kwargs['mode']}"
+    raise ValueError(msg)
 
 
 def _encode_vaapi(codec: str, **kwargs: dict) -> tuple[list[str], str, list[str]]:
@@ -145,21 +165,25 @@ def _encode_vaapi(codec: str, **kwargs: dict) -> tuple[list[str], str, list[str]
         "-async_depth", str(kwargs["threads"]),
         "-compression_level", compression,
     ]
-    if kwargs["mode"] == "vbr":
-        return device, vid_filter, [
-            *general,
-            # "rc_mode", "CQP",  # very rare VBR support
-            "-qp", str(round(1.0 + kwargs["quality"]*51.0)),  # [1, 52]
-        ]
-    rate = f"{quality_to_rate(kwargs)}k"
-    return device, vid_filter, [
-        *general,
-        "-b:v", rate,
-        "-minrate", rate,
-        "-maxrate", rate,
-        "-bufsize", rate,
-        # "rc_mode", "CBR",
-    ]
+    match kwargs["mode"]:
+        case "crf" | "qp":
+            return device, vid_filter, [
+                *general,
+                # "rc_mode", "CQP",  # very rare VBR support
+                "-qp", str(round(1.0 + kwargs["quality"]*51.0)),  # [1, 52]
+            ]
+        case "cbr":
+            rate = f"{quality_to_rate(kwargs)}k"
+            return device, vid_filter, [
+                *general,
+                "-b:v", rate,
+                "-minrate", rate,
+                "-maxrate", rate,
+                "-bufsize", rate,
+                # "rc_mode", "CBR",
+            ]
+    msg = f"only the mode 'crf', 'cbr' and 'qp' allow, not {kwargs['mode']}"
+    raise ValueError(msg)
 
 
 def _encode_h264_vaapi(**kwargs: dict) -> list[str]:
@@ -176,21 +200,31 @@ def _encode_hevc_nvenc(**kwargs: dict) -> list[str]:
         "-tune", "hq",
         "-preset", {"fast": "p2", "medium": "p4", "slow": "p6"}[kwargs["effort"]],
     ]
-    if kwargs["mode"] == "vbr":
-        return [
-            *general,
-            "-rc", "vbr",
-            "-cq", str(round(1.0 + kwargs["quality"]*50.0)),  # [1, 51]
-        ]
-    rate = f"{quality_to_rate(kwargs)}k"
-    return [
-        *general,
-        "-b:v", rate,
-        "-minrate", rate,
-        "-maxrate", rate,
-        "-bufsize", rate,
-        "-rc", "cbr",
-    ]
+    match kwargs["mode"]:
+        case "crf":
+            return [
+                *general,
+                "-cq", str(round(1.0 + kwargs["quality"]*50.0)),  # [1, 51]
+                "-rc", "vbr",
+            ]
+        case "cbr":
+            rate = f"{quality_to_rate(kwargs)}k"
+            return [
+                *general,
+                "-b:v", rate,
+                "-minrate", rate,
+                "-maxrate", rate,
+                "-bufsize", rate,
+                "-rc", "cbr",
+            ]
+        case "qp":
+            return [
+                *general,
+                "-rc", "constqp",
+                "-qp", str(round(1.0 + kwargs["quality"]*50.0)),  # [1, 51]
+            ]
+    msg = f"only the mode 'crf', 'cbr' and 'qp' allow, not {kwargs['mode']}"
+    raise ValueError(msg)
 
 
 def _encode_hevc_vaapi(**kwargs: dict) -> list[str]:
@@ -212,19 +246,25 @@ def _encode_libaomav1(**kwargs: dict) -> list[str]:
         "-threads", str(kwargs["threads"]), "-row-mt", "1", "-tiles", tiles,
         "-denoise-noise-level", "0",
     ]
-    if kwargs["mode"] == "vbr":
-        return [
-            *general,
-            "-crf", str(round(kwargs["quality"]*63.0)),  # in [0, 63]
-        ]
-    rate = f"{quality_to_rate(kwargs)}k"
-    return [
-        *general,
-        "-b:v", rate,
-        "-minrate", rate,
-        "-maxrate", rate,
-        "-bufsize", rate,
-    ]
+    match kwargs["mode"]:
+        case "crf":
+            return [
+                *general,
+                "-crf", str(round(kwargs["quality"]*63.0)),  # in [0, 63]
+            ]
+        case "cbr":
+            rate = f"{quality_to_rate(kwargs)}k"
+            return [
+                *general,
+                "-b:v", rate,
+                "-minrate", rate,
+                "-maxrate", rate,
+                "-bufsize", rate,
+            ]
+        case "qp":
+            raise NotImplementedError
+    msg = f"only the mode 'crf', 'cbr' and 'qp' allow, not {kwargs['mode']}"
+    raise ValueError(msg)
 
 
 @decorator_pix_fmt
@@ -243,36 +283,52 @@ def _encode_libopenh264(**kwargs: dict) -> list[str]:
             *general,
             "-loopfilter", {"slow": "1", "fast": "0"}[kwargs["effort"]],
         ]
-    if kwargs["mode"] == "vbr":
-        # https://patchwork.ffmpeg.org/project/ffmpeg/patch/
-        # 1585926759-22569-1-git-send-email-linjie.fu@intel.com/
-        quantization = str(round(1.0 + kwargs["quality"]*50.0))  # [1, 51]
-        return [
-            *general,
-            "-qmin", quantization,
-            "-qmax", quantization,
-            "-rc_mode", "quality",
-        ]
-    rate = f"{quality_to_rate(kwargs)}k"
-    return [
-        *general,
-        "-b:v", rate,
-        "-minrate", rate,
-        "-maxrate", rate,
-        "-bufsize", rate,
-        "-rc_mode", "bitrate",
-    ]
+    match kwargs["mode"]:
+        case "crf":
+            # https://patchwork.ffmpeg.org/project/ffmpeg/patch/
+            # 1585926759-22569-1-git-send-email-linjie.fu@intel.com/
+            quantization = str(round(1.0 + kwargs["quality"]*50.0))  # [1, 51]
+            return [
+                *general,
+                "-qmin", quantization,
+                "-qmax", quantization,
+                "-rc_mode", "quality",
+            ]
+        case "cbr":
+            rate = f"{quality_to_rate(kwargs)}k"
+            return [
+                *general,
+                "-b:v", rate,
+                "-minrate", rate,
+                "-maxrate", rate,
+                "-bufsize", rate,
+                "-rc_mode", "bitrate",
+            ]
+        case "qp":
+            quantization = str(round(1.0 + kwargs["quality"]*50.0))  # [1, 51]
+            return [
+                *general,
+                "-qmin", quantization,
+                "-qmax", quantization,
+                "-rc_mode", "off",
+            ]
+    msg = f"only the mode 'crf', 'cbr' and 'qp' allow, not {kwargs['mode']}"
+    raise ValueError(msg)
 
 
 @decorator_pix_fmt
 def _encode_librav1e(**kwargs: dict) -> list[str]:
     """Return the ffmpeg arguments."""
     # https://docs.rs/rav1e/latest/rav1e/config/struct.EncoderConfig.html
-    if kwargs["mode"] == "vbr":
-        quality = ["-qp", str(round(kwargs["quality"]*255))]  # not realy constant quality
-    else:
-        rate = f"{quality_to_rate(kwargs)}k"
-        quality = ["-b:v", rate, "-minrate", rate, "-maxrate", rate]
+    match kwargs["mode"]:
+        case "crf" | "qp":
+            quality = ["-qp", str(round(kwargs["quality"]*255))]  # not realy constant quality
+        case "cbr":
+            rate = f"{quality_to_rate(kwargs)}k"
+            quality = ["-b:v", rate, "-minrate", rate, "-maxrate", rate]
+        case _:
+            msg = f"only the mode 'crf', 'cbr' and 'qp' allow, not {kwargs['mode']}"
+            raise ValueError(msg)
     return [
         "librav1e",
         *quality,
@@ -304,22 +360,33 @@ def _encode_libsvtav1(**kwargs: dict) -> list[str]:
             15: 5, 16: 5, 17: 5,
         }.get(threads, 6)
 
-    if kwargs["mode"] == "vbr":
-        return [
-            "libsvtav1",
-            "-crf", str(round(kwargs["quality"]*63.0)),
-            "-preset", {"slow": "4", "medium": "6", "fast": "8"}[kwargs["effort"]],
-            # "-tune", "ssim",  # not same result as -svtav1-params tune=2
-            "-svtav1-params", f"film-grain=0:lp={libsvtav1_lp(kwargs['threads'])}:tune=2",
-        ]
-    rate = f"{min(100_000, quality_to_rate(kwargs))}k"
-    return [
-        "libsvtav1",
-        "-b:v", rate, "-minrate", rate, "-bufsize", rate,
-        "-preset", {"slow": "4", "medium": "6", "fast": "8"}[kwargs["effort"]],
-        "-tune", "ssim",  # -svtav1-params tune=2 not supported in cbr
-        "-svtav1-params", f"rc=1:film-grain=0:lp={libsvtav1_lp(kwargs['threads'])}",
-    ]
+    match kwargs["mode"]:
+        case "crf":
+            return [
+                "libsvtav1",
+                "-crf", str(round(kwargs["quality"]*63.0)),
+                "-preset", {"slow": "4", "medium": "6", "fast": "8"}[kwargs["effort"]],
+                # "-tune", "ssim",  # not same result as -svtav1-params tune=2
+                "-svtav1-params", f"film-grain=0:lp={libsvtav1_lp(kwargs['threads'])}:tune=2",
+            ]
+        case "cbr":
+            rate = f"{min(100_000, quality_to_rate(kwargs))}k"
+            return [
+                "libsvtav1",
+                "-b:v", rate, "-minrate", rate, "-bufsize", rate,
+                "-preset", {"slow": "4", "medium": "6", "fast": "8"}[kwargs["effort"]],
+                "-tune", "ssim",  # -svtav1-params tune=2 not supported in cbr
+                "-svtav1-params", f"rc=1:film-grain=0:lp={libsvtav1_lp(kwargs['threads'])}",
+            ]
+        case "qp":
+            return [
+                "libsvtav1",
+                "-qp", str(round(kwargs["quality"]*63.0)),
+                "-preset", {"slow": "4", "medium": "6", "fast": "8"}[kwargs["effort"]],
+                "-svtav1-params", f"film-grain=0:lp={libsvtav1_lp(kwargs['threads'])}:tune=2",
+            ]
+    msg = f"only the mode 'crf', 'cbr' and 'qp' allow, not {kwargs['mode']}"
+    raise ValueError(msg)
 
 
 @decorator_pix_fmt
@@ -328,11 +395,15 @@ def _encode_libvpx_vp9(**kwargs: dict) -> list[str]:
     # https://trac.ffmpeg.org/wiki/Encode/VP9
     # https://wiki.webmproject.org/ffmpeg/vp9-encoding-guide
     # https://developers.google.com/media/vp9/settings
-    if kwargs["mode"] == "vbr":
-        quality = ["-crf", str(round(kwargs["quality"]*63.0)), "-b:v", "0"]
-    else:
-        rate = f"{quality_to_rate(kwargs)}k"
-        quality = ["-b:v", rate, "-minrate", rate, "-maxrate", rate, "-lag-in-frames", "0"]
+    match kwargs["mode"]:
+        case "crf" | "qp":  # there is not really qp mode
+            quality = ["-crf", str(round(kwargs["quality"]*63.0)), "-b:v", "0"]
+        case "cbr":
+            rate = f"{quality_to_rate(kwargs)}k"
+            quality = ["-b:v", rate, "-minrate", rate, "-maxrate", rate, "-lag-in-frames", "0"]
+        case _:
+            msg = f"only the mode 'crf', 'cbr' and 'qp' allow, not {kwargs['mode']}"
+            raise ValueError(msg)
     return [
         "libvpx-vp9",
         *quality,
@@ -346,17 +417,23 @@ def _encode_libvpx_vp9(**kwargs: dict) -> list[str]:
 @decorator_pix_fmt
 def _encode_libx264(**kwargs: dict) -> list[str]:
     """Return the ffmpeg arguments."""
-    if kwargs["mode"] == "vbr":
-        quality = ["-crf", str(round(kwargs["quality"]*51.0, 1))]
-    else:
-        rate = f"{quality_to_rate(kwargs)}k"
-        quality = [  # https://trac.ffmpeg.org/wiki/Encode/H.264#CBRConstantBitRate
-            "-b:v", rate,
-            "-minrate", rate,
-            "-maxrate", rate,
-            "-bufsize", rate,
-            "-x264-params", "nal-hrd=cbr",
-        ]
+    match kwargs["mode"]:
+        case "crf":
+            quality = ["-crf", str(round(kwargs["quality"]*51.0, 1))]
+        case "cbr":
+            rate = f"{quality_to_rate(kwargs)}k"
+            quality = [  # https://trac.ffmpeg.org/wiki/Encode/H.264#CBRConstantBitRate
+                "-b:v", rate,
+                "-minrate", rate,
+                "-maxrate", rate,
+                "-bufsize", rate,
+                "-x264-params", "nal-hrd=cbr",
+            ]
+        case "qp":
+            quality = ["-qp", str(round(kwargs["quality"]*51.0, 1))]
+        case _:
+            msg = f"only the mode 'crf', 'cbr' and 'qp' allow, not {kwargs['mode']}"
+            raise ValueError(msg)
     return [  # https://ffmpeg.party/x264/
         "libx264",
         *quality,
@@ -369,33 +446,50 @@ def _encode_libx264(**kwargs: dict) -> list[str]:
 @decorator_pix_fmt
 def _encode_libx265(**kwargs: dict) -> list[str]:
     """Return the ffmpeg arguments."""
-    if kwargs["mode"] == "vbr":
-        return [  # https://x265.readthedocs.io/en/master/cli.html
-            "libx265",
-            "-crf", str(round(kwargs["quality"]*51.0, 1)),
-            "-preset", kwargs["effort"],
-            "-tune", "ssim",
-            "-x265-params",
-            (
-                f"frame-threads={kwargs['threads']}:"
-                f"pools={kwargs['threads']}:"
-                f"wpp={1 if kwargs['threads'] != 1 else 0}"
-            ),
-        ]
-    rate = quality_to_rate(kwargs)
-    return [  # https://x265.readthedocs.io/en/master/cli.html
-        "libx265",
-        "-b:v", f"{rate}k",
-        "-preset", {"fast": "veryfast", "medium": "medium", "slow": "veryslow"}[kwargs["effort"]],
-        "-tune", "ssim",
-        "-x265-params",
-        (
-            f"vbv-maxrate={rate}:vbv-bufsize={rate}:"
-            f"frame-threads={kwargs['threads']}:"
-            f"pools={kwargs['threads']}:"
-            f"wpp={1 if kwargs['threads'] != 1 else 0}"
-        ),
-    ]
+    match kwargs["mode"]:
+        case "crf":
+            return [
+                "libx265",
+                "-crf", str(round(kwargs["quality"]*51.0, 1)),
+                "-preset", kwargs["effort"],
+                "-tune", "ssim",
+                "-x265-params",  # https://x265.readthedocs.io/en/master/cli.html
+                (
+                    f"frame-threads={kwargs['threads']}:"
+                    f"pools={kwargs['threads']}:"
+                    f"wpp={1 if kwargs['threads'] != 1 else 0}"
+                ),
+            ]
+        case "cbr":
+            rate = quality_to_rate(kwargs)
+            return [
+                "libx265",
+                "-b:v", f"{rate}k",
+                "-preset", kwargs["effort"],
+                "-tune", "ssim",
+                "-x265-params",   # https://x265.readthedocs.io/en/master/cli.html
+                (
+                    f"vbv-maxrate={rate}:vbv-bufsize={rate}:"
+                    f"frame-threads={kwargs['threads']}:"
+                    f"pools={kwargs['threads']}:"
+                    f"wpp={1 if kwargs['threads'] != 1 else 0}"
+                ),
+            ]
+        case "qp":
+            return [
+                "libx265",
+                "-qp", str(round(kwargs["quality"]*51.0)),
+                "-preset", kwargs["effort"],
+                "-tune", "ssim",
+                "-x265-params",  # https://x265.readthedocs.io/en/master/cli.html
+                (
+                    f"frame-threads={kwargs['threads']}:"
+                    f"pools={kwargs['threads']}:"
+                    f"wpp={1 if kwargs['threads'] != 1 else 0}"
+                ),
+            ]
+    msg = f"only the mode 'crf', 'cbr' and 'qp' allow, not {kwargs['mode']}"
+    raise ValueError(msg)
 
 
 def _encode_vp9_vaapi(**kwargs: dict) -> list[str]:
@@ -407,11 +501,15 @@ def _encode_vp9_vaapi(**kwargs: dict) -> list[str]:
 def _encode_vvc(**kwargs: dict) -> list[str]:
     """Return the ffmpeg arguments."""
     # https://github.com/fraunhoferhhi/vvenc/wiki/FFmpeg-Integration
-    if kwargs["mode"] == "vbr":
-        quality = ["-qp", str(round(kwargs["quality"]*63.0))]
-    else:
-        rate = quality_to_rate(kwargs)
-        quality = ["-b:v", f"{rate}k", "-maxrate", f"{round(1.5*rate)+1}k"]
+    match kwargs["mode"]:
+        case "crf" | "qp":
+            quality = ["-qp", str(round(kwargs["quality"]*63.0))]
+        case "cbr":
+            rate = quality_to_rate(kwargs)
+            quality = ["-b:v", f"{rate}k", "-maxrate", f"{round(1.5*rate)+1}k"]
+        case _:
+            msg = f"only the mode 'crf', 'cbr' and 'qp' allow, not {kwargs['mode']}"
+            raise ValueError(msg)
     bit = int(re.search(r"(?P<bit>\d+)le", kwargs["pix_fmt"] + "8le")["bit"])
     return [
         "vvc",

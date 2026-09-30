@@ -105,13 +105,10 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
 
     # mode
     assert isinstance(kwargs["mode"], tuple), kwargs["mode"].__class__.__name__
-    assert all(isinstance(p, str) and p in {"cbr", "vbr"} for p in kwargs["mode"]), kwargs["mode"]
+    assert all(isinstance(p, str) and p in {"crf", "cbr", "qp"} for p in kwargs["mode"]), \
+        kwargs["mode"]
     kwargs["mode"] = tuple(sorted(set(kwargs["mode"])))
-    prt.print(
-        f"br mode   : {
-            ' and '.join({'vbr': 'variable', 'cbr': 'constant'}[m] for m in kwargs['mode'])
-        }",
-    )
+    prt.print(f"rc mode   : {' and '.join(kwargs['mode'])}")
 
     # filter
     assert isinstance(kwargs["filter"], tuple), kwargs["filter"].__class__.__name__
@@ -190,10 +187,10 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
 )
 @click.option(
     "-m", "--mode",
-    type=click.Choice(["cbr", "vbr"]),
-    default=["vbr"],
+    type=click.Choice(["crf", "cbr", "qp"]),
+    default=["crf"],
     multiple=True,
-    help="The optional bitrate mode (cbr or vbr) (default = vbr).",
+    help="The optional bitrate mode (crf, cbr or qp) (default = crf).",
 )
 @click.option(
     "--filter",
@@ -253,9 +250,10 @@ def main(videos: tuple, database: str | None = None, **kwargs: dict) -> None:
         If this argument is not provided, the resolution remains unchanged.
     pix_fmt : str, optional
         If provided, A pixel conversion is performed during encoding.
-    mode : tuple[str], default = ("vbr",)
-        Text that is ``cbr`` if the bit rate is constant (cbr mode),
-        or ``vbr`` if it is variable (constant quality mode).
+    mode : tuple[str], default = ("crf",)
+        Text that is ``crf`` if the quality is constant,
+        ``cbr`` if the bitrate is constant,
+        or ``qp`` for the internal quantification constant.
     filter : str, optional
         A video ffmpeg filter (after -vf) which applies at the time of transcoding,
         more precisely between decoding and conversion. It is a kind of pre-conversion.

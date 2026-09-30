@@ -14,6 +14,32 @@ import subprocess
 import psutil
 
 
+def get_avmenc_version() -> str:
+    """Return the version of the avmenc (av2 encoder).
+
+    Examples
+    --------
+    >>> from mendevi.measures.context import get_avmenc_version
+    >>> print(get_avmenc_version())  # doctest: +ELLIPSIS
+    1...
+    >>>
+
+    """
+    try:
+        out = subprocess.run(
+            ["avmenc", "--help"],
+            check=False, capture_output=True,
+        ).stdout.decode()
+    except FileNotFoundError:
+        logging.getLogger(__name__).warning("failed to find avmenc")
+        return ""
+
+    if (match := re.search(r"Encoder\s+v?(?P<version>\d+\.\d+(?:\.\d+)?)", out)) is None:
+        logging.getLogger(__name__).warning("failed to decode the avmenc version")
+        return ""
+    return match["version"]
+
+
 def get_ffmpeg_version() -> str:
     r"""Return the version of ffmpeg.
 
