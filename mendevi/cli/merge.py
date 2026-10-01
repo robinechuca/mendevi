@@ -196,6 +196,9 @@ def main(databases: tuple[str], **kwargs: dict) -> None:
                 for row_ in cursor_src.execute("SELECT * FROM t_enc_encode"):
                     row = dict(row_)
                     del row["enc_id"]
+                    row["enc_mode"] = {"vbr": "crf"}.get(
+                        row["enc_mode"], row["enc_mode"],
+                    )  # retrocompatibility with version <= 1.3.6
                     row["enc_env_id"] = env_old_to_new[row["enc_env_id"]]
                     row["enc_act_id"] = act_old_to_new[row["enc_act_id"]]
                     _insert_update(cursor_dst, row, "t_enc_encode", ())

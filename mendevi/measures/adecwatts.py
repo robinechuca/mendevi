@@ -40,7 +40,7 @@ class ADECWattmeter(threading.Thread):
             By default, it is autodetected using :py:meth`guess_port`.
         no_fail : bool, default=False
             If False, raise RuntimeError if it fails to get the ADEC measure.
-            Otherwise (if True), return None instead of failing.
+            Otherwise (if True), __enter__ returns None instead of failing.
 
         """
         assert isinstance(no_fail, bool), no_fail
@@ -56,9 +56,10 @@ class ADECWattmeter(threading.Thread):
         else:
             assert isinstance(port, str), port.__class__.__name__
 
+        self._no_fail = no_fail
         self._signal_queue = queue.Queue()
-        self._stop_flag = False
-        self.port = port
+        self._stop_flag: bool = False
+        self.port: str = port
         self.res: dict | None = {"ts": [], "u_rms": [], "i_rms": [], "p_eff": []} if port else None
 
     def _find_header(self, port: serial.Serial) -> float:
@@ -203,7 +204,7 @@ class ADECWattmeter(threading.Thread):
             self._signal_queue.put(err)
             raise
 
-    def __enter__(self) -> dict:
+    def __enter__(self) -> dict | None:
         """Start to measure.
 
         Returns
@@ -217,6 +218,8 @@ class ADECWattmeter(threading.Thread):
         """
         self.start()
         if (err := self._signal_queue.get()) is not None:  # wait until the first frame is caught
+            if self._no_fail:
+                return None
             raise err
         return self.res
 

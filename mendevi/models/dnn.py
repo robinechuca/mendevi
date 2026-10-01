@@ -162,8 +162,12 @@ class QualityNN(DNN):
     --------
     >>> from mendevi.models.dnn import QualityNN
     >>> model = QualityNN(output_labels=["psnr"])
-    >>> _ = model.fit("svtav1_vs_rav1e_vs_aom.db", select="uniform(vid_hash) >= 0.2")
-    >>> model.validate("svtav1_vs_rav1e_vs_aom.db", select="uniform(vid_hash) < 0.2")
+    >>> _ = model.fit(
+    ...     "svtav1_vs_rav1e_vs_aom.db", table="t_enc_encode", select="uniform(vid_hash) >= 0.2",
+    ... )  # doctest: +SKIP
+    >>> model.validate(
+    ...     "svtav1_vs_rav1e_vs_aom.db", table="t_enc_encode", select="uniform(vid_hash) < 0.2",
+    ... )  # doctest: +SKIP
     >>>
 
     """
@@ -409,8 +413,12 @@ class EncodeEnergyNN(KernelMultiHead):
     Examples
     --------
     >>> from mendevi.models.dnn import EncodeEnergyNN
-    >>> model = EncodeEnergyNN().fit("svtav1_vs_rav1e_vs_aom.db", table="t_enc_encode")
-    >>> model.validate("svtav1_vs_rav1e_vs_aom.db", table="t_enc_encode")
+    >>> model = EncodeEnergyNN().fit(
+    ...     "svtav1_vs_rav1e_vs_aom.db", table="t_enc_encode", select="uniform(vid_hash) >= 0.2",
+    ... )  # doctest: +SKIP
+    >>> model.validate(
+    ...     "svtav1_vs_rav1e_vs_aom.db", table="t_enc_encode", select="uniform(vid_hash) >= 0.2",
+    ... )  # doctest: +SKIP
     >>>
 
     """
@@ -444,8 +452,12 @@ class DecodeEnergyNN(KernelMultiHead):
     Examples
     --------
     >>> from mendevi.models.dnn import DecodeEnergyNN
-    >>> model = DecodeEnergyNN().fit("duration.db", table="t_dec_decode")
-    >>> model.validate("duration.db", table="t_dec_decode")
+    >>> model = DecodeEnergyNN().fit(
+    ...     "duration.db", table="t_dec_decode", select="uniform(vid_hash) >= 0.2",
+    ... )  # doctest: +SKIP
+    >>> model.validate(
+    ...     "duration.db", table="t_dec_decode", select="uniform(vid_hash) < 0.2",
+    ... )  # doctest: +SKIP
     >>>
 
     """

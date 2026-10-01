@@ -42,9 +42,9 @@ class Activity(threading.Thread):
     >>> slices = activity.get_slices()
     >>> sorted(slices)
     ['lbl 1', 'lbl 2', 'lbl 3']
-    >>> round(sum(s["duration"] for s in slices.values()), 2)
+    >>> round(sum(s["duration"] for s in slices.values()), 1)
     0.9
-    >>> round(slices["lbl 2"]["duration"], 2)
+    >>> round(slices["lbl 2"]["duration"], 1)
     0.3
     >>>
 

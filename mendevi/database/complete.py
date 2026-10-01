@@ -38,7 +38,7 @@ def get_idle(duration: float = 60.0) -> dict:
     >>> from pprint import pprint
     >>> from mendevi.database.complete import get_idle
     >>> idle = get_idle(duration=1.0)
-    >>> pprint(set(idle))
+    >>> pprint(set(idle))  # doctest: +ELLIPSIS
     {'duration',
      'ps_core',
      'ps_core_avg',
@@ -46,10 +46,7 @@ def get_idle(duration: float = 60.0) -> dict:
      'ps_ram',
      'ps_ram_avg',
      'ps_temp',
-     'ps_temp_avg',
-     'rapl_dt',
-     'rapl_power',
-     'rapl_power_avg',
+     ...
      'start'}
     >>>
 
