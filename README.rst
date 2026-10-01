@@ -112,7 +112,7 @@ If this work is helpful for your research, please consider citing it.
     @software{mendevi,
         author = {Robin Richard and Thomas Maugey and Anne-Cecile Orgerie},
         title = {{Mendevi}: Measures of Encoding and Decoding of Videos},
-        date = {2026-09-12},
+        date = {2026-10-01},
         url = {https://gitlab.inria.fr/rrichard/mendevi},
         version = {latest},
         license = {GPLv3},
