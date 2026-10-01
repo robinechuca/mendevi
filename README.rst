@@ -53,8 +53,8 @@ It manages the following parameters:
 #. Encoding efforts are ``fast``, ``medium`` and ``slow``.
 #. It handles color-related parameters, including color range, transfer characteristics, and color primaries (``range``, ``transfer`` and ``primaries``).
 #. Iterate over different ``effort``, ``encoder``, ``mode``, ``quality``, ``threads``, ``fps``, ``resolution`` and ``pix_fmt``.
-#. Energy measurements are captured with ``RAPL`` and an external wattmeter on ``grid'5000``.
-#. Get the ``cpu``, ``gpu``, ``ram`` and ``temperature`` activity.
+#. Energy measurements are captured with ``RAPL`` for cpu and ``nvidia-ml-py`` for gpu, and an external ``ADEC`` wattmeter on ``Grid'5000`` and ``dell laptop``.
+#. Monitor ``CPU``, ``GPU``, and ``RAM`` utilization, as well as system ``temperature``.
 #. Get a full environment context, including hardware and software version.
 #. It supports the mode (constant quality) ``crf``, (constant bitrate) ``cbr`` and (constant quantization) ``qp``.
 #. Ability to ``modify ffmpeg commands`` on the fly to perform specific tests, giving your own defined callback function.
@@ -62,7 +62,7 @@ It manages the following parameters:
 #. Provides a guide to compile ffmpeg with all optimizations in order to ``compare encoders/decoders at their limits``.
 
 .. caution::
-    The entire code was written by hand, without the use of AI, including the kernel module cutcutcodec!
+    The entire code was written by hand, without the use of AI, including the core library cutcutcodec (used for ``prepare`` and ``probe``).
 
 
 Pipeline
