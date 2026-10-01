@@ -552,4 +552,7 @@ You can compile the documentation yourself after :ref:`full_installation` by sim
 Testing
 -------
 
-To run the unitary tests, just type ``mendevi test``.
+To run the unitary tests (more than 70), just type ``mendevi test``.
+
+.. image:: /_static/media/test.avif
+    :alt: test bench

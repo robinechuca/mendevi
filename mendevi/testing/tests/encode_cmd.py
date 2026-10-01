@@ -5,6 +5,7 @@
 
 import itertools
 import pathlib
+import shutil
 import typing
 
 import pytest
@@ -61,39 +62,42 @@ def encode(encoder: str, cmd_creator: typing.Callable) -> None:
         cmd.run()
 
 
+@pytest.mark.skipif(shutil.which("nvidia-smi") is None, reason="requires nvidia-smi / nvenc")
 @pytest.mark.slow
 def test_encode_av1_nvenc() -> None:
     """Perform the ffmpeg encoding test on av1_nvenc."""
     encode("av1_nvenc", _encode_av1_nvenc)
 
 
-@pytest.mark.skipif(pathlib.Path("/dev/dri/renderD128").exists(), reason="requires intel vaapi")
+@pytest.mark.skipif(not pathlib.Path("/dev/dri/renderD128").exists(), reason="requires intel vaapi")
 @pytest.mark.slow
 def test_encode_av1_vaapi() -> None:
     """Perform the ffmpeg encoding test on av1_vaapi."""
     encode("av1_vaapi", _encode_av1_vaapi)
 
 
+@pytest.mark.skipif(shutil.which("nvidia-smi") is None, reason="requires nvidia-smi / nvenc")
 @pytest.mark.slow
 def test_encode_h264_nvenc() -> None:
     """Perform the ffmpeg encoding test on h264_nvenc."""
     encode("h264_nvenc", _encode_h264_nvenc)
 
 
-@pytest.mark.skipif(pathlib.Path("/dev/dri/renderD128").exists(), reason="requires intel vaapi")
+@pytest.mark.skipif(not pathlib.Path("/dev/dri/renderD128").exists(), reason="requires intel vaapi")
 @pytest.mark.slow
 def test_encode_h264_vaapi() -> None:
     """Perform the ffmpeg encoding test on h264_vaapi."""
     encode("h264_vaapi", _encode_h264_vaapi)
 
 
+@pytest.mark.skipif(shutil.which("nvidia-smi") is None, reason="requires nvidia-smi / nvenc")
 @pytest.mark.slow
 def test_encode_hevc_nvenc() -> None:
     """Perform the ffmpeg encoding test on hevc_nvenc."""
     encode("hevc_nvenc", _encode_hevc_nvenc)
 
 
-@pytest.mark.skipif(pathlib.Path("/dev/dri/renderD128").exists(), reason="requires intel vaapi")
+@pytest.mark.skipif(not pathlib.Path("/dev/dri/renderD128").exists(), reason="requires intel vaapi")
 @pytest.mark.slow
 def test_encode_hevc_vaapi() -> None:
     """Perform the ffmpeg encoding test on hevc_vaapi."""
@@ -142,7 +146,7 @@ def test_encode_libx265() -> None:
     encode("libx265", _encode_libx265)
 
 
-@pytest.mark.skipif(pathlib.Path("/dev/dri/renderD128").exists(), reason="requires intel vaapi")
+@pytest.mark.skipif(not pathlib.Path("/dev/dri/renderD128").exists(), reason="requires intel vaapi")
 @pytest.mark.slow
 def test_encode_vp9_vaapi() -> None:
     """Perform the ffmpeg encoding test on vp9_vaapi."""

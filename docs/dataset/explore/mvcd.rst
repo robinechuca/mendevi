@@ -125,6 +125,11 @@ write output
 
 During decoding, MVCD writes a ``.yuv`` file to the hard drive, whereas mendevi simply decodes the video and throw the result without writing anything.
 
+duration
+^^^^^^^^
+
+MVCD encodes only the first 32 or 64 frames of each video. However, our analysis of the impact of sequence length (:ref:`duration_dataset`) demonstrates that edge effects are particularly pronounced for such short sequences. Therefore, to mitigate these effects, we retain the full video sequences in our dataset.
+
 yuv vs rgb
 ^^^^^^^^^^
 
