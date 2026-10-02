@@ -197,6 +197,10 @@ class QualityNN(DNN):
 class KernelMultiHead(DNN):
     """Share the kernel NN to all aggregated data, and split output with several headers.
 
+    This structure provides an answer to the question:
+
+    **How does parameter ``toto`` affect parameter ``tata``, regardless of all other factors?**
+
     .. image:: /_static/media/intrinsic.svg
         :alt: Pipeline diagram
     """
