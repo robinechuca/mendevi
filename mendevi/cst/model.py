@@ -37,17 +37,17 @@ def import_all_models() -> dict[str, Model]:
     >>> from pprint import pprint
     >>> from mendevi.cst.model import import_all_models
     >>> pprint(import_all_models())
-    {'DNN': <class 'mendevi.models.dnn.DNN'>,
-     'DecodeEnergyNN': <class 'mendevi.models.dnn.DecodeEnergyNN'>,
-     'EncodeEnergyNN': <class 'mendevi.models.dnn.EncodeEnergyNN'>,
+    {'DNN': <class 'mendevi.models.nn.nn'>,
+     'DecodeEnergyNN': <class 'mendevi.models.nn.DecodeEnergyNN'>,
+     'EncodeEnergyNN': <class 'mendevi.models.nn.EncodeEnergyNN'>,
      'EncodeLinear': <class 'mendevi.models.lr.EncodeLinear'>,
      'GPR': <class 'mendevi.models.gpr.GPR'>,
-     'KernelMultiHead': <class 'mendevi.models.dnn.KernelMultiHead'>,
+     'KernelMultiHead': <class 'mendevi.models.nn.KernelMultiHead'>,
      'LR': <class 'mendevi.models.lr.LR'>,
      'NearestL2': <class 'mendevi.models.interp.NearestL2'>,
      'PowerCores': <class 'mendevi.models.power_cores.PowerCores'>,
      'QBP': <class 'mendevi.models.qbp.QBP'>,
-     'QualityNN': <class 'mendevi.models.dnn.QualityNN'>}
+     'QualityNN': <class 'mendevi.models.nn.QualityNN'>}
     >>>
 
     """
