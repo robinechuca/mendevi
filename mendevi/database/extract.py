@@ -4,6 +4,7 @@
 """Define the functions that enable values to be extracted from a select query."""
 
 import functools
+import logging
 import numbers
 import pathlib
 import re
@@ -292,6 +293,13 @@ def extract_cpu_cores(raw: dict[str]) -> float:
         return None
     act_ps_dt = binary_to_list(act_ps_dt)
     act_ps_core = binary_to_tensor(act_ps_core).sum(axis=1)  # (n_points, n_cpu)
+    if len(act_ps_dt) != len(act_ps_core):  # backwards compatibility for a bug fixed since 1.2.5
+        logging.getLogger(__name__).warning(
+            "ps_dt and ps_core lengths mismatch (%d vs %d)", len(act_ps_dt), len(act_ps_core),
+        )
+        min_len = min(len(act_ps_dt), len(act_ps_core))
+        act_ps_dt = act_ps_dt[:min_len]
+        act_ps_core = act_ps_core[:min_len]
     integral = (act_ps_core * act_ps_dt).sum()  # act_ps_core is already the average on each dt
     average = integral / act_ps_dt.sum()
     return float(average) / 100.0  # normalisation
@@ -716,6 +724,13 @@ def extract_temp(raw: dict[str]) -> float:
     act_ps_dt = binary_to_list(act_ps_dt)
     act_ps_temp = orjson.loads(act_ps_temp)
     avg_temp = sum(np.asarray(tps, act_ps_dt.dtype) for tps in act_ps_temp.values())
+    if len(act_ps_dt) != len(avg_temp):  # backwards compatibility for a bug fixed since 1.2.5
+        logging.getLogger(__name__).warning(
+            "ps_dt and avg_temp lengths mismatch (%d vs %d)", len(act_ps_dt), len(avg_temp),
+        )
+        min_len = min(len(act_ps_dt), len(avg_temp))
+        act_ps_dt = act_ps_dt[:min_len]
+        avg_temp = avg_temp[:min_len]
     integral = (avg_temp * act_ps_dt).sum()
     average = integral / (act_ps_dt.sum() * len(act_ps_temp))
     return float(average)

@@ -1,6 +1,7 @@
 .. rst syntax: https://deusyss.developpez.com/tutoriels/Python/SphinxDoc/
 .. version conv: https://peps.python.org/pep-0440/
 
+*******************************************
 Measures of Encoding and Decoding of Videos
 *******************************************
 

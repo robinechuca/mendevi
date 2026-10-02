@@ -598,7 +598,7 @@ class Model(metaclass=MetaModel):
     ) -> typing.Self:
         """Fit the trainable hyper parameters of the model.
 
-        Implementation of :py:method:`fit`.
+        Implementation of :py:func:`fit`.
 
         """
         with Printer(
@@ -816,7 +816,7 @@ class Model(metaclass=MetaModel):
 
         It fill the attribute ``self.accuracy``.
 
-        All parameters are the same as :py:method:`fit`.
+        All parameters are the same as :py:func:`fit`.
         """
         # record data
         for clus_key, clus_values in self.fit_generator(

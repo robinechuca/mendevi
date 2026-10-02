@@ -40,7 +40,7 @@ Remove fields with empty wattmeter value
         WHERE act_wattmeter_dt IS NULL OR act_wattmeter_power IS NULL
     );
 
-    -- 5) Environments where the IDLE activity has been removed → NULL (the environment is keeped)
+    -- 5) Environments where the IDLE activity has been removed - NULL (the environment is keeped)
     UPDATE t_env_environment
     SET env_idle_act_id = NULL
     WHERE env_idle_act_id IN (

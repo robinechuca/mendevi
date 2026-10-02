@@ -1,10 +1,10 @@
-.. _exhaustiev_dataset:
+.. _scatter_dataset:
 
-Full Dataset
-============
+Scatter Dataset
+===============
 
 Corresponds to a random subsampling of a highly varied set of encoding scenarios.
-The dataset contains 35573 encoding measurements and 99801 decoding measurements.
+The dataset contains 35777 encoding measurements and 112499 decoding measurements.
 
 .. list-table:: The parameters of this database
     :header-rows: 1
@@ -50,7 +50,7 @@ The dataset contains 35573 encoding measurements and 99801 decoding measurements
       - shm in :ref:`enc_cmd`
       - :math:`1`
     * - host
-      - ``abacus26``, ``dahu``, ``gemini``, ``nova``, ``paradoxe``, ``pc-intel``, ``yeti``
+      - ``abacus26``, ``dahu``, ``gemini``, ``nova``, ``paradoxe``, ``pc-dell``, ``yeti``
       - :ref:`env_hostname`
       - :math:`7`
     * - metrics
@@ -58,9 +58,21 @@ The dataset contains 35573 encoding measurements and 99801 decoding measurements
       - :ref:`t_met_metric`
       -
     * - **total**
-      - :math:`\prod`
+      - :math:`\le \prod`
       - total number of points
-      - :math:`35573`
+      - :math:`35777`
+
+
+Download
+--------
+
+.. code:: shell
+
+    mendevi download scatter.db.xz.torrent
+
+* `scatter.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/scatter.json.xz?inline=false>`_ (53.7 Mo).
+* `scatter.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/scatter.db.xz.torrent?inline=false>`_ (51.5 Go).
+
 
 Reproduce
 ---------

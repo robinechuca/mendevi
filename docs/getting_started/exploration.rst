@@ -1,4 +1,0 @@
-.. _measure:
-
-Perform Measures
-================

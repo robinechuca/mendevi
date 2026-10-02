@@ -75,7 +75,6 @@ class Usage(threading.Thread):
             if self._stop_flag:
                 break
 
-
     def __enter__(self) -> dict:
         """Start to measure.
 
