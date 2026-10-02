@@ -383,7 +383,7 @@ class Activity(threading.Thread):
     def __exit__(self, *_: object) -> None:
         """Stop the measure and update the dictionary returnd by __enter__."""
         # stop
-        self.res["duration"] = time.time() - self.res["start"]
-        self._exit_queue.put(None)  # send a signal caught by .run()
         with contextlib.suppress(RuntimeError):
             self.stop_slice()
+        self.res["duration"] = time.time() - self.res["start"]
+        self._exit_queue.put(None)  # send a signal caught by .run()

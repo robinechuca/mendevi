@@ -62,7 +62,7 @@ class DNN(Model):
     """Deep neuronal network predictive model."""
 
     def __init__(
-        self, niter: int=10000, rate: float=1e-4, total: int | None=None, **kwargs: dict,
+        self, niter: int=10000, learning_rate: float=1e-4, total: int | None=None, **kwargs: dict,
     ) -> None:
         """Define the gradient decrease convergence parameters.
 
@@ -72,7 +72,7 @@ class DNN(Model):
             Transmitted to :py:class:`mendevi.models.base.Model`.
         niter : int, default=1000
             The number of epoch, also the number of batch, because one batch by epoch.
-        rate : float, default=1e-3
+        learning_rate : float, default=1e-3
             The learning rate.
         total : int, optional
             The number of parameters of the neuronal network.
@@ -82,12 +82,12 @@ class DNN(Model):
         """
         assert isinstance(niter, int), niter.__class__.__name__
         assert niter >= 0, niter
-        assert isinstance(rate, float), rate.__class__.__name__
-        assert rate > 0, rate
+        assert isinstance(learning_rate, float), learning_rate.__class__.__name__
+        assert learning_rate > 0, learning_rate
         if total is not None:
             assert isinstance(total, int), total.__class__.__name__
             assert total > 0, total
-        self._niter, self._rate, self._total = niter, rate, total
+        self._niter, self._lr, self._total = niter, learning_rate, total
         super().__init__(**kwargs)
 
     def _fit_vect_norm(self, values: dict[str, torch.Tensor]) -> object:
@@ -110,7 +110,7 @@ class DNN(Model):
 
         # train
         model.train()
-        optimizer = torch.optim.RAdam(model.parameters(), lr=self._rate)
+        optimizer = torch.optim.RAdam(model.parameters(), lr=self._lr)
         with tqdm.tqdm(
             desc="Gradient decay",
             dynamic_ncols=True,
@@ -160,7 +160,7 @@ class QualityNN(DNN):
 
     Examples
     --------
-    >>> from mendevi.models.dnn import QualityNN
+    >>> from mendevi.models.nn import QualityNN
     >>> model = QualityNN(output_labels=["psnr"])
     >>> _ = model.fit(
     ...     "svtav1_vs_rav1e_vs_aom.db", table="t_enc_encode", select="uniform(vid_hash) >= 0.2",
@@ -261,7 +261,7 @@ class KernelMultiHead(DNN):
                 *model.parameters(),
                 *(p for ms in heads.values() for m in ms.values() for p in m.parameters()),
             ],
-            lr=self._rate,
+            lr=self._lr,
         )
         with (
             Printer(
@@ -412,7 +412,7 @@ class EncodeEnergyNN(KernelMultiHead):
 
     Examples
     --------
-    >>> from mendevi.models.dnn import EncodeEnergyNN
+    >>> from mendevi.models.nn import EncodeEnergyNN
     >>> model = EncodeEnergyNN().fit(
     ...     "svtav1_vs_rav1e_vs_aom.db", table="t_enc_encode", select="uniform(vid_hash) >= 0.2",
     ... )  # doctest: +SKIP
@@ -451,7 +451,7 @@ class DecodeEnergyNN(KernelMultiHead):
 
     Examples
     --------
-    >>> from mendevi.models.dnn import DecodeEnergyNN
+    >>> from mendevi.models.nn import DecodeEnergyNN
     >>> model = DecodeEnergyNN().fit(
     ...     "duration.db", table="t_dec_decode", select="uniform(vid_hash) >= 0.2",
     ... )  # doctest: +SKIP
