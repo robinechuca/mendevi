@@ -22,7 +22,7 @@ After generating a database by following `these steps <https://mendevi.readthedo
 
 1) To generate the json file (``mendevi.json``), simply type ``mendevi json mendevi.db``.
 
-2) You must then compress these raw files by typing ``xz -vve9T1 --lzma2=dict=1GiB mendevi.json`` and ``xz -vvke9T1 --lzma2=dict=1GiB mendevi.db``. ``zstd -v --ultra -22 --single-thread mendevi.db -o coucougnoux.db.zst``
+2) You must then compress these raw files by typing ``xz -vve9T1 --lzma2=dict=1GiB mendevi.json`` and ``xz -vvke9T1 --lzma2=dict=1GiB mendevi.db``.
 
 3) Rename files with a meaningful name, for example ``mv mendevi.json.xz coucougnoux.json.xz && mv mendevi.db.xz coucougnoux.db.xz``
 
@@ -33,18 +33,31 @@ Then, you can create it with (change the filename and the description):
 
     transmission-create -o coucougnoux.db.xz.torrent \
         -c 'SQL mendevi dataset to scrape the bottom of your pockets' \
+        -t http://tracker.dler.com:6969/announce \
+        -t http://tracker.qu.ax:6969/announce \
         -t udp://exodus.desync.com:6969/announce \
         -t udp://explodie.org:6969/announce \
+        -t udp://open.demonii.com:1337/announce \
         -t udp://open.stealth.si:80/announce \
         -t udp://opentracker.io:6969/announce \
+        -t udp://retracker01-msk-virt.corbina.net:80/announce \
+        -t udp://tracker-udp.gbitt.info:80/announce \
+        -t udp://tracker.bittor.pw:1337/announce \
+        -t udp://tracker.corpscorp.online:80/announce \
         -t udp://tracker.cyberia.is:80/announce \
+        -t udp://tracker.ducks.party:1984/announce \
+        -t udp://tracker.gmi.gd:6969/announce \
         -t udp://tracker.internetwarriors.net:1337/announce \
         -t udp://tracker.leechers-paradise.org:6969/announce \
+        -t udp://tracker.nyaa.vc:6969/announce \
         -t udp://tracker.openbittorrent.com:80/announce \
         -t udp://tracker.opentrackr.org:1337/announce \
         -t udp://tracker.sktorrent.net:6969/announce \
+        -t udp://tracker.skynetcloud.site:6969/announce \
+        -t udp://tracker.theoks.net:6969/announce \
         -t udp://tracker.torrent.eu.org:451/announce \
         -t udp://tracker.tryhackx.org:6969/announce \
+        -t udp://tracker2.dler.org:80/announce \
         coucougnoux.db.xz
 
 5) Now, you can seed the torrent (change the download-dir and the torrent name):

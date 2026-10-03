@@ -71,7 +71,7 @@ Download
     mendevi download scatter.db.xz.torrent
 
 * `scatter.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/scatter.json.xz?inline=false>`_ (53.7 Mo).
-* `scatter.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/scatter.db.xz.torrent?inline=false>`_ (51.5 Go).
+* `scatter.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/scatter.db.xz.torrent?inline=false>`_ (50.8 Go).
 
 
 Reproduce
