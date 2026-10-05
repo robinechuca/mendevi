@@ -60,6 +60,10 @@ This database attempts to approach the `MVCD <https://github.com/cd-athena/MVCD>
 Differences
 -----------
 
+.. caution::
+
+  The following parameters differ from the original MVCD protocol. These choices are driven by the aim of mendevi, which is to provide reliable energy measurements, rather than to follow a bitrate/distortion benchmarking protocol.
+
 In the original MVCD experiment, the following parameters were used and differ from those adopted in this study:
 
 .. list-table:: MVCD parameters differing from those explored here
@@ -95,7 +99,7 @@ To better **reflect an industrial context** and ensure **consistency with the ot
 
 .. note::
 
-    The MVCD QP values ``22``, ``27``, ``32`` and ``37`` are following the `JVET-AP2010 <https://vcgit.hhi.fraunhofer.de/jvet/HM/-/tree/dev-multiview444>`_ and `JVET-AO2011 <https://jvet-experts.org/doc_end_user/documents/41_Teleconference/wg11/JVET-AO2019-v1.zip>` norm.
+    The MVCD QP values ``22``, ``27``, ``32`` and ``37`` are following the `JVET-AP2010 <https://vcgit.hhi.fraunhofer.de/jvet/HM/-/tree/dev-multiview444>`_ and `JVET-AO2011 <https://jvet-experts.org/doc_end_user/documents/41_Teleconference/wg11/JVET-AO2019-v1.zip>`_ norm.
 
 effort
 ^^^^^^
@@ -116,7 +120,7 @@ MVCD controls the *Group Of Pictures*, whereas by default, mendevi asks the enco
 
 .. note::
 
-    The `JVET-AO2011 <https://jvet-experts.org/doc_end_user/documents/41_Teleconference/wg11/JVET-AO2019-v1.zip>` norm says *IntraPeriod to reflect the intra refresh period in the random access test cases. The intra refresh period is dependent on the frame rate of the source and the GOP size in use: a value 32 shall be used for sequences with a frame rate equal to 20fps, 32 for 24fps, 32 for 30fps, 64 for 50fps, 64 for 60fps, and 96 for 100fps.*, which is close to MVCD choice.
+    The `JVET-AO2011 <https://jvet-experts.org/doc_end_user/documents/41_Teleconference/wg11/JVET-AO2019-v1.zip>`_ norm says *IntraPeriod to reflect the intra refresh period in the random access test cases. The intra refresh period is dependent on the frame rate of the source and the GOP size in use: a value 32 shall be used for sequences with a frame rate equal to 20fps, 32 for 24fps, 32 for 30fps, 64 for 50fps, 64 for 60fps, and 96 for 100fps.*, which is close to MVCD choice.
 
 threads
 ^^^^^^^

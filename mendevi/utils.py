@@ -12,6 +12,7 @@ import math
 import multiprocessing.pool
 import numbers
 import pathlib
+import pickle
 import re
 import shutil
 import tempfile
@@ -129,6 +130,36 @@ def cp_shm(file: pathlib.Path, threshold: float) -> pathlib.Path:
     finally:
         if file_copy is not None:
             file_copy.unlink()
+
+
+def filecache(func: typing.Callable) -> typing.Callable:
+    """Persistant cache of the function values in ~/.cache/mendevi/."""
+
+    download_dir = pathlib.Path.home() / ".cache" / "mendevi"
+    download_dir.mkdir(mode=0o777, parents=True, exist_ok=True)
+
+    @functools.wraps(func)
+    def cached_func(*args: tuple, **kwargs: dict) -> object:
+        # retrive cache file
+        signature = hashlib.md5(f"{args}{kwargs}".encode()).hexdigest()
+        if (file := download_dir / f"cache_{func.__name__}_{signature}.pk").exists():
+            with file.open("rb") as raw:
+                return pickle.load(raw)
+
+        # compute result
+        res = func(*args, **kwargs)
+
+        # save result
+        try:
+            with file.open("wb") as raw:
+                pickle.dump(res, raw)
+        except TypeError as err:
+            logging.getLogger(__name__).warning(err)
+            file.unlink()
+
+        return res
+
+    return cached_func
 
 
 @functools.cache

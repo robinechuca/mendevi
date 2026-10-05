@@ -99,7 +99,7 @@ Only one machine is selected to make the data easier to read, but the trend rema
 
 .. code:: shell
 
-    mendevi plot scatter.db -x rate -y energy -c decoder -wx profile -t t_dec_decode -a "lamb < (rms_sobel*rms_time_diff/.2)**.5 < lamb + 0.1" -f "'paradoxe-32' in hostname and profile in {'hd', 'uhd4k'}"
+    mendevi plot scatter.db -x rate -y energy -c decoder -wx profile -t t_dec_decode -a "lamb < (rms_sobel*rms_time_diff/.15)**.5 < lamb + 0.05" -f "'paradoxe-32' in hostname and profile in {'hd', 'uhd4k'}"
 
 .. image:: /_static/media/scatter_decode.svg
     :alt: Average decoding energy according to the codec and profile
