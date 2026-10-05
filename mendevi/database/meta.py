@@ -210,7 +210,7 @@ ALL_EXTRACTORS = {
     ),
     "encoder_family": Extractor(
         "The type of encoder",
-        '"nvenc" if str(encoder).endswith("_nvenc") else "cpu"',
+        '"nvenc" if str(encoder).endswith("_nvenc") or str(encoder).endswith("_vaapi") else "cpu"',
         Scale.DISCRETE,
     ),
     "energy": Extractor(

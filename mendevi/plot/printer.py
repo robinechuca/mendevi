@@ -279,7 +279,8 @@ def print_animation(**kwargs: dict) -> list[str]:
         '        """Efficient frame creator."""',
         "        self.full_values = full_values",
         "        self.limits = []",
-        "        main(self.full_values, render=False, limits=self.limits)  # find limits",
+        "        fig = main(self.full_values, render=False, limits=self.limits)  # find limits",
+        "        self.width, self.height = fig.get_size_inches() * fig.dpi  # figsize in pixel",
         "",
         "    def __call__(self, timestamp: fractions.Fraction) -> plt.Figure:",
         '        """Return the frame at this timestamp."""',
@@ -315,7 +316,7 @@ def print_animation(**kwargs: dict) -> list[str]:
         "        streams_settings = [{",
         '            "encodec": "libsvtav1",',
         '            "rate": 25,  # frame rate',
-        '            "shape": (720, 900),  # image resolution as (height, width)',
+        '            "shape": (round(self.height), round(self.width)),  # resolution',
         '            "pix_fmt": "yuv420p",  # yuv420p10le for better / lighter render, but slowler',
         '            "options": {  # easy read with fast seek configuration',
         '                "crf": "28",  # high quality',
@@ -451,14 +452,14 @@ def print_subfigure(**kwargs: dict) -> list[str]:
                     "    all_window_y_values = Animation.cache(  "
                     "# memoize to preserve empty frames during animation"
                 ),
-                f"        {safe_lbl(kwargs['ylabel'])+'_'+safe_lbl(kwargs['xlabel'])!r},",
+                f"        {safe_lbl(kwargs['ylabel'])+'_'+safe_lbl(kwargs['xlabel'])+'y'!r},",
                 '        sorted(set(values["window_y"]), key=smartsort),',
                 "    )",
                 (
                     "    all_window_x_values = Animation.cache(  "
                     "# memoize to preserve empty frames during animation"
                 ),
-                f"        {safe_lbl(kwargs['ylabel'])+'_'+safe_lbl(kwargs['xlabel'])!r},",
+                f"        {safe_lbl(kwargs['ylabel'])+'_'+safe_lbl(kwargs['xlabel'])+'x'!r},",
                 '        sorted(set(values["window_x"]), key=smartsort),',
                 "    )",
                 "    nrows, ncols = len(all_window_y_values), len(all_window_x_values)",
