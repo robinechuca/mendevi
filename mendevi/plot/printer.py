@@ -390,7 +390,7 @@ def print_subfigure(**kwargs: dict) -> list[str]:
             middle = [
                 "    # create a 1d vertical subplot figure",
                 '    all_window_y_values = sorted(set(values["window_y"]), key=smartsort)',
-                "    nrows = len(all_window_y_values)",
+                "    nrows = len(all_window_y_values) or 1",
                 '    axes = subfig.subplots(nrows=nrows, squeeze=False, sharex="col")  # or "all"',
                 "",
                 "    # iterate over all subplots",
@@ -409,7 +409,7 @@ def print_subfigure(**kwargs: dict) -> list[str]:
             middle = [
                 "    # create a 1d horizontal subplot figure",
                 '    all_window_x_values = sorted(set(values["window_x"]), key=smartsort)',
-                "    ncols = len(all_window_x_values)",
+                "    ncols = len(all_window_x_values) or 1",
                 '    axes = subfig.subplots(ncols=ncols, squeeze=False, sharey="row")  # or "all"',
                 "",
                 "    # iterate over all subplots",
@@ -429,7 +429,7 @@ def print_subfigure(**kwargs: dict) -> list[str]:
                 "    # create a 2d grid subplot figure",
                 '    all_window_y_values = sorted(set(values["window_y"]), key=smartsort)',
                 '    all_window_x_values = sorted(set(values["window_x"]), key=smartsort)',
-                "    nrows, ncols = len(all_window_y_values), len(all_window_x_values)",
+                "    nrows, ncols = len(all_window_y_values) or 1, len(all_window_x_values) or 1",
                 "    axes = subfig.subplots(",
                 '        nrows, ncols, squeeze=False, sharex="col", sharey="row",',
                 '    )  # or "all"',
@@ -472,7 +472,9 @@ def print_main(**kwargs: dict) -> list[str]:
 
     # main function
     code.extend([
-        "def main(values: dict[str], *, render: bool = True, limits: list = None) -> plt.Figure:",
+        "def main(",
+        "    values: dict[str], *, render: bool = True, limits: list = None,",
+        ") -> plt.Figure:",
         '    """Create the plots with matplotlib."""',
         "    # create and fill in the main figure",
         '    fig = plt.figure(layout="constrained", figsize=FIGSIZE)',
@@ -503,6 +505,7 @@ def print_main(**kwargs: dict) -> list[str]:
         "",
         "    # recompute limits to solve share log errorbar matplotlib error",
         "    if not limits:",
+        '        loc_outside = "outside upper center"',
         "        if limits is None:",
         "            limits = []",
         "        limits.clear()",
@@ -511,6 +514,7 @@ def print_main(**kwargs: dict) -> list[str]:
         "            axe.autoscale()  # adjust the view",
         "            limits.append([axe.get_xlim(), axe.get_ylim()])  # set value inplace",
         "    else:",
+        '        loc_outside = "outside lower center"',
         "        for (xlim, ylim), axe in zip(limits, axes, strict=True):",
         "            axe.set_xlim(xlim)",
         "            axe.set_ylim(ylim)",
@@ -521,8 +525,8 @@ def print_main(**kwargs: dict) -> list[str]:
         "        lines, labels = axes[0].get_legend_handles_labels()",
         "        if labels:",
         "            fig.legend(",
-        "                lines, labels, ",
-        '                loc="outside upper center", ',
+        "                lines, labels,",
+        "                loc=loc_outside,",
         "                ncols=min(round(5*math.sqrt(ncols)), len(labels))",
         "            )",
         "    else:",
@@ -535,7 +539,7 @@ def print_main(**kwargs: dict) -> list[str]:
         "                    subfig.legend(",
         (
             "                        "
-            'lines, labels, loc="outside upper center", ncols=min(3, len(labels))'
+            'lines, labels, loc=loc_outside, ncols=min(3, len(labels))'
         ),
         "                    )",
         "            else:  # legends are different for each axe of that subfigure",
@@ -642,6 +646,7 @@ def print_read_sql(**kwargs: dict) -> list[str]:
         "        return None",
         "",
         "",
+        "# @filecache.filecache(filecache.YEAR)  # uv pip install filecache",
         "def read_sql(database: pathlib.Path) -> dict[str, list]:",
         '    """Extract the relevant values from the database."""',
         f"    values: dict[str, list] = {{{', '.join(f'{n!r}: []' for n in sorted(alias))}}}",

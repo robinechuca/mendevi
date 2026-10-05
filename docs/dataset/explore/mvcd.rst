@@ -93,6 +93,10 @@ In the original MVCD experiment, the following parameters were used and differ f
 QP refers to the codec’s internal quantization parameter. Although this approach is simple and computationally efficient, it does not guarantee either a constant bitrate or a consistent quality level.
 To better **reflect an industrial context** and ensure **consistency with the other mendevi datasets**, we therefore chose to use a constant quality setting in this study.
 
+.. note::
+
+    The MVCD QP values ``22``, ``27``, ``32`` and ``37`` are following the `JVET-AP2010 <https://vcgit.hhi.fraunhofer.de/jvet/HM/-/tree/dev-multiview444>`_ and `JVET-AO2011 <https://jvet-experts.org/doc_end_user/documents/41_Teleconference/wg11/JVET-AO2019-v1.zip>` norm.
+
 effort
 ^^^^^^
 
@@ -109,6 +113,10 @@ gop
 ^^^
 
 MVCD controls the *Group Of Pictures*, whereas by default, mendevi asks the encoder to place I-frames more intelligently at scene changes. This second approach allows for a **more classical encoding context**.
+
+.. note::
+
+    The `JVET-AO2011 <https://jvet-experts.org/doc_end_user/documents/41_Teleconference/wg11/JVET-AO2019-v1.zip>` norm says *IntraPeriod to reflect the intra refresh period in the random access test cases. The intra refresh period is dependent on the frame rate of the source and the GOP size in use: a value 32 shall be used for sequences with a frame rate equal to 20fps, 32 for 24fps, 32 for 30fps, 64 for 50fps, 64 for 60fps, and 96 for 100fps.*, which is close to MVCD choice.
 
 threads
 ^^^^^^^

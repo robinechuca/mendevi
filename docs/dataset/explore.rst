@@ -27,7 +27,9 @@ The exhaustive databases (several Go) containing all repetitions and per-interva
 
 If you have installed transmission-daemon :ref:`install_transmission`, everything is automated and will be stored in the ``~/.cache/mendevi`` folder. That's it!
 
-.. note:: Otherwise open the torrent file with the software you want to download the database, then decompress the file with ``xz -dv *.xz``.
+.. note::
+
+    Otherwise open the torrent file with the software you want to download the database, then decompress the file with ``xz -dv *.xz``.
 
 
 How can I plot the data?

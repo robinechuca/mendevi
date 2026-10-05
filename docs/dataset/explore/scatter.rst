@@ -22,9 +22,9 @@ The dataset contains 35777 encoding measurements and 112499 decoding measurement
       - `video resolution and more <https://gitlab.inria.fr/rrichard/mendevi/-/blob/main/mendevi/cst/profiles.py>`_
       - :math:`4`
     * - encoder
-      - ``libx264``, ``h264_vaapi``, ``h264_nvenc``, ``libx265``, ``hevc_nvenc``, ``vvc``, ``libaom-av1``, ``libsvtav1``, ``av1_nvenc``
+      - ``libx264``, ``h264_vaapi``, ``h264_nvenc``, ``libx265``, ``hevc_nvenc``, ``vvc``, ``libaom-av1``, ``libsvtav1``, ``libvpx-vp9``, ``av1_nvenc``
       - :ref:`enc_encoder`
-      - :math:`9`
+      - :math:`10`
     * - quality
       - :math:`\left\{\frac{k}{25} \mid k \in [1,24] \right\}`
       - :ref:`enc_quality`
@@ -73,6 +73,44 @@ Download
 * `scatter.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/scatter.json.xz?inline=false>`_ (53.7 Mo).
 * `scatter.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/scatter.db.xz.torrent?inline=false>`_ (50.8 Go).
 
+Plots
+-----
+
+Distortion and Consumption as a function of bitrate
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Result for a single video, including energy:
+
+.. code:: shell
+
+    mendevi plot scatter.db -x rate -x energy -y psnr -c encoder -m effort -wy profile -t t_enc_encode -f "ref_stem=='park_joy' and 'paradoxe-32' in hostname and profile in {'hd', 'uhd4k'}"
+
+    mendevi plot scatter.db -x rate -y vmaf -y psnr -c encoder -m effort -wy profile -t t_enc_encode -f "ref_stem=='park_joy' and profile in {'hd', 'uhd4k'}"
+
+
+mendevi plot scatter.db -x rate -y vmaf -c encoder -wx encoder -wy profile -f "ref_stem=='park_joy' and encoder_type=='cpu'" -t t_enc_encode
+
+
+Decoding energy according to the codec
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This plot shows the energy required to decode videos based on the codec and profile.
+Only one machine is selected to make the data easier to read, but the trend remains the same on the other machines.
+
+.. code:: shell
+
+    mendevi plot scatter.db -x rate -y energy -c decoder -wx profile -t t_dec_decode -a "lamb < (rms_sobel*rms_time_diff/.2)**.5 < lamb + 0.1" -f "'paradoxe-32' in hostname and profile in {'hd', 'uhd4k'}"
+
+.. image:: /_static/media/scatter_decode.svg
+    :alt: Average decoding energy according to the codec and profile
+
+
+JoliJoli
+^^^^^^^^
+
+Les fusees:
+
+mendevi plot scatter.db -x rms_sobel -y rms_time_diff -c profile
 
 Reproduce
 ---------
