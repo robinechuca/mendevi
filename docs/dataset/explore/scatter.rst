@@ -83,10 +83,9 @@ Result for a single video, including energy:
 
 .. code:: shell
 
-    mendevi plot scatter.db -x rate -x energy -y psnr -c encoder -m effort -wy profile -t t_enc_encode -f "ref_stem=='park_joy' and 'paradoxe-32' in hostname and profile in {'hd', 'uhd4k'}"
+    mendevi plot scatter.db -x rate -x energy_per_frame -y psnr -c encoder -m effort -wy profile -t t_enc_encode -f "ref_stem in {'boat', 'park_joy', 'cosmos'} and 'paradoxe-32' in hostname and profile in {'hd', 'uhd4k'}"
 
-    mendevi plot scatter.db -x rate -y vmaf -y psnr -c encoder -m effort -wy profile -t t_enc_encode -f "ref_stem=='park_joy' and profile in {'hd', 'uhd4k'}"
-
+    mendevi plot scatter.db -x rate -x energy_per_frame -y psnr -c encoder -m effort -wy profile -t t_enc_encode -a "lamb < (rms_sobel*rms_time_diff/.12)**.5 < lamb + 0.05" -f "'paradoxe-32' in hostname and profile in {'hd', 'uhd4k'}"
 
 mendevi plot scatter.db -x rate -y vmaf -c encoder -wx encoder -wy profile -f "ref_stem=='park_joy' and encoder_type=='cpu'" -t t_enc_encode
 
@@ -99,10 +98,11 @@ Only one machine is selected to make the data easier to read, but the trend rema
 
 .. code:: shell
 
-    mendevi plot scatter.db -x rate -y energy -c decoder -wx profile -t t_dec_decode -a "lamb < (rms_sobel*rms_time_diff/.15)**.5 < lamb + 0.05" -f "'paradoxe-32' in hostname and profile in {'hd', 'uhd4k'}"
+    mendevi plot scatter.db -x rate -y energy_per_frame -c decoder -m ref_stem -wx profile -t t_dec_decode -a "lamb < (rms_sobel*rms_time_diff/.12)**.5 < lamb + 0.05" -f "'paradoxe-32' in hostname and profile in {'hd', 'uhd4k'}"
 
-.. image:: /_static/media/scatter_decode.svg
+.. video:: /_static/media/scatter_decode.webm
     :alt: Average decoding energy according to the codec and profile
+    :width: 100%
 
 
 JoliJoli

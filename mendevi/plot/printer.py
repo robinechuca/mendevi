@@ -161,7 +161,7 @@ def print_grid(axe: str, dim: str, scale: Scale) -> list[str]:
 def print_fill_axe(**kwargs: dict) -> list[str]:
     """Return the code that fill a given axes."""
     code = [
-        "def fill_axe(axe: plt.Axes, values: dict[str], ylab: str, xlab: str):",
+        "def fill_axe(axe: plt.Axes, values: dict[str], ylab: str, xlab: str) -> None:",
         '    """Fill in the axis with the data provided as input."""',
     ]
     if kwargs["color"] is not None:
@@ -377,7 +377,7 @@ def print_subfigure(**kwargs: dict) -> list[str]:
         (
             f"def plot_{safe_lbl(kwargs['ylabel'])}_{safe_lbl(kwargs['xlabel'])}("
             "values: dict[str], subfig: figure.SubFigure"
-            "):"
+            ") -> None:"
         ),
         f'    """Create the subchart for y={kwargs["ylabel"]} and x={kwargs["xlabel"]}."""',
     ]
@@ -397,8 +397,11 @@ def print_subfigure(**kwargs: dict) -> list[str]:
         case (False, True):
             middle = [
                 "    # create a 1d vertical subplot figure",
-                "    all_window_y_values = Animation.cache(  # memoize labels when empty frame during animation",
-                f"        {safe_lbl(kwargs['ylabel'])+safe_lbl(kwargs['xlabel'])!r},",
+                (
+                    "    all_window_y_values = Animation.cache(  "
+                    "# memoize to preserve empty frames during animation"
+                ),
+                f"        {safe_lbl(kwargs['ylabel'])+'_'+safe_lbl(kwargs['xlabel'])!r},",
                 '        sorted(set(values["window_y"]), key=smartsort),',
                 "    )",
                 "    nrows = len(all_window_y_values)",
@@ -419,8 +422,11 @@ def print_subfigure(**kwargs: dict) -> list[str]:
         case (True, False):
             middle = [
                 "    # create a 1d horizontal subplot figure",
-                "    all_window_x_values = Animation.cache(  # memoize labels when empty frame during animation",
-                f"        {safe_lbl(kwargs['ylabel'])+safe_lbl(kwargs['xlabel'])!r},",
+                (
+                    "    all_window_x_values = Animation.cache(  "
+                    "# memoize to preserve empty frames during animation"
+                ),
+                f"        {safe_lbl(kwargs['ylabel'])+'_'+safe_lbl(kwargs['xlabel'])!r},",
                 '        sorted(set(values["window_x"]), key=smartsort),',
                 "    )",
                 "    ncols = len(all_window_x_values)",
@@ -441,12 +447,18 @@ def print_subfigure(**kwargs: dict) -> list[str]:
         case (False, False):  # 2d grid subplot
             middle = [
                 "    # create a 2d grid subplot figure",
-                "    all_window_y_values = Animation.cache(  # memoize labels when empty frame during animation",
-                f"        {safe_lbl(kwargs['ylabel'])+safe_lbl(kwargs['xlabel'])!r},",
+                (
+                    "    all_window_y_values = Animation.cache(  "
+                    "# memoize to preserve empty frames during animation"
+                ),
+                f"        {safe_lbl(kwargs['ylabel'])+'_'+safe_lbl(kwargs['xlabel'])!r},",
                 '        sorted(set(values["window_y"]), key=smartsort),',
                 "    )",
-                "    all_window_x_values = Animation.cache(  # memoize labels when empty frame during animation",
-                f"        {safe_lbl(kwargs['ylabel'])+safe_lbl(kwargs['xlabel'])!r},",
+                (
+                    "    all_window_x_values = Animation.cache(  "
+                    "# memoize to preserve empty frames during animation"
+                ),
+                f"        {safe_lbl(kwargs['ylabel'])+'_'+safe_lbl(kwargs['xlabel'])!r},",
                 '        sorted(set(values["window_x"]), key=smartsort),',
                 "    )",
                 "    nrows, ncols = len(all_window_y_values), len(all_window_x_values)",
@@ -559,7 +571,7 @@ def print_main(**kwargs: dict) -> list[str]:
         "                    subfig.legend(",
         (
             "                        "
-            'lines, labels, loc=loc_outside, ncols=min(3, len(labels))'
+            "lines, labels, loc=loc_outside, ncols=min(3, len(labels))"
         ),
         "                    )",
         "            else:  # legends are different for each axe of that subfigure",

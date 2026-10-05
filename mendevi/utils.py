@@ -7,6 +7,7 @@ import base64
 import contextlib
 import functools
 import hashlib
+import inspect
 import logging
 import math
 import multiprocessing.pool
@@ -133,15 +134,18 @@ def cp_shm(file: pathlib.Path, threshold: float) -> pathlib.Path:
 
 
 def filecache(func: typing.Callable) -> typing.Callable:
-    """Persistant cache of the function values in ~/.cache/mendevi/."""
-
+    """Cache and memoize the function values in ~/.cache/mendevi/."""
     download_dir = pathlib.Path.home() / ".cache" / "mendevi"
     download_dir.mkdir(mode=0o777, parents=True, exist_ok=True)
+    try:
+        source = inspect.getsource(func)
+    except OSError:
+        source = ""
 
     @functools.wraps(func)
     def cached_func(*args: tuple, **kwargs: dict) -> object:
         # retrive cache file
-        signature = hashlib.md5(f"{args}{kwargs}".encode()).hexdigest()
+        signature = hashlib.md5(f"{args}{kwargs}{source}".encode()).hexdigest()
         if (file := download_dir / f"cache_{func.__name__}_{signature}.pk").exists():
             with file.open("rb") as raw:
                 return pickle.load(raw)
