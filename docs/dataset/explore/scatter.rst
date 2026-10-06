@@ -100,7 +100,7 @@ Bitrate Distortion
     mendevi plot scatter.db \
         -x rate -y vmaf -wx encoder -wy ref_stem \
         -c effort -m profile \
-        -f "('av1' in encoder or '264' in encoder) and ref_stem in {'baolei_balloon', 'park_joy'}" \
+        -f "encoder in {'libsvtav1', 'av1_nvenc', 'libx264', 'h264_nvenc'} and ref_stem in {'baolei_balloon', 'park_joy'}" \
         -t t_enc_encode \
         -s "sharex=.*," 'sharex="all",'
 
