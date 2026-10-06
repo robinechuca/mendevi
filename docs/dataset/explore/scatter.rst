@@ -85,10 +85,27 @@ Result for a single video, including energy:
 
     mendevi plot scatter.db -x rate -x energy_per_frame -y psnr -c encoder -m effort -wy profile -t t_enc_encode -f "ref_stem in {'boat', 'park_joy', 'cosmos'} and 'paradoxe-32' in hostname and profile in {'hd', 'uhd4k'}"
 
-    mendevi plot scatter.db -x rate -x energy_per_frame -y psnr -c encoder -m effort -wy profile -t t_enc_encode -a "lamb < (rms_sobel*rms_time_diff/.12)**.5 < lamb + 0.05" -f "'paradoxe-32' in hostname and profile in {'hd', 'uhd4k'}"
+    mendevi plot scatter.db \
+        -x rate -x energy_per_frame -y psnr -wy profile \
+        -c encoder -m effort \
+        -a "lamb < (rms_sobel*rms_time_diff/.1)**.5 < lamb + 0.1" \
+        -f "'paradoxe-32' in hostname and profile in {'hd', 'uhd4k'}" \
+        -t t_enc_encode
 
-mendevi plot scatter.db -x rate -y vmaf -c effort -wx encoder -wy profile -f "encoder_family=='cpu' and ref_stem=='park_joy'" -t t_enc_encode
+Bitrate Distortion
+^^^^^^^^^^^^^^^^^^
 
+.. code:: shell
+
+    mendevi plot scatter.db \
+        -x rate -y vmaf -wx encoder -wy ref_stem \
+        -c effort -m profile \
+        -f "('av1' in encoder or '264' in encoder) and ref_stem in {'baolei_balloon', 'park_joy'}" \
+        -t t_enc_encode \
+        -s "sharex=.*," 'sharex="all",'
+
+.. image:: /_static/media/scatter_bdr.svg
+    :alt: Bitrate distortion of a few codecs
 
 Decoding energy according to the codec
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -98,19 +115,35 @@ Only one machine is selected to make the data easier to read, but the trend rema
 
 .. code:: shell
 
-    mendevi plot scatter.db -x rate -y energy_per_frame -c decoder -wx profile -t t_dec_decode -a "lamb < (rms_sobel*rms_time_diff/.12)**.5 < lamb + 0.02" -f "'paradoxe-32' in hostname and profile in {'hd', 'uhd4k'}"
+    mendevi plot scatter.db \
+        -x rate -y energy_per_frame -wx profile \
+        -c decoder  -t t_dec_decode \
+        -a "lamb < (rms_sobel*rms_time_diff/.1)**.5 < lamb + 0.03" \
+        -f "'paradoxe-32' in hostname and profile in {'hd', 'uhd4k'}"
 
 .. video:: /_static/media/scatter_decode.webm
     :alt: Average decoding energy according to the codec and profile
     :width: 100%
 
+Video complexity
+^^^^^^^^^^^^^^^^
 
-JoliJoli
-^^^^^^^^
+This figure helps clarify the relationship between spatial and temporal complexity.
 
-Les fusees:
+.. code:: shell
 
-mendevi plot scatter.db -x rms_sobel -y rms_time_diff -c profile
+    mendevi plot scatter.db -x rms_sobel -y rms_time_diff -c profile -m codec
+    mendevi plot scatter.db -x spatial_dct -y temporal_dct -c profile -m codec
+
+.. image:: /_static/media/scatter_rms.svg
+    :alt: Link between spatial and temporal complexity (basic metric)
+
+.. image:: /_static/media/scatter_dct.svg
+    :alt: Link between spatial and temporal complexity (dct metrics)
+
+* The classic ``SITI`` complexities are linked in a nearly linear way. As a result, they provide nearly the same information. In other words, they are redundant.
+
+* The complexities based on ``DCT`` are less closely related. Both of them provide new information.
 
 Reproduce
 ---------
