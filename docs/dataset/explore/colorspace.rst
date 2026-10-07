@@ -5,10 +5,10 @@ Colorspace Dataset
 
 Allows you to see the impact of the color space on compression.
 
-
 .. note::
 
-    Pourquoi ``mendevi plot colorspace.db -x rate -y psnr -c eotf -m '(prim, range)' -wx "ref_stem=='park_joy'" -f "not name.startswith('ref')" -t t_met_metric`` Les petites crois sont au dessus? Pourquoi smtpe2084 consome moins d'energie pour av1?
+    Pourquoi ``mendevi plot colorspace.db -x rate -y psnr -c eotf -m '(prim, range)' -wx "ref_stem=='park_joy'" -f "not name.startswith('ref')" -t t_met_metric``
+    Les petites crois sont au dessus? Pourquoi smtpe2084 consome moins d'energie pour av1?
 
 
 .. list-table:: The parameters of this database
@@ -23,9 +23,9 @@ Allows you to see the impact of the color space on compression.
       - `ctc <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/video/ctc.torrent?inline=false>`_
       - :math:`1`
     * - profile
-      - ``fhd``
-      - `video resolution <https://gitlab.inria.fr/rrichard/mendevi/-/blob/main/mendevi/cst/profiles.py>`_
-      - :math:`1`
+      - ``sd``, ``fhd``
+      - `video resolution and more <https://gitlab.inria.fr/rrichard/mendevi/-/blob/main/mendevi/cst/profiles.py>`_
+      - :math:`2`
     * - primaries
       - ``bt601``, ``bt709``, ``bt2020``
       - :ref:`vid_gamut` (in profile)
@@ -39,35 +39,19 @@ Allows you to see the impact of the color space on compression.
       - :ref:`vid_range` (in profile)
       - :math:`2`
     * - encoder
-      - ``libsvtav1``, ``libx264``
+      - ``libsvtav1``, ``libx264``, ``libx265``, ``vvc``
       - :ref:`enc_encoder`
-      - :math:`2`
+      - :math:`4`
     * - quality
       - :math:`\left\{\frac{k}{17} \mid k \in [1,16] \right\}`
       - :ref:`enc_quality`
       - :math:`16`
     * - effort
-      - ``medium``
+      - ``fast``, ``medium``
       - :ref:`enc_effort`
-      - :math:`1`
-    * - mode
-      - ``crf``
-      - :ref:`enc_mode`
-      - :math:`1`
-    * - thread
-      - :math:`\left\{ 8 \right\}`
-      - :ref:`enc_threads`
-      - :math:`1`
-    * - repeat
-      - :math:`2` times
-      - total repetitions
       - :math:`2`
-    * - ramdisk
-      - ``no``
-      - shm in :ref:`enc_cmd`
-      - :math:`1`
     * - host
-      - ``paradoxe-32``
+      - ``paradoxe-26``
       - :ref:`env_hostname`
       - :math:`1`
     * - metrics
@@ -77,7 +61,7 @@ Allows you to see the impact of the color space on compression.
     * - **total**
       - :math:`\prod`
       - total number of points
-      - :math:`1920`
+      - :math:`x`
 
 Download
 --------
@@ -194,9 +178,11 @@ Reproduce
 
     for prim in bt601 bt709 bt2020; do
         for trans in linear bt1361 gamma22 gamma28 smpte2084; do
+            mendevi prepare park_joy.mkv -p sd --primaries $prim --transfer $trans --range tv
+            mendevi prepare park_joy.mkv -p sd --primaries $prim --transfer $trans --range pc
             mendevi prepare park_joy.mkv -p fhd --primaries $prim --transfer $trans --range tv
             mendevi prepare park_joy.mkv -p fhd --primaries $prim --transfer $trans --range pc
         done
     done
-    mendevi encode -c libx264 -c libsvtav1 reference*
+    mendevi encode -c libsvtav1 -c libx264 -c libx265 -c vvc -e fast -e medium reference*
     mendevi probe --ref reference_park_joy_fhd.mp4 reference* sample*

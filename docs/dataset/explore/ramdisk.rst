@@ -63,7 +63,7 @@ Compare the performance of ffmpeg when videos are read and written to **RAM**, a
     * - **total**
       - :math:`\prod`
       - total number of points
-      - :math:`2560`
+      - :math:`1280`
 
 Download
 --------
@@ -111,8 +111,8 @@ Reproduce
     mendevi prepare park_joy.mkv -p sd
     mendevi prepare park_joy.mkv -p fhd
 
-    mendevi encode -r5 -c libx264 -c libsvtav1 -e fast -e medium -t8 -t16 --ram yes -d ram_yes.db reference*
-    mendevi encode -r5 -c libx264 -c libsvtav1 -e fast -e medium -t8 -t16 --ram no -d ram_no.db reference*
+    mendevi encode --ram yes -r5 -c libx264 -c libsvtav1 -e fast -e medium -d ram_yes.db reference*
+    mendevi encode --ram no -r5 -c libx264 -c libsvtav1 -e fast -e medium -d ram_no.db reference*
     mendevi decode -r5 --family cpu --ram yes -d ram_yes.db sample*
     mendevi decode -r5 --family cpu --ram no -d ram_no.db sample*
     mendevi merge ram_yes.db ram_no.db && mv merge_ram_yes_ram_no.db ramdisk.db

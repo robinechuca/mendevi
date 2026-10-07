@@ -32,44 +32,28 @@ Compare the **CRF**, **CBR** and **QP** modes.
       - ``fast``, ``medium``
       - :ref:`enc_effort`
       - :math:`2`
-    * - mode
-      - ``crf``, ``cbr``, ``qp``
-      - :ref:`enc_mode`
-      - :math:`3`
-    * - thread
-      - :math:`\left\{ 8 \right\}`
-      - :ref:`enc_threads`
-      - :math:`1`
-    * - repeat
-      - :math:`5` times
-      - total repetitions
-      - :math:`5`
-    * - ramdisk
-      - ``yes``
-      - shm in :ref:`enc_cmd`
-      - :math:`1`
     * - host
       - ``paradoxe-26``
       - :ref:`env_hostname`
       - :math:`1`
     * - metrics
-      -
+      - ``psnr``, ``ssim``
       - :ref:`t_met_metric`
       -
     * - **total**
       - :math:`\prod`
       - total number of points
-      - :math:`2560`
+      - :math:`x`
 
 Download
 --------
 
 .. code:: shell
 
-    mendevi download ramdisk.db.xz.torrent
+    mendevi download crf_vs_cbr_vs_qp.db.xz.torrent
 
-* `ramdisk.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/ramdisk.json.xz?inline=false>`_ (481 Ko).
-* `ramdisk.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/ramdisk.db.xz.torrent?inline=false>`_ (320 Mo).
+* `crf_vs_cbr_vs_qp.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/crf_vs_cbr_vs_qp.json.xz?inline=false>`_ (x Ko).
+* `crf_vs_cbr_vs_qp.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/crf_vs_cbr_vs_qp.db.xz.torrent?inline=false>`_ (x Mo).
 
 Reproduce
 ---------
@@ -79,7 +63,7 @@ Reproduce
     mendevi prepare park_joy.mkv -p sd
     mendevi prepare park_joy.mkv -p fhd
 
-    mendevi encode -r5 -m crf -m cbr -m qp -c libx264 -c libsvtav1 -e fast -e medium reference*
-    mendevi decode -r5 sample*
+    mendevi encode -m crf -m cbr -m qp -c libx264 -c libsvtav1 -e fast -e medium reference*
+    mendevi decode sample*
 
     mendevi probe reference* sample*

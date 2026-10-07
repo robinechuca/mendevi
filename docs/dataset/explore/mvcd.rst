@@ -14,7 +14,7 @@ This database attempts to approach the `MVCD <https://github.com/cd-athena/MVCD>
       - Total
     * - video
       - ``inter4k``
-      - `ctc <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/video/inter4k.torrent?inline=false>`_
+      - `torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/video/inter4k.torrent?inline=false>`_
       - :math:`1000`
     * - profile
       - ``4k``

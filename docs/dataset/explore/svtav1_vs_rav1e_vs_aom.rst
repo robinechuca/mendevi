@@ -99,7 +99,7 @@ Result for a single video, including energy:
 Conclusion
 ----------
 
-#. libvstav1 is significantly faster than librav1e! This difference is even more pronounced at higher throughput rates.
+#. libsvtav1 is significantly faster than librav1e! This difference is even more pronounced at higher throughput rates.
 #. librav1e allows for lower bitrate (in constant quality mode).
 #. Although librav1e shows better distortion at high bitrates, **libsvtav1 is better** at equal encoding duration.
 

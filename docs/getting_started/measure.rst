@@ -233,8 +233,10 @@ To see all available options, type
               Finaly comparatives metrics will be between ``o`` and ``x``, and also ``ref`` and ``x``.
           lpips_alex, lpips_vgg, psnr, ssim, vif, vmaf : boolean
               If True, compute the comparative video metric, otherwise, skip it.
+              By default, only psnr and ssim are activated.
           rms_sobel, rms_time_diff, spatial_dct, temporal_dct, uvq : boolean
               If True, compute the absolute uvq metric, otherwise, skip it.
+              By default, only uvq is disable.
 
         Options:
           -d, --database PATH             The database path.

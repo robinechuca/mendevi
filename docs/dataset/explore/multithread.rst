@@ -23,7 +23,7 @@ It allows to perform an "experimental analysis of the impact of multi-threading 
     * - encoder
       - ``libopenh264``, ``librav1e``, ``libsvtav1``, ``libvpx-vp9``, ``libx264``, ``libx265``, ``vvc``
       - :ref:`enc_encoder`
-      - :math:`6`
+      - :math:`7`
     * - quality
       - :math:`\left\{\frac{k}{3} \mid k \in [1,2] \right\}`
       - :ref:`enc_quality`
@@ -63,7 +63,7 @@ It allows to perform an "experimental analysis of the impact of multi-threading 
     * - **total**
       - :math:`\prod`
       - total number of points
-      - :math:`129024`
+      - :math:`150528`
 
 Download
 --------

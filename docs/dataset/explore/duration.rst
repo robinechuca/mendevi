@@ -57,7 +57,7 @@ Allows you to see the impact of video length on compression and energy consumpti
       - :ref:`t_met_metric`
       -
     * - **total**
-      - :math:`\prod`
+      - :math:`\le \prod`
       - total number of points
       - :math:`27054`
 
