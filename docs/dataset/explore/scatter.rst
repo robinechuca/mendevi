@@ -118,7 +118,7 @@ Only one machine is selected to make the data easier to read, but the trend rema
     mendevi plot scatter.db \
         -x rate -y energy_per_frame -wx profile \
         -c decoder  -t t_dec_decode \
-        -a "lamb < (rms_sobel*rms_time_diff/.1)**.5 < lamb + 0.03" \
+        -a "lamb < (rms_sobel*rms_time_diff/.1)**.5 < lamb + 0.05" \
         -f "'paradoxe-32' in hostname and profile in {'hd', 'uhd4k'}"
 
 .. video:: /_static/media/scatter_decode.webm

@@ -1137,7 +1137,7 @@ enc_mode
 
 This is the flow control mode, which can take 3 values:
 
-#. ``crf``: Constant quality, targets a specific output ssim. Previously named ``vbr`` in <= 1.3.6.
+#. ``crf``: Constant quality, targets a specific output ssim. Previously named ``vbr`` in version <= 1.3.6.
 #. ``cbr``: Constant bitrate, targets a specific output rate based on this heuristic: :py:func:`mendevi.encode.quality_to_rate`.
 #. ``qp``: Constant quantization level. This is the fastest option because the encoder does not use a loop. This setting does not ensure either consistent quality or a constant bitrate.
 

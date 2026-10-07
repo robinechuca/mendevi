@@ -7,7 +7,7 @@ Compare the performance of ffmpeg when videos are read and written to **RAM**, a
 
 .. note::
 
-  TODO: plot the histogram of the differences
+    TODO: plot the histogram of the differences
 
 .. list-table:: The parameters of this database
     :header-rows: 1
