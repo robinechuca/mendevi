@@ -173,8 +173,11 @@ Visualize transfer functions
 .. image:: /_static/media/transfer.svg
     :alt: The luminosity EOTF transfer functions
 
-Get color histogram
-^^^^^^^^^^^^^^^^^^^
+Color histogram of the source video
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This code allows you to view the total number of colours present in the source video.
+More specifically, it displays the contribution of the red, blue and green components in the non-linear color space matching the `uhd4k profile <https://gitlab.inria.fr/rrichard/mendevi/-/blob/main/mendevi/cst/profiles.py>`_.
 
 .. dropdown:: Display Python code
 
@@ -184,13 +187,14 @@ Get color histogram
         import cutcutcodec
         import matplotlib.pyplot as plt
         import torch
-        from mendevi.cst.plot import COLORS, FIGSIZE
+        from mendevi.cst.plot import FIGSIZE
 
         # get histogram
-        bins = 1000
+        bins = 256
         hist = [torch.zeros(bins) for _ in range(3)]
         with cutcutcodec.read("park_joy.mkv") as container:
-            stream = container.out_select("video")[0].apply_video_colorspace("r'g'b'_bt709")
+            stream = container.out_select("video")[0]
+            stream = stream.apply_video_colorspace(cututcodec.Colorspace("r'g'b'", "bt2020", "smpte2084"))
             for frame in cutcutcodec.core.io.scheduler.video_frames_async(
                 stream,
                 cutcutcodec.core.analysis.stream.optimal_rate_video(stream),
@@ -203,8 +207,11 @@ Get color histogram
         fig = plt.figure(layout="constrained", figsize=FIGSIZE)
         axe = fig.subplots()
         axe.grid()
-
-        axe.bar()
+        axe.bar(torch.linspace(0, 1-1/bins, bins), hist[0], width=1/bins, align="edge", color="red")
+        axe.bar(torch.linspace(0, 1-1/bins, bins), hist[1], width=1/bins, align="edge", color="blue")
+        axe.bar(torch.linspace(0, 1-1/bins, bins), hist[2], width=1/bins, align="edge", color="green")
+        plt.savefig("histogram.svg", format="svg")
+        plt.show()
 
 
 Reproduce
