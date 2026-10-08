@@ -28,7 +28,6 @@ Allows you to see the impact of the color space on compression and energy.
       - ``psnr``, ``ssim``
       - :ref:`t_met_metric`
       -
-      - :math:`2`
     * - primaries
       - ``bt601``, ``bt709``, ``bt2020``
       - :ref:`vid_gamut` (in profile)
@@ -36,6 +35,7 @@ Allows you to see the impact of the color space on compression and energy.
     * - profile
       - ``sd``, ``fhd``
       - `video resolution and more <https://gitlab.inria.fr/rrichard/mendevi/-/blob/main/mendevi/cst/profiles.py>`_
+      - :math:`2`
     * - quality
       - :math:`\left\{\frac{k}{17} \mid k \in [1,16] \right\}`
       - :ref:`enc_quality`

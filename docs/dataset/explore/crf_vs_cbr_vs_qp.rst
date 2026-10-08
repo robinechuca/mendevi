@@ -51,7 +51,7 @@ Compare the **CRF**, **CBR** and **QP** modes.
     * - **total**
       - :math:`\prod`
       - total number of points
-      - :math:`384`
+      - :math:`768`
 
 Download
 --------
