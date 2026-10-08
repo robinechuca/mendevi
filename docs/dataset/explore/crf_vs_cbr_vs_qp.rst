@@ -12,25 +12,13 @@ Compare the **CRF**, **CBR** and **QP** modes.
       - Value
       - Description (link)
       - Total
-    * - video
-      - ``park_joy``
-      - `ctc <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/video/ctc.torrent?inline=false>`_
-      - :math:`1`
-    * - profile
-      - ``sd``, ``fhd``
-      - `video resolution and more <https://gitlab.inria.fr/rrichard/mendevi/-/blob/main/mendevi/cst/profiles.py>`_
+    * - effort
+      - ``fast``, ``medium``
+      - :ref:`enc_effort`
       - :math:`2`
     * - encoder
       - ``libsvtav1``, ``libx264``
       - :ref:`enc_encoder`
-      - :math:`2`
-    * - quality
-      - :math:`\left\{\frac{k}{17} \mid k \in [1,16] \right\}`
-      - :ref:`enc_quality`
-      - :math:`16`
-    * - effort
-      - ``fast``, ``medium``
-      - :ref:`enc_effort`
       - :math:`2`
     * - host
       - ``paradoxe-26``
@@ -40,10 +28,30 @@ Compare the **CRF**, **CBR** and **QP** modes.
       - ``psnr``, ``ssim``
       - :ref:`t_met_metric`
       -
+    * - mode
+      - ``crf``, ``cbr``, ``qp``
+      - :ref:`enc_mode`
+      - :math:`3`
+    * - profile
+      - ``sd``, ``fhd``
+      - `video resolution and more <https://gitlab.inria.fr/rrichard/mendevi/-/blob/main/mendevi/cst/profiles.py>`_
+      - :math:`2`
+    * - quality
+      - :math:`\left\{\frac{k}{17} \mid k \in [1,16] \right\}`
+      - :ref:`enc_quality`
+      - :math:`16`
+    * - repeat
+      - :math:`2` times
+      - total repetitions
+      - :math:`2`
+    * - video
+      - ``park_joy``
+      - `ctc <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/video/ctc.torrent?inline=false>`_
+      - :math:`1`
     * - **total**
       - :math:`\prod`
       - total number of points
-      - :math:`x`
+      - :math:`384`
 
 Download
 --------
@@ -54,6 +62,19 @@ Download
 
 * `crf_vs_cbr_vs_qp.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/crf_vs_cbr_vs_qp.json.xz?inline=false>`_ (x Ko).
 * `crf_vs_cbr_vs_qp.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/crf_vs_cbr_vs_qp.db.xz.torrent?inline=false>`_ (x Mo).
+
+Plots
+-----
+
+Effect of mode on energy
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code:: shell
+
+    mendevi plot crf_vs_cbr_vs_qp.db -x bitrate -y energy -c mode -m encoder
+
+.. image:: /_static/media/crf_vs_cbr_vs_qp_energy.svg
+    :alt: Effect of mode on energy
 
 Reproduce
 ---------

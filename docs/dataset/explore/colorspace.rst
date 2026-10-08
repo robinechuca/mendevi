@@ -12,38 +12,14 @@ Allows you to see the impact of the color space on compression and energy.
       - Value
       - Description (link)
       - Total
-    * - video
-      - ``park_joy``
-      - `ctc <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/video/ctc.torrent?inline=false>`_
-      - :math:`1`
-    * - profile
-      - ``sd``, ``fhd``
-      - `video resolution and more <https://gitlab.inria.fr/rrichard/mendevi/-/blob/main/mendevi/cst/profiles.py>`_
-      - :math:`2`
-    * - primaries
-      - ``bt601``, ``bt709``, ``bt2020``
-      - :ref:`vid_gamut` (in profile)
-      - :math:`3`
-    * - transfer
-      - ``linear``, ``bt470m``, ``gamma22``, ``gamma28``, ``smpte2084``
-      - :ref:`vid_eotf` (in profile)
-      - :math:`5`
-    * - range
-      - ``tv``, ``pc``
-      - :ref:`vid_range` (in profile)
+    * - effort
+      - ``fast``, ``medium``
+      - :ref:`enc_effort`
       - :math:`2`
     * - encoder
       - ``libsvtav1``, ``libx264``, ``libx265``, ``libvvenc``
       - :ref:`enc_encoder`
       - :math:`4`
-    * - quality
-      - :math:`\left\{\frac{k}{17} \mid k \in [1,16] \right\}`
-      - :ref:`enc_quality`
-      - :math:`16`
-    * - effort
-      - ``fast``, ``medium``
-      - :ref:`enc_effort`
-      - :math:`2`
     * - host
       - ``paradoxe-30``
       - :ref:`env_hostname`
@@ -52,6 +28,34 @@ Allows you to see the impact of the color space on compression and energy.
       - ``psnr``, ``ssim``
       - :ref:`t_met_metric`
       -
+      - :math:`2`
+    * - primaries
+      - ``bt601``, ``bt709``, ``bt2020``
+      - :ref:`vid_gamut` (in profile)
+      - :math:`3`
+    * - profile
+      - ``sd``, ``fhd``
+      - `video resolution and more <https://gitlab.inria.fr/rrichard/mendevi/-/blob/main/mendevi/cst/profiles.py>`_
+    * - quality
+      - :math:`\left\{\frac{k}{17} \mid k \in [1,16] \right\}`
+      - :ref:`enc_quality`
+      - :math:`16`
+    * - range
+      - ``tv``, ``pc``
+      - :ref:`vid_range` (in profile)
+      - :math:`2`
+    * - repeat
+      - :math:`2` times
+      - total repetitions
+      - :math:`2`
+    * - transfer
+      - ``linear``, ``bt470m``, ``gamma22``, ``gamma28``, ``smpte2084``
+      - :ref:`vid_eotf` (in profile)
+      - :math:`5`
+    * - video
+      - ``park_joy``
+      - `ctc <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/video/ctc.torrent?inline=false>`_
+      - :math:`1`
     * - **total**
       - :math:`\prod`
       - total number of points
@@ -201,9 +205,16 @@ More specifically, it displays the contribution of the red, blue and green compo
         fig = plt.figure(layout="constrained", figsize=FIGSIZE)
         axe = fig.subplots()
         axe.grid()
-        axe.bar(torch.linspace(0, 1-1/bins, bins), hist[0], width=1/bins, align="edge", color="red")
-        axe.bar(torch.linspace(0, 1-1/bins, bins), hist[1], width=1/bins, align="edge", color="blue")
-        axe.bar(torch.linspace(0, 1-1/bins, bins), hist[2], width=1/bins, align="edge", color="green")
+        fig.supylabel("number of pixels of this color")
+        fig.supxlabel("component value")
+        anchors = torch.linspace(0, 1-1/bins, bins)
+        axe.bar(anchors, hist[0], width=1/bins, align="edge", color="#ff0000")
+        axe.bar(anchors, hist[1], width=1/bins, align="edge", color="#00ff00")
+        axe.bar(anchors, hist[2], width=1/bins, align="edge", color="#0000ff")
+        axe.bar(anchors, torch.minimum(hist[0], hist[1]), width=1/bins, align="edge", color="#ffff00")
+        axe.bar(anchors, torch.minimum(hist[0], hist[2]), width=1/bins, align="edge", color="#ff00ff")
+        axe.bar(anchors, torch.minimum(hist[1], hist[2]), width=1/bins, align="edge", color="#00ffff")
+        axe.bar(anchors, torch.minimum(torch.minimum(hist[0], hist[1]), hist[2]), width=1/bins, align="edge", color="#ffffff")
         plt.savefig("rgb_histogram.svg", format="svg")
         plt.show()
 
