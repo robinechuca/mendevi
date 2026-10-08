@@ -25,7 +25,7 @@ This database attempts to approach the `MVCD <https://github.com/cd-athena/MVCD>
       - On fly
       - :math:`4`
     * - encoder
-      - ``vvc``, ``libsvtav1``, ``libx264``, ``libx265``
+      - ``libvenc``, ``libsvtav1``, ``libx264``, ``libx265``
       - :ref:`enc_encoder`
       - :math:`4`
     * - quality
@@ -73,7 +73,7 @@ In the original MVCD experiment, the following parameters were used and differ f
       - QP
       - Effort
       - Frames
-    * - ``vvc``
+    * - ``libvvenc``
       - 22, 27, 32, 37
       - ``faster``
       - 64, 32
@@ -177,7 +177,7 @@ If you want to replicate more closely to the original MVCD database, you can cre
 
         # crf to qp, effort to preset
         match kwargs["encoder"]:
-            case "vvc":
+            case "libvvenc":
                 qp_mvcd = closer({1.0/5: 22, 2.0/5: 27, 3.0/5: 32, 4.0/5: 37}, kwargs["quality"])
                 cmd = re.sub(r"-qp \d+", f"-qp {qp_mvcd}", str(cmd))
                 cmd = re.sub(r"-preset \w+", "-preset faster", cmd)
@@ -204,7 +204,7 @@ Then in a terminal, (omit --callback to replicate the mendevi dataset), run:
         -r5 -n4 -e fast \
         --resolution 2160x3840 --resolution 1080x1920 --resolution 720x1280 --resolution 540x960 \
         --fps 60 --fps 30 \
-        -c vvc -c libsvtav1 -c libx264 -c libx265 \
+        -c libvvenc -c libsvtav1 -c libx264 -c libx265 \
         --callback callback.py \
         -d mvcd.db {1..1000}.mp4
     mendevi decode -r5 --resolution 2160x3840 --filter fps=60 -d mvcd.db '*.mp4'  # upscale=ups

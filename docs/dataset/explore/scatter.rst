@@ -22,7 +22,7 @@ The dataset contains 35777 encoding measurements and 112499 decoding measurement
       - `video resolution and more <https://gitlab.inria.fr/rrichard/mendevi/-/blob/main/mendevi/cst/profiles.py>`_
       - :math:`4`
     * - encoder
-      - ``libx264``, ``h264_vaapi``, ``h264_nvenc``, ``libx265``, ``hevc_nvenc``, ``vvc``, ``libaom-av1``, ``libsvtav1``, ``libvpx-vp9``, ``av1_nvenc``
+      - ``libx264``, ``h264_vaapi``, ``h264_nvenc``, ``libx265``, ``hevc_nvenc``, ``libvvenc``, ``libaom-av1``, ``libsvtav1``, ``libvpx-vp9``, ``av1_nvenc``
       - :ref:`enc_encoder`
       - :math:`10`
     * - quality
@@ -158,7 +158,7 @@ Reproduce
     mendevi encode -r1 \
       -n 24 \
       -e fast -e medium -e slow \
-      -c av1_nvenc -c h264_nvenc -c hevc_nvenc -c libaom-av1 -c libsvtav1 -c libvpx-vp9 -c libx264 -c libx265 -c vvc \
+      -c av1_nvenc -c h264_nvenc -c hevc_nvenc -c libaom-av1 -c libsvtav1 -c libvpx-vp9 -c libx264 -c libx265 -c libvvenc \
       reference*
     mendevi decode -r2 reference*
     mendevi decode -r1 *.mp4

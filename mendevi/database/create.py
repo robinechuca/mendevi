@@ -108,6 +108,8 @@ def create_database(filename: str | bytes | pathlib.Path) -> None:
             env_librav1e_version MEDIUMTEXT,
             env_libsvtav1_version MEDIUMTEXT,
             env_libvpx_vp9_version MEDIUMTEXT,
+            env_libvvdec_version MEDIUMTEXT,
+            env_libvvenc_version MEDIUMTEXT,
             env_libx265_version MEDIUMTEXT,
             env_logical_cores INTEGER NOT NULL CHECK(env_logical_cores > 0),
             env_lshw LONGTEXT,
@@ -120,7 +122,6 @@ def create_database(filename: str | bytes | pathlib.Path) -> None:
             env_ram INTEGER NOT NULL CHECK(env_ram > 0),
             env_swap INTEGER,
             env_system_version MEDIUMTEXT,
-            env_vvc_version MEDIUMTEXT,
 
             /* IDLE MEASURES */
             env_idle_act_id INTEGER REFERENCES t_act_activity(act_id),  -- link to activity table

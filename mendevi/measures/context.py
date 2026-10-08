@@ -13,6 +13,8 @@ import subprocess
 
 import psutil
 
+from mendevi.decode import create_video_sample
+
 
 def get_avmenc_version() -> str:
     """Return the version of the avmenc (av2 encoder).
@@ -238,13 +240,43 @@ def get_librav1e_version() -> str:
         return ""
 
 
-def get_vvc_version() -> str:
+def get_libvvdec_version() -> str:
+    """Return the version of the vvc decoder.
+
+    Examples
+    --------
+    >>> from mendevi.measures.context import get_libvvdec_version
+    >>> print(get_libvvdec_version())  # doctest: +ELLIPSIS
+    3.3...
+    >>>
+
+    """
+    try:
+        sample = create_video_sample("vvc", "yuv420p")
+    except RuntimeError:
+        return ""
+    out = subprocess.run(
+        [
+            "ffmpeg", "-loglevel", "debug",
+            "-c:v", "libvvdec",
+            "-i", str(sample),
+            "-f", "null", "-",
+        ],
+        check=False, capture_output=True,
+    ).stderr.decode()  # search line like "# Version info: vvdec 3.3.0-dev ( threads 1)"
+    if (match := re.search(r"vvdec\s+(?P<version>\d+\.\S+)", out)) is None:
+        logging.getLogger(__name__).warning("failed to find the libvvdec version")
+        return ""
+    return match["version"]
+
+
+def get_libvvenc_version() -> str:
     """Return the version of the vvc encoder.
 
     Examples
     --------
-    >>> from mendevi.measures.context import get_vvc_version
-    >>> print(get_vvc_version())  # doctest: +ELLIPSIS
+    >>> from mendevi.measures.context import get_libvvenc_version
+    >>> print(get_libvvenc_version())  # doctest: +ELLIPSIS
     1.15...
     >>>
 
@@ -252,13 +284,13 @@ def get_vvc_version() -> str:
     out = subprocess.run(
         [
             "ffmpeg", "-f", "lavfi", "-i", "nullsrc", "-frames:v", "1",
-            "-c:v", "vvc",
+            "-c:v", "libvvenc",
             "-f", "null", "-",
         ],
         check=False, capture_output=True,
     ).stderr.decode()
     if (match := re.search(r"libvvenc version: (?P<version>\S+)", out)) is None:
-        logging.getLogger(__name__).warning("failed to find the vvc version")
+        logging.getLogger(__name__).warning("failed to find the libvvenc version")
         return ""
     return match["version"]
 
@@ -362,10 +394,11 @@ def full_context() -> dict:
         "librav1e_version": get_librav1e_version(),
         "libsvtav1_version": get_libsvtav1_version(),
         "libvpx_vp9_version": get_libvpx_vp9_version(),
+        "libvvdec_version": get_libvvdec_version(),
+        "libvvenc_version": get_libvvenc_version(),
         "libx265_version": get_libx265_version(),
         "lshw": get_lshw(),
         "lspci": get_lspci(),
         "pip_freeze": get_pip_freeze(),
-        "vvc_version": get_vvc_version(),
         **get_platform(),
     }

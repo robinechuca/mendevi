@@ -23,10 +23,10 @@ from mendevi.encoder import (
     _encode_librav1e,
     _encode_libsvtav1,
     _encode_libvpx_vp9,
+    _encode_libvvenc,
     _encode_libx264,
     _encode_libx265,
     _encode_vp9_vaapi,
-    _encode_vvc,
 )
 
 RESOLUTION = [256, 256]
@@ -135,6 +135,12 @@ def test_encode_libvpx_vp9() -> None:
 
 
 @pytest.mark.slow
+def test_encode_libvvenc() -> None:
+    """Perform the ffmpeg encoding test on libvvenc."""
+    encode("libvvenc", _encode_libvvenc)
+
+
+@pytest.mark.slow
 def test_encode_libx264() -> None:
     """Perform the ffmpeg encoding test on libx264."""
     encode("libx264", _encode_libx264)
@@ -151,9 +157,3 @@ def test_encode_libx265() -> None:
 def test_encode_vp9_vaapi() -> None:
     """Perform the ffmpeg encoding test on vp9_vaapi."""
     encode("vp9_vaapi", _encode_vp9_vaapi)
-
-
-@pytest.mark.slow
-def test_encode_vvc() -> None:
-    """Perform the ffmpeg encoding test on vvc."""
-    encode("vvc", _encode_vvc)

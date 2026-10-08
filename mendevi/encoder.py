@@ -415,6 +415,30 @@ def _encode_libvpx_vp9(**kwargs: dict) -> list[str]:
 
 
 @decorator_pix_fmt
+def _encode_libvvenc(**kwargs: dict) -> list[str]:
+    """Return the ffmpeg arguments."""
+    # https://github.com/fraunhoferhhi/vvenc/wiki/FFmpeg-Integration
+    match kwargs["mode"]:
+        case "crf" | "qp":
+            quality = ["-qp", str(round(kwargs["quality"]*63.0))]
+        case "cbr":
+            rate = quality_to_rate(kwargs)
+            quality = ["-b:v", f"{rate}k", "-maxrate", f"{round(1.5*rate)+1}k"]
+        case _:
+            msg = f"only the mode 'crf', 'cbr' and 'qp' allow, not {kwargs['mode']}"
+            raise ValueError(msg)
+    bit = int(re.search(r"(?P<bit>\d+)le", kwargs["pix_fmt"] + "8le")["bit"])
+    return [
+        "libvvenc",
+        *quality,
+        "-preset", kwargs["effort"],
+        "-qpa", "1",
+        "-vvenc-params", f"internalbitdepth={bit}",
+        "-threads", str(kwargs["threads"]),
+    ]
+
+
+@decorator_pix_fmt
 def _encode_libx264(**kwargs: dict) -> list[str]:
     """Return the ffmpeg arguments."""
     match kwargs["mode"]:
@@ -495,27 +519,3 @@ def _encode_libx265(**kwargs: dict) -> list[str]:
 def _encode_vp9_vaapi(**kwargs: dict) -> list[str]:
     """Return the ffmpeg arguments."""
     return _encode_vaapi("vp9", **kwargs)
-
-
-@decorator_pix_fmt
-def _encode_vvc(**kwargs: dict) -> list[str]:
-    """Return the ffmpeg arguments."""
-    # https://github.com/fraunhoferhhi/vvenc/wiki/FFmpeg-Integration
-    match kwargs["mode"]:
-        case "crf" | "qp":
-            quality = ["-qp", str(round(kwargs["quality"]*63.0))]
-        case "cbr":
-            rate = quality_to_rate(kwargs)
-            quality = ["-b:v", f"{rate}k", "-maxrate", f"{round(1.5*rate)+1}k"]
-        case _:
-            msg = f"only the mode 'crf', 'cbr' and 'qp' allow, not {kwargs['mode']}"
-            raise ValueError(msg)
-    bit = int(re.search(r"(?P<bit>\d+)le", kwargs["pix_fmt"] + "8le")["bit"])
-    return [
-        "vvc",
-        *quality,
-        "-preset", kwargs["effort"],
-        "-qpa", "1",
-        "-vvenc-params", f"internalbitdepth={bit}",
-        "-threads", str(kwargs["threads"]),
-    ]

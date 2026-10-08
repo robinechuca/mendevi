@@ -385,6 +385,8 @@ def extract_encoder(raw: dict[str]) -> str:
     """
     if (encoder := raw["enc_encoder"]) is None:
         return None
+    if encoder == "vvc":  # retrocompatibility with version <= 1.3.7
+        encoder = "libvvenc"
     assert isinstance(encoder, str), encoder.__class__.__name__
     return str(encoder)
 

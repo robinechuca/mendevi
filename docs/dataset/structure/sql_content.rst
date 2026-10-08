@@ -594,7 +594,7 @@ Table t_env_environment
 +-------------------------------+--------------+-------------------------------+
 | :ref:`env_system_version`     | *MEDIUMTEXT* | the OS version                |
 +-------------------------------+--------------+-------------------------------+
-| :ref:`env_vvc_version`        | *MEDIUMTEXT* | the version of vvenc          |
+| :ref:`env_libvvenc_version`   | *MEDIUMTEXT* | the version of libvvenc       |
 +-------------------------------+--------------+-------------------------------+
 | :ref:`env_idle_act_id`        | *INTEGER*    | IDLE as :ref:`t_act_activity` |
 +-------------------------------+--------------+-------------------------------+
@@ -869,12 +869,12 @@ The name and the version of linux, given by ``platform.version()``,from the func
 
     #29-Ubuntu SMP PREEMPT_DYNAMIC Fri Jun 13 20:29:41 UTC 2025
 
-.. _env_vvc_version:
+.. _env_libvvenc_version:
 
-env_vvc_version
-^^^^^^^^^^^^^^^
+env_libvvenc_version
+^^^^^^^^^^^^^^^^^^^^
 
-The version of the vvenc encoder. It comes from the function :py:func:`mendevi.measures.context.get_vvc_version`.
+The version of the vvenc encoder. It comes from the function :py:func:`mendevi.measures.context.get_libvvenc_version`.
 
 .. code:: text
 
@@ -1107,7 +1107,7 @@ Possible values are ``fast``, ``medium`` and ``slow``.
 enc_encoder
 ^^^^^^^^^^^
 
-The ffmpeg encoder name. Possible values are ``libx264``, ``libx265``, ``libvpx-vp9``, ``libsvtav1`` and ``vvc``.
+The ffmpeg encoder name. Possible values are ``libx264``, ``libx265``, ``libvpx-vp9``, ``libsvtav1`` and ``libvvenc``.
 
 .. _enc_filter:
 

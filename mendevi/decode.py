@@ -50,6 +50,7 @@ DECODERS_CAT = {  # sorted by order of priority
     "vvc": [
         ("cuvid", "vvc_cuvid"),
         ("vaapi", "vaapi"),
+        ("cpu", "libvvdec"),
         ("cpu", "vvc"),
     ],
 }
@@ -255,7 +256,33 @@ def get_decode_cmd(
 
 @functools.cache
 def create_video_sample(codec: str, pix_fmt: str) -> pathlib.Path:
-    """Generate a small sample with the given codec and pixel format."""
+    """Generate a small sample with the given codec and pixel format.
+
+    Examples
+    --------
+    >>> from mendevi.decode import create_video_sample
+    >>> create_video_sample("av1", "yuv420p")
+    PosixPath('/dev/shm/av1_yuv420p.mp4')
+    >>> create_video_sample("h264", "yuv420p")
+    PosixPath('/dev/shm/h264_yuv420p.mp4')
+    >>> create_video_sample("hevc", "yuv420p")
+    PosixPath('/dev/shm/hevc_yuv420p.mp4')
+    >>> create_video_sample("vp9", "yuv420p")
+    PosixPath('/dev/shm/vp9_yuv420p.mp4')
+    >>> create_video_sample("vvc", "yuv420p")
+    PosixPath('/dev/shm/vvc_yuv420p.mp4')
+    >>> create_video_sample("av1", "yuv420p10le")
+    PosixPath('/dev/shm/av1_yuv420p10le.mp4')
+    >>> create_video_sample("h264", "yuv420p10le")
+    PosixPath('/dev/shm/h264_yuv420p10le.mp4')
+    >>> create_video_sample("hevc", "yuv420p10le")
+    PosixPath('/dev/shm/hevc_yuv420p10le.mp4')
+    >>> create_video_sample("vp9", "yuv420p10le")
+    PosixPath('/dev/shm/vp9_yuv420p10le.mp4')
+    >>> create_video_sample("vvc", "yuv420p10le")
+    PosixPath('/dev/shm/vvc_yuv420p10le.mp4')
+
+    """
     sample = pathlib.Path("/dev/shm") / f"{codec}_{pix_fmt}.mp4"
     if sample.exists():
         return sample
@@ -287,7 +314,7 @@ def create_video_sample(codec: str, pix_fmt: str) -> pathlib.Path:
             "h264": "libx264",
             "hevc": "libx265",
             "vp9": "libvpx-vp9",
-            "vvc": "vvc",
+            "vvc": "libvvenc",
         }.get(codec)
     ) is None:
         msg = f"create a sample with the codec {codec} is not yet supported"

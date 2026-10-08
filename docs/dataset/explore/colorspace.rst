@@ -3,13 +3,7 @@
 Colorspace Dataset
 ==================
 
-Allows you to see the impact of the color space on compression.
-
-.. note::
-
-    Pourquoi ``mendevi plot colorspace.db -x rate -y psnr -c eotf -m '(prim, range)' -wx "ref_stem=='park_joy'" -f "not name.startswith('ref')" -t t_met_metric``
-    Les petites crois sont au dessus? Pourquoi smtpe2084 consome moins d'energie pour av1?
-
+Allows you to see the impact of the color space on compression and energy.
 
 .. list-table:: The parameters of this database
     :header-rows: 1
@@ -39,7 +33,7 @@ Allows you to see the impact of the color space on compression.
       - :ref:`vid_range` (in profile)
       - :math:`2`
     * - encoder
-      - ``libsvtav1``, ``libx264``, ``libx265``, ``vvc``
+      - ``libsvtav1``, ``libx264``, ``libx265``, ``libvvenc``
       - :ref:`enc_encoder`
       - :math:`4`
     * - quality
@@ -177,7 +171,7 @@ Color histogram of the source video
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This code allows you to view the total number of colours present in the source video.
-More specifically, it displays the contribution of the red, blue and green components in the non-linear color space matching the `uhd4k profile <https://gitlab.inria.fr/rrichard/mendevi/-/blob/main/mendevi/cst/profiles.py>`_.
+More specifically, it displays the contribution of the red, blue and green components in the non-linear color space matching the `fhd profile <https://gitlab.inria.fr/rrichard/mendevi/-/blob/main/mendevi/cst/profiles.py>`_ (standard rgb).
 
 .. dropdown:: Display Python code
 
@@ -194,7 +188,7 @@ More specifically, it displays the contribution of the red, blue and green compo
         hist = [torch.zeros(bins) for _ in range(3)]
         with cutcutcodec.read("park_joy.mkv") as container:
             stream = container.out_select("video")[0]
-            stream = stream.apply_video_colorspace(cututcodec.Colorspace("r'g'b'", "bt2020", "smpte2084"))
+            stream = stream.apply_video_colorspace(cutcutcodec.Colorspace("r'g'b'", "srgb", "srgb"))
             for frame in cutcutcodec.core.io.scheduler.video_frames_async(
                 stream,
                 cutcutcodec.core.analysis.stream.optimal_rate_video(stream),
@@ -210,9 +204,11 @@ More specifically, it displays the contribution of the red, blue and green compo
         axe.bar(torch.linspace(0, 1-1/bins, bins), hist[0], width=1/bins, align="edge", color="red")
         axe.bar(torch.linspace(0, 1-1/bins, bins), hist[1], width=1/bins, align="edge", color="blue")
         axe.bar(torch.linspace(0, 1-1/bins, bins), hist[2], width=1/bins, align="edge", color="green")
-        plt.savefig("histogram.svg", format="svg")
+        plt.savefig("rgb_histogram.svg", format="svg")
         plt.show()
 
+.. image:: /_static/media/rgb_histogram.svg
+    :alt: The rgb histogram of ``park_joy.mkv``
 
 Reproduce
 ---------
@@ -227,5 +223,5 @@ Reproduce
             mendevi prepare $video -p fhd --primaries $prim --transfer $trans --range pc
         done
     done
-    mendevi encode -c libsvtav1 -c libx264 -c libx265 -c vvc -e fast -e medium reference*
+    mendevi encode -c libsvtav1 -c libx264 -c libx265 -c libvvenc -e fast -e medium reference*
     mendevi probe --ref reference_park_joy_fhd.mp4 reference* sample*

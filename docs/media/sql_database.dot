@@ -76,6 +76,7 @@ graph database {
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">env_librav1e_version</TD><TD ALIGN="LEFT">MEDIUMTEXT</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">env_libsvtav1_version</TD><TD ALIGN="LEFT">MEDIUMTEXT</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">env_libvpx_vp9_version</TD><TD ALIGN="LEFT">MEDIUMTEXT</TD></TR>
+        <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">env_libvvenc_version</TD><TD ALIGN="LEFT">MEDIUMTEXT</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">env_libx265_version</TD><TD ALIGN="LEFT">MEDIUMTEXT</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">env_logical_cores</TD><TD ALIGN="LEFT">INTEGER</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">env_lshw</TD><TD ALIGN="LEFT">JSON</TD></TR>
@@ -88,7 +89,6 @@ graph database {
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">env_ram</TD><TD ALIGN="LEFT">INTEGER</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">env_swap</TD><TD ALIGN="LEFT">INTEGER</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">env_system_version</TD><TD ALIGN="LEFT">MEDIUMTEXT</TD></TR>
-        <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">env_vvc_version</TD><TD ALIGN="LEFT">MEDIUMTEXT</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">env_idle_act_id</TD><TD ALIGN="LEFT">INTEGER</TD></TR>
       </TABLE>
     >

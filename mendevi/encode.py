@@ -35,10 +35,10 @@ from mendevi.encoder import (
     _encode_librav1e,
     _encode_libsvtav1,
     _encode_libvpx_vp9,
+    _encode_libvvenc,
     _encode_libx264,
     _encode_libx265,
     _encode_vp9_vaapi,
-    _encode_vvc,
 )
 from mendevi.utils import best_profile, compute_video_hash, cp_shm, hash_to_signature
 
@@ -54,10 +54,10 @@ ENCODERS_CMD = {
     "librav1e": _encode_librav1e,
     "libsvtav1": _encode_libsvtav1,
     "libvpx-vp9": _encode_libvpx_vp9,
+    "libvvenc": _encode_libvvenc,
     "libx264": _encode_libx264,
     "libx265": _encode_libx265,
     "vp9_vaapi": _encode_vp9_vaapi,
-    "vvc": _encode_vvc,
 }
 
 
