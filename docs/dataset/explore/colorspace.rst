@@ -31,7 +31,7 @@ Allows you to see the impact of the color space on compression.
       - :ref:`vid_gamut` (in profile)
       - :math:`3`
     * - transfer
-      - ``linear``, ``bt1361``, ``gamma22``, ``gamma28``, ``smpte2084``
+      - ``linear``, ``bt470m``, ``gamma22``, ``gamma28``, ``smpte2084``
       - :ref:`vid_eotf` (in profile)
       - :math:`5`
     * - range
@@ -51,7 +51,7 @@ Allows you to see the impact of the color space on compression.
       - :ref:`enc_effort`
       - :math:`2`
     * - host
-      - ``paradoxe-26``
+      - ``paradoxe-30``
       - :ref:`env_hostname`
       - :math:`1`
     * - metrics
@@ -61,7 +61,7 @@ Allows you to see the impact of the color space on compression.
     * - **total**
       - :math:`\prod`
       - total number of points
-      - :math:`x`
+      - :math:`15360`
 
 Download
 --------
@@ -139,37 +139,73 @@ The reference videos ``park_joy_*`` are transformed back using the inverse color
 Visualize transfer functions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. code:: python
+.. dropdown:: Display Python code
 
-    import cutcutcodec
-    import matplotlib.pyplot as plt
-    import torch
-    from mendevi.cst.plot import COLORS, FIGSIZE
+    .. code:: python
 
-    # get curves
-    l2v_names: dict = {}
-    for name, (l2v, _) in cutcutcodec.core.colorspace.cst.TRC.items():
-        l2v_names[l2v] = l2v_names.get(l2v, [])
-        l2v_names[l2v].append(name)
+        import cutcutcodec
+        import matplotlib.pyplot as plt
+        import torch
+        from mendevi.cst.plot import COLORS, FIGSIZE
 
-    # matplotlib plot chart
-    fig = plt.figure(layout="constrained", figsize=FIGSIZE)
-    axe = fig.subplots()
-    axe.grid()
-    fig.supylabel("v")
-    fig.supxlabel("l")
+        # get curves
+        l2v_names: dict = {}
+        for name, (l2v, _) in cutcutcodec.core.colorspace.cst.TRC.items():
+            l2v_names[l2v] = l2v_names.get(l2v, [])
+            l2v_names[l2v].append(name)
 
-    # plot data
-    l = torch.linspace(0, 1, 1000)
-    for i, (l2v, names) in enumerate(l2v_names.items()):
-        axe.plot(l, cutcutcodec.Lambdify(l2v)(l), label=min(names), color=COLORS[i])
+        # matplotlib plot chart
+        fig = plt.figure(layout="constrained", figsize=FIGSIZE)
+        axe = fig.subplots()
+        axe.grid()
+        fig.supylabel("v")
+        fig.supxlabel("l")
 
-    axe.legend()
-    plt.savefig("transfer.svg", format="svg")
-    plt.show()
+        # plot data
+        l = torch.linspace(0, 1, 1000)
+        for i, (l2v, names) in enumerate(l2v_names.items()):
+            axe.plot(l, cutcutcodec.Lambdify(l2v)(l), label=min(names), color=COLORS[i])
+
+        axe.legend()
+        plt.savefig("transfer.svg", format="svg")
+        plt.show()
 
 .. image:: /_static/media/transfer.svg
     :alt: The luminosity EOTF transfer functions
+
+Get color histogram
+^^^^^^^^^^^^^^^^^^^
+
+.. dropdown:: Display Python code
+
+    .. code:: python
+
+        import fractions
+        import cutcutcodec
+        import matplotlib.pyplot as plt
+        import torch
+        from mendevi.cst.plot import COLORS, FIGSIZE
+
+        # get histogram
+        bins = 1000
+        hist = [torch.zeros(bins) for _ in range(3)]
+        with cutcutcodec.read("park_joy.mkv") as container:
+            stream = container.out_select("video")[0].apply_video_colorspace("r'g'b'_bt709")
+            for frame in cutcutcodec.core.io.scheduler.video_frames_async(
+                stream,
+                cutcutcodec.core.analysis.stream.optimal_rate_video(stream),
+                fractions.Fraction(0),
+                cutcutcodec.core.analysis.stream.optimal_shape_video(stream),
+            ):
+                hist = [h + torch.histc(frame[:, :, i], bins, 0, 1) for i, h in enumerate(hist)]
+
+        # plot data
+        fig = plt.figure(layout="constrained", figsize=FIGSIZE)
+        axe = fig.subplots()
+        axe.grid()
+
+        axe.bar()
+
 
 Reproduce
 ---------
@@ -177,11 +213,11 @@ Reproduce
 .. code:: shell
 
     for prim in bt601 bt709 bt2020; do
-        for trans in linear bt1361 gamma22 gamma28 smpte2084; do
-            mendevi prepare park_joy.mkv -p sd --primaries $prim --transfer $trans --range tv
-            mendevi prepare park_joy.mkv -p sd --primaries $prim --transfer $trans --range pc
-            mendevi prepare park_joy.mkv -p fhd --primaries $prim --transfer $trans --range tv
-            mendevi prepare park_joy.mkv -p fhd --primaries $prim --transfer $trans --range pc
+        for trans in linear bt470m gamma22 gamma28 smpte2084; do
+            mendevi prepare $video -p sd --primaries $prim --transfer $trans --range tv
+            mendevi prepare $video -p sd --primaries $prim --transfer $trans --range pc
+            mendevi prepare $video -p fhd --primaries $prim --transfer $trans --range tv
+            mendevi prepare $video -p fhd --primaries $prim --transfer $trans --range pc
         done
     done
     mendevi encode -c libsvtav1 -c libx264 -c libx265 -c vvc -e fast -e medium reference*

@@ -158,11 +158,21 @@ vvc
 ^^^
 .. code:: shell
 
+    # vvenc (https://github.com/fraunhoferhhi/vvenc/wiki/FFmpeg-Integration)
     cd $HOME/ffmpeg_sources
     git -C vvenc pull 2> /dev/null || git clone --depth 1 https://github.com/fraunhoferhhi/vvenc
-    cd vvenc
+    mkdir vvenc/build && cd vvenc/build
     PATH="$HOME/bin:$PATH" cmake .. -G "Unix Makefiles" \
         -DCMAKE_INSTALL_PREFIX="$HOME/ffmpeg_build" -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DCMAKE_C_FLAGS="$CFLAGS" -DCMAKE_CXX_FLAGS="$CXXFLAGS"
+    PATH="$HOME/bin:$PATH" make
+    make install
+
+    # vvdec (https://github.com/fraunhoferhhi/vvdec/wiki/Integration-in-FFmpeg)
+    cd $HOME/ffmpeg_sources
+    git -C vvdec pull 2> /dev/null || git clone --depth 1 https://github.com/fraunhoferhhi/vvdec
+    mkdir -p vvdec/build && cd vvdec/build
+    PATH="$HOME/bin:$PATH" cmake .. -G "Unix Makefiles" \
+        -DCMAKE_INSTALL_PREFIX="$HOME/ffmpeg_build" -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DVVDEC_INSTALL_VVDECAPP=ON -DCMAKE_C_FLAGS="$CFLAGS" -DCMAKE_CXX_FLAGS="$CXXFLAGS"
     PATH="$HOME/bin:$PATH" make
     make install
 
@@ -242,6 +252,10 @@ preparation
     cd ffmpeg
     # echo -e "$(cat VERSION) [$(date +%Y-%m-%d)] [$(cat RELEASE)]" > VERSION
 
+    # add patch vvdec support (for --enable-libvvdec flag)
+    wget -O libvvdec.patch https://raw.githubusercontent.com/wiki/fraunhoferhhi/vvdec/data/patch/v9-libvvdec.patch
+    patch -p 1 < libvvdec.patch
+
     # set context
     export PATH="$HOME/bin:$PATH"
     export PKG_CONFIG_PATH="$HOME/ffmpeg_build/lib/pkgconfig:$PKG_CONFIG_PATH"
@@ -297,6 +311,7 @@ preparation
         --enable-libvo-amrwbenc
         --enable-libvorbis
         --enable-libvpx
+        --enable-libvvdec
         --enable-libvvenc
         --enable-libwebp
         --enable-libx264
