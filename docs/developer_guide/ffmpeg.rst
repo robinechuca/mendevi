@@ -357,5 +357,14 @@ compilation
     grep -q "$CONTENT" $HOME/.bashrc || echo "$CONTENT" >> $HOME/.bashrc
     source $HOME/.bashrc
 
-    # cd $HOME/bin && sudo cp ff* /usr/bin/.
+post process
+------------
+
+.. code:: shell
+
+    # compile python 'pyav' package
     # uv pip install -v av --no-binary av --no-cache
+
+    # clean files and copy
+    # rm -rf $HOME/{.cargo,.cmake,.rustup,ffmpeg_build,ffmpeg_sources}
+    # cd $HOME/bin && sudo cp avm* ff* rav1e /usr/bin/.
