@@ -177,6 +177,8 @@ def main(databases: tuple[str], **kwargs: dict) -> None:
                 for row_ in cursor_src.execute("SELECT * FROM t_act_activity"):
                     row = dict(row_)
                     old = row.pop("act_id")
+                    new = _insert_update(cursor_dst, row, "t_act_activity", ())["act_id"]
+                    act_old_to_new[old] = new
 
                 # t_env_environment
                 prt.print("table 't_env_environment'")
