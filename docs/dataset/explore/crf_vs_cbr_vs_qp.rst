@@ -79,12 +79,46 @@ Effect of mode on energy
 Reproduce
 ---------
 
+Version 4.2.0 of libsvtav1 does not support optimisation on ssim or the *random/access* prediction.
+Although mendevi enables these default settings for the ``qp`` and ``crf`` modes, they need to be disabled here to ensure a fair comparison.
+In order to optimise PSNR and predict with low delay, you have to create the file ``callback.py`` with the following content:
+
+.. code:: python
+
+    import re
+
+    from mendevi.cmd import CmdFFMPEG
+
+    def libsvtav1_lowdelay_psnr(cmd: CmdFFMPEG, **kwargs) -> CmdFFMPEG:
+        """Add tune=1 and pred-struct=1 to the svtav1 parameters."""
+        if kwargs["encoder"] != "libsvtav1":
+            return cmd
+        encode = cmd.encode
+        try:
+            idx = encode.index("-svtav1-params") + 1
+        except ValueError:
+            encode.append("-svtav1-params")
+            idx = len(encode)
+            encode.append("")
+        encode[idx] = (
+            re.sub(r"tune=\d", r"tune=1", encode[idx])
+            if "tune=" in encode[idx]
+            else f"{encode[idx]}:tune=1"
+        )
+        encode[idx] = (
+            re.sub(r"pred-struct=\d", r"pred-struct=1", encode[idx])
+            if "pred-struct=" in encode[idx]
+            else f"{encode[idx]}:pred-struct=1"
+        )
+        cmd.encode = encode
+        return cmd
+
 .. code:: shell
 
     mendevi prepare park_joy.mkv -p sd
     mendevi prepare park_joy.mkv -p fhd
 
-    mendevi encode -m crf -m cbr -m qp -c libx264 -c libsvtav1 -e fast -e medium reference*
+    mendevi encode -m crf -m cbr -m qp -c libx264 -c libsvtav1 -e fast -e medium --callback callback.py reference*
     mendevi decode sample*
 
     mendevi probe reference* sample*
