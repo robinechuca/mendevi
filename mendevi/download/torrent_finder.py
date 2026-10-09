@@ -83,6 +83,7 @@ def probe_online_torrent() -> dict[str, str]:
     >>> from mendevi.download.torrent_finder import probe_online_torrent
     >>> pprint(sorted(probe_online_torrent()))
     ['colorspace.db.xz.torrent',
+     'crf_vs_cbr_vs_qp.db.xz.torrent',
      'ctc.db.xz.torrent',
      'duration.db.xz.torrent',
      'multithread.db.xz.torrent',
@@ -117,6 +118,7 @@ def probe_local_torrent() -> set[pathlib.Path]:
     >>> from mendevi.download.torrent_finder import probe_local_torrent
     >>> pprint(sorted(t.name for t in probe_local_torrent()))
     ['colorspace.db.xz.torrent',
+     'crf_vs_cbr_vs_qp.db.xz.torrent',
      'ctc.db.xz.torrent',
      'duration.db.xz.torrent',
      'multithread.db.xz.torrent',

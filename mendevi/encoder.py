@@ -370,13 +370,19 @@ def _encode_libsvtav1(**kwargs: dict) -> list[str]:
                 "-svtav1-params", f"film-grain=0:lp={libsvtav1_lp(kwargs['threads'])}:tune=2",
             ]
         case "cbr":
+            # * no option -maxrate in libsvtav1 version 4.2.0 because we get the error:
+            #   "Max Bitrate only supported with CRF mode"
+            # * no option tune=2 in libsvtav1 version 4.2.0 because we get the error:
+            #   "Tune SSIM only supports CRF rate control mode"
+            # * add option pred-struct=1 in libsvtav1 version 4.2.0 because to avoid the error:
+            #   "CBR Rate control is currently not supported for RANDOM_ACCESS/ALL_INTRA"
             rate = f"{min(100_000, quality_to_rate(kwargs))}k"
             return [
                 "libsvtav1",
                 "-b:v", rate, "-minrate", rate, "-bufsize", rate,
                 "-preset", {"slow": "4", "medium": "6", "fast": "8"}[kwargs["effort"]],
-                "-tune", "ssim",  # -svtav1-params tune=2 not supported in cbr
-                "-svtav1-params", f"rc=1:film-grain=0:lp={libsvtav1_lp(kwargs['threads'])}",
+                "-svtav1-params",
+                f"rc=2:film-grain=0:lp={libsvtav1_lp(kwargs['threads'])}:pred-struct=1",
             ]
         case "qp":
             return [
