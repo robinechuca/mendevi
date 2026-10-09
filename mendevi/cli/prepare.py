@@ -17,6 +17,58 @@ from mendevi.utils import best_profile, get_resolution
 from .parse import PixelParamType, ResolutionParamType
 
 
+def _lossless_encode(
+    file: pathlib.Path,
+    stream: cutcutcodec.classes.stream_video.StreamVideo,
+    colorspace: cutcutcodec.Colorspace,
+    kwargs: dict,
+) -> None:
+    """Encode the video lossless throw cutcutcodec."""
+    cutcutcodec.write(
+        [stream],
+        file,
+        colorspace=colorspace,
+        # streams_settings=[{  # extension .mp4
+        #     "encodec": "ffv1",  # fast lossless compression
+        #     "rate": kwargs["fps"],
+        #     "shape": kwargs["resolution"],
+        #     "pix_fmt": kwargs["pix_fmt"],
+        #     "range": kwargs["range"],
+        # }],
+
+        # https://trac.ffmpeg.org/wiki/Encode/H.264
+        streams_settings=[{  # extension .mp4
+            "encodec": "libx264",
+            "options": {"preset": "veryfast", "tune": "fastdecode", "qp": "0"},
+            "rate": kwargs["fps"],
+            "shape": kwargs["resolution"],
+            "pix_fmt": kwargs["pix_fmt"],
+            "range": kwargs["range"],
+        }],
+
+        # # https://trac.ffmpeg.org/wiki/Encode/AV1#CRF
+        # streams_settings=[{  # extension .mp4
+        #     "encodec": "libsvtav1",
+        #     "options": {"preset": "4", "svtav1-params": "lossless=1"},
+        #     "rate": kwargs["fps"],
+        #     "shape": kwargs["resolution"],
+        #     "pix_fmt": kwargs["pix_fmt"],
+        #     "range": kwargs["range"],
+        # }],
+
+        # # https://trac.ffmpeg.org/wiki/Encode/AV1#Losslessencoding
+        # streams_settings=[{  # extension .mp4
+        #     "encodec": "libaom-av1",
+        #     "options": {"crf": "0"},
+        #     "rate": kwargs["fps"],
+        #     "shape": kwargs["resolution"],
+        #     "pix_fmt": kwargs["pix_fmt"],
+        #     "range": kwargs["range"],
+        # }],
+
+    )
+
+
 def _parse_args(prt: Printer, video: pathlib.Path, kwargs: dict) -> None:
     """Verification of the arguments."""
     # profile
@@ -209,50 +261,11 @@ def main(video: str, output: str | None = None, **kwargs: dict) -> pathlib.Path:
         tmp = file.with_stem(f"{file.stem}_in_process")
         with cutcutcodec.read(video) as container:
             stream = container.out_select("video")[0]
-            cutcutcodec.write(
-                [stream],
+            _lossless_encode(
                 tmp,
-                colorspace=cutcutcodec.Colorspace(
-                    "y'pbpr", kwargs["primaries"], kwargs["transfer"],
-                ),
-                # streams_settings=[{  # extension .mp4
-                #     "encodec": "ffv1",  # fast lossless compression
-                #     "rate": kwargs["fps"],
-                #     "shape": kwargs["resolution"],
-                #     "pix_fmt": kwargs["pix_fmt"],
-                #     "range": kwargs["range"],
-                # }],
-
-                # https://trac.ffmpeg.org/wiki/Encode/H.264
-                streams_settings=[{  # extension .mp4
-                    "encodec": "libx264",
-                    "options": {"preset": "veryfast", "tune": "fastdecode", "qp": "0"},
-                    "rate": kwargs["fps"],
-                    "shape": kwargs["resolution"],
-                    "pix_fmt": kwargs["pix_fmt"],
-                    "range": kwargs["range"],
-                }],
-
-                # # https://trac.ffmpeg.org/wiki/Encode/AV1#CRF
-                # streams_settings=[{  # extension .mp4
-                #     "encodec": "libsvtav1",
-                #     "options": {"preset": "4", "svtav1-params": "lossless=1"},
-                #     "rate": kwargs["fps"],
-                #     "shape": kwargs["resolution"],
-                #     "pix_fmt": kwargs["pix_fmt"],
-                #     "range": kwargs["range"],
-                # }],
-
-                # # https://trac.ffmpeg.org/wiki/Encode/AV1#Losslessencoding
-                # streams_settings=[{  # extension .mp4
-                #     "encodec": "libaom-av1",
-                #     "options": {"crf": "0"},
-                #     "rate": kwargs["fps"],
-                #     "shape": kwargs["resolution"],
-                #     "pix_fmt": kwargs["pix_fmt"],
-                #     "range": kwargs["range"],
-                # }],
-
+                stream,
+                cutcutcodec.Colorspace("y'pbpr", kwargs["primaries"], kwargs["transfer"]),
+                kwargs,
             )
         shutil.move(tmp, file)
         file.chmod(0o777)

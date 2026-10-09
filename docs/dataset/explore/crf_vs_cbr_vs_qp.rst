@@ -71,7 +71,7 @@ Effect of mode on energy
 
 .. code:: shell
 
-    mendevi plot crf_vs_cbr_vs_qp.db -x bitrate -y energy -c mode -m encoder
+    mendevi plot crf_vs_cbr_vs_qp.db -x bitrate -y energy -wx profile -wy encoder -c mode -m effort
 
 .. image:: /_static/media/crf_vs_cbr_vs_qp_energy.svg
     :alt: Effect of mode on energy

@@ -67,4 +67,4 @@ done | parallel -j 6 --colsep ' ' 'mendevi prepare {1} -p {2}'
             mendevi prepare $video -p $profile
         done
     done
-    mendevi probe --uvq reference* -d src_videos.db
+    mendevi probe --uvq *.mkv *.mp4

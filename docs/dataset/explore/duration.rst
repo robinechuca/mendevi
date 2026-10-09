@@ -12,42 +12,14 @@ Allows you to see the impact of video length on compression and energy consumpti
       - Value
       - Description (link)
       - Total
-    * - video
-      - :math:`100` slices
-      - `Big Buck Bunny <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/video/bbb.mp4.torrent?inline=false>`_
-      - :math:`100`
-    * - profile
-      - ``sd``, ``fhd``
-      - `video resolution and more <https://gitlab.inria.fr/rrichard/mendevi/-/blob/main/mendevi/cst/profiles.py>`_
+    * - effort
+      - ``fast``, ``medium``
+      - :ref:`enc_effort`
       - :math:`2`
     * - encoder
       - ``libsvtav1``, ``libx264``
       - :ref:`enc_encoder`
       - :math:`2`
-    * - quality
-      - :math:`\left\{\frac{k}{3} \mid k \in [1,2] \right\}`
-      - :ref:`enc_quality`
-      - :math:`2`
-    * - effort
-      - ``fast``, ``medium``
-      - :ref:`enc_effort`
-      - :math:`2`
-    * - mode
-      - ``cbr``, ``crf``
-      - :ref:`enc_mode`
-      - :math:`2`
-    * - thread
-      - :math:`\left\{ 8 \right\}`
-      - :ref:`enc_threads`
-      - :math:`1`
-    * - repeat
-      - :math:`10` times
-      - total repetitions
-      - :math:`10`
-    * - ramdisk
-      - ``no``
-      - shm in :ref:`enc_cmd`
-      - :math:`1`
     * - host
       - ``paradoxe-32``, ``yeti-2``
       - :ref:`env_hostname`
@@ -56,6 +28,26 @@ Allows you to see the impact of video length on compression and energy consumpti
       - ``psnr``, ``ssim``
       - :ref:`t_met_metric`
       -
+    * - mode
+      - ``crf``, ``cbr``
+      - :ref:`enc_mode`
+      - :math:`2`
+    * - profile
+      - ``sd``, ``fhd``
+      - `video resolution and more <https://gitlab.inria.fr/rrichard/mendevi/-/blob/main/mendevi/cst/profiles.py>`_
+      - :math:`2`
+    * - quality
+      - :math:`\left\{\frac{k}{3} \mid k \in [1,2] \right\}`
+      - :ref:`enc_quality`
+      - :math:`2`
+    * - repeat
+      - :math:`10` times
+      - total repetitions
+      - :math:`10`
+    * - video
+      - :math:`100` slices
+      - `Big Buck Bunny <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/video/bbb.mp4.torrent?inline=false>`_
+      - :math:`100`
     * - **total**
       - :math:`\le \prod`
       - total number of points
@@ -120,6 +112,36 @@ First, generate the video segments
 The first step is to extract random length segments from a video.
 
 The video used is ``bbb.mp4``, the length of the segments follows a base-10 exponential probability distribution.
+
+.. dropdown:: Display the Python code used to generate the segments
+
+    .. code:: python
+
+        import math
+        import pathlib
+        import random
+
+        import cutcutcodec
+        from mendevi.cli.prepare import _lossless_encode
+
+        with cutcutcodec.read("bbb.mp4") as container:
+            stream = container.out_select("video")[0]
+
+            # select a subslice
+            duration = 10.0**(random.random()*math.log10(stream.duration))
+            beginning = stream.beginning + random.random()*(stream.duration-duration)
+            subslice = stream.apply_video_subclip(beginning, duration)
+            file = pathlib.Path(f"slice_{beginning:.1f}_to_{beginning+duration:.1f}.mp4")
+
+            # write the video file
+            import ipdb; ipdb.set_trace()
+            _lossless_encode(
+                file, subslice, stream.colorspace, {
+                    "rate": cutcutcodec.core.analysis.stream.optimal_rate_video(stream),
+                },
+            )
+
+
 
 Next, perform the measurements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
