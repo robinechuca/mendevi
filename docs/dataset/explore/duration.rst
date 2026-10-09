@@ -127,19 +127,24 @@ The video used is ``bbb.mp4``, the length of the segments follows a base-10 expo
         with cutcutcodec.read("bbb.mp4") as container:
             stream = container.out_select("video")[0]
 
-            # select a subslice
-            duration = 10.0**(random.random()*math.log10(stream.duration))
-            beginning = stream.beginning + random.random()*(stream.duration-duration)
-            subslice = stream.apply_video_subclip(beginning, duration)
-            file = pathlib.Path(f"slice_{beginning:.1f}_to_{beginning+duration:.1f}.mp4")
+            for _ in range(100):
 
-            # write the video file
-            import ipdb; ipdb.set_trace()
-            _lossless_encode(
-                file, subslice, stream.colorspace, {
-                    "rate": cutcutcodec.core.analysis.stream.optimal_rate_video(stream),
-                },
-            )
+                # select a subslice
+                duration = 10.0**(random.random()*math.log10(stream.duration))
+                beginning = stream.beginning + random.random()*(stream.duration-duration)
+                subslice = stream.apply_video_subclip(beginning, duration)
+                file = pathlib.Path(f"slice_{beginning:.1f}_to_{beginning+duration:.1f}.mp4")
+
+                # write the video file
+                import ipdb; ipdb.set_trace()
+                _lossless_encode(
+                    file, subslice, cutcutcodec.Colorspace.from_default_target(), {
+                        "fps": cutcutcodec.core.analysis.stream.optimal_rate_video(stream),
+                        "resolution": cutcutcodec.core.analysis.stream.optimal_shape_video(stream),
+                        "pix_fmt": "yuv420p10le",
+                        "range": "tv",
+                    },
+                )
 
 
 

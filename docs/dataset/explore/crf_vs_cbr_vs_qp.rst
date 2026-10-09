@@ -60,8 +60,8 @@ Download
 
     mendevi download crf_vs_cbr_vs_qp.db.xz.torrent
 
-* `crf_vs_cbr_vs_qp.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/crf_vs_cbr_vs_qp.json.xz?inline=false>`_ (x Ko).
-* `crf_vs_cbr_vs_qp.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/crf_vs_cbr_vs_qp.db.xz.torrent?inline=false>`_ (x Mo).
+* `crf_vs_cbr_vs_qp.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/crf_vs_cbr_vs_qp.json.xz?inline=false>`_ (754 Ko).
+* `crf_vs_cbr_vs_qp.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/crf_vs_cbr_vs_qp.db.xz.torrent?inline=false>`_ (345 Mo).
 
 Plots
 -----

@@ -188,9 +188,8 @@ def main(databases: tuple[str], **kwargs: dict) -> None:
                     row = dict(row_)
                     row["env_idle_act_id"] = act_old_to_new[row["env_idle_act_id"]]
                     old = row.pop("env_id")
-                    row["env_libvvenc_version"] = row.pop(
-                        "env_vvc_version",  # retrocompatibility with version <= 1.3.7
-                    )
+                    if "env_vvc_version" in row:  # retrocompatibility with version <= 1.3.7
+                        row["env_libvvenc_version"] = row.pop("env_vvc_version")
                     new = _insert_update(cursor_dst, row, "t_env_environment", env_unique)["env_id"]
                     env_old_to_new[old] = new
 
