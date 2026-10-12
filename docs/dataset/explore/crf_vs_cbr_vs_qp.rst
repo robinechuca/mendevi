@@ -85,13 +85,21 @@ The graph below shows the energy impact of the QP for a comparable quality.
     mendevi plot crf_vs_cbr_vs_qp.db -x psnr -y energy -wx profile -wy encoder -c mode -m effort -e quality -t t_enc_encode
 
 .. image:: /_static/media/crf_vs_cbr_vs_qp_energy_quality.svg
-    :alt: Effect of mode on energy at constant energy
+    :alt: Effect of mode on energy at constant quality
+
+Conclusion
+----------
+
+On this machine and in this video, the encoder, the profile and the force have a much greater impact on the encoding energy than the mode.
+The difference between ``qp`` and ``crf`` modes is imperceptible.
+
+The ``cbr`` mode appears to be more efficient than the others for the libsvtav1 encoder.
 
 Reproduce
 ---------
 
-Version 4.2.0 of libsvtav1 does not support optimisation on ssim or the *random/access* prediction.
-Although mendevi enables these default settings for the ``qp`` and ``crf`` modes, they need to be disabled here to ensure a fair comparison.
+Version 4.2.0 of libsvtav1 does not support optimisation on ssim and the *random/access* prediction on ``cbr`` mode.
+Although mendevi enables these default settings for the ``qp`` and ``crf`` modes, they need to be always disabled here to ensure a fair comparison between the different modes of libsvtav1.
 In order to optimise PSNR and predict with low delay, you have to create the file ``callback.py`` with the following content:
 
 .. code:: python
