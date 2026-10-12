@@ -60,8 +60,8 @@ Download
 
     mendevi download crf_vs_cbr_vs_qp.db.xz.torrent
 
-* `crf_vs_cbr_vs_qp.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/crf_vs_cbr_vs_qp.json.xz?inline=false>`_ (754 Ko).
-* `crf_vs_cbr_vs_qp.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/crf_vs_cbr_vs_qp.db.xz.torrent?inline=false>`_ (345 Mo).
+* `crf_vs_cbr_vs_qp.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/crf_vs_cbr_vs_qp.json.xz?inline=false>`_ (914 Ko).
+* `crf_vs_cbr_vs_qp.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/crf_vs_cbr_vs_qp.db.xz.torrent?inline=false>`_ (593 Mo).
 
 Plots
 -----
@@ -71,7 +71,7 @@ Effect of mode on energy
 
 .. code:: shell
 
-    mendevi plot crf_vs_cbr_vs_qp.db -x bitrate -y energy -wx profile -wy encoder -c mode -m effort
+    mendevi plot crf_vs_cbr_vs_qp.db -x bitrate -y energy -wx profile -wy encoder -c mode -m effort -e quality
 
 .. image:: /_static/media/crf_vs_cbr_vs_qp_energy.svg
     :alt: Effect of mode on energy

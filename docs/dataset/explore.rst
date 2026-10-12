@@ -302,4 +302,5 @@ All datasets list
 How to publish your own dataset?
 --------------------------------
 
-To publish a dataset, please refer to the `README.rst <https://gitlab.inria.fr/rrichard/mendevi/-/blob/main/dataset/README.rst>`_.
+#. You must start by taking your measurements :ref:`measure`, which will generate the dataset.
+#. To publish the dataset, please refer to the `README.rst <https://gitlab.inria.fr/rrichard/mendevi/-/blob/main/dataset/README.rst>`_.
