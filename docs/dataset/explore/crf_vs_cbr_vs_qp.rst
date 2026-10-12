@@ -41,9 +41,9 @@ Compare the **CRF**, **CBR** and **QP** modes.
       - :ref:`enc_quality`
       - :math:`16`
     * - repeat
-      - :math:`2` times
+      - :math:`5` times
       - total repetitions
-      - :math:`2`
+      - :math:`5`
     * - video
       - ``park_joy``
       - `ctc <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/video/ctc.torrent?inline=false>`_
@@ -51,7 +51,7 @@ Compare the **CRF**, **CBR** and **QP** modes.
     * - **total**
       - :math:`\prod`
       - total number of points
-      - :math:`768`
+      - :math:`1920`
 
 Download
 --------
@@ -90,7 +90,7 @@ In order to optimise PSNR and predict with low delay, you have to create the fil
     from mendevi.cmd import CmdFFMPEG
 
     def libsvtav1_lowdelay_psnr(cmd: CmdFFMPEG, **kwargs) -> CmdFFMPEG:
-        """Add tune=1 and pred-struct=1 to the svtav1 parameters."""
+        """Set tune=1 and pred-struct=1 to the svtav1 parameters."""
         if kwargs["encoder"] != "libsvtav1":
             return cmd
         encode = cmd.encode

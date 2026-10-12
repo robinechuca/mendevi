@@ -76,6 +76,7 @@ graph database {
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">env_librav1e_version</TD><TD ALIGN="LEFT">MEDIUMTEXT</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">env_libsvtav1_version</TD><TD ALIGN="LEFT">MEDIUMTEXT</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">env_libvpx_vp9_version</TD><TD ALIGN="LEFT">MEDIUMTEXT</TD></TR>
+        <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">env_libvvdec_version</TD><TD ALIGN="LEFT">MEDIUMTEXT</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">env_libvvenc_version</TD><TD ALIGN="LEFT">MEDIUMTEXT</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">env_libx265_version</TD><TD ALIGN="LEFT">MEDIUMTEXT</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">env_logical_cores</TD><TD ALIGN="LEFT">INTEGER</TD></TR>

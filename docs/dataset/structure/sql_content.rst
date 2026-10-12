@@ -570,6 +570,10 @@ Table t_env_environment
 +-------------------------------+--------------+-------------------------------+
 | :ref:`env_libvpx_vp9_version` | *MEDIUMTEXT* | the version of libvpx-vp9     |
 +-------------------------------+--------------+-------------------------------+
+| :ref:`env_libvvdec_version`   | *MEDIUMTEXT* | the version of libvvdec       |
++-------------------------------+--------------+-------------------------------+
+| :ref:`env_libvvenc_version`   | *MEDIUMTEXT* | the version of libvvenc       |
++-------------------------------+--------------+-------------------------------+
 | :ref:`env_libx265_version`    | *MEDIUMTEXT* | the version of libx265        |
 +-------------------------------+--------------+-------------------------------+
 | :ref:`env_logical_cores`      | *INTEGER*    | the number of visible cpu     |
@@ -593,8 +597,6 @@ Table t_env_environment
 | :ref:`env_swap`               | *INTEGER*    | Total amount of SWAP          |
 +-------------------------------+--------------+-------------------------------+
 | :ref:`env_system_version`     | *MEDIUMTEXT* | the OS version                |
-+-------------------------------+--------------+-------------------------------+
-| :ref:`env_libvvenc_version`   | *MEDIUMTEXT* | the version of libvvenc       |
 +-------------------------------+--------------+-------------------------------+
 | :ref:`env_idle_act_id`        | *INTEGER*    | IDLE as :ref:`t_act_activity` |
 +-------------------------------+--------------+-------------------------------+
@@ -693,6 +695,28 @@ The version of the libvpx-vp9 encoder. It comes from the function :py:func:`mend
 .. code:: text
 
     v1.14.1
+
+.. _env_libvvdec_version:
+
+env_libvvdec_version
+^^^^^^^^^^^^^^^^^^^^
+
+The version of the vvdec decoder. It comes from the function :py:func:`mendevi.measures.context.get_libvvdec_version`.
+
+.. code:: text
+
+    3.3.0
+
+.. _env_libvvenc_version:
+
+env_libvvenc_version
+^^^^^^^^^^^^^^^^^^^^
+
+The version of the vvenc encoder. It comes from the function :py:func:`mendevi.measures.context.get_libvvenc_version`.
+
+.. code:: text
+
+    1.13.1
 
 .. _env_libx265_version:
 
@@ -868,17 +892,6 @@ The name and the version of linux, given by ``platform.version()``,from the func
 .. code:: text
 
     #29-Ubuntu SMP PREEMPT_DYNAMIC Fri Jun 13 20:29:41 UTC 2025
-
-.. _env_libvvenc_version:
-
-env_libvvenc_version
-^^^^^^^^^^^^^^^^^^^^
-
-The version of the vvenc encoder. It comes from the function :py:func:`mendevi.measures.context.get_libvvenc_version`.
-
-.. code:: text
-
-    1.13.1
 
 .. _env_idle_act_id:
 

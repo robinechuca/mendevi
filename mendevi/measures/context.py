@@ -16,6 +16,32 @@ import psutil
 from mendevi.decode import create_video_sample
 
 
+def get_avmdec_version() -> str:
+    """Return the version of the avmdec (av2 decoder).
+
+    Examples
+    --------
+    >>> from mendevi.measures.context import get_avmdec_version
+    >>> print(get_avmdec_version())  # doctest: +ELLIPSIS
+    1.0...
+    >>>
+
+    """
+    try:
+        out = subprocess.run(
+            ["avmdec", "--help"],
+            check=False, capture_output=True,
+        ).stdout.decode()
+    except FileNotFoundError:
+        logging.getLogger(__name__).warning("failed to find avmdec")
+        return ""
+
+    if (match := re.search(r"Decoder\s+v?(?P<version>\d+\.\d+(?:\.\d+)?)", out)) is None:
+        logging.getLogger(__name__).warning("failed to decode the avmdec version")
+        return ""
+    return match["version"]
+
+
 def get_avmenc_version() -> str:
     """Return the version of the avmenc (av2 encoder).
 
@@ -23,7 +49,7 @@ def get_avmenc_version() -> str:
     --------
     >>> from mendevi.measures.context import get_avmenc_version
     >>> print(get_avmenc_version())  # doctest: +ELLIPSIS
-    1...
+    1.0...
     >>>
 
     """

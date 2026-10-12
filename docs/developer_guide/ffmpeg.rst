@@ -339,7 +339,7 @@ preparation
     fi
 
 compilation
------------
+^^^^^^^^^^^
 
 .. code:: shell
 
@@ -358,7 +358,7 @@ compilation
     source $HOME/.bashrc
 
 post process
-------------
+^^^^^^^^^^^^
 
 .. code:: shell
 
