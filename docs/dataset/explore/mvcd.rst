@@ -108,11 +108,6 @@ The ``fast`` hyperparameter in mendevi is very similar to the MVCD preset parame
 Since the encoders have evolved, **the presets no longer behave exactly as they did** in the original MVCD experiment.
 To ensure **consistency with the other mendevi datasets**, we therefore used ``fast`` hyperparameter instead of replicating the MVCD presets.
 
-framerate
-^^^^^^^^^
-
-Although the MVCD script does not change the frame rate, the documentation and database indicate that two different frame rates were tested. We therefore assume this is an error in the script and measure both 30 and 60 fps here.
-
 gop
 ^^^
 
@@ -187,10 +182,10 @@ Reproduce
         from mendevi.cmd import CmdFFMPEG
 
         def mendevi_to_mvcd(cmd: CmdFFMPEG, **kwargs) -> str:
-            """Adapt the ffmpeg mendevi command to bring it closer to original MVCD."""
+            """Adaptat the ffmpeg mendevi command to bring it closer to original MVCD."""
 
             def closer(choices: dict[float], ref: float) -> object:
-                """Pick up the closest choice into the dictionary."""
+                """Pick up the closet choice into the dictionary."""
                 keys = list(choices)
                 dists = [abs(k - ref) for k in choices]
                 return choices[keys[dists.index(min(dists))]]
@@ -198,36 +193,41 @@ Reproduce
             # clip frames and GOP
             cmd.pre = [*cmd.pre, "-frames", {30: "32", 60: "64"}[int(kwargs["fps"])], "-g", "32"]
 
-            # crf to qp, effort to preset
+            # qp equal to qp jvet, effort to preset
+            cmd_str = str(cmd)
             match kwargs["encoder"]:
                 case "libvvenc":
-                    qp_mvcd = closer({1.0/5: 22, 2.0/5: 27, 3.0/5: 32, 4.0/5: 37}, kwargs["quality"])
-                    cmd = re.sub(r"-qp \d+", f"-qp {qp_mvcd}", str(cmd))
-                    cmd = re.sub(r"-preset \w+", "-preset faster", cmd)
+                    choices = {1.0/5: 22, 2.0/5: 27, 3.0/5: 32, 4.0/5: 37}
+                    cmd_str = re.sub(r"-preset \w+", "-preset faster", cmd_str)
                 case "libsvtav1":
-                    qp_mvcd = closer(
-                        {1.0/8: 22, 2.0/8: 27, 3.0/8: 32, 4.0/8: 35, 5.0/8: 37, 6.0/8: 46, 7.0/8: 55},
-                        kwargs["quality"],
-                    )
-                    cmd = re.sub(r"-crf \d+", f"-qp {qp_mvcd}", str(cmd))
-                    cmd = re.sub(r"-preset \d+", "-preset 13", cmd)
+                    choices = {1.0/8: 22, 2.0/8: 27, 3.0/8: 32, 4.0/8: 35, 5.0/8: 37, 6.0/8: 46, 7.0/8: 55}
+                    cmd_str = re.sub(r"-preset \d+", "-preset 13", cmd_str)
                 case "libx264" | "libx265":
-                    qp_mvcd = closer({1.0/5: 22, 2.0/5: 27, 3.0/5: 32, 4.0/5: 37}, kwargs["quality"])
-                    cmd = re.sub(r"-crf \d+\.?\d*", f"-qp {qp_mvcd}", str(cmd))
-                    cmd = re.sub(r"-preset \w+", "-preset ultrafast", cmd)
-
-            return cmd
-
+                    choices = {1.0/5: 22, 2.0/5: 27, 3.0/5: 32, 4.0/5: 37}
+                    cmd_str = re.sub(r"-preset \w+", "-preset ultrafast", cmd_str)
+                case _:
+                    return cmd_str
+            qp_mvcd = closer(choices, kwargs["quality"])
+            return re.sub(r"-qp \d+\.?\d*", f"-qp {qp_mvcd}", cmd_str)
 
     Then in a terminal, run:
 
     .. code:: shell
 
+        # libvvenc, libx264, libx265: QP 22, 27, 32, 37
         mendevi encode \
-            -r5 -n4 -e fast \
+            -r5 -n4 --mode qp -e fast \
             --resolution 2160x3840 --resolution 1080x1920 --resolution 720x1280 --resolution 540x960 \
             --fps 60 --fps 30 \
-            -c libvvenc -c libsvtav1 -c libx264 -c libx265 \
+            -c libvvenc -c libx264 -c libx265 \
+            --callback callback.py \
+            -d mvcd_original.db {1..1000}.mp4
+        # libsvtav1: QP 22, 27, 32, 35, 37, 46, 55
+        mendevi encode \
+            -r5 -n4 --mode qp -e fast \
+            --resolution 2160x3840 --resolution 1080x1920 --resolution 720x1280 --resolution 540x960 \
+            --fps 60 --fps 30 \
+            -c libsvtav1 \
             --callback callback.py \
             -d mvcd_original.db {1..1000}.mp4
         mendevi decode -r5 --resolution 2160x3840 --filter fps=60 -d mvcd_original.db '*.mp4'  # upscale=ups
