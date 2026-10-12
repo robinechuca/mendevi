@@ -228,10 +228,10 @@ Reproduce
 
     for prim in bt601 bt709 bt2020; do
         for trans in linear bt470m gamma22 gamma28 smpte2084; do
-            mendevi prepare $video -p sd --primaries $prim --transfer $trans --range tv
-            mendevi prepare $video -p sd --primaries $prim --transfer $trans --range pc
-            mendevi prepare $video -p fhd --primaries $prim --transfer $trans --range tv
-            mendevi prepare $video -p fhd --primaries $prim --transfer $trans --range pc
+            mendevi prepare park_joy.mkv -p sd --primaries $prim --transfer $trans --range tv
+            mendevi prepare park_joy.mkv -p sd --primaries $prim --transfer $trans --range pc
+            mendevi prepare park_joy.mkv -p fhd --primaries $prim --transfer $trans --range tv
+            mendevi prepare park_joy.mkv -p fhd --primaries $prim --transfer $trans --range pc
         done
     done
     mendevi encode -c libsvtav1 -c libx264 -c libx265 -c libvvenc -e fast -e medium reference*

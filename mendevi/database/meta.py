@@ -94,7 +94,7 @@ ALL_EXTRACTORS = {
         Scale.LOGARITHMIC,
     ),
     "bitrate": Extractor(
-        r"Video bitrate in $bit.s^{-1}$",
+        r"Final real measured bitrate in $bit.s^{-1}$",
         "None if size is None or video_duration is None else 8.0 * size / video_duration",
         Scale.LOGARITHMIC,
     ),

@@ -17,7 +17,7 @@ Compare the **CRF**, **CBR** and **QP** modes.
       - :ref:`enc_effort`
       - :math:`2`
     * - encoder
-      - ``libsvtav1``, ``libx264``
+      - ``libsvtav1``, ``libx264``, ``libx265``
       - :ref:`enc_encoder`
       - :math:`2`
     * - host
@@ -45,13 +45,13 @@ Compare the **CRF**, **CBR** and **QP** modes.
       - total repetitions
       - :math:`5`
     * - video
-      - ``park_joy``
+      - ``baolei_balloon``, ``park_joy``
       - `ctc <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/video/ctc.torrent?inline=false>`_
-      - :math:`1`
+      - :math:`2`
     * - **total**
       - :math:`\prod`
       - total number of points
-      - :math:`1920`
+      - :math:`5760`
 
 Download
 --------
@@ -134,10 +134,12 @@ In order to optimise PSNR and predict with low delay, you have to create the fil
 
 .. code:: shell
 
-    mendevi prepare park_joy.mkv -p sd
-    mendevi prepare park_joy.mkv -p fhd
+    for video in baolei_balloon.mkv park_joy.mkv; do
+        mendevi prepare $video -p sd
+        mendevi prepare $video -p fhd
+    done
 
-    mendevi encode -m crf -m cbr -m qp -c libx264 -c libsvtav1 -e fast -e medium --callback callback.py reference*
+    mendevi encode -m crf -m cbr -m qp -r 5 -c libsvtav1 -c libx264 -c libx265 -e fast -e medium --callback callback.py reference*
     mendevi decode sample*
 
     mendevi probe reference* sample*
