@@ -69,12 +69,23 @@ Plots
 Effect of mode on energy
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
+The graph below shows the energy impact of the QP for a comparable bitrate.
+
 .. code:: shell
 
     mendevi plot crf_vs_cbr_vs_qp.db -x bitrate -y energy -wx profile -wy encoder -c mode -m effort -e quality
 
-.. image:: /_static/media/crf_vs_cbr_vs_qp_energy.svg
-    :alt: Effect of mode on energy
+.. image:: /_static/media/crf_vs_cbr_vs_qp_energy_bitrate.svg
+    :alt: Effect of mode on energy at constant bitrate
+
+The graph below shows the energy impact of the QP for a comparable quality.
+
+.. code:: shell
+
+    mendevi plot crf_vs_cbr_vs_qp.db -x psnr -y energy -wx profile -wy encoder -c mode -m effort -e quality -t t_enc_encode
+
+.. image:: /_static/media/crf_vs_cbr_vs_qp_energy_quality.svg
+    :alt: Effect of mode on energy at constant energy
 
 Reproduce
 ---------
