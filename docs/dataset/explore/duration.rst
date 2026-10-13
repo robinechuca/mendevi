@@ -136,7 +136,6 @@ The video used is ``bbb.mp4``, the length of the segments follows a base-10 expo
                 file = pathlib.Path(f"slice_{beginning:.1f}_to_{beginning+duration:.1f}.mp4")
 
                 # write the video file
-                import ipdb; ipdb.set_trace()
                 _lossless_encode(
                     file, subslice, cutcutcodec.Colorspace.from_default_target(), {
                         "fps": cutcutcodec.core.analysis.stream.optimal_rate_video(stream),
@@ -145,8 +144,6 @@ The video used is ``bbb.mp4``, the length of the segments follows a base-10 expo
                         "range": "tv",
                     },
                 )
-
-
 
 Next, perform the measurements
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
