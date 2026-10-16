@@ -20,7 +20,7 @@ class TrendNormlisator(DNN):
     This structure provides an answer to the question:
 
     How does parameter :math:`X_k` affect parameter :math:`Y`,
-    regardless of all other factors :math:`\left{ X_i \right}_{i \neq k}`?
+    regardless of all other factors :math:`\left\{ X_i \right\}_{i \neq k}`?
 
     This model is an implementation of the diagram below.
     The parameters of the functions :math:`\phi'` and :math:`psi` are trained simultaneously.
@@ -42,7 +42,7 @@ class TrendNormlisator(DNN):
             It is transmitted to the class :py:class:`mendevi.models.base.Model`.
         input_labels : list[str]
             All the other contextual input parameters that feed into :math:`\psi`.
-            These correspond to the :math:`\left{ X_i \right}_{i \neq k}` set in the diagram.
+            These correspond to the :math:`\left\{ X_i \right\}_{i \neq k}` set in the diagram.
             The ``input_labels`` transmitted to :py:class:`mendevi.models.base.Model` are
             the union of this ``input_labels`` and this ``interest_labels``.
         \*\*kwargs
@@ -91,14 +91,19 @@ class TrendNormlisator(DNN):
             for lbl in (*self.input_labels_aggreg, *self.output_labels)
         }
 
-        # create and warm the phi_prime model
+        # create and warm the phi_prime global model
         self._aggreg_ctx = "full"  # for global normalization
         niter, self._niter = self._niter, self._niter//10  # model warming settings
-        import ipdb; ipdb.set_trace()
-        phi_prime, slices = super()._fit_vect(merge_values)
+        aggreg, input_labels, self._aggreg, self._input_labels = (
+            self._aggreg, self._input_labels, [], self._interest_labels,
+        )  # hack to set self.input_labels_aggreg = self._interest_labels
+        phi_prime, slices = super()._fit_vect(merge_values)  # based on self.input_labels_aggreg
         self._niter = niter
+        self._aggreg, self._input_labels = aggreg, input_labels
+
 
         # parameters preparation
+        import ipdb; ipdb.set_trace()
         parameters = {  # normalisation
             clus: {
                 lbl: (
