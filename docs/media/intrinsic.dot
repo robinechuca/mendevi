@@ -1,54 +1,56 @@
 # dot -Tpdf intrinsic.dot -o /tmp/intrinsic.pdf && pdfcrop /tmp/intrinsic.pdf intrinsic.pdf
 # dot -Tsvg intrinsic.dot > intrinsic.svg
 digraph intrinsic {
-    rankdir=TB
+    rankdir=LR
+    node [fontname="DejaVu Sans"]  // for symbol ≠
+    edge [fontname="DejaVu Sans"]
 
     # data
-    src [label="x\nfull data" shape=Mdiamond style=filled fillcolor="#73b66b"]
-    var [label="x'\nimpacting vars" shape=Mdiamond style=filled fillcolor="#73b66b"]
-    int [label="i'\naffected vars\nintrinsic" shape=Mdiamond style=filled fillcolor="#73b66b"]
-    est [label="î\naffected vars\nestimated" shape=Mdiamond style=filled fillcolor="#73b66b"]
-    imp [label="i\naffected vars" shape=Mdiamond style=filled fillcolor="#73b66b"]
-    cmp [label="c\nother vars" shape=Mdiamond style=filled fillcolor="#73b66b"]
-
-    # parameters
-    params_encoder [label="Weights", shape=note, style=filled, fillcolor=white]
-    params_decoder [label="Weights", shape=note, style=filled, fillcolor=white]
+    full [label="{Xᵢ}" shape=Mdiamond style=filled fillcolor="#73b66b"]
+    ref [label="Y" shape=Mdiamond style=filled fillcolor="#73b66b"]
+    var  [label="Xₖ" shape=Mdiamond style=filled fillcolor="#73b66b"]
+    norm [label="Y&#8242;" shape=Mdiamond style=filled fillcolor="#73b66b"]
+    est  [label="Ŷ" shape=Mdiamond style=filled fillcolor="#73b66b"]
+    comp [label="{Xᵢ}, i≠k" shape=Mdiamond style=filled fillcolor="#73b66b"]
 
     # process
-    select [label="Selector", style=filled, fillcolor=white]
-    encoder [label="Model", style=filled, fillcolor=white]
-    decoder [label="Model", style=filled, fillcolor=white]
-    extractor [label="Selector", style=filled, fillcolor=white]
-    compl [label="Complement\nx - (x' u i)", style=filled, fillcolor=white]
+    truth [label="φ" style=filled fillcolor=white]
+    interest [label="φ&#8242;" style=filled fillcolor="#ef597b"]
+    adapt [label="ψ" style=filled fillcolor="#ef597b"]
+    denorm [label="a Y&#8242; + b" style=filled fillcolor=white]
 
     # blocs
-    subgraph clus_sample {
+    subgraph clus_reference {
         cluster=true
-        label="Influence of x' other i'"
-        bgcolor="#ffcb18"
-        var encoder int
+        label="Reference"
+        bgcolor="#29a2c6"
+        full truth ref
     }
-    # parameters bloc
-    subgraph clus_param_encoder {
+
+    subgraph clus_imitation {
         cluster=true
-        label="Parameters"
-        bgcolor="#ef597b"
-        params_encoder
-    }
-    subgraph clus_param_decoder {
-        cluster=true
-        label="Parameters"
-        bgcolor="#ef597b"
-        cmp params_decoder
+        label="Imitation"
+        bgcolor="#29a2c6"
+        var interest norm denorm est comp adapt
+
+        subgraph clus_interest {
+            cluster=true
+            label="Trend catcher"
+            bgcolor="#ffcb18"
+            var interest norm
+        }
+
+        subgraph clus_denorm {
+            cluster=true
+            label="Denormalizator"
+            bgcolor="#ffcb18"
+            denorm
+        }
     }
 
     # pipeline
-    src -> select -> var -> encoder -> int -> decoder -> est
-    {src var imp} -> compl -> cmp
-    src -> extractor -> imp
-
-    # arguments
-    params_encoder -> encoder [arrowhead=none style=dashed]
-    {cmp params_decoder} -> decoder [arrowhead=none style=dashed]
+    full -> truth -> ref
+    var -> interest -> norm -> denorm -> est
+    comp -> adapt
+    adapt -> denorm [label="a,b"]
 }
