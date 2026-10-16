@@ -222,7 +222,7 @@ def main(videos: tuple, database: str | None = None, **kwargs: dict) -> None:
         The path to the database where all measurements are stored.
         If a folder is provided, the database is created inside this folder.
         By default, it is created right next to the video.
-    **kwargs: dict
+    \\*\\*kwargs: dict
         Please refer to the detailed arguments below.
     repeat : int, default=2
         The number of times the experiment is repeated on this environment.
@@ -259,7 +259,7 @@ def main(videos: tuple, database: str | None = None, **kwargs: dict) -> None:
         more precisely between decoding and conversion. It is a kind of pre-conversion.
     callback : str, optional
         The name of the custom function to change the cmd, the signature must match:
-        def any(cmd: CmdFFMPEG, **kwargs) -> list[str] | str | CmdFFMPEG:
+        def any(cmd: CmdFFMPEG, \\*\\*kwargs) -> list[str] | str | CmdFFMPEG:
             ...
     ram : float
         The threshold for deciding where to copy videos. Copy in /dev/shm if

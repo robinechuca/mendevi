@@ -185,7 +185,7 @@ class Model(metaclass=MetaModel):
     input_labels : list[str]
         The name of all input parameters (readonly).
     input_labels_aggreg : list[str]
-        The subset of `input_label` that does not contain the aggregation values (readonly).
+        The subset of ``input_label`` that does not contain the aggregation values (readonly).
     output_labels : list[str]
         The name of all output parameters (readonly).
     accuracy : dict[str, dict]
@@ -195,13 +195,13 @@ class Model(metaclass=MetaModel):
     """
 
     def __init__(self, title: str | None = None, **kwargs: dict) -> None:
-        """Initialise the model.
+        r"""Initialise the model.
 
         Parameters
         ----------
         title : str, optional
             The model title.
-        **kwargs : dict
+        \*\*kwargs : dict
             Includes the following fields.
         sources : str
             All bibliographic sources for the model, the conference paper, the authors, etc.
@@ -699,11 +699,11 @@ class Model(metaclass=MetaModel):
         return self._output_labels.copy()
 
     def predict(self, *input_args: tuple, **input_kwargs: dict) -> dict[str, list]:
-        """Perform the prediction(s) of this model.
+        r"""Perform the prediction(s) of this model.
 
         Parameters
         ----------
-        *input_args, **input_kwargs
+        \*input_args, \*\*input_kwargs
             The parameters values, with the keys defined during initialisation.
 
         Returns
@@ -773,13 +773,13 @@ class Model(metaclass=MetaModel):
     def predict_from_video(
         self, video: pathlib.Path | str, *args: tuple, **kwargs: dict,
     ) -> dict[str, list]:
-        """Simplify the predict method by automatically extracting parameters from the video.
+        r"""Simplify the predict method by automatically extracting parameters from the video.
 
         Parameters
         ----------
         video : pathlike
             Transmitted to self.extract_video_props.
-        *args, **kwargs, optional
+        \*args, \*\*kwargs, optional
             The other arguments are passed to the prdict method.
             Accept a list of arguments for vectorization.
             Single values are duplicated in a list of the same length as the longest one.

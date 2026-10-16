@@ -18,11 +18,11 @@ class NearestL2(Model):
         title: str = "Nearset neighborhood interpolation with L2 distance",
         **kwargs: dict,
     ) -> None:
-        """Gaussian process regression predictive model.
+        r"""Gaussian process regression predictive model.
 
         Parameters
         ----------
-        title, **kwargs
+        title, \*\*kwargs
             Transmitted to :py:class:`mendevi.models.base.Model`.
 
         """

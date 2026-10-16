@@ -13,7 +13,7 @@ from mendevi.utils import get_project_root
 
 
 def _yield_all_models() -> Model:
-    """Discover the Model instances in mendevi/models/*.py."""
+    """Discover the Model instances in ``mendevi/models/*.py``."""
     for path in (get_project_root() / "models").glob("*.py"):
         if path.stem in {"__init__", "base"}:  # skip root module
             continue
@@ -30,7 +30,7 @@ def _yield_all_models() -> Model:
 
 @functools.cache
 def import_all_models() -> dict[str, Model]:
-    """Import all the class in mendevi/models/*.py that inherit from Model.
+    """Import all the class in ``mendevi/models/*.py`` that inherit from Model.
 
     Examples
     --------

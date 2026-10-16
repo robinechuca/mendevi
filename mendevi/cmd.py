@@ -46,13 +46,13 @@ class CmdFFMPEG:
         video: pathlib.Path | str,
         **kwargs: dict[str],
     ) -> None:
-        """Initialise the ffmpeg cmd.
+        r"""Initialise the ffmpeg cmd.
 
         Parameters
         ----------
         video : pathlike
             The input video path.
-        **kwargs: dict
+        \*\*kwargs: dict
             See above.
         general : list[str], str, optional
             The options immediately after ffmpeg and immediately before the decoder.

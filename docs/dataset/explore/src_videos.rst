@@ -49,11 +49,11 @@ To understand the nature of each test video. A similar plot has been made in `UH
 Reproduce
 ---------
 
-for video in *.mkv; do
-    for profile in sd hd fhd uhd4k; do
-        echo "$video $profile"
-    done
-done | parallel -j 6 --colsep ' ' 'mendevi prepare {1} -p {2}'
+.. for video in *.mkv; do
+..     for profile in sd hd fhd uhd4k; do
+..         echo "$video $profile"
+..     done
+.. done | parallel -j 6 --colsep ' ' 'mendevi prepare {1} -p {2}'
 
 .. code:: shell
 

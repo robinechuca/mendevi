@@ -57,13 +57,13 @@ DECODERS_CAT = {  # sorted by order of priority
 
 
 def decode(vid: pathlib.Path, **kwargs: dict) -> tuple[str, str | None, str, dict[str]]:
-    """Decode an existing video.
+    r"""Decode an existing video.
 
     Parameters
     ----------
     vid : pathlib.Path
         The source video file to be decoded.
-    **kwargs : dict
+    \*\*kwargs : dict
         Transmitted to :py:func:`get_decode_cmd`.
 
     Returns
@@ -115,7 +115,7 @@ def decode_and_store(
     vid: pathlib.Path,
     **kwargs: dict,
 ) -> None:
-    """Decode a video file and store the result in the database.
+    r"""Decode a video file and store the result in the database.
 
     Parameters
     ----------
@@ -125,7 +125,7 @@ def decode_and_store(
         The primary integer key of the environment.
     vid : pathlib.Path
         The path of the video to be encoded.
-    **kwargs
+    \*\*kwargs
         Transmitted to :py:func:`decode`.
 
     """

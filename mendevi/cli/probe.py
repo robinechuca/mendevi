@@ -73,7 +73,7 @@ def main(videos: tuple[str], database: str | None = None, **kwargs: dict) -> Non
     database : pathlike, optional
         The path to the database where all measurements are stored.
         If a folder is provided, the database is created inside this folder.
-    **kwargs: dict
+    \\*\\*kwargs: dict
         Please refer to the detailed arguments below.
     ref : tuple(pathlike), optional
         If provided, in addition to the original video ``o``,

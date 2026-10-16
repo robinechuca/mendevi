@@ -62,13 +62,13 @@ ENCODERS_CMD = {
 
 
 def encode(src: pathlib.Path, **kwargs: dict) -> tuple[pathlib.Path, str, str, dict[str]]:
-    """Transcode an existing video.
+    r"""Transcode an existing video.
 
     Parameters
     ----------
     src : pathlib.Path
         The source video file to be transcoded.
-    **kwargs : dict
+    \*\*kwargs : dict
         Transmitted to :py:func:`get_transcode_cmd`.
 
     Returns
@@ -144,7 +144,7 @@ def encode_and_store(
     src: pathlib.Path,
     **kwargs: dict,
 ) -> None:
-    """Transcode a video file and store the result in the database.
+    r"""Transcode a video file and store the result in the database.
 
     Parameters
     ----------
@@ -154,7 +154,7 @@ def encode_and_store(
         The primary integer key of the environment.
     src : pathlib.Path
         The path of the video to be decoded.
-    **kwargs
+    \*\*kwargs
         Transmitted to :py:func:`encode`.
 
     """

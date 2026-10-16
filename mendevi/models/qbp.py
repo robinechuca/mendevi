@@ -21,11 +21,11 @@ class QBP(Model):
         ),
         **kwargs: dict,
     ) -> None:
-        """Quality based prediction of enegy model.
+        r"""Quality based prediction of enegy model.
 
         Parameters
         ----------
-        title, sources, **kwargs
+        title, sources, \*\*kwargs
             Transmitted to :py:class:`mendevi.models.base.Model`.
 
         """
@@ -41,7 +41,7 @@ class QBP(Model):
         assert self.output_labels == ["energy"], self.output_labels
 
     def _fit_vect(self, values: dict[str, torch.Tensor]) -> object:
-        """Fit the model E = P*T with T = k*q**3 - l*q**2 - u*q + T0."""
+        """Fit the model :math:`E = PT` with :math:`T = kq^3 - lq^2 - uq + T_0`."""
         quality = values["quality"]
         klutp = torch.asarray(
             [8.826, -198.556, 359.969, 181.532, 451.230],  # loss 4.5805e+10

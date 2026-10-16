@@ -53,7 +53,7 @@ def main(database: str, **kwargs: dict) -> None:
     ----------
     database : pathlike
         The source SQL database to be filled.
-    **kwargs: dict
+    \\*\\*kwargs: dict
         Please refer to the detailed arguments below.
     login, password : str, optional
         The grid'5000 login and password to acces the api from the outside.

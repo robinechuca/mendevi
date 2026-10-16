@@ -128,7 +128,7 @@ To see all available options, type
             The path to the database where all measurements are stored.
             If a folder is provided, the database is created inside this folder.
             By default, it is created right next to the video.
-        **kwargs: dict
+        ``**kwargs``: dict
             Please refer to the detailed arguments below.
         repeat : int, default=2
             The number of times the experiment is repeated on this environment.
@@ -224,7 +224,7 @@ To see all available options, type
           database : pathlike, optional
               The path to the database where all measurements are stored.
               If a folder is provided, the database is created inside this folder.
-          **kwargs: dict
+          ``**kwargs``: dict
               Please refer to the detailed arguments below.
           ref : tuple(pathlike), optional
               If provided, in addition to the original video ``o``,
@@ -286,7 +286,7 @@ To see all available options, type
           database : pathlike, optional
               The path to the database where all measurements are stored.
               If a folder is provided, the database is created inside this folder.
-          **kwargs: dict
+          ``**kwargs``: dict
               Please refer to the detailed arguments below.
           repeat : int, default=5
               The number of times the experiment is repeated on this environment.

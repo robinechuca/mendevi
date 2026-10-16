@@ -2,6 +2,7 @@ Mendevi |release|
 =================
 
 .. include:: /_static/README.rst
+    :start-line: 7
 
 
 Getting started

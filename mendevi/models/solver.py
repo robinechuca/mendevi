@@ -120,13 +120,13 @@ class Solver:
     def solve(
         self, video: pathlib.Path | str | None = None, **kwargs: dict[str],
     ) -> tuple[dict[str, list], list[float]]:
-        """Test all combinations as a cartesian product.
+        r"""Test all combinations as a cartesian product.
 
         Parameters
         ----------
         video : pathlike, optional
             Use this to extract the missing parameters.
-        **kwargs : dict, optional
+        \*\*kwargs : dict, optional
             Use to define or redefine certain input parameters to be explored.
             Explore the cartesian product of all the values.
 

@@ -137,7 +137,7 @@ def main(databases: tuple[str], **kwargs: dict) -> None:
     ----------
     databases : list[pathlike]
         All databases to be merged.
-    **kwargs: dict
+    \\*\\*kwargs: dict
         Please refer to the detailed arguments below.
     output : pathlike, optional
         The destination sql database path.

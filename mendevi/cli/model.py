@@ -238,7 +238,7 @@ def benchmark(**kwargs: dict) -> None:
     \b
     Parameters
     ----------
-    **kwargs: dict
+    \\*\\*kwargs: dict
         See above.
     name : tuple[pathlike]
         The name, the path or the identifier of the models to be compared.

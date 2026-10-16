@@ -27,7 +27,7 @@ def _get_size(compressed_file: pathlib.Path) -> int:
 
 
 def decompress(compressed_file: pathlib.Path) -> pathlib.Path:
-    """Decompress a *.xz file in the same folder."""
+    """Decompress a ``*.xz`` file in the same folder."""
     assert isinstance(compressed_file, pathlib.Path), compressed_file.__class__.__name__
     assert compressed_file.suffix == ".xz", compressed_file
     decompressed_file = compressed_file.parent / compressed_file.stem

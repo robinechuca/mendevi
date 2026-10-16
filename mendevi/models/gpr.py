@@ -38,7 +38,7 @@ class GPR(Model):
 
         Parameters
         ----------
-        title, sources, **kwargs
+        title, sources, \*\*kwargs
             Transmitted to :py:class:`mendevi.models.base.Model`.
         nu_kernel : float, default = 0.5
             The parameter $\nu$ of the Matern kernel.

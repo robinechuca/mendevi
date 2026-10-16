@@ -13,20 +13,16 @@ from .base import EPS, discard_nan
 from .nn import DNN, _TorchNN
 
 
-class KernelMultiHead(DNN):
-    """Share the kernel NN to all aggregated data, and split output with several headers.
+class TrendNormlisator(DNN):
+    r"""Examines the relative impact of a set of parameters on an output.
 
     This structure provides an answer to the question:
 
-    **How does parameter ``toto`` affect parameter ``tata``, regardless of all other factors?**
+    How does parameter :math:`X_k` affect parameter :math:`Y`,
+    regardless of all other factors :math:`\left{ X_i \right}_{i \neq k}`?
 
-    {xi}                  +-----+
-        i>=1              |     |                            y
-    --------------------->| phi |--------------------------------->
-                          |     |
-                          +-----+
-
-    
+    This model is an implementation of the diagram below.
+    The parameters of the functions :math:`\phi'` and :math:`psi` are trained simultaneously.
 
     .. image:: /_static/media/intrinsic.svg
         :alt: Pipeline diagram
@@ -238,7 +234,7 @@ class KernelMultiHead(DNN):
             plt.show()
 
 
-class EncodeEnergyNN(KernelMultiHead):
+class EncodeEnergyNN(TrendNormlisator):
     """Deep neuronal network for the video encoding energy prediction.
 
     Examples
@@ -277,7 +273,7 @@ class EncodeEnergyNN(KernelMultiHead):
         super().__init__(title=title, **kwargs)
 
 
-class DecodeEnergyNN(KernelMultiHead):
+class DecodeEnergyNN(TrendNormlisator):
     """Deep neuronal network for the video encoding energy prediction.
 
     Examples

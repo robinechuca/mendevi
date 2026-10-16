@@ -245,7 +245,7 @@ def probe_and_store(
     lock_conn: LOCK_CONN_TYPE = None,
     **kwargs: dict,
 ) -> LOCK_CONN_TYPE:
-    """Measure the properties of the video.
+    r"""Measure the properties of the video.
 
     Parameters
     ----------
@@ -255,7 +255,7 @@ def probe_and_store(
         The source video file to be annalysed.
     lock_conn: tuple[Lock, sqlite3.Connection], optional
         A read only database connection.
-    **kwargs : dict
+    \*\*kwargs : dict
         All the metrics
 
     """

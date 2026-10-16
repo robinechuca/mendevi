@@ -24,11 +24,11 @@ class LR(Model):
         biaised: bool = True,
         **kwargs: dict,
     ) -> None:
-        """Gaussian process regression predictive model.
+        r"""Gaussian process regression predictive model.
 
         Parameters
         ----------
-        title, sources, **kwargs
+        title, sources, \*\*kwargs
             Transmitted to :py:class:`mendevi.models.base.Model`.
         biaised : boolean, default=True
             If True, the linear regression includes a bias term, or y-intercept constant.

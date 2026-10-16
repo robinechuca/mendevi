@@ -42,7 +42,7 @@ def main(database: str, **kwargs: dict) -> None:
     ----------
     database : pathlike
         The source SQL database to be converted.
-    **kwargs: dict
+    \\*\\*kwargs: dict
         Please refer to the detailed arguments below.
     output : pathlike, optional
         The destination json database path.
