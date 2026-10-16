@@ -11,6 +11,7 @@ from context_verbose import Printer
 
 from .base import EPS, discard_nan
 from .nn import DNN, _TorchNN
+from mendevi.cst.labels import LABELS
 
 
 class TrendNormlisator(DNN):
@@ -27,6 +28,50 @@ class TrendNormlisator(DNN):
     .. image:: /_static/media/intrinsic.svg
         :alt: Pipeline diagram
     """
+
+    def __init__(self, interest_labels: list[str], **kwargs: dict) -> None:
+        r"""Initialise the model.
+
+        Parameters
+        ----------
+        interest_labels : list[str]
+            The parameters whose impact we wish to study, it corresponds to :math:`X_k`.
+            The possibles values are `mendevi.plot.axis.Name`.
+        output_labels : list[str]
+            The parameters affected, it corresponds to :math:`Y`.
+            It is transmitted to the class :py:class:`mendevi.models.base.Model`.
+        input_labels : list[str]
+            All the other contextual input parameters that feed into :math:`\psi`.
+            These correspond to the :math:`\left{ X_i \right}_{i \neq k}` set in the diagram.
+            The ``input_labels`` transmitted to :py:class:`mendevi.models.base.Model` are
+            the union of this ``input_labels`` and this ``interest_labels``.
+        \*\*kwargs
+            Transmitted to :py:class:`mendevi.models.nn.DNN`.
+
+        Notes
+        -----
+        The parameter ``aggregation`` has only an impact on the function :math:`\psi`.
+        :math:`\phi` is always the same / shared in all scenarios.
+
+        """
+        # check interest_labels
+        assert hasattr(interest_labels, "__iter__"), interest_labels.__class__.__name__
+        interest_labels = list(interest_labels)
+        assert interest_labels, "interest must be not empty"
+        assert all(isinstance(lab, str) and lab in LABELS for lab in interest_labels), \
+            (interest_labels, sorted(LABELS))
+        self._interest_labels = interest_labels
+
+        # union for all input_labels
+        single: set[str] = set()  # remove redundency
+        input_labels: list[str] = []  # keep order
+        for lbl in (*kwargs.get("input_labels", []), *interest_labels):
+            if lbl in single:  # better than 'lbl in input_labels' becaose O(1) vs O(n)
+                continue
+            single.add(lbl)
+            input_labels.append(lbl)  # we do not do list(set(...)) to preserve order
+        super().__init__(**{**kwargs, "input_labels": input_labels})
+
 
     def _fit_vect(self, values: dict[str, torch.Tensor]) -> object:
         """Hack to delay the model instantation and training."""
@@ -46,10 +91,11 @@ class TrendNormlisator(DNN):
             for lbl in (*self.input_labels_aggreg, *self.output_labels)
         }
 
-        # create and warm the kernel common nn model
+        # create and warm the phi_prime model
         self._aggreg_ctx = "full"  # for global normalization
-        niter, self._niter = self._niter, self._niter//10  # universal model warming
-        model, slices = super()._fit_vect(merge_values)
+        niter, self._niter = self._niter, self._niter//10  # model warming settings
+        import ipdb; ipdb.set_trace()
+        phi_prime, slices = super()._fit_vect(merge_values)
         self._niter = niter
 
         # parameters preparation
@@ -73,10 +119,10 @@ class TrendNormlisator(DNN):
             for clus, values in parameters.items()
         }
 
-        # initialise the R -> R heads, they are simple enouth to approximate a smouth ID
-        heads = {
+        # initialise the Y' -> aY'+b denomalized heads hyperparameters
+        psi = {
             clus: {
-                lbl: _TorchNN(in_ndim=idx_max-idx_min, out_ndim=idx_max-idx_min, total=80)
+                lbl: _TorchNN(in_ndim=idx_max-idx_min, out_ndim=2*(idx_max-idx_min), total=80)
                 for lbl, (idx_min, idx_max) in slices.items()
             }
             for clus in clus_keys
@@ -85,8 +131,8 @@ class TrendNormlisator(DNN):
         # gradient decay
         optimizer = torch.optim.RAdam(
             [
-                *model.parameters(),
-                *(p for ms in heads.values() for m in ms.values() for p in m.parameters()),
+                *phi_prime.parameters(),
+                *(p for ms in psi.values() for m in ms.values() for p in m.parameters()),
             ],
             lr=self._lr,
         )
@@ -107,14 +153,15 @@ class TrendNormlisator(DNN):
             ) as progress_bar,
         ):
             for _ in range(self._niter):
-                # prediction
-                intrinsic = {clus: model(values["input"]) for clus, values in parameters.items()}
+                # prediction, X_k = values["input"]
+                y_prime = {clus: phi_prime(values["input"]) for clus, values in parameters.items()}
+                import ipdb; ipdb.set_trace()
                 predict = {
                     clus: {
-                        lbl: data[:, idx_min:idx_max] + heads[clus][lbl](data[:, idx_min:idx_max])
+                        lbl: data[:, idx_min:idx_max] + psi[clus][lbl](data[:, idx_min:idx_max])
                         for lbl, (idx_min, idx_max) in slices.items()
                     }
-                    for clus, data in intrinsic.items()
+                    for clus, data in y_prime.items()
                 }
                 # losses and regularization
                 losses = {  # main mse loss
@@ -133,7 +180,7 @@ class TrendNormlisator(DNN):
                 )
                 identity_regularization = torch.cat([  # regularisation term to force identity
                     ((data[:, idx_min:idx_max] - predict[clus][lbl])**2).mean()[None]
-                    for clus, data in intrinsic.items()
+                    for clus, data in y_prime.items()
                     for lbl, (idx_min, idx_max) in slices.items()
                 ]).mean()
                 # gradient propagation
@@ -234,25 +281,26 @@ class TrendNormlisator(DNN):
             plt.show()
 
 
-class EncodeEnergyNN(TrendNormlisator):
-    """Deep neuronal network for the video encoding energy prediction.
+class TrendEncodeEnergy(TrendNormlisator):
+    """Examine the effect of a parameter on encoding time and power.
+
+    This example provides an overview of the effect of quality on energy consumption:
 
     Examples
     --------
-    >>> from mendevi.models.trend import EncodeEnergyNN
-    >>> model = EncodeEnergyNN().fit(
-    ...     "svtav1_vs_rav1e_vs_aom.db", table="t_enc_encode", select="uniform(vid_hash) >= 0.2",
+    >>> from mendevi.models.trend import TrendEncodeEnergy
+    >>> model = TrendEncodeEnergy(interest_labels=["quality"]).fit(
+    ...     "scatter.db", table="t_enc_encode", select="uniform(vid_hash) >= 0.2",
     ... )  # doctest: +SKIP
     >>> model.validate(
-    ...     "svtav1_vs_rav1e_vs_aom.db", table="t_enc_encode", select="uniform(vid_hash) >= 0.2",
+    ...     "scatter.db", table="t_enc_encode", select="uniform(vid_hash) < 0.2",
     ... )  # doctest: +SKIP
     >>>
 
     """
-
     def __init__(
         self,
-        title: str = "Encoding energy estimation based on a neuronal network",
+        title: str = "Effect of a parameter on the encoding energy",
         **kwargs: dict,
     ) -> None:
         """Initialise the model."""
@@ -273,39 +321,39 @@ class EncodeEnergyNN(TrendNormlisator):
         super().__init__(title=title, **kwargs)
 
 
-class DecodeEnergyNN(TrendNormlisator):
-    """Deep neuronal network for the video encoding energy prediction.
+# class DecodeEnergyNN(TrendNormlisator):
+#     """Deep neuronal network for the video encoding energy prediction.
 
-    Examples
-    --------
-    >>> from mendevi.models.trend import DecodeEnergyNN
-    >>> model = DecodeEnergyNN().fit(
-    ...     "duration.db", table="t_dec_decode", select="uniform(vid_hash) >= 0.2",
-    ... )  # doctest: +SKIP
-    >>> model.validate(
-    ...     "duration.db", table="t_dec_decode", select="uniform(vid_hash) < 0.2",
-    ... )  # doctest: +SKIP
-    >>>
+#     Examples
+#     --------
+#     >>> from mendevi.models.trend import DecodeEnergyNN
+#     >>> model = DecodeEnergyNN().fit(
+#     ...     "duration.db", table="t_dec_decode", select="uniform(vid_hash) >= 0.2",
+#     ... )  # doctest: +SKIP
+#     >>> model.validate(
+#     ...     "duration.db", table="t_dec_decode", select="uniform(vid_hash) < 0.2",
+#     ... )  # doctest: +SKIP
+#     >>>
 
-    """
+#     """
 
-    def __init__(
-        self,
-        title: str = "Decoding energy estimation based on a neuronal network",
-        **kwargs: dict,
-    ) -> None:
-        """Initialise the model."""
-        kwargs = kwargs.copy()
-        kwargs["input_labels"] = kwargs.get(
-            "input_labels", [
-                "decoder",
-                "hostname",  # "temperature",
-                "nb_frames", "height", "width",  # "range", "primaries", "eotf",
-                "spatial_dct", "temporal_dct", "rms_sobel", "rms_time_diff",
-            ],
-        )
-        kwargs["output_labels"] = kwargs.get(
-            "output_labels", ["log_act_duration_per_frame", "power"],
-        )
-        kwargs["aggregation"] = kwargs.get("aggregation", ["hostname"])
-        super().__init__(title=title, **kwargs)
+#     def __init__(
+#         self,
+#         title: str = "Decoding energy estimation based on a neuronal network",
+#         **kwargs: dict,
+#     ) -> None:
+#         """Initialise the model."""
+#         kwargs = kwargs.copy()
+#         kwargs["input_labels"] = kwargs.get(
+#             "input_labels", [
+#                 "decoder",
+#                 "hostname",  # "temperature",
+#                 "nb_frames", "height", "width",  # "range", "primaries", "eotf",
+#                 "spatial_dct", "temporal_dct", "rms_sobel", "rms_time_diff",
+#             ],
+#         )
+#         kwargs["output_labels"] = kwargs.get(
+#             "output_labels", ["log_act_duration_per_frame", "power"],
+#         )
+#         kwargs["aggregation"] = kwargs.get("aggregation", ["hostname"])
+#         super().__init__(title=title, **kwargs)

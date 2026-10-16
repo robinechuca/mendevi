@@ -547,7 +547,7 @@ You can compile the documentation yourself after :ref:`full_installation` by sim
     cd docs/ && make clean && make html && cd -
     firefox docs/build/html/index.html
 
-.. _testing
+.. _testing:
 
 Testing
 -------

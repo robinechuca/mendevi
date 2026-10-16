@@ -679,7 +679,7 @@ def print_read_sql(**kwargs: dict) -> list[str]:
         "        return None",
         "",
         "",
-        "@filecache  # optional, just to memoize in ~/.cache/mendevi/cache_*.pk",
+        "# @filecache  # optional, just to memoize in ~/.cache/mendevi/cache_*.pk",
         "def read_sql(database: pathlib.Path) -> dict[str, list]:",
         '    """Extract the relevant values from the database."""',
         f"    values: dict[str, list] = {{{', '.join(f'{n!r}: []' for n in sorted(alias))}}}",
