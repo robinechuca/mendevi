@@ -37,7 +37,7 @@ def import_all_models() -> dict[str, Model]:
     >>> from pprint import pprint
     >>> from mendevi.cst.model import import_all_models
     >>> pprint(import_all_models())
-    {'DNN': <class 'mendevi.models.nn.DNN'>,
+    {'DNN': <class 'mendevi.models.nn.nn'>,
      'DecodeEnergyNN': <class 'mendevi.models.nn.DecodeEnergyNN'>,
      'EncodeEnergyNN': <class 'mendevi.models.nn.EncodeEnergyNN'>,
      'EncodeLinear': <class 'mendevi.models.lr.EncodeLinear'>,
