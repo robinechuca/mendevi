@@ -27,6 +27,13 @@ class TrendNormlisator(DNN):
 
     .. image:: /_static/media/intrinsic.svg
         :alt: Pipeline diagram
+
+    Attributes
+    ----------
+    interest_labels : list[str]
+        The name of all :math:`X_k` labels (readonly).
+    context_labels : list[str]
+        The name of all other labels :math:`\left\{ X_i \right\}_{i \neq k}` (readonly).
     """
 
     def __init__(self, interest_labels: list[str], **kwargs: dict) -> None:
@@ -97,13 +104,13 @@ class TrendNormlisator(DNN):
         aggreg, input_labels, self._aggreg, self._input_labels = (
             self._aggreg, self._input_labels, [], self._interest_labels,
         )  # hack to set self.input_labels_aggreg = self._interest_labels
-        phi_prime, slices = super()._fit_vect(merge_values)  # based on self.input_labels_aggreg
+        phi_prime, slices = super()._fit_vect(  # based on self.input_labels_aggreg
+            merge_values, _check=False,
+        )
         self._niter = niter
         self._aggreg, self._input_labels = aggreg, input_labels
 
-
         # parameters preparation
-        import ipdb; ipdb.set_trace()
         parameters = {  # normalisation
             clus: {
                 lbl: (
@@ -118,17 +125,22 @@ class TrendNormlisator(DNN):
         }
         parameters = {  # concatenation
             clus: {
-                "input": torch.cat([values[lbl] for lbl in self.input_labels_aggreg], dim=1),
+                "x_k": torch.cat([values[lbl] for lbl in self.interest_labels], dim=1),
+                "x_i_no_k": torch.cat([values[lbl] for lbl in self.context_labels], dim=1),
                 **values,
             }
             for clus, values in parameters.items()
         }
 
-        # initialise the Y' -> aY'+b denomalized heads hyperparameters
+        # initialise the Xi, i!=k -> a, b denomalized heads hyperparameters
         psi = {
             clus: {
-                lbl: _TorchNN(in_ndim=idx_max-idx_min, out_ndim=2*(idx_max-idx_min), total=80)
-                for lbl, (idx_min, idx_max) in slices.items()
+                lbl: _TorchNN(
+                    in_ndim=parameters[clus]["x_i_no_k"].shape[1],
+                    out_ndim=2,  # dim 2 for a and b
+                    total=160,
+                )
+                for lbl in slices
             }
             for clus in clus_keys
         }
@@ -145,7 +157,7 @@ class TrendNormlisator(DNN):
             Printer(
                 (
                     f"Global fit on {len(parameters)} clusters "
-                    f"for {sum(len(d['input']) for d in parameters.values())} observations..."
+                    f"for {sum(len(d['x_k']) for d in parameters.values())} observations..."
                 ),
                 color="pink",
             ) as prt,
@@ -159,40 +171,47 @@ class TrendNormlisator(DNN):
         ):
             for _ in range(self._niter):
                 # prediction, X_k = values["input"]
-                y_prime = {clus: phi_prime(values["input"]) for clus, values in parameters.items()}
-                import ipdb; ipdb.set_trace()
-                predict = {
-                    clus: {
-                        lbl: data[:, idx_min:idx_max] + psi[clus][lbl](data[:, idx_min:idx_max])
+                y_prime = {clus: phi_prime(values["x_k"]) for clus, values in parameters.items()}
+                a_b = {
+                    clus: {lbl: psi_(values["x_i_no_k"]) for lbl, psi_ in psi[clus].items()}
+                    for clus, values in parameters.items()
+                }
+                y_est = {  # Ŷ
+                    clus: {  # a*Y' + b
+                        lbl: a_b[clus][lbl][:, 0:1].abs()*y_prime_[:, idx_min:idx_max] + a_b[clus][lbl][:, 1:2]
                         for lbl, (idx_min, idx_max) in slices.items()
                     }
-                    for clus, data in y_prime.items()
+                    for clus, y_prime_ in y_prime.items()
                 }
                 # losses and regularization
-                losses = {  # main mse loss
+                losses = {  # loss for each output var and each cluster
                     clus: {
-                        lbl: ((data_pred[lbl] - parameters[clus][lbl])**2).mean()
-                        for lbl, (idx_min, idx_max) in slices.items()
+                        lbl: ((y_est__ - parameters[clus][lbl])**2).mean()
+                        for lbl, y_est__ in y_est_.items()
                     }
-                    for clus, data_pred in predict.items()
+                    for clus, y_est_ in y_est.items()
                 }
                 losses = {  # average loss throw each clusters
                     lbl: torch.cat([loss[lbl][None] for loss in losses.values()]).mean()
                     for lbl in slices
                 }
+                losses = {  # add regularization
+                    **losses,
+                    "prod(a)": (torch.cat([
+                        a_b__[:, 0] for a_b_ in a_b.values() for a_b__ in a_b_.values()
+                    ]).abs() + EPS).log().sum(),
+                    "sum(b)": torch.cat([
+                        a_b__[:, 1] for a_b_ in a_b.values() for a_b__ in a_b_.values()
+                    ]).sum(),
+                }
                 progress_bar.set_postfix_str(
                     ", ".join(f"{lbl}: {losses[lbl]:9.3e}" for lbl in sorted(losses)),
                 )
-                identity_regularization = torch.cat([  # regularisation term to force identity
-                    ((data[:, idx_min:idx_max] - predict[clus][lbl])**2).mean()[None]
-                    for clus, data in y_prime.items()
-                    for lbl, (idx_min, idx_max) in slices.items()
-                ]).mean()
                 # gradient propagation
                 optimizer.zero_grad()
-                (
-                    torch.cat([ls[None] for ls in losses.values()]).mean()  # main loss
-                    + 0.5 * identity_regularization  # force latent space to be homogeneous
+                (  # note hack, the .pop remove regularization terme from main loss
+                    0.5*losses.pop("prod(a)") + 0.5*losses.pop("sum(b)")  # regularization
+                    + torch.cat([ls[None] for ls in losses.values()]).mean()  # main loss
                 ).backward()
                 optimizer.step()
                 progress_bar.update(1)
@@ -235,6 +254,11 @@ class TrendNormlisator(DNN):
 
         return prediction
 
+    @property
+    def context_labels(self) -> list[str]:
+        r"""Return the name of all other labels :math:`\left\{ X_i \right\}_{i \neq k}`."""
+        return sorted(set(self.input_labels_aggreg) - set(self._interest_labels))
+
     def fit(self, *args: tuple, **kwargs: dict) -> typing.Self:
         """Container for the :py:meth:`Model.fit` method."""
         super().fit(*args, **kwargs)  # prepare data
@@ -242,6 +266,11 @@ class TrendNormlisator(DNN):
         if self._weights is not None:  # save again
             self.save(self._weights)
         return self
+
+    @property
+    def interest_labels(self) -> list[str]:
+        """Return the name of all :math:`X_k` labels."""
+        return self._interest_labels.copy()
 
     def draw(self) -> None:
         """Plot the R -> R heads function."""

@@ -322,13 +322,21 @@ class Model(metaclass=MetaModel):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _fit_vect(self, values: dict[str, torch.Tensor]) -> object:
+    def _fit_vect(self, values: dict[str, torch.Tensor], *, _check: bool=True) -> object:
         """Do the same as ``self._fit``, but provide tensor rather than lists."""
         # level 2
         if self.__class__._fit_vect_norm is not Model._fit_vect_norm:  # noqa: SLF001
-            assert (
-                (set(self._input_labels) | set(self._output_labels)) - set(self._aggreg)
-            ) == set(values)
+            if _check:
+                if (
+                    (set(self._input_labels) | set(self._output_labels)) - set(self._aggreg)
+                    != set(values)
+                ):
+                    msg = (
+                        "input | output - aggreg != values\n"
+                        f"{self._input_labels} | {self._output_labels} - {self._aggreg} "
+                        f"!= {set(values)}"
+                    )
+                    raise KeyError(msg)
             self._std_mean[self._aggreg_ctx] = {
                 name: (
                     (  # same as torch.std_mean(data, dim=0, keepdim=True, correction=0.0) with nan

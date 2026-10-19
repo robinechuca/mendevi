@@ -101,7 +101,7 @@ class DNN(Model):
         # end of initialization
         total = self._total or max(
             input_values.shape[1] + 8 + nanref.shape[1],  # minimum structural
-            input_values.shape[0] // 5,  # empirical rule
+            input_values.shape[0] // 4,  # empirical rule
         )
         model = _TorchNN(input_values.shape[1], nanref.shape[1], total=total)
 
