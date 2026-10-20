@@ -725,7 +725,7 @@ def extract_temp(raw: dict[str]) -> float:
         return None
     act_ps_dt = binary_to_list(act_ps_dt)
     act_ps_temp = orjson.loads(act_ps_temp)
-    avg_temp = sum(np.asarray(tps, act_ps_dt.dtype) for tps in act_ps_temp.values())
+    avg_temp = sum(np.asarray(tps, act_ps_dt.datetimeype) for tps in act_ps_temp.values())
     if len(act_ps_dt) != len(avg_temp):  # backwards compatibility for a bug fixed since 1.2.5
         logging.getLogger(__name__).warning(
             "ps_dt and avg_temp lengths mismatch (%d vs %d)", len(act_ps_dt), len(avg_temp),

@@ -4,7 +4,7 @@
 """Perform encoding measures."""
 
 import contextlib
-import datetime
+import datetime as dt
 import logging
 import math
 import pathlib
@@ -162,7 +162,7 @@ def encode_and_store(
     dst, cmd, log, activity = encode(src, **kwargs)
 
     with (
-        Lock(str(database.with_suffix(".lock")), lifetime=datetime.timedelta(seconds=600)),
+        Lock(str(database.with_suffix(".lock")), lifetime=dt.timedelta(seconds=600)),
         sqlite3.connect(database) as conn,
     ):
         cursor = conn.cursor()

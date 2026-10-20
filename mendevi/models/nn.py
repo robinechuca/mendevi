@@ -69,7 +69,7 @@ class DNN(Model):
             Transmitted to :py:class:`mendevi.models.base.Model`.
         niter : int, default=1000
             The number of epoch, also the number of batch, because one batch by epoch.
-        learning_rate : float, default=1e-3
+        learning_rate : float, default=1e-4
             The learning rate.
         total : int, optional
             The number of parameters of the neuronal network.
@@ -77,15 +77,16 @@ class DNN(Model):
             based on the size of the training set.
 
         """
+        if total is not None:
+            assert isinstance(total, int), total.__class__.__name__
+            assert total > 0, total
+        self._total = total
+        super().__init__(**kwargs)  # before niter and learning_rate to avoid reset
         assert isinstance(niter, int), niter.__class__.__name__
         assert niter >= 0, niter
         assert isinstance(learning_rate, float), learning_rate.__class__.__name__
         assert learning_rate > 0, learning_rate
-        if total is not None:
-            assert isinstance(total, int), total.__class__.__name__
-            assert total > 0, total
-        self._niter, self._lr, self._total = niter, learning_rate, total
-        super().__init__(**kwargs)
+        self._niter, self._lr = niter, learning_rate
 
     def _fit_vect_norm(self, values: dict[str, torch.Tensor]) -> object:
         """Perform the gradient descent on a just intanciated nn."""

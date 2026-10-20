@@ -3,7 +3,7 @@
 
 """Perform the metrics and video properties measures."""
 
-import datetime
+import datetime as dt
 import logging
 import pathlib
 import sqlite3
@@ -24,7 +24,7 @@ def open_ro(database: pathlib.Path, lock_conn: LOCK_CONN_TYPE) -> tuple[Lock, sq
     """Open a new conn if the previous one is not already opened."""
     if lock_conn is not None:
         return lock_conn
-    lock = Lock(str(database.with_suffix(".lock")), lifetime=datetime.timedelta(seconds=600))
+    lock = Lock(str(database.with_suffix(".lock")), lifetime=dt.timedelta(seconds=600))
     lock.lock()  # aquire
     conn = sqlite3.connect(f"file:{database}?mode=ro&immutable=1", uri=True, timeout=30)
     conn.row_factory = sqlite3.Row
@@ -106,7 +106,7 @@ def _fill_vid_table(
     # update result
     fields = list(fields)  # to frozen order for sql request
     with (
-        Lock(str(database.with_suffix(".lock")), lifetime=datetime.timedelta(seconds=600)),
+        Lock(str(database.with_suffix(".lock")), lifetime=dt.timedelta(seconds=600)),
         sqlite3.connect(database) as conn,
     ):
         cursor = conn.cursor()
@@ -220,7 +220,7 @@ def _fill_met_table(
 
     # update result
     with (
-        Lock(str(database.with_suffix(".lock")), lifetime=datetime.timedelta(seconds=600)),
+        Lock(str(database.with_suffix(".lock")), lifetime=dt.timedelta(seconds=600)),
         sqlite3.connect(database) as conn,
     ):
         cursor = conn.cursor()

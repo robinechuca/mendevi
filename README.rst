@@ -1,12 +1,12 @@
 .. rst syntax: https://deusyss.developpez.com/tutoriels/Python/SphinxDoc/
 .. version conv: https://peps.python.org/pep-0440/
 
-*******************************************
-Measures of Encoding and Decoding of Videos
-*******************************************
+***************************************************************
+**Me**\asures of **En**\coding and **De**\coding of **Vi**\deos
+***************************************************************
 
 .. image:: https://img.shields.io/badge/License-GPL-green.svg
-    :alt: [license GPL]
+    :alt: [license GPLv3]
     :target: https://opensource.org/license/gpl-3-0
 
 .. image:: https://img.shields.io/badge/linting-ruff-green
@@ -36,7 +36,7 @@ Description
 Context
 ^^^^^^^
 
-This module is developed by the `INRIA COMPACT team <https://www.inria.fr/fr/compact>`_, as part of the `VideoImpact <https://project.inria.fr/videoimpact/>`_ project.
+This module is developed by the Rennes `IRISA <https://www.irisa.fr/>`_/`INRIA <https://www.inria.fr/fr>`_ `COMPACT <https://www.inria.fr/fr/compact>`_ and `MAGELAN <https://www.inria.fr/fr/magellan>`_ team, as part of the `VideoImpact <https://project.inria.fr/videoimpact/>`_ project.
 
 Project
 ^^^^^^^
@@ -63,7 +63,7 @@ It manages the following parameters:
 #. Provides a guide to compile ffmpeg with all optimizations in order to ``compare encoders/decoders at their limits``.
 
 .. caution::
-    The entire code was written by hand, without the use of AI, including the core library cutcutcodec (used for ``prepare`` and ``probe``).
+    The entire code was written by hand, without the use of generative AI, including the core library cutcutcodec (used for ``prepare`` and ``probe``).
 
 
 Pipeline
@@ -118,7 +118,7 @@ If this work is helpful for your research, please consider citing it.
         version = {latest},
         license = {GPLv3},
         note = {Python software and dataset for measuring video encoding and decoding},
-        keywords = {video encoding, decoding, energy, complexity, quality, dataset},
+        keywords = {video encoding, video decoding, energy, complexity, quality, dataset},
         organization = {Inria},
         location = {Rennes, France},
     }

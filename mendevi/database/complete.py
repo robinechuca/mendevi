@@ -3,7 +3,7 @@
 
 """Fill the SQL database."""
 
-import datetime
+import datetime as dt
 import pathlib
 import sqlite3
 import time
@@ -94,7 +94,7 @@ def add_environment(database: sqlite3.Cursor | str | bytes | pathlib.Path) -> in
         database = pathlib.Path(database).expanduser()
         assert is_sqlite(database), database
         with (
-            Lock(str(database.with_suffix(".lock")), lifetime=datetime.timedelta(seconds=1800)),
+            Lock(str(database.with_suffix(".lock")), lifetime=dt.timedelta(seconds=1800)),
             sqlite3.connect(database) as conn,
         ):
             cursor = conn.cursor()

@@ -6,7 +6,7 @@
 Implementation based on https://www.grid5000.fr/w/Energy_consumption_monitoring_tutorial
 """
 
-import datetime
+import datetime as dt
 import logging
 import numbers
 import re
@@ -125,12 +125,12 @@ def g5kpower(
         raise ValueError(msg)
 
     def timestamp_to_str(timestamp: float) -> str:
-        return datetime.datetime.fromtimestamp(  # noqa: DTZ006
-            timestamp, tz=None,  # tz=datetime.UTC gives a shifted hour
+        return dt.datetime.fromtimestamp(  # noqa: DTZ006
+            timestamp, tz=None,  # tz=dt.UTC gives a shifted hour
         ).strftime("%Y-%m-%dT%H:%M:%S.%f")
 
     # grid5000 api request
-    url = (  # tz=datetime.UTC add a non supported +00:00 by the g5k api
+    url = (  # tz=dt.UTC add a non supported +00:00 by the g5k api
         f"https://api.grid5000.fr/stable/sites/{hostname_fields['site']}/metrics?"
         f"nodes={hostname_fields['node']}&metrics=wattmetre_power_watt,bmc_node_power_watt"
         f"&start_time={timestamp_to_str(start-MARGIN)}"
@@ -172,7 +172,7 @@ def g5kpower(
     # ...
     req = [
         {
-            "timestamp": datetime.datetime.fromisoformat(_to_iso(data["timestamp"])).timestamp(),
+            "timestamp": dt.datetime.fromisoformat(_to_iso(data["timestamp"])).timestamp(),
             "metric_id": data["metric_id"],
             "value": data["value"],
         }
