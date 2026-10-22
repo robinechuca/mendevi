@@ -101,7 +101,7 @@ class TrendNormlisator(DNN):
 
         # create and warm the phi_prime global model
         self._aggreg_ctx = "full"  # for global normalization
-        niter, self._niter = self._niter, self._niter//10  # model warming settings
+        niter, self._niter = self._niter, 10  # model warming settings
         aggreg, input_labels, self._aggreg, self._input_labels = (
             self._aggreg, self._input_labels, [], self._interest_labels,
         )  # indirect way to set self.input_labels_aggreg = self._interest_labels
@@ -378,41 +378,3 @@ class TrendEncodeEnergy(TrendNormlisator):
         )
         kwargs["aggregation"] = kwargs.get("aggregation", ["hostname"])
         super().__init__(title=title, **kwargs)
-
-
-# class DecodeEnergyNN(TrendNormlisator):
-#     """Deep neuronal network for the video encoding energy prediction.
-
-#     Examples
-#     --------
-#     >>> from mendevi.models.trend import DecodeEnergyNN
-#     >>> model = DecodeEnergyNN().fit(
-#     ...     "duration.db", table="t_dec_decode", select="uniform(vid_hash) >= 0.2",
-#     ... )  # doctest: +SKIP
-#     >>> model.validate(
-#     ...     "duration.db", table="t_dec_decode", select="uniform(vid_hash) < 0.2",
-#     ... )  # doctest: +SKIP
-#     >>>
-
-#     """
-
-#     def __init__(
-#         self,
-#         title: str = "Decoding energy estimation based on a neuronal network",
-#         **kwargs: dict,
-#     ) -> None:
-#         """Initialise the model."""
-#         kwargs = kwargs.copy()
-#         kwargs["input_labels"] = kwargs.get(
-#             "input_labels", [
-#                 "decoder",
-#                 "hostname",  # "temperature",
-#                 "nb_frames", "height", "width",  # "range", "primaries", "eotf",
-#                 "spatial_dct", "temporal_dct", "rms_sobel", "rms_time_diff",
-#             ],
-#         )
-#         kwargs["output_labels"] = kwargs.get(
-#             "output_labels", ["log_act_duration_per_frame", "power"],
-#         )
-#         kwargs["aggregation"] = kwargs.get("aggregation", ["hostname"])
-#         super().__init__(title=title, **kwargs)

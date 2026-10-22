@@ -278,7 +278,7 @@ class Model(metaclass=MetaModel):
         self._sources = sources
 
         # check cache
-        self._weights = None
+        self._weights: pathlib.Path | None = None
         if "weights" in kwargs:
             assert isinstance(kwargs["weights"], str), kwargs["weights"].__class__.__name__
             cachedir = pathlib.Path.home() / ".cache" / "mendevi"

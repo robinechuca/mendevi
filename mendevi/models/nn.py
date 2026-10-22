@@ -3,6 +3,8 @@
 
 """Predict the energy and the quality based on a neuronal network."""
 
+import lzma
+import pathlib
 import torch
 import tqdm
 
@@ -14,12 +16,8 @@ class _TorchNN(torch.nn.Module):
 
     def __init__(self, in_ndim: int, out_ndim: int, total: int) -> None:
         # verifications
-        assert isinstance(in_ndim, int), in_ndim.__class__.__name__
-        assert in_ndim >= 1, in_ndim
-        assert isinstance(out_ndim, int), out_ndim.__class__.__name__
-        assert out_ndim >= 1, out_ndim
         assert isinstance(total, int), total.__class__.__name__
-        assert total >= in_ndim + 8 + out_ndim, total
+        total = max(total, self.minimum_size(in_ndim, out_ndim))
         super().__init__()
         torch.manual_seed(0)  # for reproductibility
         # solve total = in_ndim*fact + fact * 2*fact + 2*fact * fact + fact*out_ndim
@@ -53,6 +51,30 @@ class _TorchNN(torch.nn.Module):
         assert isinstance(values, torch.Tensor), values.__class__.__name__
         assert values.ndim == 2, values.shape
         return self.linear(values)
+
+    def minimum_size(self, in_ndim: int, out_ndim: int) -> int:
+        """Return the minimum number of parameters."""
+        assert isinstance(in_ndim, int), in_ndim.__class__.__name__
+        assert in_ndim >= 1, in_ndim
+        assert isinstance(out_ndim, int), out_ndim.__class__.__name__
+        assert out_ndim >= 1, out_ndim
+        return in_ndim + 8 + out_ndim
+
+    def load(self, name: str) -> None:
+        """If exists, load the weights."""
+        assert isinstance(name, str), name.__class__.__name__
+        cachedir = pathlib.Path.home() / ".cache" / "mendevi"
+        weights = (cachedir / name).with_suffix(".pk.xz")
+        if weights.exists():
+            self.__dict__ = Model.load(weights).__dict__
+
+    def save(self, name: str) -> None:
+        """Save the model by freezing its current state."""
+        assert isinstance(name, str), name.__class__.__name__
+        cachedir = pathlib.Path.home() / ".cache" / "mendevi"
+        cachedir.mkdir(mode=0o777, parents=True, exist_ok=True)
+        weights = (cachedir / name).with_suffix(".pk.xz")
+        Model.save(self, weights)
 
 
 class DNN(Model):
@@ -100,11 +122,15 @@ class DNN(Model):
         nanmask = nanref.isnan()  # for output
 
         # end of initialization
-        total = self._total or max(
-            input_values.shape[1] + 8 + nanref.shape[1],  # minimum structural
-            input_values.shape[0] // 4,  # empirical rule
-        )
+        total = self._total or input_values.shape[0] // 4  # empirical rule
         model = _TorchNN(input_values.shape[1], nanref.shape[1], total=total)
+        if self._weights is not None:
+            model.load(
+                (
+                    f"{self._weights.stem.split(".")[0]}"
+                    f"_{input_values.shape[1]}_{nanref.shape[1]}_{total}"
+                ),
+            )
 
         # train
         model.train()
@@ -129,6 +155,13 @@ class DNN(Model):
                 progress_bar.update(1)
                 progress_bar.set_postfix_str(f"loss: {loss:9.3e}")
         model.eval()
+        if self._weights is not None:
+            model.save(
+                (
+                    f"{self._weights.stem.split(".")[0]}"
+                    f"_{input_values.shape[1]}_{nanref.shape[1]}_{total}"
+                ),
+            )
 
         # serialisation
         index = 0
@@ -161,10 +194,10 @@ class QualityNN(DNN):
     >>> from mendevi.models.nn import QualityNN
     >>> model = QualityNN(output_labels=["psnr"])
     >>> _ = model.fit(
-    ...     "svtav1_vs_rav1e_vs_aom.db", table="t_enc_encode", select="uniform(vid_hash) >= 0.2",
-    ... )  # doctest: +SKIP
+    ...     "scatter.db", table="t_enc_encode", select="uniform(vid_hash) >= 0.2",
+    ... )
     >>> model.validate(
-    ...     "svtav1_vs_rav1e_vs_aom.db", table="t_enc_encode", select="uniform(vid_hash) < 0.2",
+    ...     "scatter.db", table="t_enc_encode", select="uniform(vid_hash) < 0.2",
     ... )  # doctest: +SKIP
     >>>
 
