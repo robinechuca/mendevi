@@ -101,7 +101,7 @@ class TrendNormlisator(DNN):
 
         # create and warm the phi_prime global model
         self._aggreg_ctx = "full"  # for global normalization
-        niter, self._niter = self._niter, 10  # model warming settings
+        niter, self._niter = self._niter, 100  # model warming settings
         aggreg, input_labels, self._aggreg, self._input_labels = (
             self._aggreg, self._input_labels, [], self._interest_labels,
         )  # indirect way to set self.input_labels_aggreg = self._interest_labels
@@ -140,7 +140,6 @@ class TrendNormlisator(DNN):
                     in_ndim=parameters[clus]["x_i_no_k"].shape[1],
                     out_ndim=2,  # dim 2 for a and b
                     total=self._total or max(
-                        parameters[clus]["x_i_no_k"].shape[1] + 8 + 2,  # minimum structural
                         parameters[clus]["x_i_no_k"].shape[0] // 4,  # empirical rule
                     ),
                 )
@@ -150,7 +149,7 @@ class TrendNormlisator(DNN):
         }
 
         # gradient decay
-        optimizer = torch.optim.RAdam(
+        optimizer = torch.optim.Adam(
             [
                 *phi_prime.parameters(),
                 *(p for ms in psi.values() for m in ms.values() for p in m.parameters()),
@@ -183,7 +182,7 @@ class TrendNormlisator(DNN):
                 y_hat = {  # Ŷ
                     clus: {  # a*Y' + b
                         lbl: (
-                            a_b[clus][lbl][:, 0:1].abs()*y_prime_[:, idx_min:idx_max]
+                            a_b[clus][lbl][:, 0:1].exp()*y_prime_[:, idx_min:idx_max]
                             + a_b[clus][lbl][:, 1:2]
                         )
                         for lbl, (idx_min, idx_max) in slices.items()
@@ -204,9 +203,9 @@ class TrendNormlisator(DNN):
                 }
                 losses = {  # add regularization
                     **losses,
-                    "prod(a)": (torch.cat([
+                    "prod(a)": torch.cat([
                         a_b__[:, 0] for a_b_ in a_b.values() for a_b__ in a_b_.values()
-                    ]).abs() + EPS).log().sum(),
+                    ]).sum(),
                     "sum(b)": torch.cat([
                         a_b__[:, 1] for a_b_ in a_b.values() for a_b__ in a_b_.values()
                     ]).sum(),
@@ -262,7 +261,7 @@ class TrendNormlisator(DNN):
         # evaluation final (normalized)
         a_b = {lbl: psi_(x_i_no_k) for lbl, psi_ in psi.items()}
         y_hat = {  # a*Y' + b
-            lbl: a_b[lbl][:, 0:1].abs()*y_prime_ + a_b[lbl][:, 1:2]
+            lbl: a_b[lbl][:, 0:1].exp()*y_prime_ + a_b[lbl][:, 1:2]
             for lbl, y_prime_ in y_prime.items()
         }
 
@@ -292,12 +291,17 @@ class TrendNormlisator(DNN):
 
     def draw(self) -> None:
         """Plot the R -> R heads function."""
+        import matplotlib.pyplot as plt  # noqa: PLC0415
+
+        from mendevi.cst.plot import COLORS, MARKERS  # noqa: PLC0415
+
         if len(self.interest_labels) != 1:
-            msg = f"to draw the impact, only one interest label has to be given, not {self.interest_labels}"
+            msg = (
+                "to draw the impact, only one interest label has to be given, "
+                f"not {self.interest_labels}"
+            )
             raise ValueError(msg)
         (interest_label,) = self.interest_labels
-        import matplotlib.pyplot as plt  # noqa: PLC0415
-        from mendevi.cst.plot import COLORS, MARKERS
         clus_data_psi = {clus: (data, psi) for clus, (_, _, psi, data) in self._parameters.items()}
         phi_prime, slices, _, _ = next(iter(self._parameters.values()))
         for lbl, (idx_min, idx_max) in slices.items():
@@ -309,10 +313,15 @@ class TrendNormlisator(DNN):
                 y_prime = phi_prime(data[interest_label])[:, idx_min:idx_max]
 
                 # plot phi_'
-                x_k_denorm = x_k * (self._std_mean["full"][interest_label][0] + EPS) + self._std_mean["full"][interest_label][1]
-                y_prime_denorm = y_prime * (self._std_mean["full"][lbl][0] + EPS) + self._std_mean["full"][lbl][1]
+                x_k_denorm = (
+                    x_k * (self._std_mean["full"][interest_label][0] + EPS)
+                    + self._std_mean["full"][interest_label][1]
+                )
+                y_prime_denorm = (
+                    y_prime * (self._std_mean["full"][lbl][0]+EPS) + self._std_mean["full"][lbl][1]
+                )
                 plt.scatter(
-                    x_k_denorm.ravel().tolist(),  # TODO traitement plus malin
+                    x_k_denorm.ravel().tolist(),
                     y_prime_denorm.ravel().tolist(),
                     label=str(clus),
                     color=COLORS[i%len(COLORS)],
@@ -325,9 +334,11 @@ class TrendNormlisator(DNN):
                 y_hat = a_b[:, 0:1].abs()*y_prime + a_b[:, 1:2]
 
                 # plot phi_hat
-                y_hat_denorm = y_hat * (self._std_mean["full"][lbl][0] + EPS) + self._std_mean["full"][lbl][1]
+                y_hat_denorm = (
+                    y_hat * (self._std_mean["full"][lbl][0]+EPS) + self._std_mean["full"][lbl][1]
+                )
                 plt.scatter(
-                    x_k_denorm.ravel().tolist(),  # TODO traitement plus malin
+                    x_k_denorm.ravel().tolist(),
                     y_hat_denorm.ravel().tolist(),
                     # label=str(clus),
                     color=COLORS[i%len(COLORS)],

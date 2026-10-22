@@ -3,8 +3,8 @@
 
 """Predict the energy and the quality based on a neuronal network."""
 
-import lzma
 import pathlib
+
 import torch
 import tqdm
 
@@ -134,7 +134,7 @@ class DNN(Model):
 
         # train
         model.train()
-        optimizer = torch.optim.RAdam(model.parameters(), lr=self._lr)
+        optimizer = torch.optim.Adam(model.parameters(), lr=self._lr)
         with tqdm.tqdm(
             desc="Gradient decay",
             dynamic_ncols=True,
