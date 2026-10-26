@@ -9,15 +9,15 @@ digraph intrinsic {
     full [label="{Xᵢ}" shape=Mdiamond style=filled fillcolor="#73b66b"]
     ref [label="Y" shape=Mdiamond style=filled fillcolor="#73b66b"]
     var  [label="Xₖ" shape=Mdiamond style=filled fillcolor="#73b66b"]
-    norm [label="Y&#8242;" shape=Mdiamond style=filled fillcolor="#73b66b"]
+    norm [label="Ỹ" shape=Mdiamond style=filled fillcolor="#73b66b"]
     est  [label="Ŷ" shape=Mdiamond style=filled fillcolor="#73b66b"]
     comp [label="{Xᵢ}, i≠k" shape=Mdiamond style=filled fillcolor="#73b66b"]
 
     # process
     truth [label="φ" style=filled fillcolor=white]
-    interest [label="φ&#8242;" style=filled fillcolor="#ef597b"]
+    interest [label="φ̃ " style=filled fillcolor="#ef597b"]
     adapt [label="ψ" style=filled fillcolor="#ef597b"]
-    denorm [label="a Y&#8242; + b" style=filled fillcolor=white]
+    denorm [label="a Ỹ + b" style=filled fillcolor=white]
 
     # blocs
     subgraph clus_reference {
