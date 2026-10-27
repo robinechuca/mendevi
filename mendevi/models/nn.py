@@ -12,7 +12,29 @@ from .base import Model
 
 
 class _TorchNN(torch.nn.Module):
-    """Simple perceptron nn."""
+    """Simple perceptron nn.
+
+    Examples
+    --------
+    >>> from mendevi.models.nn import _TorchNN
+    >>> _TorchNN(5, 2, 1234)
+    _TorchNN(
+      (linear): Sequential(
+        (0): Linear(in_features=5, out_features=16, bias=True)
+        (1): ELU(alpha=1.0)
+        (2): Linear(in_features=16, out_features=32, bias=False)
+        (3): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (4): ELU(alpha=1.0)
+        (5): Linear(in_features=32, out_features=16, bias=True)
+        (6): ELU(alpha=1.0)
+        (7): Linear(in_features=16, out_features=2, bias=True)
+      )
+    )
+    >>> sum(p.numel() for p in _.parameters())  # total weight
+    1234
+    >>>
+
+    """
 
     def __init__(self, in_ndim: int, out_ndim: int, total: int) -> None:
         # verifications
@@ -20,24 +42,30 @@ class _TorchNN(torch.nn.Module):
         total = max(total, self.minimum_size(in_ndim, out_ndim))
         super().__init__()
         torch.manual_seed(0)  # for reproductibility
-        # solve total = in_ndim*fact + fact * 2*fact + 2*fact * fact + fact*out_ndim
-        delta = (in_ndim + out_ndim)**2 + 16*total
-        fact = (delta**.5 - in_ndim - out_ndim) / 8
+        # solve total = 4*fact**2 + (in_ndim + out_ndim + 6)*fact + out_ndim
+        delta = (in_ndim + out_ndim + 6)**2 - 16*(out_ndim - total)
+        fact = (-(in_ndim + out_ndim + 6) + delta**.5) / 8
         fact = round(fact)
         # 4 full connected layers (better without dropout)
         self.linear = torch.nn.Sequential(
+            # in_ndim * fact + fact parameters
             torch.nn.Linear(in_ndim, fact),
             torch.nn.ELU(),
 
-            torch.nn.Linear(fact, 2*fact),
+            # fact * 2*fact + 2*fact + 2*fact parameters
+            torch.nn.Linear(fact, 2*fact, bias=False),
             torch.nn.BatchNorm1d(2*fact),  # just this batch norm, no more
             torch.nn.ELU(),
 
+            # 2*fact * fact + fact parameters
             torch.nn.Linear(2*fact, fact),
             torch.nn.ELU(),
 
+            # fact * out_ndim + out_ndim parameters
             torch.nn.Linear(fact, out_ndim),
         )
+
+        self._load_name: str = ""
 
     def forward(self, values: torch.Tensor) -> torch.Tensor:
         """Inference of the vectorised model.
@@ -58,19 +86,23 @@ class _TorchNN(torch.nn.Module):
         assert in_ndim >= 1, in_ndim
         assert isinstance(out_ndim, int), out_ndim.__class__.__name__
         assert out_ndim >= 1, out_ndim
-        return in_ndim + 8 + out_ndim
+        # replace total expression (in __init__) with fact = 1
+        return 10 + in_ndim + 2*out_ndim
 
     def load(self, name: str) -> None:
         """If exists, load the weights."""
         assert isinstance(name, str), name.__class__.__name__
+        self._load_name = name
         cachedir = pathlib.Path.home() / ".cache" / "mendevi"
         weights = (cachedir / name).with_suffix(".pk.xz")
         if weights.exists():
             self.__dict__ = Model.load(weights).__dict__
 
-    def save(self, name: str) -> None:
+    def save(self, name: str="") -> None:
         """Save the model by freezing its current state."""
         assert isinstance(name, str), name.__class__.__name__
+        name = name or self._load_name
+        assert name, name
         cachedir = pathlib.Path.home() / ".cache" / "mendevi"
         cachedir.mkdir(mode=0o777, parents=True, exist_ok=True)
         weights = (cachedir / name).with_suffix(".pk.xz")
@@ -156,12 +188,7 @@ class DNN(Model):
                 progress_bar.set_postfix_str(f"loss: {loss:9.3e}")
         model.eval()
         if self._weights is not None:
-            model.save(
-                (
-                    f"{self._weights.stem.split(".")[0]}"
-                    f"_{input_values.shape[1]}_{nanref.shape[1]}_{total}"
-                ),
-            )
+            model.save()
 
         # serialisation
         index = 0

@@ -45,6 +45,8 @@ def from_torch(data: dict[str, torch.Tensor]) -> dict[str, list]:
     """Back conversion from vectorized torch to python list, bijection of :py:func:`to_torch`."""
     out_data: dict[str, list] = {}
     for name, values in data.items():
+        assert isinstance(name, str), name.__class__.__name__
+        assert name in LABELS, (name, sorted(LABELS))
         assert isinstance(values, torch.Tensor), values.__class__.__name__
         assert values.ndim == 2, values.shape
         match name:
@@ -258,7 +260,7 @@ class Model(metaclass=MetaModel):
 
         # check parameters
         self._parameters: dict[tuple, object] = {}
-        self._std_mean: dict[tuple, dict[str, list[float]]] = {}
+        self._std_mean: dict[tuple, dict[str, tuple[float, float]]] = {}
         self._accuracy: dict[tuple, dict[str, float]] = {}
 
         # check title
