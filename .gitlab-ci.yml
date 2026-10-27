@@ -1,0 +1,16 @@
+# rules for gitlab build doc
+# based on the file `.readthedocs.yaml`
+
+create-pages:
+  stage: deploy
+  image: python:3.14
+  script:
+    - apt install -y graphviz  # to compile images
+    - pip install uv
+    - uv pip install --system -r docs/requirements.txt
+    - uv pip install --system -e .  # solve torch cuda .so link
+    - cd docs && make html BUILDDIR=build
+  pages:
+    publish: docs/build/html  # folder to be exposed
+  rules:
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
