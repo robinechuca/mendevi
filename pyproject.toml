@@ -1,3 +1,6 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "mendevi"
 description = "Video encoding and decoding measures."
@@ -28,7 +31,8 @@ dependencies = [  # https://packaging.python.org/en/latest/specifications/depend
     "unidecode",
 ]
 readme = "README.rst"
-license = {file = "LICENSE"}  # GPL-3.0-or-later
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE"]
 keywords = [
     "av1",
     "avc",
