@@ -2,7 +2,7 @@ name: Mirror from GitLab Inria
 
 on:
   schedule:
-    - cron: "0 4 * * *"  # everydays at 04:00 UTC
+    - cron: "0 4 * * *"  # every day at 04:00 UTC
   workflow_dispatch:  # allow manual trigger
 
 concurrency:
@@ -16,15 +16,11 @@ jobs:
   mirror:
     runs-on: ubuntu-latest
     steps:
-      - name: Clone GitLab repository
-        run: git clone --mirror https://gitlab.inria.fr/rrichard/mendevi.git repo.git
-
-      - name: Push to GitHub
-        working-directory: repo.git
+      - name: Mirror GitLab to GitHub
         env:
-          MIRROR_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          git clone --mirror https://oauth2:${{ secrets.GITLAB_TOKEN }}@gitlab.inria.fr/rrichard/mendevi.git mendevi.git
+          git clone --mirror "https://oauth2:${GITLAB_TOKEN}@gitlab.inria.fr/rrichard/mendevi.git" mendevi.git
           cd mendevi.git
-          git fetch -p origin
-          git push --mirror https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/robinechuca/mendevi.git
+          git push --mirror "https://x-access-token:${GH_TOKEN}@github.com/robinechuca/mendevi.git"
