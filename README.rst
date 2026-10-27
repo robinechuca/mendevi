@@ -27,7 +27,8 @@
 Useful links:
 `Binary Installers <https://pypi.org/project/mendevi/>`_ |
 `Source Repository <https://gitlab.inria.fr/rrichard/mendevi/>`_ |
-`Online Documentation <https://mendevi.readthedocs.io/>`_ |
+`Documentation on RTD <https://mendevi.readthedocs.io/>`_ |
+`Documentation on INRIA <https://rrichard.gitlabpages.inria.fr/mendevi/>`_ |
 
 
 Description
