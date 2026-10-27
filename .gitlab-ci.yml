@@ -9,7 +9,7 @@ create-pages:
     - large_more_disk  # or medium
   image: python:3.14
   script:
-    - apt install -y graphviz  # to compile images
+    - apt-get update && apt-get install -y graphviz  # to compile images
     - pip install uv
     - uv pip install --system -r docs/requirements.txt
     - uv pip install --system -e .  # solve torch cuda .so link
