@@ -7,12 +7,10 @@ import hashlib
 import math
 import typing
 
-import matplotlib.figure as figure
-import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
 import torch
 import tqdm
 from context_verbose import Printer
+from matplotlib import axes, figure, ticker
 
 from mendevi.cst.labels import LABELS
 from mendevi.cst.plot import COLORS, MARKERS, MARKERSIZE
@@ -20,7 +18,6 @@ from mendevi.database.meta import get_extractor
 
 from .base import EPS, discard_nan, from_torch
 from .nn import DNN, _TorchNN
-
 
 LINPLOT: int = 1000  # the number of points used for continuous plot curves
 REGULARIZATION_FACTOR: float = 1e-2  # regularisation terms a and b in relation to the model error
@@ -64,6 +61,7 @@ class Phi(_TorchNN):
             The dimension of the input label, often 1, except for one hot encoding.
         total : int
             The total weight of the model.
+
         """
         assert isinstance(label, str), label.__class__.__name__
         assert label in LABELS, (label, sorted(LABELS))
@@ -77,7 +75,7 @@ class Phi(_TorchNN):
 
     def fill_axe(
         self,
-        axe: plt.Axes,
+        axe: axes.Axes,
         values: torch.Tensor,
         std_mean: tuple[float, float],
     ) -> None:
@@ -119,6 +117,14 @@ class Phi(_TorchNN):
             marker=MARKERS[0],
             s=MARKERSIZE**2,
             label="a",
+        )
+        axe.scatter(
+            values_matplotlib,
+            b_matplotlib,
+            color=COLORS[1],
+            marker=MARKERS[0],
+            s=MARKERSIZE**2,
+            label="b",
         )
 
         # metadata
@@ -267,7 +273,7 @@ class TrendNormlisator(DNN):
                 in_lbl: Phi(
                     label=in_lbl,
                     ndim=parameters[clus][in_lbl].shape[1],
-                    total=self._total or parameters[clus][in_lbl].shape[0] // 4  # empirical rule
+                    total=self._total or parameters[clus][in_lbl].shape[0] // 4,  # empirical rule
                 )
                 for in_lbl in self.context_labels
             }
@@ -383,7 +389,6 @@ class TrendNormlisator(DNN):
         self, values: dict[str, torch.Tensor], parameters: object,
     ) -> dict[str, torch.Tensor]:
         """Perform the prediction on a specific cluster."""
-        # model, slices, heads, _ = parameters
         phi_tilde, slices, psi, _ = parameters
 
         # data normalization and concatenation
@@ -409,7 +414,7 @@ class TrendNormlisator(DNN):
             out_lbl: y_tilde[:, idx_min:idx_max] for out_lbl, (idx_min, idx_max) in slices.items()
         }
         # evaluation final (normalized)
-        a_b = torch.cat([psi_(values[in_lbl])[:, :, None] for in_lbl, psi_ in psi.items()], dim=2)
+        a_b = torch.cat([psi_(x_i_no_k[in_lbl])[:, :, None] for in_lbl, psi_ in psi.items()], dim=2)
         a_b = (
             a_b[:, 0, :].log().mean(dim=1, keepdim=True).exp(),  # geometric mean
             a_b[:, 1, :].mean(dim=1, keepdim=True),  # arithmetic mean
@@ -451,6 +456,7 @@ class TrendNormlisator(DNN):
         >>> _ = plt.legend()
         >>> plt.show()  # doctest: +SKIP
         >>>
+
         """
         # verifications
         assert isinstance(fig, figure.Figure | figure.SubFigure), fig.__class__.__name__
@@ -574,7 +580,6 @@ class TrendNormlisator(DNN):
             axe.yaxis.set_minor_locator(ticker.MultipleLocator((ticks[1] - ticks[0]) / 10.0))
 
         fig.supxlabel(get_extractor(interest_label, safe=True).legend)
-
 
     def fit(self, *args: tuple, **kwargs: dict) -> typing.Self:
         """Container for the :py:meth:`Model.fit` method."""

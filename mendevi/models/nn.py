@@ -17,13 +17,13 @@ class _TorchNN(torch.nn.Module):
     Examples
     --------
     >>> from mendevi.models.nn import _TorchNN
-    >>> _TorchNN(5, 2, 1234)
+    >>> _TorchNN(5, 2, 1234)  # doctest: +ELLIPSIS
     _TorchNN(
       (linear): Sequential(
         (0): Linear(in_features=5, out_features=16, bias=True)
         (1): ELU(alpha=1.0)
         (2): Linear(in_features=16, out_features=32, bias=False)
-        (3): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, bias=True, track_running_stats=True)
+        (3): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, ...)
         (4): ELU(alpha=1.0)
         (5): Linear(in_features=32, out_features=16, bias=True)
         (6): ELU(alpha=1.0)
