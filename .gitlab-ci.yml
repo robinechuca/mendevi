@@ -1,5 +1,5 @@
 # rules for gitlab build doc
-# based on the file `.readthedocs.yaml`
+# based on the file .readthedocs.yaml
 
 create-pages:
   stage: deploy
