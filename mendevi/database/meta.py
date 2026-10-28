@@ -283,6 +283,11 @@ ALL_EXTRACTORS = {
         "None if frames is None else len(frames)",
         Scale.LOGARITHMIC,
     ),
+    "pixels": Extractor(
+        "The number of pixels per frame",
+        "None if height is None or width is None else height * width",
+        Scale.LINEAR,
+    ),
     "profile": Extractor(
         "Profile of the video",
         (
@@ -421,6 +426,10 @@ ALIAS = {
     "eotf": "transfer",
     "name": "video_name",
     "nb_frames": "nbr_frames",
+    "nb_pix": "pixels",
+    "nb_pixels": "pixels",
+    "nbr_pix": "pixels",
+    "nbr_pixels": "pixels",
     "preset": "effort",
     "prim": "gamut",
     "primaries": "gamut",
