@@ -23,4 +23,8 @@ jobs:
         run: |
           git clone --mirror "https://oauth2:${GITLAB_TOKEN}@gitlab.inria.fr/rrichard/mendevi.git" mendevi.git
           cd mendevi.git
+          # create a commit to merge the github README and the main README
+          git worktree add ../work "$(git symbolic-ref --short HEAD)"
+          (echo; cat ../work/README.rst) >> ../work/.github/README.rst
+          git -C ../work -c user.name=mirror -c user.email=mirror@localhost commit -qam "Mirror: append README to GitHub notice"
           git push --mirror "https://x-access-token:${GH_TOKEN}@github.com/robinechuca/mendevi.git"

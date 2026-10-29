@@ -23,19 +23,19 @@ LINPLOT: int = 1000  # the number of points used for continuous plot curves
 REGULARIZATION_FACTOR: float = 1e-2  # regularisation terms a and b in relation to the model error
 
 
-class Phi(_TorchNN):
+class Psi(_TorchNN):
     """For a context variable, determine the correction pair a and b.
 
     Examples
     --------
     >>> import torch
-    >>> from mendevi.models.trend import Phi
-    >>> phi = Phi("cores", 1, 330)
-    >>> phi
-    Phi('cores', 1, 330)
+    >>> from mendevi.models.trend import Psi
+    >>> psi = Psi("cores", 1, 330)
+    >>> psi
+    Psi('cores', 1, 330)
     >>>
     >>> _ = torch.manual_seed(0)
-    >>> phi(torch.randn(10, 1))
+    >>> psi(torch.randn(10, 1))
     tensor([[ 1.1574, -0.2972],
             [ 1.1662, -0.2130],
             [ 1.1872, -0.3771],
@@ -67,6 +67,8 @@ class Phi(_TorchNN):
         assert label in LABELS, (label, sorted(LABELS))
         self._label = label
         super().__init__(ndim, 2, total)
+        self._std_mean: tuple[float, float] | None = None
+        self._values: torch.Tensor | None = None
 
     def forward(self, values: torch.Tensor) -> torch.Tensor:
         """Exponential normalization of a and b."""
@@ -76,8 +78,8 @@ class Phi(_TorchNN):
     def fill_axe(
         self,
         axe: axes.Axes,
-        values: torch.Tensor,
-        std_mean: tuple[float, float],
+        values: torch.Tensor | None = None,
+        std_mean: tuple[float | torch.Tensor, float | torch.Tensor] | None = None,
     ) -> None:
         """Fill the axis with the provided data.
 
@@ -86,9 +88,9 @@ class Phi(_TorchNN):
         >>> import matplotlib.pyplot as plt
         >>> import torch
         >>> from mendevi.cst.plot import FIGSIZE
-        >>> from mendevi.models.trend import Phi
+        >>> from mendevi.models.trend import Psi
         >>>
-        >>> phi = Phi("cores", 1, 330)
+        >>> psi = Psi("cores", 1, 330)
         >>> _ = torch.manual_seed(0)
         >>> cores = torch.rand(10, 1) * 16
         >>> std_mean = (torch.std(cores, dim=0), torch.mean(cores, dim=0))
@@ -96,12 +98,19 @@ class Phi(_TorchNN):
         >>>
         >>> fig = plt.figure(layout="constrained", figsize=FIGSIZE)
         >>> axe = fig.subplots(nrows=1, ncols=1, squeeze=True)
-        >>> phi.fill_axe(axe, cores, std_mean)
+        >>> psi.fill_axe(axe, cores, std_mean)
         >>> _ = plt.legend()
         >>> plt.show()  # doctest: +SKIP
         >>>
 
         """
+        if values is None and self._values is not None:
+            values = self._values
+        assert values is not None
+        if std_mean is None and self._std_mean is not None:
+            std_mean = self._std_mean
+        assert std_mean is not None
+
         # computes values
         a_b = self.forward(values)
         a_matplotlib, b_matplotlib = a_b[:, 0].tolist(), a_b[:, 1].tolist()
@@ -143,11 +152,126 @@ class Phi(_TorchNN):
         # plt.supylabel("Absolute context values")
         # plt.supxlabel("Denormalizator values a and b")
 
+    @property
+    def std_mean(self) -> tuple[float | torch.Tensor, float | torch.Tensor]:
+        """Return the std and the mean for the input value denormalization."""
+        if self._std_mean is None:
+            raise AttributeError
+        return self._std_mean
+
+    @std_mean.setter
+    def std_mean(self, std_mean: tuple[float | torch.Tensor, float | torch.Tensor]) -> None:
+        """Set the std and the mean for the input value denormalization."""
+        assert isinstance(std_mean, tuple), std_mean.__class__.__name__
+        assert len(std_mean) == 2, std_mean
+        assert isinstance(std_mean[0], float | torch.Tensor), std_mean[0].__class__.__name__
+        assert isinstance(std_mean[1], float | torch.Tensor), std_mean[1].__class__.__name__
+        self._std_mean = std_mean
+
+    @property
+    def values(self) -> torch.Tensor:
+        """The example values, of shape (n, d)."""
+        if self._values is None:
+            raise AttributeError
+        return self._values
+
+    @values.setter
+    def values(self, values: torch.Tensor) -> None:
+        """Store the example data."""
+        assert isinstance(values, torch.Tensor), values.__class__.__name__
+        assert values.ndim == 2, values.shape
+        self._values = values.detach().clone()
+
     def __repr__(self) -> str:
         """Simplify the representation."""
         ndim = self.linear[0].in_features
         total = sum(p.numel() for p in self.parameters())
         return f"{self.__class__.__name__}({self._label!r}, {ndim}, {total})"
+
+
+class Phi:
+    """High-level structure for manipulating phi."""
+
+    def __init__(
+        self,
+        model: _TorchNN,
+        slices: dict[str, tuple[int, int]],
+        values: dict[tuple, torch.Tensor],
+        std_mean: dict[str, tuple[float | torch.Tensor, float | torch.Tensor]],
+    ) -> None:
+        """Initialise a trend phi fitted.
+
+        The model is automatically initialised by the class :py:class:`TrendNormlisator`.
+        No checks are carried out.
+        """
+        self._model: _TorchNN = model
+        self._slices: dict[str, tuple[int, int]] = slices
+        self._values: dict[tuple, torch.Tensor] = values
+        self._std_mean: dict[str, tuple[float | torch.Tensor, float | torch.Tensor]] = std_mean
+
+    def fill_axe(self, axe: axes.Axes, lbl: str) -> tuple[dict, dict]:
+        """Plot the functions."""
+        # verifications
+        assert axe is None or isinstance(axe, axes.Axes), axe.__class__.__name__
+        assert isinstance(lbl, str), lbl.__class__.__name__
+        assert lbl in self._slices, (lbl, sorted(self._slices))
+        interest_labels = set(self._std_mean) - set(self._slices)
+        if len(interest_labels) != 1:
+            msg = (
+                "to draw the trend, only one interest label has to be given, "
+                f"not {interest_labels}"
+            )
+            raise RuntimeError(msg)
+        interest_label = interest_labels.pop()
+
+        # computes values
+        x_k = torch.cat([self._values[clus] for clus in sorted(self._values)], dim=0)
+        amin, amax = torch.aminmax(x_k, dim=0)
+        x_k = torch.cat([  # adds LINPLOT continuous values at the start
+            (
+                torch.linspace(0, 1, LINPLOT, dtype=x_k.dtype, device=x_k.device)[:, None]
+                * (amax - amin)
+                + amin
+            ),
+            x_k,
+        ], dim=0)
+        x_k_denorm = (
+            x_k * (self._std_mean[interest_label][0] + EPS) + self._std_mean[interest_label][1]
+        )
+        idx_min, idx_max = self._slices[lbl]
+        y_tilde = self._model(x_k)[:, idx_min:idx_max]
+        y_tilde_denorm = y_tilde * (self._std_mean[lbl][0]+EPS) + self._std_mean[lbl][1]
+
+        # plot
+        axe.plot(
+            x_k_denorm[:LINPLOT, 0].tolist(),
+            y_tilde_denorm[:LINPLOT, 0].tolist(),
+            "--",
+            color="black",
+            zorder=3,
+            label="$\\tilde{\\phi}$",
+        )
+        axe.scatter(
+            x_k_denorm[LINPLOT:, 0].tolist(),
+            y_tilde_denorm[LINPLOT:, 0].tolist(),
+            color="black",
+            marker=MARKERS[0],
+        )
+
+        # split into clusters
+        final_x_k_denorm: dict[tuple, torch.Tensor] = {}
+        final_y_tilde: dict[tuple, torch.Tensor] = {}
+        idx = LINPLOT
+        for clus in sorted(self._values):
+            final_x_k_denorm[clus] = x_k_denorm[idx:idx+len(self._values[clus]), :]
+            final_y_tilde[clus] = y_tilde[idx:idx+len(self._values[clus]), :]
+            idx += len(self._values[clus])
+        return final_x_k_denorm, final_y_tilde
+
+    def __str__(self) -> str:
+        """Provide an informative representation of the trend."""
+        interest_labels = sorted(set(self._std_mean) - set(self._slices))
+        return f"Phi: {interest_labels} -> {sorted(self._slices)}"
 
 
 class TrendNormlisator(DNN):
@@ -270,7 +394,7 @@ class TrendNormlisator(DNN):
         # initialise the Xi, i!=k -> a, b denomalized heads hyperparameters
         psi = {
             clus: {
-                in_lbl: Phi(
+                in_lbl: Psi(
                     label=in_lbl,
                     ndim=parameters[clus][in_lbl].shape[1],
                     total=self._total or parameters[clus][in_lbl].shape[0] // 4,  # empirical rule
@@ -440,6 +564,8 @@ class TrendNormlisator(DNN):
         .. note::
             The graph uses only training data, no validation.
 
+        There is one color per cluster formed by the ``aggregation`` attribute.
+
         Examples
         --------
         >>> import matplotlib.pyplot as plt
@@ -447,10 +573,10 @@ class TrendNormlisator(DNN):
         >>> from mendevi.models.trend import TrendNormlisator
         >>>
         >>> model = TrendNormlisator(
-        ...     input_labels=["effort", "encoder"], aggregation=[],
+        ...     input_labels=["effort", "encoder", "pixels"], aggregation=["effort"],
         ...     interest_labels=["quality"], output_labels=["log_bitrate"],
         ...     niter=100,  # very little to be fast
-        ... ).fit("scatter.db", table="t_enc_encode", select="uniform(vid_hash) >= 0.2")
+        ... ).fit("scatter.db", table="t_enc_encode")
         >>> fig = plt.figure(layout="constrained", figsize=FIGSIZE)
         >>> model.fill_fig_phi(fig)
         >>> _ = plt.legend()
@@ -473,7 +599,6 @@ class TrendNormlisator(DNN):
         # precompute
         (interest_label,) = self.interest_labels
         clus_data_psi = {clus: (data, psi) for clus, (_, _, psi, data) in self._parameters.items()}
-        phi_tilde, slices, _, _ = next(iter(self._parameters.values()))
 
         # matplotlib stuff
         nrows = int(math.sqrt(len(self.output_labels)))
@@ -490,46 +615,11 @@ class TrendNormlisator(DNN):
             strict=False,
         ):
 
+            # plot y_tilde
+            x_k_denorm, y_tilde = self.phi.fill_axe(axe, lbl)
+
             # compute cloud points
             for i, (clus, (data, psi)) in enumerate(clus_data_psi.items()):
-                idx_min, idx_max = slices[lbl]
-
-                # compute y_tilde (train data)
-                x_k = data[interest_label]
-                amin, amax = torch.aminmax(x_k, dim=0)
-                x_k = torch.cat([  # adds LINPLOT continuous values at the start
-                    (
-                        torch.linspace(0, 1, LINPLOT, dtype=x_k.dtype, device=x_k.device)[:, None]
-                        * (amax - amin)
-                        + amin
-                    ),
-                    x_k,
-                ], dim=0)
-                x_k_denorm = (
-                    x_k * (self._std_mean["full"][interest_label][0] + EPS)
-                    + self._std_mean["full"][interest_label][1]
-                )
-                y_tilde = phi_tilde(x_k)[:, idx_min:idx_max]
-                y_tilde_denorm = (
-                    y_tilde * (self._std_mean["full"][lbl][0]+EPS) + self._std_mean["full"][lbl][1]
-                )
-
-                # plot y_tilde
-                axe.plot(
-                    x_k_denorm[:LINPLOT, 0].tolist(),
-                    y_tilde_denorm[:LINPLOT, 0].tolist(),
-                    "--",
-                    color=COLORS[i%len(COLORS)],
-                    zorder=3,
-                )
-                axe.scatter(
-                    x_k_denorm[LINPLOT:, 0].tolist(),
-                    y_tilde_denorm[LINPLOT:, 0].tolist(),
-                    label=" and ".join(map(str, clus)) or None,
-                    color=COLORS[i%len(COLORS)],
-                    marker=MARKERS[0],
-                )
-
                 # compute y_hat
                 a_b = torch.cat(
                     [psi_(data[in_lbl])[:, :, None] for in_lbl, psi_ in psi.items()], dim=2,
@@ -538,14 +628,14 @@ class TrendNormlisator(DNN):
                     a_b[:, 0, :].log().mean(dim=1, keepdim=True).exp(),  # geometric mean
                     a_b[:, 1, :].mean(dim=1, keepdim=True),  # arithmetic mean
                 )
-                y_hat = a_b[0]*y_tilde[LINPLOT:, :] + a_b[1]
+                y_hat = a_b[0]*y_tilde[clus] + a_b[1]
                 y_hat_denorm = (
                     y_hat * (self._std_mean["full"][lbl][0]+EPS) + self._std_mean["full"][lbl][1]
                 )
 
                 # plot y_hat
                 axe.scatter(
-                    x_k_denorm[LINPLOT:, 0].tolist(),
+                    x_k_denorm[clus].tolist(),
                     y_hat_denorm[:, 0].tolist(),
                     color=COLORS[i%len(COLORS)],
                     marker=MARKERS[1],
@@ -554,7 +644,7 @@ class TrendNormlisator(DNN):
 
                 # plot y_reference
                 axe.scatter(
-                    x_k_denorm[LINPLOT:, 0].tolist(),
+                    x_k_denorm[clus].tolist(),
                     (
                         data[lbl] * (self._std_mean["full"][lbl][0]+EPS)
                         + self._std_mean["full"][lbl][1]
@@ -594,6 +684,91 @@ class TrendNormlisator(DNN):
         """Return the name of all :math:`X_k` labels."""
         return self._interest_labels.copy()
 
+    @property
+    def phi(self) -> Phi:
+        """Return the phi function ready to be used.
+
+        Examples
+        --------
+        >>> from mendevi.models.trend import TrendNormlisator
+        >>> model = TrendNormlisator(
+        ...     input_labels=["effort", "encoder", "pixels"], aggregation=[],
+        ...     interest_labels=["quality"], output_labels=["log_bitrate"],
+        ...     niter=100,  # very little to be fast
+        ... ).fit("scatter.db", table="t_enc_encode", select="uniform(vid_hash) >= 0.2")
+        >>> print(model.phi)
+        >>>
+
+        """
+        # verification
+        if not self._parameters:
+            msg = "before catching phi, you must train the model using the .fit(...) method"
+            raise AttributeError(msg)
+
+        # extract values of interest
+        phi_basic, slices, _, _ = next(iter(self._parameters.values()))
+        values = {clus: d["x_k"] for clus, (_, _, _, d) in self._parameters.items()}
+        return Phi(
+            model=phi_basic,
+            slices=slices,
+            values=values,
+            std_mean={lbl: self._std_mean["full"][lbl] for lbl in (*slices, *self.interest_labels)},
+        )
+
+    @property
+    def psi(self) -> dict[tuple, dict[str, Psi]]:
+        """Returns all the psi functions ready to be used.
+
+        Returns a reference to psi without creating a copy.
+
+        Examples
+        --------
+        >>> from pprint import pprint
+        >>> from mendevi.models.trend import TrendNormlisator
+        >>> model = TrendNormlisator(
+        ...     input_labels=["effort", "encoder", "pixels"], aggregation=["encoder"],
+        ...     interest_labels=["quality"], output_labels=["log_bitrate"],
+        ...     niter=100,  # very little to be fast
+        ... ).fit("scatter.db", table="t_enc_encode", select="uniform(vid_hash) >= 0.2")
+        >>> pprint(model.psi)
+        {('av1_nvenc',): {'effort': Psi('effort', 3, 821),
+                          'pixels': Psi('pixels', 1, 795)},
+         ('h264_nvenc',): {'effort': Psi('effort', 3, 940),
+                           'pixels': Psi('pixels', 1, 912)},
+         ('h264_vaapi',): {'effort': Psi('effort', 3, 71),
+                           'pixels': Psi('pixels', 1, 65)},
+         ('hevc_nvenc',): {'effort': Psi('effort', 3, 940),
+                           'pixels': Psi('pixels', 1, 912)},
+         ('libaom-av1',): {'effort': Psi('effort', 3, 425),
+                           'pixels': Psi('pixels', 1, 407)},
+         ('libsvtav1',): {'effort': Psi('effort', 3, 1345),
+                          'pixels': Psi('pixels', 1, 1311)},
+         ('libvpx-vp9',): {'effort': Psi('effort', 3, 425),
+                           'pixels': Psi('pixels', 1, 407)},
+         ('libvvenc',): {'effort': Psi('effort', 3, 425),
+                         'pixels': Psi('pixels', 1, 407)},
+         ('libx264',): {'effort': Psi('effort', 3, 1345),
+                        'pixels': Psi('pixels', 1, 1311)},
+         ('libx265',): {'effort': Psi('effort', 3, 425),
+                        'pixels': Psi('pixels', 1, 407)}}
+        >>>
+
+        """
+        # verification
+        if not self._parameters:
+            msg = "before catching psi, you must train the model using the .fit(...) method"
+            raise AttributeError(msg)
+
+        # fill attributes
+        all_psi: dict[tuple, dict[str, Psi]] = {}
+        for clus, (_, _, psi_dict, data) in self._parameters.items():
+            all_psi[clus] = all_psi.get(clus, {})
+            for lbl, psi in psi_dict.items():
+                psi.std_mean = self._std_mean["full"][lbl]
+                psi.values = data[lbl]
+                all_psi[clus][lbl] = psi
+        return all_psi
+
 
 class TrendEncodeEnergy(TrendNormlisator):
     """Examine the effect of a parameter on encoding time and power.
@@ -625,7 +800,7 @@ class TrendEncodeEnergy(TrendNormlisator):
             "input_labels", [
                 "encoder", "effort", "mode", "quality",
                 "hostname",  # "temperature",
-                "nb_frames", "height", "width",  # "range", "primaries", "eotf",
+                "nb_frames", "pixels",  # "range", "primaries", "eotf",
                 "spatial_dct", "temporal_dct", "rms_sobel", "rms_time_diff",
             ],
         )
