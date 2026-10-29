@@ -486,7 +486,7 @@ class Model(metaclass=MetaModel):
     @property
     def accuracy(self) -> dict[str, float]:
         """Return the error std for each output label."""
-        if self._accuracy is None:
+        if not self._accuracy:
             msg = "you must call the .fit method before you can know the accuracy of the model"
             return RuntimeError(msg)
         return self._accuracy.copy()  # copy for readonly
