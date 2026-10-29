@@ -9,7 +9,10 @@ from .base import Model
 
 
 class LR(Model):
-    """Biaised linear regression on all parameters."""
+    """Biaised linear regression on all parameters.
+
+    It is a full torch implementation. Complexity :math:`O(n)`.
+    """
 
     def __init__(
         self,

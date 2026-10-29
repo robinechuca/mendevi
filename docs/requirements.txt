@@ -83,6 +83,7 @@ pycparser==3.12
 pygments==2.21.0
 pyparsing==3.3.3
 pyserial==3.5
+pytest==9.1.1
 python-dateutil==3.0.0
 pytokens==0.4.1
 pyzmq==27.2.0

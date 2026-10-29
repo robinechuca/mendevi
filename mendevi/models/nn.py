@@ -115,7 +115,10 @@ class _TorchNN(torch.nn.Module):
 
 
 class DNN(Model):
-    """Deep neuronal network predictive model."""
+    """Deep neuronal network predictive model.
+
+    It is a full torch implementation. Complexity :math:`O(n)`.
+    """
 
     def __init__(
         self, niter: int=10000, learning_rate: float=1e-4, total: int | None=None, **kwargs: dict,

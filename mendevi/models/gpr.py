@@ -20,7 +20,10 @@ from .base import Model
 
 
 class GPR(Model):
-    """Gaussian process regression on continuous parameters."""
+    """Gaussian process regression on continuous parameters.
+
+    It is based on sklearn. Complexity :math:`O(n^3)`.
+    """
 
     def __init__(
         self,

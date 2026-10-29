@@ -362,9 +362,11 @@ post process
 
 .. code:: shell
 
+    cd $HOME/bin
+
     # compile python 'pyav' package
-    # uv pip install -v av --no-binary av --no-cache
+    uv pip install -v av --no-binary av --no-cache
 
     # clean files and copy
-    # rm -rf $HOME/{.cargo,.cmake,.rustup,ffmpeg_build,ffmpeg_sources}
-    # cd $HOME/bin && sudo cp avm* ff* rav1e /usr/bin/.
+    rm -rf $HOME/{.cargo,.cmake,.rustup,ffmpeg_build,ffmpeg_sources}
+    sudo cp avm* ff* rav1e /usr/bin/.
