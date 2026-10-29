@@ -12,6 +12,7 @@ Getting started
     :maxdepth: 2
 
     getting_started/installation.rst
+    getting_started/tutorial.rst
     dataset/explore.rst
 
 

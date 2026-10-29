@@ -6,6 +6,7 @@
 # -- Path setup --------------------------------------------------------------
 import datetime as dt
 import pathlib
+import shutil
 import sys
 
 root = pathlib.Path(__file__).resolve().parent.parent
@@ -27,13 +28,11 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", ".venv"]
 html_theme = "furo"
 pygments_style = "sphinx"
 extensions = [
-    # "numpydoc",  # to include the numpy functions
+    "nbsphinx",  # to display jupyter-notebook, requires pandoc (sudo apt install pandoc)
     "recommonmark",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.coverage",
-    # "sphinx.ext.extlinks",  # in pillow conf
-    # "sphinx.ext.githubpages",
     "sphinx.ext.ifconfig",
     "sphinx.ext.intersphinx",  # in pillow conf
     "sphinx.ext.mathjax",  # for latex math (apt install libjs-mathjax or Node-mathjax-full)
@@ -56,3 +55,7 @@ autosectionlabel_prefix_document = True
 autosummary_generate = True
 templates_path = ["_templates"]  # add any paths that contain templates here, relative to this directory
 autoclass_content = "both"  # include dunder methods (like __init__) documentation
+
+# --link notebook ------------------------------------------------------------
+# it is possible to use nbsphinx_link as well
+shutil.copytree(root / "examples", root / "docs" / "build" / "examples", dirs_exist_ok=True)

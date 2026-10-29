@@ -89,7 +89,7 @@ doc = [
 test = [
     "jupyter",  # to run jupyter-notebooks
     "pytest",
-    "ruff",
+    "ruff>=0.17.3",  # solve D417 false positive of missing **kwargs, when escaped with \
 ]
 all = [
     "mendevi[doc,test]",
@@ -105,10 +105,10 @@ Repository = "https://gitlab.inria.fr/rrichard/mendevi"
 
 [tool.setuptools.packages.find]
 where = [""]
-exclude = ["docs"]
+exclude = ["docs", "examples"]
 
 [tool.setuptools.package-data]
-"*" = ["*.json.xz", "*.torrent"]
+"*" = ["*.json.xz", "*.torrent", "examples/*"]
 
 [tool.setuptools.dynamic]
 version = {attr = "mendevi.__version__"}
@@ -123,7 +123,6 @@ ignore = [
     "D213",  # multi-line-summary-first-line (D212) and multi-line-summary-second-line (D213) are incompatible
     "D301",  # Use `r"""` if any backslashes in a docstring: miss detection with \b
     "D411",  # Missing blank line before section: miss detection with \b
-    "D417",  # false positive of missing **kwargs, when escaped with \
     "ERA001",  # commented-out-code
     "S",  # all flake8-bandit
     "T20",  # flake8-print

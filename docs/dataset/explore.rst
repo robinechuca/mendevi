@@ -62,7 +62,7 @@ To see all available options, type
                   * act_duration: Video processing activity duration in seconds.
                   * act_duration_per_frame: Average video processing activity duration per frame in seconds.
                   * actdur: Video processing activity duration in seconds.
-                  * bitrate: Video bitrate in $bit.s^{-1}$.
+                  * bitrate: Final real measured bitrate in $bit.s^{-1}$.
                   * category: 3GPP TR 26.955, 5G Video Codec Characteristics.
                   * codec: Codec name.
                   * color_primaries: The tristimulus primaries colors name.
@@ -103,7 +103,12 @@ To see all available options, type
                   * mode: Bitrate mode, crf, cbr or qp.
                   * name: Full video basename.
                   * nb_frames: The real number of frames of the video file.
+                  * nb_pix: The number of pixels per frame.
+                  * nb_pixels: The number of pixels per frame.
                   * nbr_frames: The real number of frames of the video file.
+                  * nbr_pix: The number of pixels per frame.
+                  * nbr_pixels: The number of pixels per frame.
+                  * pixels: The number of pixels per frame.
                   * power: Average power consumption in Watts.
                   * powers: The interval duration and the average power in each intervals.
                   * preset: Effort provided as a parameter to the encoder.
@@ -113,7 +118,7 @@ To see all available options, type
                   * psnr: Peak Signal to Noise Ratio (PSNR).
                   * quality: Quality level passed to the encoder.
                   * range: Video encoding color range, 'tv' or 'pc'.
-                  * rate: Video bitrate in $bit.s^{-1}$.
+                  * rate: Final real measured bitrate in $bit.s^{-1}$.
                   * ref_stem: Input video compact stem.
                   * ref_vid_stem: Input video compact stem.
                   * ref_video_stem: Input video compact stem.
@@ -152,7 +157,7 @@ To see all available options, type
                   * log_act_duration: Log 10 of video processing activity duration in seconds.
                   * log_act_duration_per_frame: Log 10 of average video processing activity duration per frame in seconds.
                   * log_actdur: Log 10 of video processing activity duration in seconds.
-                  * log_bitrate: Log 10 of video bitrate in $bit.s^{-1}$.
+                  * log_bitrate: Log 10 of final real measured bitrate in $bit.s^{-1}$.
                   * log_category: Log 10 of 3gpp tr 26.955, 5g video codec characteristics.
                   * log_codec: Log 10 of codec name.
                   * log_color_primaries: Log 10 of the tristimulus primaries colors name.
@@ -193,7 +198,12 @@ To see all available options, type
                   * log_mode: Log 10 of bitrate mode, crf, cbr or qp.
                   * log_name: Log 10 of full video basename.
                   * log_nb_frames: Log 10 of the real number of frames of the video file.
+                  * log_nb_pix: Log 10 of the number of pixels per frame.
+                  * log_nb_pixels: Log 10 of the number of pixels per frame.
                   * log_nbr_frames: Log 10 of the real number of frames of the video file.
+                  * log_nbr_pix: Log 10 of the number of pixels per frame.
+                  * log_nbr_pixels: Log 10 of the number of pixels per frame.
+                  * log_pixels: Log 10 of the number of pixels per frame.
                   * log_power: Log 10 of average power consumption in watts.
                   * log_powers: Log 10 of the interval duration and the average power in each intervals.
                   * log_preset: Log 10 of effort provided as a parameter to the encoder.
@@ -203,7 +213,7 @@ To see all available options, type
                   * log_psnr: Log 10 of peak signal to noise ratio (psnr).
                   * log_quality: Log 10 of quality level passed to the encoder.
                   * log_range: Log 10 of video encoding color range, 'tv' or 'pc'.
-                  * log_rate: Log 10 of video bitrate in $bit.s^{-1}$.
+                  * log_rate: Log 10 of final real measured bitrate in $bit.s^{-1}$.
                   * log_ref_stem: Log 10 of input video compact stem.
                   * log_ref_vid_stem: Log 10 of input video compact stem.
                   * log_ref_video_stem: Log 10 of input video compact stem.
