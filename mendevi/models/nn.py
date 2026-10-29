@@ -30,7 +30,7 @@ class _TorchNN(torch.nn.Module):
         (7): Linear(in_features=16, out_features=2, bias=True)
       )
     )
-    >>> sum(p.numel() for p in _.parameters())  # total weight
+    >>> _.total  # real total weight
     1234
     >>>
 
@@ -107,6 +107,11 @@ class _TorchNN(torch.nn.Module):
         cachedir.mkdir(mode=0o777, parents=True, exist_ok=True)
         weights = (cachedir / name).with_suffix(".pk.xz")
         Model.save(self, weights)
+
+    @property
+    def total(self) -> int:
+        """The real number of parameters."""
+        return sum(p.numel() for p in self.parameters())
 
 
 class DNN(Model):
@@ -219,8 +224,8 @@ class QualityNN(DNN):
     Examples
     --------
     >>> from mendevi.models.nn import QualityNN
-    >>> model = QualityNN(output_labels=["psnr"])
-    >>> _ = model.fit(
+    >>> model = QualityNN(output_labels=["psnr"], niter=100)
+    >>> model = model.fit(
     ...     "scatter.db", table="t_enc_encode", select="uniform(vid_hash) >= 0.2",
     ... )
     >>> model.validate(

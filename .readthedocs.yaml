@@ -4,11 +4,12 @@
 version: 2
 
 build:
-  os: "ubuntu-24.04"  # "ubuntu-lts-latest"
+  os: "ubuntu-26.04"  # "ubuntu-lts-latest"
   tools:
-    python: "3.14"  # "latest"
+    python: "3.15"  # "latest"
   apt_packages:
     - graphviz  # to compile images
+    - pandoc  # for nbsphinx
   jobs:
     pre_create_environment:
       - asdf plugin add uv

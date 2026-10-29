@@ -73,17 +73,21 @@ classifiers = [  # all classifiers https://pypi.org/classifiers/
 [project.optional-dependencies]
 doc = [
     "furo",  # sphinx theme
+    "ipykernel",  # for nbsphinx
     "mathjax",  # for sphinx latex math
+    "nbsphinx",  # for jupyter-notebooks
+    "pandoc",  # for nbsphinx (sudo apt install pandoc)
     "recommonmark",
     "ruff",  # to format chart code
     "sphinx",
     "sphinx-copybutton",
+    "sphinx-design",  # for dropdown
     "sphinx-inline-tabs",
     "sphinxcontrib-video",
     "sphinxext-opengraph",  # for web page tags
-    "sphinx-design",  # for dropdown
 ]
 test = [
+    "jupyter",  # to run jupyter-notebooks
     "pytest",
     "ruff",
 ]
