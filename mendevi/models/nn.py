@@ -221,6 +221,46 @@ class DNN(Model):
         return {lbl: prediction[:, idx_min:idx_max] for lbl, (idx_min, idx_max) in slices.items()}
 
 
+class EnergyNN(DNN):
+    """Deep neuronal network for the video encoding energy prediction.
+
+    Examples
+    --------
+    >>> from mendevi.models.nn import EnergyNN
+    >>> model = EnergyNN(niter=100)
+    >>> model = model.fit(
+    ...     "scatter.db", table="t_enc_encode", select="uniform(vid_hash) >= 0.2",
+    ... )
+    >>> model.validate(
+    ...     "scatter.db", table="t_enc_encode", select="uniform(vid_hash) < 0.2",
+    ... )  # doctest: +SKIP
+    >>>
+
+    """
+
+    def __init__(
+        self,
+        title: str = "Encoding energy estimation based on a neuronal network",
+        **kwargs: dict,
+    ) -> None:
+        """Initialise the model."""
+        kwargs = kwargs.copy()
+        kwargs["input_labels"] = kwargs.get(
+            "input_labels", [
+                "encoder", "effort", "mode", "quality",
+                "hostname",  # "temperature",
+                "nb_frames", "height", "width",  # "range", "primaries", "eotf",
+                "spatial_dct", "temporal_dct", "rms_sobel", "rms_time_diff",
+            ],
+        )
+        kwargs["output_labels"] = kwargs.get(
+            "output_labels",
+            ["log_act_duration_per_frame", "power"],
+        )
+        kwargs["aggregation"] = kwargs.get("aggregation", ["hostname"])
+        super().__init__(title=title, **kwargs)
+
+
 class QualityNN(DNN):
     """Deep neuronal network for the video quality prediction.
 
