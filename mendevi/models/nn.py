@@ -125,6 +125,7 @@ class DNN(Model):
         The total number of iteration during the .fit method (read and write).
     learning_rate : float
         The adam learning rate durring the .fit method (read and write).
+
     """
 
     def __init__(

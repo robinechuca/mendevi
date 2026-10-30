@@ -771,7 +771,7 @@ class Model(metaclass=MetaModel):
 
             # flatten
             flat_prediction: dict[str, list] = {lbl: [] for lbl in self._output_labels}
-            for clus_key, lbl_data in preds.items():
+            for lbl_data in preds.values():
                 for lbl, data in lbl_data.items():
                     flat_prediction[lbl].append(data.pop(0))
 
