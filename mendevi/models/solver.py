@@ -156,6 +156,8 @@ class Solver:
 
             # predictions
             values |= self._model.predict(**values)
+            total = max(map(len, values.values()))
+            values = {k: v * total if len(v) == 1 else v for k, v in values.items()}
             keys = sorted(values)
 
             # compute loss

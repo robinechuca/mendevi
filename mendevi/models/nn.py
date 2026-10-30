@@ -118,6 +118,13 @@ class DNN(Model):
     """Deep neuronal network predictive model.
 
     It is a full torch implementation. Complexity :math:`O(n)`.
+
+    Attributes
+    ----------
+    niter : int
+        The total number of iteration during the .fit method (read and write).
+    learning_rate : float
+        The adam learning rate durring the .fit method (read and write).
     """
 
     def __init__(
@@ -148,7 +155,9 @@ class DNN(Model):
         assert niter >= 0, niter
         assert isinstance(learning_rate, float), learning_rate.__class__.__name__
         assert learning_rate > 0, learning_rate
-        self._niter, self._lr = niter, learning_rate
+        self._niter, self._lr = None, None
+        self.niter = niter  # check and set through setter
+        self.learning_rate = learning_rate  # check and set through setter
 
     def _fit_vect_norm(self, values: dict[str, torch.Tensor]) -> object:
         """Perform the gradient descent on a just intanciated nn."""
@@ -219,6 +228,30 @@ class DNN(Model):
 
         # parse result
         return {lbl: prediction[:, idx_min:idx_max] for lbl, (idx_min, idx_max) in slices.items()}
+
+    @property
+    def niter(self) -> int:
+        """Ghe total number of iteration during the .fit method."""
+        return self._niter
+
+    @niter.setter
+    def niter(self, niter: int) -> None:
+        """Set total number of iteration during the .fit method."""
+        assert isinstance(niter, int), niter.__class__.__name__
+        assert niter >= 0, niter
+        self._niter = niter
+
+    @property
+    def learning_rate(self) -> float:
+        """Ghe the adam learning rate durring the .fit method."""
+        return self._lr
+
+    @learning_rate.setter
+    def learning_rate(self, learning_rate: float) -> None:
+        """Set the adam learning rate durring the .fit method."""
+        assert isinstance(learning_rate, float), learning_rate.__class__.__name__
+        assert learning_rate > 0.0, learning_rate
+        self._lr = learning_rate
 
 
 class EnergyNN(DNN):
