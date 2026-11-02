@@ -19,7 +19,13 @@ def main(*, no_open: bool = False) -> None:
     root = get_project_root().parent / "examples"
     browser_flag = ["--no-browser"] if no_open else ["--expose-app-in-browser"]
     subprocess.run(
-        ["jupyter-notebook", str(root), *browser_flag],
+        [
+            "jupyter-notebook",
+            str(root),
+            *browser_flag,
+            "--NotebookApp.token=''",
+            "--NotebookApp.password=''",
+        ],
         check=False,
         stdout=sys.stderr,
     )
