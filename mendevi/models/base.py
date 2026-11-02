@@ -773,7 +773,7 @@ class Model(metaclass=MetaModel):
             flat_prediction: dict[str, list] = {lbl: [] for lbl in self._output_labels}
             for lbl_data in preds.values():
                 for lbl, data in lbl_data.items():
-                    flat_prediction[lbl].append(data.pop(0))
+                    flat_prediction[lbl].extend(data)
 
             prt.print_time()
 

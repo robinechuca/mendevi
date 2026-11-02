@@ -168,12 +168,9 @@ class Solver:
             # all same lenght
             max_len = max(map(len, values.values()))
             values = {k: (v*max_len if len(v) == 1 else v) for k, v in values.items()}
-            print(values)
-            print({k: len(v) for k, v in values.items()})
 
             # predictions
             values |= self._model.predict(**values)
-            print({k: len(v) for k, v in values.items()})
             keys = sorted(values)
 
             # compute loss
