@@ -39,6 +39,7 @@ def import_all_models() -> dict[str, Model]:
     >>> pprint(import_all_models())
     {'DNN': <class 'mendevi.models.nn.DNN'>,
      'EncodeLinear': <class 'mendevi.models.lr.EncodeLinear'>,
+     'EnergyNN': <class 'mendevi.models.nn.EnergyNN'>,
      'GPR': <class 'mendevi.models.gpr.GPR'>,
      'LR': <class 'mendevi.models.lr.LR'>,
      'NearestL2': <class 'mendevi.models.interp.NearestL2'>,
