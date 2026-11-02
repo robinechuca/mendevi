@@ -20,7 +20,7 @@ from mendevi.utils import get_pix_fmt
 
 from .base import Model
 
-N_QUAL: int = 24  # default number of tested quality points
+N_QUAL: int = 32  # default number of tested quality points
 DEFAULT_GRID: dict[str, list] = {
     "effort": ["fast", "medium", "slow"],
     "encoder": sorted(ENCODERS),
@@ -118,7 +118,11 @@ class Solver:
             yield cmd
 
     def solve(
-        self, video: pathlib.Path | str | None = None, **kwargs: dict[str],
+        self,
+        video: pathlib.Path | str | None = None,
+        *,
+        return_cmd: bool = False,
+        **kwargs: dict[str],
     ) -> tuple[dict[str, list], list[float]]:
         r"""Test all combinations as a cartesian product.
 
@@ -129,6 +133,8 @@ class Solver:
         \*\*kwargs : dict, optional
             Use to define or redefine certain input parameters to be explored.
             Explore the cartesian product of all the values.
+        return_cmd : bool default=False
+            If True, return the ffmpeg cmd matching the best result.
 
         Returns
         -------
@@ -137,8 +143,13 @@ class Solver:
         loss : list[float]
             The value of the stroke function for each point.
             This list is sorted in ascending order.
+        cmd : CmdFFMPEG
+            The ffmpeg cmd, only if ``return_cmd`` is True.
 
         """
+        assert isinstance(return_cmd, bool), return_cmd.__class__.__name__
+
+        cmd = None
         with Printer("Solve...", color="pink") as prt:
 
             # preparation of cartesian product of input parameters
@@ -154,10 +165,15 @@ class Solver:
                 ),
             )
 
+            # all same lenght
+            max_len = max(map(len, values.values()))
+            values = {k: (v*max_len if len(v) == 1 else v) for k, v in values.items()}
+            print(values)
+            print({k: len(v) for k, v in values.items()})
+
             # predictions
             values |= self._model.predict(**values)
-            total = max(map(len, values.values()))
-            values = {k: v * total if len(v) == 1 else v for k, v in values.items()}
+            print({k: len(v) for k, v in values.items()})
             keys = sorted(values)
 
             # compute loss
@@ -193,4 +209,6 @@ class Solver:
                     f"-r {shlex.quote(str(video))} -d /tmp/solver.db",
                 )
 
+        if return_cmd:
+            return values, loss, cmd
         return values, loss
