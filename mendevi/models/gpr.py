@@ -51,7 +51,10 @@ class GPR(Model):
         """
         assert isinstance(nu_kernel, float), nu_kernel.__class__.__name__
         super().__init__(title=title, sources=sources, **kwargs)
-        self._kernel = ConstantKernel() * Matern(nu=nu_kernel) + WhiteKernel()
+        self._kernel = (
+            ConstantKernel() * Matern(nu=nu_kernel)  # specify noise avoid warnings
+            # + WhiteKernel(noise_level=1e-5, noise_level_bounds=(1e-10, 1e1))
+        )
 
     def _fit_vect_norm(self, values: dict[str, torch.Tensor]) -> object:
         """Perform a linear regression on the centered and reduced values."""
@@ -61,7 +64,7 @@ class GPR(Model):
 
         gpr = GaussianProcessRegressor(
             kernel=self._kernel,
-            alpha=1e-8,  # to help numerical stability
+            alpha=1e-5,  # to help numerical stability
             n_restarts_optimizer=10,  # like in the paper
             normalize_y=False,
         )
