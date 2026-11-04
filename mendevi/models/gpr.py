@@ -53,7 +53,7 @@ class GPR(Model):
         super().__init__(title=title, sources=sources, **kwargs)
         self._kernel = (
             ConstantKernel() * Matern(nu=nu_kernel)  # specify noise avoid warnings
-            # + WhiteKernel(noise_level=1e-5, noise_level_bounds=(1e-10, 1e1))
+            + WhiteKernel(noise_level=1e-5, noise_level_bounds=(1e-10, 1e1))
         )
 
     def _fit_vect_norm(self, values: dict[str, torch.Tensor]) -> object:

@@ -6,6 +6,9 @@
 import functools
 import numbers
 
+import matplotlib.pyplot as plt
+from matplotlib import ticker
+
 from mendevi.cst.profiles import PROFILES
 
 
@@ -27,3 +30,45 @@ def smartsort(item: object) -> object:
     if isinstance(item, numbers.Real):
         return item
     return str(item)
+
+
+def lin_grid(axe: plt.Axes, axis: str) -> plt.Axes:
+    """Set a linear grid on the given axis."""
+    assert isinstance(axe, plt.Axes), axe.__class__.__name__
+    assert isinstance(axis, str), axis.__class__.__name__
+    match axis:
+        case "x":
+            axe.set_xscale("linear")
+            axe.grid(axis=axis, which="major")
+            axe.grid(axis=axis, which="minor", color="0.9")
+            ticks = axe.xaxis.get_majorticklocs()  # get main graduations
+            axe.xaxis.set_minor_locator(ticker.MultipleLocator((ticks[1]-ticks[0])/10.0))
+        case "y":
+            axe.set_yscale("linear")
+            axe.grid(axis=axis, which="major")
+            axe.grid(axis=axis, which="minor", color="0.9")
+            ticks = axe.yaxis.get_majorticklocs()  # get main graduations
+            axe.yaxis.set_minor_locator(ticker.MultipleLocator((ticks[1]-ticks[0])/10.0))
+        case _:
+            msg = f"'axe' can only take the values 'x' or 'y', not {axe}"
+            raise ValueError(msg)
+    return axe
+
+
+def log_grid(axe: plt.Axes, axis: str) -> plt.Axes:
+    """Set a log grid on the given axis."""
+    assert isinstance(axe, plt.Axes), axe.__class__.__name__
+    assert isinstance(axis, str), axis.__class__.__name__
+    match axis:
+        case "x":
+            axe.set_xscale("log", base=10)
+        case "y":
+            axe.set_yscale("log", base=10)
+        case _:
+            msg = f"'axe' can only take the values 'x' or 'y', not {axe}"
+            raise ValueError(msg)
+    axe.grid(axis=axis, which="major")
+    axe.grid(axis=axis, which="minor", color="0.9")
+    return axe
+
+

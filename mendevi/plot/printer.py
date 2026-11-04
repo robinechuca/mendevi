@@ -141,19 +141,9 @@ def print_grid(axe: str, dim: str, scale: Scale) -> list[str]:
         logging.getLogger(__name__).warning("the axis %s should be display as bar plot", dim)
         return []
     if scale == Scale.LOGARITHMIC:
-        return [
-            f'{axe}.set_{dim}scale("log", base=10)  # or .set_{dim}scale("linear")',
-            f'{axe}.grid(axis="{dim}", which="major")',
-            f'{axe}.grid(axis="{dim}", which="minor", color="0.9")',
-        ]
+        return [f"log_grid({axe}, {dim!r})"]
     if scale == Scale.LINEAR:
-        return [
-            f'{axe}.set_{dim}scale("linear")  # or .set_{dim}scale("log", base=10)',
-            f'{axe}.grid(axis="{dim}", which="major")',
-            f'{axe}.grid(axis="{dim}", which="minor", color="0.9")',
-            f"ticks = {axe}.{dim}axis.get_majorticklocs()  # get main graduations",
-            f"{axe}.{dim}axis.set_minor_locator(ticker.MultipleLocator((ticks[1]-ticks[0])/10.0))",
-        ]
+        return [f"lin_grid({axe}, {dim!r})"]
     msg = f"{scale} is not valid"
     raise ValueError(msg)
 
@@ -358,12 +348,11 @@ def print_import() -> list[str]:
         "",
         "from context_verbose import Printer",
         "from mendevi.exceptions import RejectError",
-        "from mendevi.plot.tools import smartsort",
+        "from mendevi.plot.tools import smartsort, lin_grid, log_grid",
         "from mendevi.utils import best_profile, filecache",
         "import cutcutcodec",
         "import matplotlib.figure as figure",
         "import matplotlib.pyplot as plt",
-        "import matplotlib.ticker as ticker",
         "import mendevi.database.extract as extract",
         "import numpy as np",
         "import tqdm",

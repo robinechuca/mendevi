@@ -50,7 +50,10 @@ def from_torch(data: dict[str, torch.Tensor]) -> dict[str, list]:
         assert isinstance(values, torch.Tensor), values.__class__.__name__
         assert values.ndim == 2, values.shape
         match name:
-            case "decoder" | "effort" | "encoder" | "profile" | "mode" | "hostname":
+            case "encoder":
+                lbls = sorted(ENCODERS)
+                out_data[name] = [lbls[idx] for idx in values.softmax(dim=1).argmax(dim=1).tolist()]
+            case "decoder" | "effort" | "profile" | "mode" | "hostname":
                 raise NotImplementedError
             case _:
                 out_data[name] = values.squeeze(1).tolist()

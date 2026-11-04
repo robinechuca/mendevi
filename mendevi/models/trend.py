@@ -4,17 +4,17 @@
 """Study the influence of one input parameter (independently of the other) on the output."""
 
 import hashlib
-import math
 import typing
 
 import torch
 import tqdm
 from context_verbose import Printer
-from matplotlib import axes, figure, ticker
+from matplotlib import axes, figure
 
 from mendevi.cst.labels import LABELS
 from mendevi.cst.plot import COLORS, MARKERS, MARKERSIZE
-from mendevi.database.meta import get_extractor
+from mendevi.database.meta import Extractor, Scale, get_extractor
+from mendevi.plot.tools import lin_grid, log_grid
 
 from .base import EPS, discard_nan, from_torch
 from .nn import DNN, _TorchNN
@@ -138,16 +138,8 @@ class Psi(_TorchNN):
 
         # metadata
         axe.set_title(self._label)
-        axe.set_xscale("linear")
-        axe.grid(axis="x", which="major")
-        axe.grid(axis="x", which="minor", color="0.9")
-        ticks = axe.xaxis.get_majorticklocs()  # get main graduations
-        axe.xaxis.set_minor_locator(ticker.MultipleLocator((ticks[1] - ticks[0]) / 10.0))
-        axe.set_yscale("linear")
-        axe.grid(axis="y", which="major")
-        axe.grid(axis="y", which="minor", color="0.9")
-        ticks = axe.yaxis.get_majorticklocs()
-        axe.yaxis.set_minor_locator(ticker.MultipleLocator((ticks[1] - ticks[0]) / 10.0))
+        lin_grid(axe, "x")
+        lin_grid(axe, "y")
 
         # plt.supylabel("Absolute context values")
         # plt.supxlabel("Denormalizator values a and b")
@@ -209,7 +201,7 @@ class Phi:
         self._values: dict[tuple, torch.Tensor] = values
         self._std_mean: dict[str, tuple[float | torch.Tensor, float | torch.Tensor]] = std_mean
 
-    def fill_axe(self, axe: axes.Axes, lbl: str) -> tuple[dict, dict]:
+    def fill_axe(self, axe: axes.Axes | None, lbl: str) -> tuple[dict, dict]:
         """Plot the functions."""
         # verifications
         assert axe is None or isinstance(axe, axes.Axes), axe.__class__.__name__
@@ -243,20 +235,21 @@ class Phi:
         y_tilde_denorm = y_tilde * (self._std_mean[lbl][0]+EPS) + self._std_mean[lbl][1]
 
         # plot
-        axe.plot(
-            x_k_denorm[:LINPLOT, 0].tolist(),
-            y_tilde_denorm[:LINPLOT, 0].tolist(),
-            "--",
-            color="black",
-            zorder=3,
-            label="$\\tilde{\\phi}$",
-        )
-        axe.scatter(
-            x_k_denorm[LINPLOT:, 0].tolist(),
-            y_tilde_denorm[LINPLOT:, 0].tolist(),
-            color="black",
-            marker=MARKERS[0],
-        )
+        if axe is not None:
+            axe.plot(
+                x_k_denorm[:LINPLOT, 0].tolist(),
+                y_tilde_denorm[:LINPLOT, 0].tolist(),
+                "--",
+                color="black",
+                zorder=3,
+                label="$\\tilde{\\phi}$",
+            )
+            axe.scatter(
+                x_k_denorm[LINPLOT:, 0].tolist(),
+                y_tilde_denorm[LINPLOT:, 0].tolist(),
+                color="black",
+                marker=MARKERS[0],
+            )
 
         # split into clusters
         final_x_k_denorm: dict[tuple, torch.Tensor] = {}
@@ -601,75 +594,133 @@ class TrendNormlisator(DNN):
         clus_data_psi = {clus: (data, psi) for clus, (_, _, psi, data) in self._parameters.items()}
 
         # matplotlib stuff
-        nrows = int(math.sqrt(len(self.output_labels)))
-        ncols = math.ceil(len(self.output_labels) / nrows)
-        for lbl, axe in zip(
-            self.output_labels,
-            fig.subplots(
-                nrows,
-                ncols,
-                squeeze=False,
-                sharex="all",
-                sharey=None,
-            ).ravel(),
-            strict=False,
-        ):
-
+        x_extractor = get_extractor(interest_label, safe=True)
+        axes = fig.subplots(
+            2,  # nrows
+            len(self.output_labels),  # ncols
+            squeeze=False,
+            sharex="all",
+            sharey=None,
+        )
+        for j, out_lbl in enumerate(self.output_labels):
             # plot y_tilde
-            x_k_denorm, y_tilde = self.phi.fill_axe(axe, lbl)
+            x_k_denorm, y_tilde = self.phi.fill_axe(None, out_lbl)
 
             # compute cloud points
-            for i, (clus, (data, psi)) in enumerate(clus_data_psi.items()):
-                # compute y_hat
-                a_b = torch.cat(
+            y_tilde_denorm = {
+                clus: (
+                    y_tilde_ * (self._std_mean["full"][out_lbl][0]+EPS)
+                    + self._std_mean["full"][out_lbl][1]
+                ) for clus, y_tilde_ in y_tilde.items()
+            }
+            a_b = {
+                clus: torch.cat(
                     [psi_(data[in_lbl])[:, :, None] for in_lbl, psi_ in psi.items()], dim=2,
+                ) for clus, (data, psi) in clus_data_psi.items()
+            }
+            a_b = {
+                clus: (
+                    a_b_[:, 0, :].log().mean(dim=1, keepdim=True).exp(),  # geometric mean
+                    a_b_[:, 1, :].mean(dim=1, keepdim=True),  # arithmetic mean
                 )
-                a_b = (
-                    a_b[:, 0, :].log().mean(dim=1, keepdim=True).exp(),  # geometric mean
-                    a_b[:, 1, :].mean(dim=1, keepdim=True),  # arithmetic mean
+                for clus, a_b_ in a_b.items()
+            }
+            y_hat = {clus: a*y_tilde[clus] + b for clus, (a, b) in a_b.items()}
+            y_hat_denorm = {
+                clus: (
+                    y_hat_ * (self._std_mean["full"][out_lbl][0]+EPS)
+                    + self._std_mean["full"][out_lbl][1]
+                ) for clus, y_hat_ in y_hat.items()
+            }
+            y_reference_denorm = {
+                clus: (
+                    data[out_lbl] * (self._std_mean["full"][out_lbl][0]+EPS)
+                    + self._std_mean["full"][out_lbl][1]
                 )
-                y_hat = a_b[0]*y_tilde[clus] + a_b[1]
-                y_hat_denorm = (
-                    y_hat * (self._std_mean["full"][lbl][0]+EPS) + self._std_mean["full"][lbl][1]
-                )
+                for clus, (data, _) in clus_data_psi.items()
+            }
 
-                # plot y_hat
-                axe.scatter(
-                    x_k_denorm[clus].tolist(),
-                    y_hat_denorm[:, 0].tolist(),
-                    color=COLORS[i%len(COLORS)],
+            # flatten
+            clusters = sorted(clus_data_psi)  # frozen order
+            colors = [
+                COLORS[i%len(COLORS)]
+                for i, clus in enumerate(clusters)
+                for _ in range(len(y_tilde[clus]))
+            ]
+            x_k_denorm = torch.cat([x_k_denorm[clus] for clus in clusters], dim=0)
+            y_hat_denorm = torch.cat([y_hat_denorm[clus] for clus in clusters], dim=0)
+            y_reference_denorm = torch.cat([y_reference_denorm[clus] for clus in clusters], dim=0)
+            y_tilde_denorm = torch.cat([y_tilde_denorm[clus] for clus in clusters], dim=0)
+
+            # sorted to stack the layers in a readable way
+            order = torch.argsort(y_reference_denorm.squeeze(1).abs(), descending=True)
+            colors = [colors[i] for i in order.tolist()]
+            x_k_denorm = from_torch({interest_label: x_k_denorm[order]})[interest_label]
+            y_hat_denorm = from_torch({out_lbl: y_hat_denorm[order]})[out_lbl]
+            y_reference_denorm = from_torch({out_lbl: y_reference_denorm[order]})[out_lbl]
+            y_tilde_denorm = from_torch({out_lbl: y_tilde_denorm[order]})[out_lbl]
+
+            # plot
+            if x_extractor.scale == Scale.DISCRETE:
+                axes[0, j].bar(
+                    x_k_denorm,
+                    y_reference_denorm,
+                    color=colors,
+                    alpha=0.01,
+                )
+                axes[0, j].bar(
+                    x_k_denorm,
+                    y_tilde_denorm,
+                    width=0.3,
+                    color="black",
+                    zorder=3,
+                )
+                axes[1, j].bar(
+                    x_k_denorm,
+                    [r-h for r, h in zip(y_reference_denorm, y_hat_denorm, strict=True)],
+                    color=colors,
+                    alpha=0.01,
+                )
+                axes[1, j].tick_params(axis="x", labelrotation=45)
+            else:
+                axes[0, j].scatter(
+                    x_k_denorm,
+                    y_reference_denorm,
+                    color=colors,
+                    marker=MARKERS[1],
+                    alpha=0.1,
+                    label="ground truth $Y$",
+                )
+                axes[0, j].plot(
+                    x_k_denorm,
+                    y_tilde_denorm,
+                    "--",
+                    color="black",
+                    zorder=3,
+                    label="$\\tilde{\\phi}$",
+                )
+                axes[1, j].scatter(
+                    x_k_denorm,
+                    [r-h for r, h in zip(y_reference_denorm, y_hat_denorm, strict=True)],
+                    color=colors,
                     marker=MARKERS[1],
                     alpha=0.1,
                 )
 
-                # plot y_reference
-                axe.scatter(
-                    x_k_denorm[clus].tolist(),
-                    (
-                        data[lbl] * (self._std_mean["full"][lbl][0]+EPS)
-                        + self._std_mean["full"][lbl][1]
-                    )[:, 0].tolist(),
-                    color=COLORS[i%len(COLORS)],
-                    marker=MARKERS[2],
-                    alpha=0.1,
-                )
+            # labels and scale
+            y_extractor = get_extractor(out_lbl, safe=True)
+            axes[0, j].set_ylabel(y_extractor.legend)
+            axes[1, j].set_ylabel("$Y - \\hat{Y}$")
+            _scale(axes[0, j], x_extractor, y_extractor)
+            _scale(axes[1, j], x_extractor, y_extractor)
 
-            # axe.set_title(lbl)
-            axe.scatter([], [], color="grey", marker=MARKERS[1], label="prediction $\\hat{Y}$")
-            axe.scatter([], [], color="grey", marker=MARKERS[2], label="ground truth $Y$")
-            axe.set_ylabel(get_extractor(lbl, safe=True).legend)
-            axe.set_xscale("linear")
-            axe.grid(axis="x", which="major")
-            axe.grid(axis="x", which="minor", color="0.9")
-            ticks = axe.xaxis.get_majorticklocs()  # get main graduations
-            axe.xaxis.set_minor_locator(ticker.MultipleLocator((ticks[1] - ticks[0]) / 10.0))
-            axe.set_yscale("linear")
-            axe.grid(axis="y", which="major")
-            axe.grid(axis="y", which="minor", color="0.9")
-            ticks = axe.yaxis.get_majorticklocs()
-            axe.yaxis.set_minor_locator(ticker.MultipleLocator((ticks[1] - ticks[0]) / 10.0))
-
-        fig.supxlabel(get_extractor(interest_label, safe=True).legend)
+        # legend
+        for i, clus in enumerate(clusters):
+            axes[0, 0].plot(
+                [], [], color=COLORS[i%len(COLORS)], label=", ".join(map(str, clus)),
+            )
+        fig.legend(*axes[0, 0].get_legend_handles_labels(), loc="outside upper center", ncols=3)
+        fig.supxlabel(x_extractor.legend)
 
     def fit(self, *args: tuple, **kwargs: dict) -> typing.Self:
         """Container for the :py:meth:`Model.fit` method."""
@@ -697,6 +748,7 @@ class TrendNormlisator(DNN):
         ...     niter=100,  # very little to be fast
         ... ).fit("scatter.db", table="t_enc_encode", select="uniform(vid_hash) >= 0.2")
         >>> print(model.phi)
+        Phi: ['quality'] -> ['log_bitrate']
         >>>
 
         """
@@ -810,3 +862,15 @@ class TrendEncodeEnergy(TrendNormlisator):
         )
         kwargs["aggregation"] = kwargs.get("aggregation", ["hostname"])
         super().__init__(title=title, **kwargs)
+
+
+def _scale(axe: axes.Axes, x_extractor: Extractor, y_extractor: Extractor) -> None:
+    """Set the good scale."""
+    if x_extractor.scale == Scale.LINEAR:
+        lin_grid(axe, "x")
+    elif x_extractor.scale == Scale.LOGARITHMIC:
+        log_grid(axe, "x")
+    if y_extractor.scale == Scale.LINEAR:
+        lin_grid(axe, "y")
+    elif y_extractor.scale == Scale.LOGARITHMIC:
+        log_grid(axe, "y")

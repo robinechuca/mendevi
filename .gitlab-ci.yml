@@ -6,7 +6,7 @@ create-pages:
   tags:  # see https://gitlab.inria.fr/rrichard/mendevi/-/settings/ci_cd#js-runners-settings
     - linux
     - ci.inria.fr
-    - large  # or large_more_disk
+    - large_more_disk  # or large_more_disk or large
   image: python:3.14
   script:
     - apt-get update && apt-get install -y graphviz  # to compile images
