@@ -50,6 +50,11 @@ def from_torch(data: dict[str, torch.Tensor]) -> dict[str, list]:
         assert isinstance(values, torch.Tensor), values.__class__.__name__
         assert values.ndim == 2, values.shape
         match name:
+            case "effort":
+                out_data[name] = [
+                    ["fast", "medium", "slow"][idx]
+                    for idx in values.softmax(dim=1).argmax(dim=1).tolist()
+                ]
             case "encoder":
                 lbls = sorted(ENCODERS)
                 out_data[name] = [lbls[idx] for idx in values.softmax(dim=1).argmax(dim=1).tolist()]

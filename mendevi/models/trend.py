@@ -248,6 +248,7 @@ class Phi:
                 x_k_denorm[LINPLOT:, 0].tolist(),
                 y_tilde_denorm[LINPLOT:, 0].tolist(),
                 color="black",
+                zorder=3,
                 marker=MARKERS[0],
             )
 
@@ -423,7 +424,7 @@ class TrendNormlisator(DNN):
                 color="pink",
             ) as prt,
             tqdm.tqdm(
-                desc="Gradient decay",
+                desc="Fit",
                 dynamic_ncols=True,
                 leave=False,
                 smoothing=1e-6,
@@ -600,7 +601,7 @@ class TrendNormlisator(DNN):
             len(self.output_labels),  # ncols
             squeeze=False,
             sharex="all",
-            sharey=None,
+            sharey="row",
         )
         for j, out_lbl in enumerate(self.output_labels):
             # plot y_tilde
@@ -666,7 +667,7 @@ class TrendNormlisator(DNN):
                     x_k_denorm,
                     y_reference_denorm,
                     color=colors,
-                    alpha=0.01,
+                    alpha=0.05,
                 )
                 axes[0, j].bar(
                     x_k_denorm,
@@ -679,7 +680,7 @@ class TrendNormlisator(DNN):
                     x_k_denorm,
                     [r-h for r, h in zip(y_reference_denorm, y_hat_denorm, strict=True)],
                     color=colors,
-                    alpha=0.01,
+                    alpha=0.05,
                 )
                 axes[1, j].tick_params(axis="x", labelrotation=45)
             else:
@@ -687,23 +688,24 @@ class TrendNormlisator(DNN):
                     x_k_denorm,
                     y_reference_denorm,
                     color=colors,
-                    marker=MARKERS[1],
+                    marker=MARKERS[0],
                     alpha=0.1,
                     label="ground truth $Y$",
                 )
+                order = sorted(range(len(x_k_denorm)), key=x_k_denorm.__getitem__)  # no overlapping
                 axes[0, j].plot(
-                    x_k_denorm,
-                    y_tilde_denorm,
+                    [x_k_denorm[i] for i in order],
+                    [y_tilde_denorm[i] for i in order],
                     "--",
                     color="black",
                     zorder=3,
                     label="$\\tilde{\\phi}$",
                 )
                 axes[1, j].scatter(
-                    x_k_denorm,
+                    [x_k_denorm[i] for i in order],
                     [r-h for r, h in zip(y_reference_denorm, y_hat_denorm, strict=True)],
                     color=colors,
-                    marker=MARKERS[1],
+                    marker=MARKERS[0],
                     alpha=0.1,
                 )
 

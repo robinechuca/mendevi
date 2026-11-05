@@ -186,7 +186,7 @@ class DNN(Model):
         model.train()
         optimizer = torch.optim.Adam(model.parameters(), lr=self._lr)
         with tqdm.tqdm(
-            desc="Gradient decay",
+            desc="Fit",
             dynamic_ncols=True,
             leave=False,
             smoothing=1e-6,
