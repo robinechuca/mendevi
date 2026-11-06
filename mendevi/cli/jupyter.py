@@ -26,6 +26,7 @@ def main(*, no_open: bool = False) -> None:
             "--NotebookApp.token=''",
             "--NotebookApp.password=''",
         ],
+        cwd=root,
         check=False,
         stdout=sys.stderr,
     )

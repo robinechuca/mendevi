@@ -601,7 +601,7 @@ class TrendNormlisator(DNN):
             len(self.output_labels),  # ncols
             squeeze=False,
             sharex="all",
-            sharey="row",
+            sharey="col",
         )
         for j, out_lbl in enumerate(self.output_labels):
             # plot y_tilde
