@@ -15,6 +15,7 @@ import sqlite3
 import tempfile
 import typing
 
+import cutcutcodec
 import numpy as np
 import torch
 from context_verbose import Printer
@@ -25,7 +26,7 @@ from mendevi.cst.labels import LABELS
 from mendevi.cst.profiles import PROFILES
 from mendevi.database.create import create_database, is_sqlite
 from mendevi.database.extract import SqlLinker
-from mendevi.database.meta import Scale, get_extractor, merge_extractors
+from mendevi.database.meta import ALIAS, Scale, get_extractor, merge_extractors
 from mendevi.download.decapsulation import retrive_file
 from mendevi.exceptions import RejectError
 from mendevi.probe import probe_and_store
@@ -41,6 +42,31 @@ def discard_nan(values: dict[str, torch.Tensor]) -> dict[str, torch.Tensor]:
     return {key: data[mask, :] for key, data in values.items()}
 
 
+def one_hot_lbls(name: str) -> list[str] | None:
+    """Factorize from_torch and to_torch one hot conversion."""
+    assert isinstance(name, str), name.__class__.__name__
+    lbls = None
+    match ALIAS.get(name, name):  # avoid matching alias, only reference name
+        case "decoder":
+            lbls = sorted(DECODERS)
+        case "effort":
+            lbls = ["fast", "medium", "slow"]
+        case "encoder":
+            lbls = sorted(ENCODERS)
+        case "gamut":
+            lbls = sorted(cutcutcodec.core.colorspace.cst.PRIMARIES)
+        case "mode":
+            lbls = ["crf", "cbr", "qp"]
+        case "profile":
+            lbls = sorted(PROFILES)
+        case "transfer":
+            lbls = sorted(cutcutcodec.core.colorspace.cst.TRC)
+        case "effort" | "profile" | "mode" | "hostname":
+            msg = f"The one hot encoding for {name!r} is not defined."
+            raise NotImplementedError(msg)
+    return lbls
+
+
 def from_torch(data: dict[str, torch.Tensor]) -> dict[str, list]:
     """Back conversion from vectorized torch to python list, bijection of :py:func:`to_torch`."""
     out_data: dict[str, list] = {}
@@ -49,19 +75,10 @@ def from_torch(data: dict[str, torch.Tensor]) -> dict[str, list]:
         assert name in LABELS, (name, sorted(LABELS))
         assert isinstance(values, torch.Tensor), values.__class__.__name__
         assert values.ndim == 2, values.shape
-        match name:
-            case "effort":
-                out_data[name] = [
-                    ["fast", "medium", "slow"][idx]
-                    for idx in values.softmax(dim=1).argmax(dim=1).tolist()
-                ]
-            case "encoder":
-                lbls = sorted(ENCODERS)
-                out_data[name] = [lbls[idx] for idx in values.softmax(dim=1).argmax(dim=1).tolist()]
-            case "decoder" | "effort" | "profile" | "mode" | "hostname":
-                raise NotImplementedError
-            case _:
-                out_data[name] = values.squeeze(1).tolist()
+        if (lbls := one_hot_lbls(name)) is None:
+            out_data[name] = values.squeeze(1).tolist()
+        else:
+            out_data[name] = [lbls[idx] for idx in values.softmax(dim=1).argmax(dim=1).tolist()]
     return out_data
 
 
@@ -108,45 +125,16 @@ def to_torch(data: dict[str, list], dtype: torch.dtype = torch.float32) -> dict[
     out_data: dict[str, torch.Tensor] = {}
     for name, values in data.items():
         assert isinstance(values, list), values.__class__.__name__
-        match name:
-            case "effort":
-                out_data["effort"] = torch.nn.functional.one_hot(
-                    torch.asarray(
-                        [{"fast": 0, "medium": 1, "slow": 2}[e] for e in values], dtype=int,
-                    ),
-                    num_classes=3,
-                ).to(dtype)
-            case "decoder":
-                decoders = {e: i for i, e in enumerate(sorted(DECODERS))}
-                out_data["decoder"] = torch.nn.functional.one_hot(
-                    torch.asarray([decoders[e] for e in values], dtype=int),
-                    num_classes=len(decoders),
-                ).to(dtype)
-            case "encoder":
-                encoders = {e: i for i, e in enumerate(sorted(ENCODERS))}
-                out_data["encoder"] = torch.nn.functional.one_hot(
-                    torch.asarray([encoders[e] for e in values], dtype=int),
-                    num_classes=len(encoders),
-                ).to(dtype)
-            case "profile":
-                profiles = {e: i for i, e in enumerate(sorted(PROFILES))}
-                out_data["profile"] = torch.nn.functional.one_hot(
-                    torch.asarray([profiles[e] for e in values], dtype=int),
-                    num_classes=len(profiles),
-                ).to(dtype)
-            case "mode":
-                out_data["mode"] = torch.nn.functional.one_hot(
-                    torch.asarray([{"crf": 0, "cbr": 1, "qp": 2}[e] for e in values], dtype=int),
-                    num_classes=3,
-                ).to(dtype)
-            case "hostname":
-                msg = "The one hot encoding for hostname is not defined."
-                raise NotImplementedError(msg)
-            case _:
-                assert all(isinstance(v, numbers.Real | None) for v in values), (name, values)
-                out_data[name] = torch.asarray(  # convert None -> nan
-                    [torch.nan if v is None else v for v in values], dtype=dtype,
-                )[:, None]
+        if (lbls := one_hot_lbls(name)) is None:
+            assert all(isinstance(v, numbers.Real | None) for v in values), (name, values)
+            out_data[name] = torch.asarray(  # convert None -> nan
+                [torch.nan if v is None else v for v in values], dtype=dtype,
+            )[:, None]
+        else:
+            one_hot_table = {e: i for i, e in enumerate(lbls)}
+            out_data[name] = torch.nn.functional.one_hot(
+                torch.asarray([one_hot_table[e] for e in values], dtype=int), num_classes=len(lbls),
+            ).to(dtype)
     return out_data
 
 

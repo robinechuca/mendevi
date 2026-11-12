@@ -434,11 +434,13 @@ class TrendNormlisator(DNN):
             for _ in range(self._niter):
                 # prediction, X_k = values["input"]
                 y_tilde = {clus: phi_tilde(values["x_k"]) for clus, values in parameters.items()}
-                a_b = {  # all a and b
-                    clus: torch.cat(
-                        [psi_(values[lbl])[:, :, None] for lbl, psi_ in psi[clus].items()], dim=2,
-                    )
+                spread_a_b = {
+                    clus: [psi_(values[lbl]) for lbl, psi_ in psi[clus].items()]
                     for clus, values in parameters.items()
+                }
+                a_b = {  # all a and b
+                    clus: torch.cat([v[:, :, None] for v in values], dim=2)
+                    for clus, values in spread_a_b.items()
                 }
                 a_b = {  # reduce a and b, to 1d vector
                     clus: (
@@ -468,14 +470,23 @@ class TrendNormlisator(DNN):
                     lbl: torch.cat([loss[lbl][None] for loss in losses.values()]).mean()
                     for lbl in slices
                 }
+                torch.cat([
+                    a_b__[:, 0].log().mean()[None]**2  # loss geometric_mean(a) = 1
+                    for a_b_ in spread_a_b.values()
+                    for a_b__ in a_b_  # one loss per sub-psi
+                ]).mean()
                 losses = {  # add regularization
                     **losses,
-                    "a": torch.cat([  # loss geometric_mean(a) = 1
-                        a_b_[0] for a_b_ in a_b.values()
-                    ]).log().mean()**2,
-                    "b": torch.cat([  # loss arithmetic_mean(b) = 0
-                        a_b_[1] for a_b_ in a_b.values()
-                    ]).mean()**2,
+                    "a": torch.cat([
+                        a_b__[:, 0].log().mean()[None]**2  # loss geometric_mean(a) = 1
+                        for a_b_ in spread_a_b.values()
+                        for a_b__ in a_b_  # one loss per sub-psi
+                    ]).mean(),
+                    "b": torch.cat([
+                        a_b__[:, 1].mean()[None]**2  # loss arithmetic_mean(b) = 0
+                        for a_b_ in spread_a_b.values()
+                        for a_b__ in a_b_  # one loss per sub-psi
+                    ]).mean(),
                 }
                 progress_bar.set_postfix_str(
                     ", ".join(f"{lbl}: {losses[lbl]:9.3e}" for lbl in sorted(losses)),

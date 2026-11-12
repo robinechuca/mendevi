@@ -545,7 +545,7 @@ def print_main(**kwargs: dict) -> list[str]:
         "    labels = {frozenset(a.get_legend_handles_labels()[1]) for a in axes}",
         "    if len(axes) != 1 and len(labels) == 1:  # same legend everywhere",
         "        lines, labels = axes[0].get_legend_handles_labels()",
-        "        if labels:",
+        "        if lines:",
         "            fig.legend(",
         "                lines, labels,",
         "                loc=loc_outside,",

@@ -25,7 +25,7 @@ This database attempts to approach the `MVCD <https://github.com/cd-athena/MVCD>
       - On fly
       - :math:`4`
     * - encoder
-      - ``libvenc``, ``libsvtav1``, ``libx264``, ``libx265``
+      - ``libvvenc``, ``libsvtav1``, ``libx264``, ``libx265``
       - :ref:`enc_encoder`
       - :math:`4`
     * - quality
