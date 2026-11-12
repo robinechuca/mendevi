@@ -545,14 +545,9 @@ def extract_mode(raw: dict[str]) -> str:
     return mode
 
 
-@SqlLinker(
-    "t_act_activity.act_rapl_dt",
-    "t_act_activity.act_rapl_power",
-    "t_act_activity.act_wattmeter_dt",
-    "t_act_activity.act_wattmeter_power",
-)
-def extract_powers(raw: dict[str]) -> tuple:
-    """Return the interval duration and the average power in each intervals.
+@SqlLinker("t_act_activity.act_rapl_dt", "t_act_activity.act_rapl_power")
+def extract_powers_rapl(raw: dict[str]) -> tuple:
+    """Return the interval duration and the average RAPL power in each intervals.
 
     Parameters
     ----------
@@ -561,19 +556,31 @@ def extract_powers(raw: dict[str]) -> tuple:
 
     """
     assert isinstance(raw, dict), raw.__class__.__name__
-    assert (
-        ("act_wattmeter_dt" in raw and "act_wattmeter_power" in raw)
-        or ("act_rapl_dt" in raw and "act_rapl_power" in raw)
-    ), "Please correct the SQL query."
+    assert "act_rapl_dt" in raw, "Please correct the SQL query."
+    assert "act_rapl_power" in raw, "Please correct the SQL query."
+    act_dt, act_power = raw["act_rapl_dt"], raw["act_rapl_power"]
+    if act_dt is None or act_power is None:
+        return None
+    return binary_to_list(act_dt), binary_to_list(act_power)
+
+
+@SqlLinker("t_act_activity.act_wattmeter_dt", "t_act_activity.act_wattmeter_power")
+def extract_powers_wattmeter(raw: dict[str]) -> tuple:
+    """Return the interval duration and the average wattmeter power in each intervals.
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+
+    """
+    assert isinstance(raw, dict), raw.__class__.__name__
+    assert "act_wattmeter_dt" in raw, "Please correct the SQL query."
+    assert "act_wattmeter_power" in raw, "Please correct the SQL query."
     act_dt, act_power = raw["act_wattmeter_dt"], raw["act_wattmeter_power"]
-    if act_dt is not None and act_power is not None:  # if it comes from wattmeter
-        act_dt, act_power = binary_to_list(act_dt), binary_to_list(act_power)
-    else:  # if it comes from rapl
-        act_dt, act_power = raw["act_rapl_dt"], raw["act_rapl_power"]
-        if act_dt is None or act_power is None:
-            return None
-        act_dt, act_power = binary_to_list(act_dt), binary_to_list(act_power)
-    return act_dt, act_power
+    if act_dt is None or act_power is None:
+        return None
+    return binary_to_list(act_dt), binary_to_list(act_power)
 
 
 @verif

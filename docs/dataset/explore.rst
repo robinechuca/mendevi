@@ -91,7 +91,13 @@ To see all available options, type
                   * encoder_type: The type of encoder.
                   * energy: Total energy consumption in Joules.
                   * energy_per_frame: Average energy consumption per frame in Joules.
+                  * energy_rapl: Total RAPL energy consumption in Joules.
+                  * energy_rapl_per_frame: Average RAPL energy consumption per frame in Joules.
+                  * energy_wattmeter: Total wattmeter energy consumption in Joules.
+                  * energy_wattmeter_per_frame: Average wattmeter energy consumption per frame in Joules.
                   * eotf: The non-linear transfer function name.
+                  * fps: The average real frame rate.
+                  * framerate: The average real frame rate.
                   * frames: The metadata of each frame.
                   * gamut: The tristimulus primaries colors name.
                   * gpu_cores: Average cumulative utilisation rate of GPU cores.
@@ -110,7 +116,11 @@ To see all available options, type
                   * nbr_pixels: The number of pixels per frame.
                   * pixels: The number of pixels per frame.
                   * power: Average power consumption in Watts.
+                  * power_rapl: Average RAPL power consumption in Watts.
+                  * power_wattmeter: Average wattmeter power consumption in Watts.
                   * powers: The interval duration and the average power in each intervals.
+                  * powers_rapl: The interval duration and the average RAPL power in each intervals.
+                  * powers_wattmeter: The interval duration and the average wattmeter power in each intervals.
                   * preset: Effort provided as a parameter to the encoder.
                   * prim: The tristimulus primaries colors name.
                   * primaries: The tristimulus primaries colors name.
@@ -186,7 +196,13 @@ To see all available options, type
                   * log_encoder_type: Log 10 of the type of encoder.
                   * log_energy: Log 10 of total energy consumption in joules.
                   * log_energy_per_frame: Log 10 of average energy consumption per frame in joules.
+                  * log_energy_rapl: Log 10 of total rapl energy consumption in joules.
+                  * log_energy_rapl_per_frame: Log 10 of average rapl energy consumption per frame in joules.
+                  * log_energy_wattmeter: Log 10 of total wattmeter energy consumption in joules.
+                  * log_energy_wattmeter_per_frame: Log 10 of average wattmeter energy consumption per frame in joules.
                   * log_eotf: Log 10 of the non-linear transfer function name.
+                  * log_fps: Log 10 of the average real frame rate.
+                  * log_framerate: Log 10 of the average real frame rate.
                   * log_frames: Log 10 of the metadata of each frame.
                   * log_gamut: Log 10 of the tristimulus primaries colors name.
                   * log_gpu_cores: Log 10 of average cumulative utilisation rate of gpu cores.
@@ -205,7 +221,11 @@ To see all available options, type
                   * log_nbr_pixels: Log 10 of the number of pixels per frame.
                   * log_pixels: Log 10 of the number of pixels per frame.
                   * log_power: Log 10 of average power consumption in watts.
+                  * log_power_rapl: Log 10 of average rapl power consumption in watts.
+                  * log_power_wattmeter: Log 10 of average wattmeter power consumption in watts.
                   * log_powers: Log 10 of the interval duration and the average power in each intervals.
+                  * log_powers_rapl: Log 10 of the interval duration and the average rapl power in each intervals.
+                  * log_powers_wattmeter: Log 10 of the interval duration and the average wattmeter power in each intervals.
                   * log_preset: Log 10 of effort provided as a parameter to the encoder.
                   * log_prim: Log 10 of the tristimulus primaries colors name.
                   * log_primaries: Log 10 of the tristimulus primaries colors name.
@@ -297,6 +317,7 @@ To see all available options, type
           -s, --sub TEXT...     Pair of regex expression 'pattern' and 'repl' to
                                 substitute in generated code.
           --help                Show this message and exit.
+
 
 
 All datasets list

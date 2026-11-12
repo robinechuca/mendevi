@@ -218,10 +218,38 @@ ALL_EXTRACTORS = {
         "None if powers is None else float((powers[0] * powers[1]).sum())",
         Scale.LOGARITHMIC,
     ),
+    "energy_rapl": Extractor(
+        "Total RAPL energy consumption in Joules",
+        "None if powers_rapl is None else float((powers_rapl[0] * powers_rapl[1]).sum())",
+        Scale.LOGARITHMIC,
+    ),
+    "energy_wattmeter": Extractor(
+        "Total wattmeter energy consumption in Joules",
+        (
+            "None if powers_wattmeter is None else "
+            "float((powers_wattmeter[0] * powers_wattmeter[1]).sum())"
+        ),
+        Scale.LOGARITHMIC,
+    ),
     "energy_per_frame": Extractor(
         "Average energy consumption per frame in Joules",
         "None if energy is None or nbr_frames is None else energy / nbr_frames",
         Scale.LOGARITHMIC,
+    ),
+    "energy_rapl_per_frame": Extractor(
+        "Average RAPL energy consumption per frame in Joules",
+        "None if energy_rapl is None or nbr_frames is None else energy_rapl / nbr_frames",
+        Scale.LOGARITHMIC,
+    ),
+    "energy_wattmeter_per_frame": Extractor(
+        "Average wattmeter energy consumption per frame in Joules",
+        "None if energy_wattmeter is None or nbr_frames is None else energy_wattmeter / nbr_frames",
+        Scale.LOGARITHMIC,
+    ),
+    "fps": Extractor(
+        "The average real frame rate",
+        "None if nbr_frames is None or video_duration is None else nbr_frames / video_duration",
+        Scale.LINEAR,
     ),
     "frames": Extractor(
         "The metadata of each frame",
@@ -263,16 +291,6 @@ ALL_EXTRACTORS = {
         extract.extract_lpips_vgg,
         Scale.LINEAR,
     ),
-    "power": Extractor(
-        "Average power consumption in Watts",
-        "None if energy is None or powers is None else energy / float(powers[0].sum())",
-        Scale.LINEAR,
-    ),
-    "powers": Extractor(
-        "The interval duration and the average power in each intervals",
-        extract.extract_powers,
-        Scale.DISCRETE,
-    ),
     "mode": Extractor(
         "Bitrate mode, crf, cbr or qp",
         extract.extract_mode,
@@ -282,6 +300,45 @@ ALL_EXTRACTORS = {
         "The real number of frames of the video file",
         "None if frames is None else len(frames)",
         Scale.LOGARITHMIC,
+    ),
+    "power": Extractor(
+        "Average power consumption in Watts",
+        "None if energy is None or powers is None else energy / float(powers[0].sum())",
+        Scale.LINEAR,
+    ),
+    "power_rapl": Extractor(
+        "Average RAPL power consumption in Watts",
+        (
+            "None if energy_rapl is None or powers_rapl is None else "
+            "energy_rapl / float(powers_rapl[0].sum())"
+        ),
+        Scale.LINEAR,
+    ),
+    "power_wattmeter": Extractor(
+        "Average wattmeter power consumption in Watts",
+        (
+            "None if energy_wattmeter is None or powers_wattmeter is None else "
+            "energy_wattmeter / float(powers_wattmeter[0].sum())"
+        ),
+        Scale.LINEAR,
+    ),
+    "powers": Extractor(
+        "The interval duration and the average power in each intervals",
+        (
+            "powers_rapl if powers_wattmeter is None else powers_wattmeter  "
+            "# priority to wattmeter over RAPL"
+        ),
+        Scale.DISCRETE,
+    ),
+    "powers_rapl": Extractor(
+        "The interval duration and the average RAPL power in each intervals",
+        extract.extract_powers_rapl,
+        Scale.DISCRETE,
+    ),
+    "powers_wattmeter": Extractor(
+        "The interval duration and the average wattmeter power in each intervals",
+        extract.extract_powers_wattmeter,
+        Scale.DISCRETE,
     ),
     "pixels": Extractor(
         "The number of pixels per frame",
@@ -424,6 +481,7 @@ ALIAS = {
     "enc_scenario": "encode_scenario",
     "encoder_type": "encoder_family",
     "eotf": "transfer",
+    "framerate": "fps",
     "name": "video_name",
     "nb_frames": "nbr_frames",
     "nb_pix": "pixels",
@@ -625,6 +683,8 @@ def merge_extractors(
             * nbr_frames -> abaca
             * powers -> energy
             * powers -> power
+            * powers_rapl -> powers
+            * powers_wattmeter -> powers
             * size -> rate
             * video_duration -> rate
             * video_name -> enc_scenario
@@ -640,8 +700,10 @@ def merge_extractors(
         video_name = extract.extract_video_name(raw)  # Full video basename
         encode_cmd = extract.extract_encode_cmd(raw)  # The ffmpeg command used for encoding
         enc_scenario = f"cmd: {encode_cmd}, video_name: {video_name}, hostname: {hostname}"  # Un...
+        powers_wattmeter = extract.extract_powers_wattmeter(raw)  # The interval duration and the...
+        powers_rapl = extract.extract_powers_rapl(raw)  # The interval duration and the average R...
         frames = extract.extract_frames(raw)  # The metadata of each frame
-        powers = extract.extract_powers(raw)  # The interval duration and the average power in ea...
+        powers = powers_rapl if powers_wattmeter is None else powers_wattmeter  # priority to wat...
         nbr_frames = None if frames is None else len(frames)  # The real number of frames of the ...
         energy = None if powers is None else float((powers[0] * powers[1]).sum())  # Total energy...
         abaca = (hostname, nbr_frames, enc_scenario)  # alias

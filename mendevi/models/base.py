@@ -76,9 +76,19 @@ def from_torch(data: dict[str, torch.Tensor]) -> dict[str, list]:
         assert isinstance(values, torch.Tensor), values.__class__.__name__
         assert values.ndim == 2, values.shape
         if (lbls := one_hot_lbls(name)) is None:
-            out_data[name] = values.squeeze(1).tolist()
-        else:
-            out_data[name] = [lbls[idx] for idx in values.softmax(dim=1).argmax(dim=1).tolist()]
+            match ALIAS.get(name, name):  # special cases
+                case "hostname":  # get list from hard disk
+                    file = pathlib.Path.home() / ".cache" / "mendevi" / "one_hot_hostname.txt"
+                    if file.exists():
+                        with file.open("r", encoding="utf-8") as raw:
+                            lbls = [h.strip() for h in raw.readlines()]
+                    else:
+                        msg = f"hostname one hot labels not founded in {file}"
+                        raise RuntimeError(msg)
+                case _:
+                    out_data[name] = values.squeeze(1).tolist()
+                    continue
+        out_data[name] = [lbls[idx] for idx in values.softmax(dim=1).argmax(dim=1).tolist()]
     return out_data
 
 
@@ -125,16 +135,30 @@ def to_torch(data: dict[str, list], dtype: torch.dtype = torch.float32) -> dict[
     out_data: dict[str, torch.Tensor] = {}
     for name, values in data.items():
         assert isinstance(values, list), values.__class__.__name__
-        if (lbls := one_hot_lbls(name)) is None:
-            assert all(isinstance(v, numbers.Real | None) for v in values), (name, values)
-            out_data[name] = torch.asarray(  # convert None -> nan
-                [torch.nan if v is None else v for v in values], dtype=dtype,
-            )[:, None]
-        else:
-            one_hot_table = {e: i for i, e in enumerate(lbls)}
-            out_data[name] = torch.nn.functional.one_hot(
-                torch.asarray([one_hot_table[e] for e in values], dtype=int), num_classes=len(lbls),
-            ).to(dtype)
+        if (lbls := one_hot_lbls(name)) is None:  # simple one hot
+            match ALIAS.get(name, name):  # special cases
+                case "hostname":  # memoize in hard disk
+                    cache_dir = pathlib.Path.home() / ".cache" / "mendevi"
+                    cache_dir.mkdir(mode=0o777, parents=True, exist_ok=True)
+                    lbls = []
+                    if (file := cache_dir / "one_hot_hostname.txt").exists():
+                        with file.open("r", encoding="utf-8") as raw:
+                            lbls = [h.strip() for h in raw.readlines()]
+                    for lbl in sorted(set(values)):
+                        if lbl not in lbls:
+                            lbls.append(lbl)
+                    with file.open("w", encoding="utf-8") as raw:
+                        raw.write("\n".join(lbls))
+                case _:  # basic real vector
+                    assert all(isinstance(v, numbers.Real | None) for v in values), (name, values)
+                    out_data[name] = torch.asarray(  # convert None -> nan
+                        [torch.nan if v is None else v for v in values], dtype=dtype,
+                    )[:, None]
+                    continue
+        one_hot_table = {e: i for i, e in enumerate(lbls)}
+        out_data[name] = torch.nn.functional.one_hot(
+            torch.asarray([one_hot_table[e] for e in values], dtype=int), num_classes=len(lbls),
+        ).to(dtype)
     return out_data
 
 
@@ -484,7 +508,7 @@ class Model(metaclass=MetaModel):
         """Return the error std for each output label."""
         if not self._accuracy:
             msg = "you must call the .fit method before you can know the accuracy of the model"
-            return RuntimeError(msg)
+            raise RuntimeError(msg)
         return self._accuracy.copy()  # copy for readonly
 
     @property
