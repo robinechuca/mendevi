@@ -44,12 +44,17 @@ class LR(Model):
 
     def _fit_vect_norm(self, values: dict[str, torch.Tensor]) -> object:
         """Perform a linear regression on the centered and reduced values."""
+        if not self.input_labels_aggreg:  # patological case
+            return {
+                response: values[response].mean(dim=0, keepdim=True)  # close to 0
+                for response in self.output_labels
+            }
         obs = torch.cat([values[lbl] for lbl in self.input_labels_aggreg], dim=1)
         if self._biaised:
-            obs = torch.cat(
+            obs = torch.cat(  # shape (n_vars+1, n_obs)
                 [torch.ones((len(obs), 1), dtype=obs.dtype, device=obs.device), obs], dim=1,
             )
-        return {
+        return {  # shape (n_vars, 1)
             response: torch.linalg.pinv(obs.mT @ obs, hermitian=True) @ obs.mT @ values[response]
             for response in self.output_labels
         }
@@ -57,6 +62,8 @@ class LR(Model):
     def _predict_vect_norm(
         self, values: dict[str, torch.Tensor], parameters: object,
     ) -> dict[str, torch.Tensor]:
+        if not self.input_labels_aggreg:  # patological case
+            return parameters  # only one observation, shape (n_vars, 1)
         obs = torch.cat([values[lbl] for lbl in self.input_labels_aggreg], dim=1)
         if self._biaised:
             obs = torch.cat(

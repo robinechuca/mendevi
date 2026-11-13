@@ -849,7 +849,7 @@ class TrendEncodeEnergy(TrendNormlisator):
     ... )  # doctest: +SKIP
     >>> model.validate(
     ...     "scatter.db", table="t_enc_encode", select="uniform(vid_hash) < 0.2",
-    ... )
+    ... )  # doctest: +SKIP
     >>>
 
     """

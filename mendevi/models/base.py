@@ -61,9 +61,6 @@ def one_hot_lbls(name: str) -> list[str] | None:
             lbls = sorted(PROFILES)
         case "transfer":
             lbls = sorted(cutcutcodec.core.colorspace.cst.TRC)
-        case "effort" | "profile" | "mode" | "hostname":
-            msg = f"The one hot encoding for {name!r} is not defined."
-            raise NotImplementedError(msg)
     return lbls
 
 
@@ -200,6 +197,8 @@ class Model(metaclass=MetaModel):
     ----------
     cite : str
         The latex bibtext model citation.
+    title : str
+        The model title.
     parameters : tuple[tuple[str], dict[tuple, object]] | None
         The fitted parameters of the trainable model (readonly).
     aggregation : list[str]
@@ -284,15 +283,8 @@ class Model(metaclass=MetaModel):
         self._accuracy: dict[tuple, dict[str, float]] = {}
 
         # check title
-        if title is None:
-            title = (
-                f"{'regressive ' if self._parameters is not None else ''}model "
-                f"to predict {', '.join(sorted(self._output_labels))} "
-                f"from {', '.join(sorted(self._input_labels))}"
-            )
-        else:
-            assert isinstance(title, str), title.__class__.__name__
-        self._title = title
+        self._title = None
+        self.title = title  # setter
 
         # check authors
         sources = kwargs.get("sources", "")
@@ -507,7 +499,7 @@ class Model(metaclass=MetaModel):
     def accuracy(self) -> dict[str, float]:
         """Return the error std for each output label."""
         if not self._accuracy:
-            msg = "you must call the .fit method before you can know the accuracy of the model"
+            msg = "you must call the .validate method before you can know the accuracy of the model"
             raise RuntimeError(msg)
         return self._accuracy.copy()  # copy for readonly
 
@@ -712,6 +704,10 @@ class Model(metaclass=MetaModel):
         """Return True if the method `fit` has been succesfully called."""
         return bool(self._parameters)
 
+    def is_validate(self) -> bool:
+        """Return True if the method `validate` has been succesfully called."""
+        return bool(self._accuracy)
+
     @staticmethod
     def load(path: pathlib.Path | str) -> typing.Self:
         """Load a model recorded by self.save()."""
@@ -833,6 +829,24 @@ class Model(metaclass=MetaModel):
                 file.write(data)
             prt.print_time()
         return path
+
+    @property
+    def title(self) -> str:
+        """Return the title."""
+        return self._title
+
+    @title.setter
+    def title(self, title: str | None) -> None:
+        """Set a new title."""
+        assert title is None or isinstance(title, str), title.__class__.__name__
+        if not title:
+            self._title = (
+                f"{'regressive ' if self._parameters is not None else ''}model "
+                f"to predict {', '.join(sorted(self._output_labels))} "
+                f"from {', '.join(sorted(self._input_labels))}"
+            )
+        else:
+            self._title = title
 
     def validate(
         self,

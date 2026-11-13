@@ -189,11 +189,8 @@ class Solver:
                 lbl_len = max(map(len, values))
                 for lbl in sorted(keys):
                     std = ""
-                    try:
-                        if lbl in self._model.accuracy:
-                            std = f" \u00B1 {self._model.accuracy[lbl]:#.4g}{std}"
-                    except RuntimeError:  # raised by .accuracy if no validation
-                        pass
+                    if self._model.is_validate() and lbl in self._model.accuracy:
+                        std = f" \u00B1 {self._model.accuracy[lbl]:#.4g}{std}"
                     if isinstance(values[lbl][0], float):
                         prt.print(f"{lbl:<{lbl_len}}: {values[lbl][0]:#.4g}{std}")
                     else:
