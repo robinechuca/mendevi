@@ -56,30 +56,30 @@ def fill_violin(
         len(models),  # nrows
         len(output_labels),  # ncols
         squeeze=False,
-        sharex="all",
+        sharex=None,
         sharey="col",
     )
 
-    # compute all mapes
-    mapes = [[None for _ in output_labels] for _ in models]
+    # compute all apes
+    apes = [[None for _ in output_labels] for _ in models]
     for i, model in enumerate(models):
         for j, output_label in enumerate(output_labels):
-            # compute mape
+            # compute ape
             pred, val = torch.cat([clus[output_label] for clus in model.accuracy.values()], dim=1)
             if output_label.startswith("log_"):
                 pred, val = 10.0**pred, 10.0**val
-            mape = ((val - pred).abs() / (val.abs() + torch.finfo(torch.float32).eps)).mean(dim=1)
-            mapes[i][j] = mape
+            ape = ((val - pred).abs() / (val.abs() + torch.finfo(torch.float32).eps)).mean(dim=1)
+            apes[i][j] = ape
 
     # fill each axe
     for i, model in enumerate(models):
         for j, output_label in enumerate(output_labels):
             # prepare data
-            bins = math.ceil(math.sqrt(len(mapes[i][j]))) + 1
-            maxi = max(torch.quantile(mape[j], .95) for mape in mapes)
-            hist = torch.histc(mapes[i][j], bins=bins, min=0)#, max=maxi)
+            bins = math.ceil(math.sqrt(len(apes[i][j]))) + 1
+            maxi = max(torch.quantile(ape[j], .95) for ape in apes)
+            hist = torch.histc(apes[i][j], bins=bins, min=0)#, max=maxi)
             hist /= hist.max()
-            quants = torch.quantile(mapes[i][j], torch.asarray([0.05, 0.25, 0.5, 0.75, 0.95]))
+            quants = torch.quantile(apes[i][j], torch.asarray([0.05, 0.25, 0.5, 0.75, 0.95]))
 
             # plot
             axes[i, j].set_yticks([])  # no graduations on vertical axis
