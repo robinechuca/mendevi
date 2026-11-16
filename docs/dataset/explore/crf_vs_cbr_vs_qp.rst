@@ -60,8 +60,8 @@ Download
 
     mendevi download crf_vs_cbr_vs_qp.db.xz.torrent
 
-* `crf_vs_cbr_vs_qp.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/crf_vs_cbr_vs_qp.json.xz?inline=false>`_ (914 Ko).
-* `crf_vs_cbr_vs_qp.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/crf_vs_cbr_vs_qp.db.xz.torrent?inline=false>`_ (593 Mo).
+* `crf_vs_cbr_vs_qp.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/crf_vs_cbr_vs_qp.json.xz?inline=false>`_ (2.8 Mo).
+* `crf_vs_cbr_vs_qp.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/crf_vs_cbr_vs_qp.db.xz.torrent?inline=false>`_ (1.5 Go).
 
 Plots
 -----
@@ -98,7 +98,7 @@ The ``cbr`` mode appears to be more efficient than the others for the libsvtav1 
 Reproduce
 ---------
 
-Version 4.2.0 of libsvtav1 does not support optimisation on ssim and the *random/access* prediction on ``cbr`` mode.
+Version 4.2.0 of libsvtav1 does not support optimisation on SSIM and the *random/access* prediction on ``cbr`` mode.
 Although mendevi enables these default settings for the ``qp`` and ``crf`` modes, they need to be always disabled here to ensure a fair comparison between the different modes of libsvtav1.
 In order to optimise PSNR and predict with low delay, you have to create the file ``callback.py`` with the following content:
 

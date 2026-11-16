@@ -186,7 +186,8 @@ def main(databases: tuple[str], **kwargs: dict) -> None:
                 env_unique = tuple(ENV_UNIQUE)
                 for row_ in cursor_src.execute("SELECT * FROM t_env_environment"):
                     row = dict(row_)
-                    row["env_idle_act_id"] = act_old_to_new[row["env_idle_act_id"]]
+                    if row.get("env_idle_act_id") is not None:
+                        row["env_idle_act_id"] = act_old_to_new[row["env_idle_act_id"]]
                     old = row.pop("env_id")
                     if "env_vvc_version" in row:  # retrocompatibility with version <= 1.3.7
                         row["env_libvvenc_version"] = row.pop("env_vvc_version")

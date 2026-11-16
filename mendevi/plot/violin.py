@@ -77,7 +77,7 @@ def fill_violin(
             # prepare data
             bins = math.ceil(math.sqrt(len(apes[i][j]))) + 1
             maxi = max(torch.quantile(ape[j], .95) for ape in apes)
-            hist = torch.histc(apes[i][j], bins=bins, min=0)#, max=maxi)
+            hist = torch.histc(apes[i][j], bins=bins, min=0, max=maxi)
             hist /= hist.max()
             quants = torch.quantile(apes[i][j], torch.asarray([0.05, 0.25, 0.5, 0.75, 0.95]))
 
