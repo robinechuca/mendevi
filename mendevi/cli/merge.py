@@ -58,6 +58,7 @@ import pathlib
 import sqlite3
 
 import click
+import tqdm
 from context_verbose import Printer
 
 from mendevi.database.create import ENV_UNIQUE, create_database
@@ -120,6 +121,19 @@ def _parse(databases: tuple[str], **kwargs: dict) -> tuple[list[pathlib.Path], p
     return all_databases, dst
 
 
+def _tqdm_select(cursor: sqlite3.Cursor, table: str) -> dict:
+    """Display progress bar on a table iteration."""
+    count = cursor.execute(f"SELECT COUNT(*) FROM {table}").fetchone()["COUNT(*)"]
+    yield from tqdm.tqdm(
+        map(dict, cursor.execute(f"SELECT * FROM {table}")),
+        dynamic_ncols=True,
+        leave=False,
+        smoothing=1e-8,
+        total=count,
+        unit="row",
+    )
+
+
 @click.command()
 @click.argument("databases", type=click.Path(), nargs=-1)
 @click.option("-o", "--output", type=click.Path(), help="The output sql database path.")
@@ -147,6 +161,11 @@ def main(databases: tuple[str], **kwargs: dict) -> None:
     """
     all_databases, dst = _parse(databases, **kwargs)
     with sqlite3.connect(dst) as conn_dst:
+        conn_dst.executescript(
+            "PRAGMA synchronous=OFF;"  # avoid os flush
+            "PRAGMA temp_store=MEMORY;"  # keep some file in ram rather hard disk
+            "PRAGMA cache_size=-1000000;"  # keep more thinks in ram, approx 1 Go
+        )
         conn_dst.row_factory = sqlite3.Row
         cursor_dst = conn_dst.cursor()
         for database in all_databases:
@@ -159,13 +178,12 @@ def main(databases: tuple[str], **kwargs: dict) -> None:
 
                 # t_vid_video
                 prt.print("table 't_vid_video'")
-                for row_ in cursor_src.execute("SELECT * FROM t_vid_video"):
-                    _insert_update(cursor_dst, row_, "t_vid_video", ("vid_id",))
+                for row in _tqdm_select(cursor_src, "t_vid_video"):  # SELECT * FROM t_vid_video
+                    _insert_update(cursor_dst, row, "t_vid_video", ("vid_id",))
 
                 # t_met_metric
                 prt.print("table 't_met_metric'")
-                for row_ in cursor_src.execute("SELECT * FROM t_met_metric"):
-                    row = dict(row_)
+                for row in _tqdm_select(cursor_src, "t_met_metric"):  # SELECT * FROM t_met_metric
                     del row["met_id"]
                     _insert_update(
                         cursor_dst, row, "t_met_metric", ("met_ref_vid_id", "met_dis_vid_id"),
@@ -174,8 +192,7 @@ def main(databases: tuple[str], **kwargs: dict) -> None:
                 # t_act_activity
                 prt.print("table 't_act_activity'")
                 act_old_to_new: dict[int, int] = {}
-                for row_ in cursor_src.execute("SELECT * FROM t_act_activity"):
-                    row = dict(row_)
+                for row in _tqdm_select(cursor_src, "t_act_activity"):  # SELECT * FROM t_act_activity
                     old = row.pop("act_id")
                     new = _insert_update(cursor_dst, row, "t_act_activity", ())["act_id"]
                     act_old_to_new[old] = new
@@ -184,8 +201,7 @@ def main(databases: tuple[str], **kwargs: dict) -> None:
                 prt.print("table 't_env_environment'")
                 env_old_to_new: dict[int, int] = {}
                 env_unique = tuple(ENV_UNIQUE)
-                for row_ in cursor_src.execute("SELECT * FROM t_env_environment"):
-                    row = dict(row_)
+                for row in _tqdm_select(cursor_src, "t_env_environment"):  # SELECT * FROM t_env_environment
                     if row.get("env_idle_act_id") is not None:
                         row["env_idle_act_id"] = act_old_to_new[row["env_idle_act_id"]]
                     old = row.pop("env_id")
@@ -196,21 +212,26 @@ def main(databases: tuple[str], **kwargs: dict) -> None:
 
                 # t_enc_encode
                 prt.print("table 't_enc_encode'")
-                for row_ in cursor_src.execute("SELECT * FROM t_enc_encode"):
-                    row = dict(row_)
+                for row in _tqdm_select(cursor_src, "t_enc_encode"):  # SELECT * FROM t_enc_encode
                     del row["enc_id"]
                     row["enc_env_id"] = env_old_to_new[row["enc_env_id"]]
                     row["enc_act_id"] = act_old_to_new[row["enc_act_id"]]
                     row["enc_mode"] = {"vbr": "crf"}.get(
                         row["enc_mode"], row["enc_mode"],
                     )  # retrocompatibility with version <= 1.3.6
-                    _insert_update(cursor_dst, row, "t_enc_encode", ())
+                    cursor_dst.execute(  # faster than _insert_update(cursor_dst, row, "t_enc_encode", ())
+                        f"INSERT INTO t_enc_encode ({', '.join(row)}) VALUES ({', '.join('?'*len(row))})",
+                        tuple(row.values()),  # order keep since 3.7
+                    )
+
 
                 # t_dec_decode
                 prt.print("table 't_dec_decode'")
-                for row_ in cursor_src.execute("SELECT * FROM t_dec_decode"):
-                    row = dict(row_)
+                for row in _tqdm_select(cursor_src, "t_dec_decode"):  # SELECT * FROM t_dec_decode
                     del row["dec_id"]
                     row["dec_env_id"] = env_old_to_new[row["dec_env_id"]]
                     row["dec_act_id"] = act_old_to_new[row["dec_act_id"]]
-                    _insert_update(cursor_dst, row, "t_dec_decode", ())
+                    cursor_dst.execute(  # faster than _insert_update(cursor_dst, row, "t_dec_decode", ())
+                        f"INSERT INTO t_dec_decode ({', '.join(row)}) VALUES ({', '.join('?'*len(row))})",
+                        tuple(row.values()),  # order keep since 3.7
+                    )

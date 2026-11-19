@@ -85,10 +85,12 @@ def fill_violin(
             axes[i, j].set_yticks([])  # no graduations on vertical axis
             axes[i, j].xaxis.set_major_formatter(ticker.PercentFormatter(1))
             axes[i, j].set_xlim(0, maxi)
-            axes[i, j].set_xlabel(output_label, loc="center")
-            axes[i, j].xaxis.set_label_position("top")
-            axes[i, j].set_ylabel(model.title, loc="center")
-            axes[i, j].yaxis.set_label_position("left")
+            if i == 0:
+                axes[i, j].set_xlabel(output_label, loc="center")
+                axes[i, j].xaxis.set_label_position("top")
+            if j == 0:
+                axes[i, j].set_ylabel(model.title, loc="center")
+                axes[i, j].yaxis.set_label_position("left")
 
             # draw histogram then moustache-box
             axes[i, j].bar(

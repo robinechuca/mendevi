@@ -32,6 +32,65 @@ from .parse import (
 if TYPE_CHECKING:
     import pathlib
 
+ENCODE_DOCSTRING = f"""Measures activity during encoding.
+
+\b
+Parameters
+----------
+videos : tuple[pathlike]
+    The source videos to be transcoded.
+    It can be a glob expression, a directory or a file path.
+database : pathlike, optional
+    The path to the database where all measurements are stored.
+    If a folder is provided, the database is created inside this folder.
+    By default, it is created right next to the video.
+\\*\\*kwargs: dict
+    Please refer to the detailed arguments below.
+repeat : int, default=2
+    The number of times the experiment is repeated on this environment.
+    This allows us to estimate the variance of measurements.
+effort : tuple[str], default=("medium",)
+    The effort made to compress, `fast`, `medium` or `slow`.
+encoder : tuple[str], default=("libx264", "libsvtav1")
+    The encoders and therefore the codecs to use.
+    The available encoders are:
+        -{"\n        -".join(sorted(ENCODERS))}
+points : int, default=16
+    The number of different qualities to use.
+    It is an indirect way to determine the CRF, the bitrate or the QP.
+    The quality values are distributed evenly over ]0, 1[,
+    for example, points=3 => qualities=[0.25, 0.5, 0.75].
+    Mapping is done in the source code of ``mendevi/encoder.py``.
+threads : int, default={THREADS}
+    The theoretical number of threads used by the encoder.
+    This roughly reflects the number of logical cores used.
+fps : fractions.Fraction, optional
+    If provided, the reference video will be resampled on fly just before being encoded.
+    This is therefore the frame rate of the transcoded video.
+    If this argument is not provided, the frame rate remains unchanged.
+resolution : tuple[int, int], optional
+    If provided, the reference video will be reshaped on fly just before being encoded.
+    This is therefore the resolution of the transcoded video.
+    If this argument is not provided, the resolution remains unchanged.
+pix_fmt : str, optional
+    If provided, A pixel conversion is performed during encoding.
+mode : tuple[str], default = ("crf",)
+    Text that is ``crf`` if the quality is constant,
+    ``cbr`` if the bitrate is constant,
+    or ``qp`` for the internal quantification constant.
+filter : str, optional
+    A video ffmpeg filter (after -vf) which applies at the time of transcoding,
+    more precisely between decoding and conversion. It is a kind of pre-conversion.
+callback : str, optional
+    The name of the custom function to change the cmd, the signature must match:
+    def any(cmd: CmdFFMPEG, \\*\\*kwargs) -> list[str] | str | CmdFFMPEG:
+        ...
+ram : float
+    The threshold for deciding where to copy videos. Copy in /dev/shm if
+    ``available_ram_memory > ram * video_size``, otherwise, copy to the /tmp folder.
+
+"""
+
 
 def _parse_args(prt: Printer, kwargs: dict) -> None:
     """Verification of the arguments."""
@@ -131,7 +190,7 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
     prt.print(f"copy ram  : { {0.0: 'yes', math.inf: 'no'}.get(kwargs['ram'], kwargs['ram']) }")
 
 
-@click.command()
+@click.command(help=ENCODE_DOCSTRING)
 @click.argument("videos", type=click.Path(), nargs=-1)
 @click.option("-d", "--database", type=click.Path(), help="The database path.")
 @click.option(
@@ -210,62 +269,7 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
     help="'yes', 'no' or threshold: To manage video copy in ramdisk or local disk.",
 )
 def main(videos: tuple, database: str | None = None, **kwargs: dict) -> None:
-    """Measures activity during encoding.
-
-    \b
-    Parameters
-    ----------
-    videos : tuple[pathlike]
-        The source videos to be transcoded.
-        It can be a glob expression, a directory or a file path.
-    database : pathlike, optional
-        The path to the database where all measurements are stored.
-        If a folder is provided, the database is created inside this folder.
-        By default, it is created right next to the video.
-    \\*\\*kwargs: dict
-        Please refer to the detailed arguments below.
-    repeat : int, default=2
-        The number of times the experiment is repeated on this environment.
-        This allows us to estimate the variance of measurements.
-    effort : tuple[str], default=("medium",)
-        The effort made to compress, `fast`, `medium` or `slow`.
-    encoder : tuple[str], default=("libx264", "libsvtav1")
-        The encoders and therefore the codecs to use.
-        The available encoders are mendevi.cst.encoders.ENCODERS.
-    points : int, default=16
-        The number of different qualities to use.
-        It is an indirect way to determine the CRF or the QP.
-        The quality values are distributed evenly over ]0, 1[,
-        for example, points=3 => qualities=[0.25, 0.5, 0.75].
-    threads : int, default=8
-        The theoretical number of threads used by the encoder.
-        This roughly reflects the number of logical cores used.
-    fps : fractions.Fraction, optional
-        If provided, the reference video will be resampled on fly just before being encoded.
-        This is therefore the frame rate of the transcoded video.
-        If this argument is not provided, the frame rate remains unchanged.
-    resolution : tuple[int, int], optional
-        If provided, the reference video will be reshaped on fly just before being encoded.
-        This is therefore the resolution of the transcoded video.
-        If this argument is not provided, the resolution remains unchanged.
-    pix_fmt : str, optional
-        If provided, A pixel conversion is performed during encoding.
-    mode : tuple[str], default = ("crf",)
-        Text that is ``crf`` if the quality is constant,
-        ``cbr`` if the bitrate is constant,
-        or ``qp`` for the internal quantification constant.
-    filter : str, optional
-        A video ffmpeg filter (after -vf) which applies at the time of transcoding,
-        more precisely between decoding and conversion. It is a kind of pre-conversion.
-    callback : str, optional
-        The name of the custom function to change the cmd, the signature must match:
-        def any(cmd: CmdFFMPEG, \\*\\*kwargs) -> list[str] | str | CmdFFMPEG:
-            ...
-    ram : float
-        The threshold for deciding where to copy videos. Copy in /dev/shm if
-        ``available_ram_memory > ram * video_size``, otherwise, copy to the /tmp folder.
-
-    """
+    """See docstring at ENCODE_DOCSTRING."""
     with Printer("Parse configuration...") as prt:
         videos, database = parse_videos_database(prt, videos, database)
         assert videos, "at least one video is required"

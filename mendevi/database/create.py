@@ -37,7 +37,7 @@ def create_database(filename: str | bytes | pathlib.Path) -> None:
     assert not filename.exists(), f"the database has to be new, {filename} exists"
 
     with sqlite3.connect(filename) as conn:
-        # next line can fail flush
+        # next line can lead to flush fail on server disc, so commented by default
         # conn.execute("PRAGMA journal_mode=WAL")  # reduce "database is locked"
         cursor = conn.cursor()
         cursor.execute("""CREATE TABLE IF NOT EXISTS t_act_activity (
