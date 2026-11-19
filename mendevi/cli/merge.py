@@ -164,7 +164,7 @@ def main(databases: tuple[str], **kwargs: dict) -> None:
         conn_dst.executescript(
             "PRAGMA synchronous=OFF;"  # avoid os flush
             "PRAGMA temp_store=MEMORY;"  # keep some file in ram rather hard disk
-            "PRAGMA cache_size=-1000000;"  # keep more thinks in ram, approx 1 Go
+            "PRAGMA cache_size=-1000000;",  # keep more thinks in ram, approx 1 Go
         )
         conn_dst.row_factory = sqlite3.Row
         cursor_dst = conn_dst.cursor()
@@ -183,7 +183,7 @@ def main(databases: tuple[str], **kwargs: dict) -> None:
 
                 # t_met_metric
                 prt.print("table 't_met_metric'")
-                for row in _tqdm_select(cursor_src, "t_met_metric"):  # SELECT * FROM t_met_metric
+                for row in _tqdm_select(cursor_src, "t_met_metric"):
                     del row["met_id"]
                     _insert_update(
                         cursor_dst, row, "t_met_metric", ("met_ref_vid_id", "met_dis_vid_id"),
@@ -192,7 +192,7 @@ def main(databases: tuple[str], **kwargs: dict) -> None:
                 # t_act_activity
                 prt.print("table 't_act_activity'")
                 act_old_to_new: dict[int, int] = {}
-                for row in _tqdm_select(cursor_src, "t_act_activity"):  # SELECT * FROM t_act_activity
+                for row in _tqdm_select(cursor_src, "t_act_activity"):
                     old = row.pop("act_id")
                     new = _insert_update(cursor_dst, row, "t_act_activity", ())["act_id"]
                     act_old_to_new[old] = new
@@ -201,7 +201,7 @@ def main(databases: tuple[str], **kwargs: dict) -> None:
                 prt.print("table 't_env_environment'")
                 env_old_to_new: dict[int, int] = {}
                 env_unique = tuple(ENV_UNIQUE)
-                for row in _tqdm_select(cursor_src, "t_env_environment"):  # SELECT * FROM t_env_environment
+                for row in _tqdm_select(cursor_src, "t_env_environment"):
                     if row.get("env_idle_act_id") is not None:
                         row["env_idle_act_id"] = act_old_to_new[row["env_idle_act_id"]]
                     old = row.pop("env_id")
@@ -212,26 +212,31 @@ def main(databases: tuple[str], **kwargs: dict) -> None:
 
                 # t_enc_encode
                 prt.print("table 't_enc_encode'")
-                for row in _tqdm_select(cursor_src, "t_enc_encode"):  # SELECT * FROM t_enc_encode
+                for row in _tqdm_select(cursor_src, "t_enc_encode"):
                     del row["enc_id"]
                     row["enc_env_id"] = env_old_to_new[row["enc_env_id"]]
                     row["enc_act_id"] = act_old_to_new[row["enc_act_id"]]
                     row["enc_mode"] = {"vbr": "crf"}.get(
                         row["enc_mode"], row["enc_mode"],
                     )  # retrocompatibility with version <= 1.3.6
-                    cursor_dst.execute(  # faster than _insert_update(cursor_dst, row, "t_enc_encode", ())
-                        f"INSERT INTO t_enc_encode ({', '.join(row)}) VALUES ({', '.join('?'*len(row))})",
+                    cursor_dst.execute(  # same _insert_update(cursor_dst, row, "t_enc_encode", ())
+                        (
+                            f"INSERT INTO t_enc_encode ({', '.join(row)}) "
+                            f"VALUES ({', '.join('?'*len(row))})"
+                        ),
                         tuple(row.values()),  # order keep since 3.7
                     )
 
-
                 # t_dec_decode
                 prt.print("table 't_dec_decode'")
-                for row in _tqdm_select(cursor_src, "t_dec_decode"):  # SELECT * FROM t_dec_decode
+                for row in _tqdm_select(cursor_src, "t_dec_decode"):
                     del row["dec_id"]
                     row["dec_env_id"] = env_old_to_new[row["dec_env_id"]]
                     row["dec_act_id"] = act_old_to_new[row["dec_act_id"]]
-                    cursor_dst.execute(  # faster than _insert_update(cursor_dst, row, "t_dec_decode", ())
-                        f"INSERT INTO t_dec_decode ({', '.join(row)}) VALUES ({', '.join('?'*len(row))})",
+                    cursor_dst.execute(  # same _insert_update(cursor_dst, row, "t_dec_decode", ())
+                        (
+                            f"INSERT INTO t_dec_decode ({', '.join(row)}) "
+                            f"VALUES ({', '.join('?'*len(row))})"
+                        ),
                         tuple(row.values()),  # order keep since 3.7
                     )
