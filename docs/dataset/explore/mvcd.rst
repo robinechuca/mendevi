@@ -57,6 +57,19 @@ This database attempts to approach the `MVCD <https://github.com/cd-athena/MVCD>
       - total number of points
       - :math:`640000`
 
+Download
+--------
+
+.. code:: shell
+
+    mendevi download mvcd.db.xz.torrent  # our mendevi measurements
+    mendevi download mvcd_athena.db.xz.torrent  # encapsulation of the original mvcd athena csv dataset
+
+* our mvcd like `mvcd.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/mvcd.json.xz?inline=false>`_ (x Ko).
+* our mvcd like `mvcd.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/mvcd.db.xz.torrent?inline=false>`_ (x Mo).
+* original athena mvcd `mvcd_athena.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/mvcd_athena.json.xz?inline=false>`_ (403 Mo).
+* original athena mvcd `mvcd_athena.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/mvcd_athena.db.xz.torrent?inline=false>`_ (x Mo).
+
 Differences
 -----------
 
@@ -89,7 +102,6 @@ In the original MVCD experiment, the following parameters were used and differ f
       - 22, 27, 32, 37
       - ``ultrafast``
       - 64, 32
-
 
 ``qp`` vs ``crf``
 ^^^^^^^^^^^^^^^^^
