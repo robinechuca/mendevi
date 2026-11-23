@@ -24,11 +24,17 @@
     :alt: [documentation]
     :target: https://mendevi.readthedocs.io
 
-Useful links:
-`Binary Installers <https://pypi.org/project/mendevi/>`_ |
-`Source Repository <https://gitlab.inria.fr/rrichard/mendevi/>`_ |
-`Documentation on RTD <https://mendevi.readthedocs.io/>`_ |
-`Documentation on INRIA <https://rrichard.gitlabpages.inria.fr/mendevi/>`_ |
++-------------------+-------------------------------------------------------------+
+| Binary Installer  | `PyPI <https://pypi.org/project/mendevi/>`_                 |
++-------------------+-------------------------------------------------------------+
+| Source repository | `Inria GitLab <https://gitlab.inria.fr/rrichard/mendevi/>`_ |
+|                   +-------------------------------------------------------------+
+|                   | `GitHub Mirror <https://github.com/robinechuca/mendevi/>`_  |
++-------------------+-------------------------------------------------------------+
+| Documentation     | `Read the Docs <https://mendevi.readthedocs.io/>`_          |
+|                   +-------------------------------------------------------------+
+|                   | `Inria <https://rrichard.gitlabpages.inria.fr/mendevi/>`_   |
++-------------------+-------------------------------------------------------------+
 
 
 Description
