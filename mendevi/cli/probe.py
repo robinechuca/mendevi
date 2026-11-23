@@ -32,6 +32,7 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
         "rms_time_diff",
         "spatial_dct",
         "ssim",
+        "tc_dct",
         "temporal_dct",
         "uvq",
         "vif",
@@ -54,11 +55,32 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
 @click.option("--lpips-alex/--no-lpips-alex", default=False, help="Compute the LPIPS-ALEX or not.")
 @click.option("--lpips-vgg/--no-lpips-vgg", default=False, help="Compute the LPIPS-VGG or not.")
 @click.option("--psnr/--no-psnr", default=True, help="Compute the PSNR or not.")
-@click.option("--rms-sobel/--no-rms-sobel", default=True, help="Compute the C_sob or not.")
-@click.option("--rms-time-diff/--no-rms-time-diff", default=True, help="Compute the C_td or not.")
-@click.option("--spatial-dct/--no-spatial-dct", default=True, help="Compute the C_dct or not.")
+@click.option(
+    "--rms-sobel/--no-rms-sobel",
+    default=True,
+    help="Compute the spatial information (SI) ITU-T P.910 or not.",
+)
+@click.option(
+    "--rms-time-diff/--no-rms-time-diff",
+    default=True,
+    help="Compute the temporal information (TI) ITU-T P.910 or not.",
+)
+@click.option(
+    "--spatial-dct/--no-spatial-dct",
+    default=True,
+    help="Compute the dct based complexity matching E of VCA or SC of EVCA, or not.",
+)
 @click.option("--ssim/--no-ssim", default=True, help="Compute the SSIM or not.")
-@click.option("--temporal-dct/--no-temporal-dct", default=True, help="Compute the H_dct or not.")
+@click.option(
+    "--tc-dct/--no-tc-dtc",
+    default=True,
+    help="Compute the TC of EVCA temporal complexity, or not.",
+)
+@click.option(
+    "--temporal-dct/--no-temporal-dct",
+    default=False,
+    help="Compute the h of VCA temporal complexity, or not.",
+)
 @click.option("--uvq/--no-uvq", default=False, help="Compute the UVQ or not.")
 @click.option("--vif/--no-vif", default=False, help="Compute the VIF or not.")
 @click.option("--vmaf/--no-vmaf", default=False, help="Compute the VMAF or not.")
@@ -83,7 +105,7 @@ def main(videos: tuple[str], database: str | None = None, **kwargs: dict) -> Non
     lpips_alex, lpips_vgg, psnr, ssim, vif, vmaf : boolean
         If True, compute the comparative video metric, otherwise, skip it.
         By default, only psnr and ssim are activated.
-    rms_sobel, rms_time_diff, spatial_dct, temporal_dct, uvq : boolean
+    rms_sobel, rms_time_diff, spatial_dct, tc_dct, temporal_dct, uvq : boolean
         If True, compute the absolute uvq metric, otherwise, skip it.
         By default, only uvq is disable.
 

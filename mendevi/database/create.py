@@ -80,6 +80,7 @@ def create_database(filename: str | bytes | pathlib.Path) -> None:
             vid_rms_sobel LONGBLOB,
             vid_rms_time_diff LONGBLOB,
             vid_spatial_dct LONGBLOB,
+            vid_tc_dct LONGBLOB,
             vid_temporal_dct LONGBLOB,
             vid_uvq LONGBLOB
         )""")

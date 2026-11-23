@@ -63,6 +63,7 @@ def _fill_vid_table(
         *(("vid_rms_sobel",) if kwargs["rms_sobel"] else ()),
         *(("vid_rms_time_diff",) if kwargs["rms_time_diff"] else ()),
         *(("vid_spatial_dct",) if kwargs["spatial_dct"] else ()),
+        *(("vid_tc_dct",) if kwargs["tc_dct"] else ()),
         *(("vid_temporal_dct",) if kwargs["temporal_dct"] else ()),
         *(("vid_uvq",) if kwargs["uvq"] else ()),
     }
@@ -80,6 +81,7 @@ def _fill_vid_table(
             "vid_rms_sobel",
             "vid_rms_time_diff",
             "vid_spatial_dct",
+            "vid_tc_dct",
             "vid_temporal_dct",
             "vid_uvq",
         }:
@@ -95,6 +97,7 @@ def _fill_vid_table(
             rms_sobel="vid_rms_sobel" in fields,
             rms_time_diff="vid_rms_time_diff" in fields,
             spatial_dct="vid_spatial_dct" in fields,
+            tc_dct="vid_tc_dct" in fields,
             temporal_dct="vid_temporal_dct" in fields,
             uvq="vid_uvq" in fields,
         )

@@ -228,49 +228,55 @@ To see all available options, type
 
     .. code-block:: console
 
-        Usage: mendevi probe [OPTIONS] [VIDEOS]...
+      Usage: mendevi probe [OPTIONS] [VIDEOS]...
 
-          Measure the video properties and metrics.
+        Measure the video properties and metrics.
 
-          Parameters
-          ----------
-          videos : tuple[pathlike], optional
-              All videos to be analysed. It can be a glob expression, a directory or a file path.
-          database : pathlike, optional
-              The path to the database where all measurements are stored.
-              If a folder is provided, the database is created inside this folder.
-          ``**kwargs``: dict
-              Please refer to the detailed arguments below.
-          ref : tuple(pathlike), optional
-              If provided, in addition to the original video ``o``,
-              which has been transcoded to produce video ``x``,
-              the metrics will also be calculated in relation to these reference videos ``ref``.
-              Finaly comparatives metrics will be between ``o`` and ``x``, and also ``ref`` and ``x``.
-          lpips_alex, lpips_vgg, psnr, ssim, vif, vmaf : boolean
-              If True, compute the comparative video metric, otherwise, skip it.
-              By default, only psnr and ssim are activated.
-          rms_sobel, rms_time_diff, spatial_dct, temporal_dct, uvq : boolean
-              If True, compute the absolute uvq metric, otherwise, skip it.
-              By default, only uvq is disable.
+        Parameters
+        ----------
+        videos : tuple[pathlike], optional
+            All videos to be analysed. It can be a glob expression, a directory or a file path.
+        database : pathlike, optional
+            The path to the database where all measurements are stored.
+            If a folder is provided, the database is created inside this folder.
+        \*\*kwargs: dict
+            Please refer to the detailed arguments below.
+        ref : tuple(pathlike), optional
+            If provided, in addition to the original video ``o``,
+            which has been transcoded to produce video ``x``,
+            the metrics will also be calculated in relation to these reference videos ``ref``.
+            Finaly comparatives metrics will be between ``o`` and ``x``, and also ``ref`` and ``x``.
+        lpips_alex, lpips_vgg, psnr, ssim, vif, vmaf : boolean
+            If True, compute the comparative video metric, otherwise, skip it.
+            By default, only psnr and ssim are activated.
+        rms_sobel, rms_time_diff, spatial_dct, tc_dct, temporal_dct, uvq : boolean
+            If True, compute the absolute uvq metric, otherwise, skip it.
+            By default, only uvq is disable.
 
-        Options:
-          -d, --database PATH             The database path.
-          -r, --ref PATH                  The reference video for comparative metrics.
-          --lpips-alex / --no-lpips-alex  Compute the LPIPS-ALEX or not.
-          --lpips-vgg / --no-lpips-vgg    Compute the LPIPS-VGG or not.
-          --psnr / --no-psnr              Compute the PSNR or not.
-          --rms-sobel / --no-rms-sobel    Compute the C_sob or not.
-          --rms-time-diff / --no-rms-time-diff
-                                          Compute the C_td or not.
-          --spatial-dct / --no-spatial-dct
-                                          Compute the C_dct or not.
-          --ssim / --no-ssim              Compute the SSIM or not.
-          --temporal-dct / --no-temporal-dct
-                                          Compute the H_dct or not.
-          --uvq / --no-uvq                Compute the UVQ or not.
-          --vif / --no-vif                Compute the VIF or not.
-          --vmaf / --no-vmaf              Compute the VMAF or not.
-          --help                          Show this message and exit.
+      Options:
+        -d, --database PATH             The database path.
+        -r, --ref PATH                  The reference video for comparative metrics.
+        --lpips-alex / --no-lpips-alex  Compute the LPIPS-ALEX or not.
+        --lpips-vgg / --no-lpips-vgg    Compute the LPIPS-VGG or not.
+        --psnr / --no-psnr              Compute the PSNR or not.
+        --rms-sobel / --no-rms-sobel    Compute the spatial information (SI) ITU-T
+                                        P.910 or not.
+        --rms-time-diff / --no-rms-time-diff
+                                        Compute the temporal information (TI) ITU-T
+                                        P.910 or not.
+        --spatial-dct / --no-spatial-dct
+                                        Compute the dct based complexity matching E
+                                        of VCA or SC of EVCA, or not.
+        --ssim / --no-ssim              Compute the SSIM or not.
+        --tc-dct / --no-tc-dtc          Compute the TC of EVCA temporal complexity,
+                                        or not.
+        --temporal-dct / --no-temporal-dct
+                                        Compute the h of VCA temporal complexity, or
+                                        not.
+        --uvq / --no-uvq                Compute the UVQ or not.
+        --vif / --no-vif                Compute the VIF or not.
+        --vmaf / --no-vmaf              Compute the VMAF or not.
+        --help                          Show this message and exit.
 
 Decode
 ------

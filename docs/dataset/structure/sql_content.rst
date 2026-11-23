@@ -240,7 +240,9 @@ Table t_vid_video
 +--------------------------+----------------+---------------------------------+
 | :ref:`vid_spatial_dct`   | *LONGLONGBLOB* | spatial dct metric values       |
 +--------------------------+----------------+---------------------------------+
-| :ref:`vid_temporal_dct`  | *LONGLONGBLOB* | temporal dct metric values      |
+| :ref:`vid_tc_dct`        | *LONGLONGBLOB* | new temporal dct metric values  |
++--------------------------+----------------+---------------------------------+
+| :ref:`vid_temporal_dct`  | *LONGLONGBLOB* | old temporal dct metric values  |
 +--------------------------+----------------+---------------------------------+
 | :ref:`vid_uvq`           | *LONGLONGBLOB* | UVQ metric values               |
 +--------------------------+----------------+---------------------------------+
@@ -409,7 +411,7 @@ vid_rms_sobel
 
 The serialised list of the spatial root means square sobel complexity, spatial information (SI), ITU-T P.910.
 Catched by ``cutcutcodec.video_metrics(video, rms_sobel=True)["rms_sobel"]``. It use only the Y channel.
-It is proportional to the value ``SI`` of `SITI tools <https://github.com/Telecommunication-Telemedia-Assessment/SITI>`_.
+It is proportional to the value ``SI`` of `SITI tools <https://github.com/VQEG/siti-tools>`_.
 To deserialize into an exploitable numpy array, please use the function :py:func:`mendevi.database.serialize.binary_to_list`.
 
 .. _vid_rms_time_diff:
@@ -419,7 +421,7 @@ vid_rms_time_diff
 
 The serialised list of the temporal root means square time difference, temporal information (TI), ITU-T P.910.
 Catched by ``cutcutcodec.video_metrics(video, rms_time_diff=True)["rms_time_diff"]``. It use only the Y channel.
-It is proportional to the value ``TI`` of `SITI tools <https://github.com/Telecommunication-Telemedia-Assessment/SITI>`_.
+It is proportional to the value ``TI`` of `SITI tools <https://github.com/VQEG/siti-tools>`_.
 To deserialize into an exploitable numpy array, please use the function :py:func:`mendevi.database.serialize.binary_to_list`.
 
 .. _vid_spatial_dct:
@@ -429,7 +431,18 @@ vid_spatial_dct
 
 The serialised list of the spatial dct based complexity.
 Catched by ``cutcutcodec.video_metrics(video, spatial_dct=True)["spatial_dct"]``.
-It is proportional to the value ``E`` of `VCA <https://github.com/cd-athena/VCA>`_. It use only the Y channel.
+It is proportional to the value ``E`` of `Video Complexity Analyzer VCA <https://github.com/cd-athena/VCA>`_. It use only the Y channel.
+In the new version of `Enhanced Video Complexity Analyzer EVCA <https://github.com/cd-athena/EVCA>`_, the definition of ``SC`` is exactly the same as ``E``.
+To deserialize into an exploitable numpy array, please use the function :py:func:`mendevi.database.serialize.binary_to_list`.
+
+.. _vid_tc_dct:
+
+vid_tc_dct
+^^^^^^^^^^
+
+The serialised list of the temporal dct based complexity.
+Catched by ``cutcutcodec.video_metrics(video, tc_dct=True)["tc_dct"]``.
+It is proportional to the value ``TC`` of `Enhanced Video Complexity Analyzer EVCA <https://github.com/cd-athena/EVCA>`_. It use only the Y channel.
 To deserialize into an exploitable numpy array, please use the function :py:func:`mendevi.database.serialize.binary_to_list`.
 
 .. _vid_temporal_dct:
@@ -439,7 +452,7 @@ vid_temporal_dct
 
 The serialised list of the temporal dct based complexity.
 Catched by ``cutcutcodec.video_metrics(video, temporal_dct=True)["temporal_dct"]``.
-It is proportional to the value ``h`` of `VCA <https://github.com/cd-athena/VCA>`_. It use only the Y channel.
+It is proportional to the value ``h`` of `Video Complexity Analyzer VCA <https://github.com/cd-athena/VCA>`_. It use only the Y channel.
 To deserialize into an exploitable numpy array, please use the function :py:func:`mendevi.database.serialize.binary_to_list`.
 
 .. _vid_uvq:

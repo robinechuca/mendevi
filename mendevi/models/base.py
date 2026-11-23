@@ -545,8 +545,9 @@ class Model(metaclass=MetaModel):
         # 2) find the parameters for probe
         atom_names, _ = merge_extractors(set(self._input_labels), return_callable=False)
         probe_kwargs = {
-            metric: metric in atom_names
-            for metric in ("rms_sobel", "rms_time_diff", "spatial_dct", "temporal_dct", "uvq")
+            metric: metric in atom_names for metric in (
+                "rms_sobel", "rms_time_diff", "spatial_dct", "tc_dct", "temporal_dct", "uvq",
+            )
         } | {"ref": {}}  # required by probe_and_store (for comparative metrics)
 
         # 3) call probe

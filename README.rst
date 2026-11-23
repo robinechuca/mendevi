@@ -53,7 +53,7 @@ It manages the following parameters:
 #. It supports the ``h264``, ``libopenh264``, ``hevc``, ``libvpx-vp9``, ``vp9``, ``libdav1d``, ``libaom-av1``, ``libvvdec``, ``vvc`` cpu decoders.
 #. It supports the ``av1_cuvid``, ``h264_cuvid``, ``hevc_cuvid``, ``vp9_cuvid``, ``vvc_cuvid``, ``vaapi-av1``, ``vaapi-h264``, ``vaapi-hevc``, ``vaapi-vp9``, ``vaapi-vvc`` hardware decoders.
 #. Distortions are measured using the ``lpips``, ``psnr``, ``ssim``, ``vif`` and ``vmaf`` metrics.
-#. Complexity metrics are measured using the ``rms_sobel``, ``rms_time_diff``, ``spatial_dct`` and ``temporal_dct`` metrics.
+#. Complexity metrics are measured using the ``rms_sobel`` (SI ITU-T P.910), ``rms_time_diff`` (TI ITU-T P.910), ``spatial_dct`` (`SC of EVCA <https://github.com/cd-athena/EVCA>`_), ``temporal_dct`` (`h of VCA <https://github.com/cd-athena/VCA>`_) and ``tc_dct`` (`TC of EVCA <https://github.com/cd-athena/EVCA>`_) metrics.
 #. Encoding efforts are ``fast``, ``medium`` and ``slow``.
 #. It handles color-related parameters, including color range, transfer characteristics, and color primaries (``range``, ``transfer`` and ``primaries``).
 #. Iterate over different ``effort``, ``encoder``, ``mode``, ``quality``, ``threads``, ``fps``, ``resolution`` and ``pix_fmt``.

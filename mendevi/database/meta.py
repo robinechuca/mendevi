@@ -408,13 +408,18 @@ ALL_EXTRACTORS = {
         "None if ssim is None else 1.0 - ssim",
         Scale.LOGARITHMIC,
     ),
+    "tc_dct": Extractor(
+        "Temporal DCT complexity",
+        extract.extract_tc_dct,
+        Scale.LINEAR,
+    ),
     "temp": Extractor(
         "Average temperature in C",
         extract.extract_temp,
         Scale.LINEAR,
     ),
     "temporal_dct": Extractor(
-        "Temporal DCT complexity",
+        "Temporal DCT complexity (old)",
         extract.extract_temporal_dct,
         Scale.LINEAR,
     ),

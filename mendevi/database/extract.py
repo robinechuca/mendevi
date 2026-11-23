@@ -746,9 +746,25 @@ def extract_temp(raw: dict[str]) -> float:
 
 
 @verif
+@SqlLinker("t_vid_video.vid_tc_dct")
+def extract_tc_dct(raw: dict[str]) -> str:
+    """Return the new temporal dct complexity.
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+
+    """
+    if (comp := raw["vid_tc_dct"]) is None:
+        return None
+    return float(np.nanmean(binary_to_list(comp)))
+
+
+@verif
 @SqlLinker("t_vid_video.vid_temporal_dct")
 def extract_temporal_dct(raw: dict[str]) -> str:
-    """Return the temporal dct complexity.
+    """Return the old temporal dct complexity.
 
     Parameters
     ----------
