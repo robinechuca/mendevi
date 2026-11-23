@@ -49,7 +49,9 @@ The framework provides advanced visualization tools for **generating complex mat
 It manages the following parameters:
 
 #. It supports the ``libx264``, ``libopenh264``, ``libx265``, ``libvpx-vp9``, ``libaom-av1``, ``libsvtav1``, ``librav1e`` and ``libvvenc`` cpu encoders.
-#. It supports the ``h264_nvenc``, ``hevc_nvenc``, ``av1_nvenc`` and ``*_vaapi`` gpu encoders.
+#. It supports the ``h264_nvenc``, ``hevc_nvenc``, ``av1_nvenc`` and ``*_vaapi`` hardware encoders.
+#. It supports the ``h264``, ``libopenh264``, ``hevc``, ``libvpx-vp9``, ``vp9``, ``libdav1d``, ``libaom-av1``, ``libvvdec``, ``vvc`` cpu decoders.
+#. It supports the ``av1_cuvid``, ``h264_cuvid``, ``hevc_cuvid``, ``vp9_cuvid``, ``vvc_cuvid``, ``vaapi-av1``, ``vaapi-h264``, ``vaapi-hevc``, ``vaapi-vp9``, ``vaapi-vvc`` hardware decoders.
 #. Distortions are measured using the ``lpips``, ``psnr``, ``ssim``, ``vif`` and ``vmaf`` metrics.
 #. Complexity metrics are measured using the ``rms_sobel``, ``rms_time_diff``, ``spatial_dct`` and ``temporal_dct`` metrics.
 #. Encoding efforts are ``fast``, ``medium`` and ``slow``.

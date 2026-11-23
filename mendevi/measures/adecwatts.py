@@ -82,7 +82,6 @@ class ADECWattmeter(threading.Thread):
             u2s_cum,  # sum of the u2**2 tensions (float32)
             u3s_cum,  # sum of the u3**2 tensions (float32)
         ) = struct.unpack("<HHIIfff", data)
-        # print(frame_size, frame_id, delta, u1s_cum, u2s_cum, u3s_cum)
         if frame_size < 30:
             msg = f"the frame size is absurde {frame_size}"
             raise ValueError(msg)

@@ -67,8 +67,8 @@ Download
 
 * our mvcd like `mvcd.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/mvcd.json.xz?inline=false>`_ (x Ko).
 * our mvcd like `mvcd.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/mvcd.db.xz.torrent?inline=false>`_ (x Mo).
-* original athena mvcd `mvcd_athena.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/mvcd_athena.json.xz?inline=false>`_ (403 Mo).
-* original athena mvcd `mvcd_athena.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/mvcd_athena.db.xz.torrent?inline=false>`_ (x Mo).
+* original athena mvcd `mvcd_athena.json.xz <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/mvcd_athena.json.xz?inline=false>`_ (403 Go).
+* original athena mvcd `mvcd_athena.db.xz.torrent <https://gitlab.inria.fr/rrichard/mendevi/-/raw/main/dataset/mvcd_athena.db.xz.torrent?inline=false>`_ (2.5 Go).
 
 Differences
 -----------
