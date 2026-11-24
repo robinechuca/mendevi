@@ -246,6 +246,7 @@ vmaf
 .. code:: shell
 
     # Instead of the following code, you can do "sudo apt install libvmaf-dev".
+    sudo apt install xxd  # to link models
     cd $HOME/ffmpeg_sources
     git -C vmaf pull 2> /dev/null || git clone --depth 1 https://github.com/Netflix/vmaf.git
     cd vmaf/libvmaf
@@ -262,7 +263,7 @@ preparation
 
     # download ffmpeg (see https://ffmpeg.org/releases/)
     cd $HOME/ffmpeg_sources
-    wget -O ffmpeg-snapshot.tar.xz https://ffmpeg.org/releases/ffmpeg-9.0.2.tar.xz
+    wget -O ffmpeg-snapshot.tar.xz https://ffmpeg.org/releases/ffmpeg-9.1.tar.xz
     mkdir -p ffmpeg && tar -xvf ffmpeg-snapshot.tar.xz -C ffmpeg --strip-components=1
     cd ffmpeg
     # echo -e "$(cat VERSION) [$(date +%Y-%m-%d)] [$(cat RELEASE)]" > VERSION
