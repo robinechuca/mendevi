@@ -240,6 +240,21 @@ others
 Install ffmpeg
 --------------
 
+vmaf
+^^^^
+
+.. code:: shell
+
+    # Instead of the following code, you can do "sudo apt install libvmaf-dev".
+    cd $HOME/ffmpeg_sources
+    git -C vmaf pull 2> /dev/null || git clone --depth 1 https://github.com/Netflix/vmaf.git
+    cd vmaf/libvmaf
+    mkdir -p build && cd build
+    meson setup .. --prefix "$HOME/ffmpeg_build" --libdir "$HOME/ffmpeg_build/lib" --buildtype release --default-library=static -Dbuilt_in_models=true -Denable_tools=true -Denable_tests=false -Denable_docs=false -Dc_args="$CFLAGS" -Dcpp_args="$CXXFLAGS"
+    ninja
+    ninja install
+    cp $HOME/ffmpeg_build/bin/vmaf $HOME/bin/.
+
 preparation
 ^^^^^^^^^^^
 
@@ -308,6 +323,7 @@ preparation
         --enable-libtheora
         --enable-libtwolame
         --enable-libvidstab
+        --enable-libvmaf
         --enable-libvo-amrwbenc
         --enable-libvorbis
         --enable-libvpx
@@ -369,4 +385,4 @@ post process
 
     # clean files and copy
     rm -rf $HOME/{.cargo,.cmake,.rustup,ffmpeg_build,ffmpeg_sources}
-    sudo cp avm* ff* rav1e /usr/bin/.
+    sudo cp avm* ff* rav1e vmaf /usr/bin/.

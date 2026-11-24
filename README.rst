@@ -24,17 +24,13 @@
     :alt: [documentation]
     :target: https://mendevi.readthedocs.io
 
-+-------------------+-------------------------------------------------------------+
-| Binary Installer  | `PyPI <https://pypi.org/project/mendevi/>`_                 |
-+-------------------+-------------------------------------------------------------+
-| Source repository | `Inria GitLab <https://gitlab.inria.fr/rrichard/mendevi/>`_ |
-|                   +-------------------------------------------------------------+
-|                   | `GitHub Mirror <https://github.com/robinechuca/mendevi/>`_  |
-+-------------------+-------------------------------------------------------------+
-| Documentation     | `Read the Docs <https://mendevi.readthedocs.io/>`_          |
-|                   +-------------------------------------------------------------+
-|                   | `Inria <https://rrichard.gitlabpages.inria.fr/mendevi/>`_   |
-+-------------------+-------------------------------------------------------------+
++-------------------+--------------------------------------------------------------------------------------------------------------------------+
+| Binary Installer  | `PyPI <https://pypi.org/project/mendevi/>`_                                                                              |
++-------------------+-------------------------------------------------------------+------------------------------------------------------------+
+| Source repository | `Inria GitLab <https://gitlab.inria.fr/rrichard/mendevi/>`_ | `GitHub Mirror <https://github.com/robinechuca/mendevi/>`_ |
++-------------------+-------------------------------------------------------------+------------------------------------------------------------+
+| Documentation     | `Read the Docs <https://mendevi.readthedocs.io/>`_          | `Inria <https://rrichard.gitlabpages.inria.fr/mendevi/>`_  |
++-------------------+-------------------------------------------------------------+------------------------------------------------------------+
 
 
 Description
@@ -59,7 +55,7 @@ It manages the following parameters:
 #. It supports the ``h264``, ``libopenh264``, ``hevc``, ``libvpx-vp9``, ``vp9``, ``libdav1d``, ``libaom-av1``, ``libvvdec``, ``vvc`` cpu decoders.
 #. It supports the ``av1_cuvid``, ``h264_cuvid``, ``hevc_cuvid``, ``vp9_cuvid``, ``vvc_cuvid``, ``vaapi-av1``, ``vaapi-h264``, ``vaapi-hevc``, ``vaapi-vp9``, ``vaapi-vvc`` hardware decoders.
 #. Distortions are measured using the ``lpips``, ``psnr``, ``ssim``, ``vif`` and ``vmaf`` metrics.
-#. Complexity metrics are measured using the ``rms_sobel`` (SI ITU-T P.910), ``rms_time_diff`` (TI ITU-T P.910), ``spatial_dct`` (`SC of EVCA <https://github.com/cd-athena/EVCA>`_), ``temporal_dct`` (`h of VCA <https://github.com/cd-athena/VCA>`_) and ``tc_dct`` (`TC of EVCA <https://github.com/cd-athena/EVCA>`_) metrics.
+#. Complexity metrics are measured using the ``rms_sobel`` (SI ITU-T P.910), ``rms_time_diff`` (TI ITU-T P.910), ``spatial_dct`` (`SC of EVCA <https://github.com/cd-athena/EVCA>`_), ``tc_dct`` (`TC of EVCA <https://github.com/cd-athena/EVCA>`_) and ``temporal_dct`` (`h of VCA <https://github.com/cd-athena/VCA>`_) metrics.
 #. Encoding efforts are ``fast``, ``medium`` and ``slow``.
 #. It handles color-related parameters, including color range, transfer characteristics, and color primaries (``range``, ``transfer`` and ``primaries``).
 #. Iterate over different ``effort``, ``encoder``, ``mode``, ``quality``, ``threads``, ``fps``, ``resolution`` and ``pix_fmt``.
