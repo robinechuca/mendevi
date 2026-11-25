@@ -27,6 +27,7 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
     for met in [
         "lpips_alex",
         "lpips_vgg",
+        "msssim",
         "psnr",
         "rms_sobel",
         "rms_time_diff",
@@ -54,7 +55,16 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
 )
 @click.option("--lpips-alex/--no-lpips-alex", default=False, help="Compute the LPIPS-ALEX or not.")
 @click.option("--lpips-vgg/--no-lpips-vgg", default=False, help="Compute the LPIPS-VGG or not.")
-@click.option("--psnr/--no-psnr", default=True, help="Compute the PSNR or not.")
+@click.option(
+    "--msssim/--no-msssim",
+    default=False,
+    help="Compute the Multi-Scaled SSIM (5 resize of factor 2^n, apply to classical ssim) or not.",
+)
+@click.option(
+    "--psnr/--no-psnr",
+    default=True,
+    help="Compute the 611 yuv PSNR or not.",
+)
 @click.option(
     "--rms-sobel/--no-rms-sobel",
     default=True,
@@ -70,7 +80,11 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
     default=True,
     help="Compute the dct based complexity matching E of VCA or SC of EVCA, or not.",
 )
-@click.option("--ssim/--no-ssim", default=True, help="Compute the SSIM or not.")
+@click.option(
+    "--ssim/--no-ssim",
+    default=True,
+    help="Compute the 611 yuv SSIM gauss win 11x11 sigma 1.5 or not.",
+)
 @click.option(
     "--tc-dct/--no-tc-dtc",
     default=True,
@@ -83,7 +97,11 @@ def _parse_args(prt: Printer, kwargs: dict) -> None:
 )
 @click.option("--uvq/--no-uvq", default=False, help="Compute the UVQ or not.")
 @click.option("--vif/--no-vif", default=False, help="Compute the VIF or not.")
-@click.option("--vmaf/--no-vmaf", default=False, help="Compute the VMAF or not.")
+@click.option(
+    "--vmaf/--no-vmaf",
+    default=False,
+    help="Compute the VMAF model vmaf_v1.0.16_3d0h on 1920 x 1080 screen or not.",
+)
 def main(videos: tuple[str], database: str | None = None, **kwargs: dict) -> None:
     """Measure the video properties and metrics.
 

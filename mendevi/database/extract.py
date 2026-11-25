@@ -545,6 +545,22 @@ def extract_mode(raw: dict[str]) -> str:
     return mode
 
 
+@verif
+@SqlLinker("t_met_metric.met_msssim")
+def extract_msssim(raw: dict[str]) -> float:
+    """Return the Multi Scaled Structural Similarity (MS-SSIM).
+
+    Parameters
+    ----------
+    raw : dict[str]
+        The result line of select request.
+
+    """
+    if (msssim := raw["met_msssim"]) is None:
+        return None
+    return float(np.nanmean(binary_to_list(msssim)))
+
+
 @SqlLinker("t_act_activity.act_rapl_dt", "t_act_activity.act_rapl_power")
 def extract_powers_rapl(raw: dict[str]) -> tuple:
     """Return the interval duration and the average RAPL power in each intervals.

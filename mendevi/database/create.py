@@ -92,6 +92,7 @@ def create_database(filename: str | bytes | pathlib.Path) -> None:
             /*  COMPARATIVE METRICS */
             met_lpips_alex LONGBLOB,
             met_lpips_vgg LONGBLOB,
+            met_msssim LONGBLOB,
             met_psnr LONGBLOB,
             met_ssim LONGBLOB,
             met_vif LONGBLOB,

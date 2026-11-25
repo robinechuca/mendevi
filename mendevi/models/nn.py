@@ -328,7 +328,7 @@ class QualityNN(DNN):
         )
         kwargs["output_labels"] = kwargs.get(
             "output_labels",
-            ["lpips", "psnr", "ssim", "vif", "vmaf", "log_size_per_frame"],
+            ["lpips", "msssim", "psnr", "ssim", "vif", "vmaf", "log_size_per_frame"],
         )
         kwargs["aggregation"] = kwargs.get("aggregation", [])
         super().__init__(title=title, **kwargs)

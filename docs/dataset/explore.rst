@@ -107,6 +107,8 @@ To see all available options, type
                   * lpips_alex: Learned Perceptual Image Patch Similarity (LPIPS) with alex.
                   * lpips_vgg: Learned Perceptual Image Patch Similarity (LPIPS) with vgg.
                   * mode: Bitrate mode, crf, cbr or qp.
+                  * msssim: Multi Scaled Structural Similarity (MS-SSIM).
+                  * msssim_comp: Complementary of Multi Scaled Structural Similarity (1-MSSSIM).
                   * name: Full video basename.
                   * nb_frames: The real number of frames of the video file.
                   * nb_pix: The number of pixels per frame.
@@ -145,9 +147,10 @@ To see all available options, type
                   * ssim: Structural Similarity (SSIM).
                   * ssim_comp: Complementary of Structural Similarity (1-SSIM).
                   * ssim_rev: Complementary of Structural Similarity (1-SSIM).
+                  * tc_dct: Temporal DCT complexity.
                   * temp: Average temperature in C.
                   * temperature: Average temperature in C.
-                  * temporal_dct: Temporal DCT complexity.
+                  * temporal_dct: Temporal DCT complexity (old).
                   * threads: Number of threads provided as a parameter to the encoder.
                   * trans: The non-linear transfer function name.
                   * transfer: The non-linear transfer function name.
@@ -212,6 +215,8 @@ To see all available options, type
                   * log_lpips_alex: Log 10 of learned perceptual image patch similarity (lpips) with alex.
                   * log_lpips_vgg: Log 10 of learned perceptual image patch similarity (lpips) with vgg.
                   * log_mode: Log 10 of bitrate mode, crf, cbr or qp.
+                  * log_msssim: Log 10 of multi scaled structural similarity (ms-ssim).
+                  * log_msssim_comp: Log 10 of complementary of multi scaled structural similarity (1-msssim).
                   * log_name: Log 10 of full video basename.
                   * log_nb_frames: Log 10 of the real number of frames of the video file.
                   * log_nb_pix: Log 10 of the number of pixels per frame.
@@ -250,9 +255,10 @@ To see all available options, type
                   * log_ssim: Log 10 of structural similarity (ssim).
                   * log_ssim_comp: Log 10 of complementary of structural similarity (1-ssim).
                   * log_ssim_rev: Log 10 of complementary of structural similarity (1-ssim).
+                  * log_tc_dct: Log 10 of temporal dct complexity.
                   * log_temp: Log 10 of average temperature in c.
                   * log_temperature: Log 10 of average temperature in c.
-                  * log_temporal_dct: Log 10 of temporal dct complexity.
+                  * log_temporal_dct: Log 10 of temporal dct complexity (old).
                   * log_threads: Log 10 of number of threads provided as a parameter to the encoder.
                   * log_trans: Log 10 of the non-linear transfer function name.
                   * log_transfer: Log 10 of the non-linear transfer function name.
@@ -317,7 +323,6 @@ To see all available options, type
           -s, --sub TEXT...     Pair of regex expression 'pattern' and 'repl' to
                                 substitute in generated code.
           --help                Show this message and exit.
-
 
 
 All datasets list

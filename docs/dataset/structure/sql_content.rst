@@ -480,6 +480,8 @@ Table t_met_metric
 +-----------------------+---------------+---------------------------------------+
 | :ref:`met_lpips_vgg`  | *LONGBLOB*    | values of LPIPS VGG metric            |
 +-----------------------+---------------+---------------------------------------+
+| :ref:`met_msssim`     | *LONGBLOB*    | values of MS-SSIM metric              |
++-----------------------+---------------+---------------------------------------+
 | :ref:`met_psnr`       | *LONGBLOB*    | values of PSNR metric                 |
 +-----------------------+---------------+---------------------------------------+
 | :ref:`met_ssim`       | *LONGBLOB*    | values of SSIM metric                 |
@@ -530,6 +532,18 @@ The serialised list of the LPIPS comparative metric using the VGG neural network
 Catched by ``cutcutcodec.video_metrics(dis, ref, lpips_vgg=True)["lpips_vgg"]``.
 To deserialize into an exploitable numpy array, please use the function :py:func:`mendevi.database.serialize.binary_to_list`.
 
+.. _met_msssim:
+
+met_msssim
+^^^^^^^^^^
+
+The serialised list of the 5 factors multiscaled structural similarity index measure comparative metric.
+It is the weighted sum of the classical :ref:`met_ssim` metric evaluated across five factors of varying scale in the video :math:`\text{msssim} = \sum\limits_{i=1}^{5} \gamma_i \text{ssim}(\text{rescale}(\text{video}, \text{factor}=2^{i-1}))`.
+Resampling is carried out by averaging 2x2 blocks of pixels.
+The factors :math:`\gamma_1=0.0448, \gamma_2=0.2856, \gamma_3=0.3001, \gamma_4=0.2363, \gamma_5=1333` are taken from the ``Multiscale Structural Similarity for Image Quality Assessment`` paper.
+Catched by ``cutcutcodec.video_metrics(dis, ref, msssim=True)["msssim"]``.
+To deserialize into an exploitable numpy array, please use the function :py:func:`mendevi.database.serialize.binary_to_list`.
+
 .. _met_psnr:
 
 met_psnr
@@ -544,7 +558,7 @@ To deserialize into an exploitable numpy array, please use the function :py:func
 met_ssim
 ^^^^^^^^
 
-The serialised list of the yuv (6, 1, 1) (gauss win 11x11) structural similarity index measure comparative metric.
+The serialised list of the yuv (6, 1, 1) (gauss win 11x11 sigma 1.5) structural similarity index measure comparative metric.
 Catched by ``cutcutcodec.video_metrics(dis, ref, ssim=True)["ssim"]``.
 To deserialize into an exploitable numpy array, please use the function :py:func:`mendevi.database.serialize.binary_to_list`.
 

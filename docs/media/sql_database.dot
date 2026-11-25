@@ -59,6 +59,7 @@ graph database {
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">met_dis_vid_id</TD><TD ALIGN="LEFT">BINARY(128)</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">met_lpips_alex</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">met_lpips_vgg</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
+        <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">met_msssim</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">met_psnr</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">met_ssim</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>
         <TR><TD ALIGN="LEFT" BGCOLOR="#29a2c6">met_vif</TD><TD ALIGN="LEFT">LONGBLOB</TD></TR>

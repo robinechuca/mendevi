@@ -70,6 +70,7 @@ def main(database: str, **kwargs: dict) -> None:
         "height",
         "lpips",
         "mode",
+        "msssim",
         "primaries",
         "profile",
         "psnr",
@@ -135,6 +136,7 @@ def main(database: str, **kwargs: dict) -> None:
                         t_env_environment.env_hostname,
                         t_met_metric.met_lpips_alex,
                         t_met_metric.met_lpips_vgg,
+                        t_met_metric.met_msssim,
                         t_met_metric.met_psnr,
                         t_met_metric.met_ssim,
                         t_met_metric.met_vmaf,
@@ -209,6 +211,7 @@ def main(database: str, **kwargs: dict) -> None:
                         t_env_environment.env_hostname,
                         t_met_metric.met_lpips_alex,
                         t_met_metric.met_lpips_vgg,
+                        t_met_metric.met_msssim,
                         t_met_metric.met_psnr,
                         t_met_metric.met_ssim,
                         t_met_metric.met_vmaf

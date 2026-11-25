@@ -258,7 +258,9 @@ To see all available options, type
         -r, --ref PATH                  The reference video for comparative metrics.
         --lpips-alex / --no-lpips-alex  Compute the LPIPS-ALEX or not.
         --lpips-vgg / --no-lpips-vgg    Compute the LPIPS-VGG or not.
-        --psnr / --no-psnr              Compute the PSNR or not.
+        --msssim / --no-msssim          Compute the Multi-Scaled SSIM (5 resize of
+                                        factor 2^n, apply to classical ssim) or not.
+        --psnr / --no-psnr              Compute the 611 yuv PSNR or not.
         --rms-sobel / --no-rms-sobel    Compute the spatial information (SI) ITU-T
                                         P.910 or not.
         --rms-time-diff / --no-rms-time-diff
@@ -267,7 +269,8 @@ To see all available options, type
         --spatial-dct / --no-spatial-dct
                                         Compute the dct based complexity matching E
                                         of VCA or SC of EVCA, or not.
-        --ssim / --no-ssim              Compute the SSIM or not.
+        --ssim / --no-ssim              Compute the 611 yuv SSIM gauss win 11x11
+                                        sigma 1.5 or not.
         --tc-dct / --no-tc-dtc          Compute the TC of EVCA temporal complexity,
                                         or not.
         --temporal-dct / --no-temporal-dct

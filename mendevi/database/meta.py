@@ -296,6 +296,16 @@ ALL_EXTRACTORS = {
         extract.extract_mode,
         Scale.DISCRETE,
     ),
+    "msssim": Extractor(
+        "Multi Scaled Structural Similarity (MS-SSIM)",
+        extract.extract_msssim,
+        Scale.LINEAR,
+    ),
+    "msssim_comp": Extractor(
+        "Complementary of Multi Scaled Structural Similarity (1-MSSSIM)",
+        "None if msssim is None else 1.0 - msssim",
+        Scale.LOGARITHMIC,
+    ),
     "nbr_frames": Extractor(
         "The real number of frames of the video file",
         "None if frames is None else len(frames)",
@@ -487,6 +497,7 @@ ALIAS = {
     "encoder_type": "encoder_family",
     "eotf": "transfer",
     "framerate": "fps",
+    "msssim_rev": "msssim_comp",
     "name": "video_name",
     "nb_frames": "nbr_frames",
     "nb_pix": "pixels",
@@ -502,6 +513,7 @@ ALIAS = {
     "ref_video_stem": "reference_video_stem",
     "reference_stem": "reference_video_stem",
     "reference_vid_stem": "reference_video_stem",
+    "rev_msssim": "msssim_comp",
     "rev_ssim": "ssim_comp",
     "size": "video_size",
     "ssim_rev": "ssim_comp",
