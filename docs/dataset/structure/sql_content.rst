@@ -563,9 +563,9 @@ met_vmaf
 ^^^^^^^^
 
 The serialised list of the comparative metric `Netflix Video Multi-Method Assessment Fusion <https://github.com/Netflix/vmaf>`_ metric.
-Catched by ``cutcutcodec.video_metrics(dis, ref, vmaf=True)["vmaf"]``. It use only the Y channel and it is based on the version ``0.6.1``.
+Catched by ``cutcutcodec.video_metrics(dis, ref, vmaf=True)["vmaf"]``.
+It is based on the model ``vmaf_v1.0.16_3d0h`` on a 1920 x 1080 screen. The model uses the tree Y, U and V channels.
 To deserialize into an exploitable numpy array, please use the function :py:func:`mendevi.database.serialize.binary_to_list`.
-
 
 .. _t_env_environment:
 
